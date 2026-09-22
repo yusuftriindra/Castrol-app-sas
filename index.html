@@ -1262,6 +1262,13 @@ html,body{height:100%;}
             }
         } else {
             bridgeQueue.push(item);
+            setTimeout(function () {
+                var idx = bridgeQueue.indexOf(item);
+                if (idx >= 0) {
+                    bridgeQueue.splice(idx, 1);
+                    item.fail(new Error('Bridge Google Apps Script tidak merespons. Pastikan URL /exec benar dan deployment sudah diperbarui.'));
+                }
+            }, 15000);
         }
     }
 
@@ -2219,6 +2226,9 @@ html,body{height:100%;}
                 } else {
                     showModal("Login Gagal", res.message);
                 }
+            }).withFailureHandler(function(err) {
+                showLoading(false);
+                showModal('Koneksi Gagal', (err && err.message) ? err.message : 'Tidak dapat terhubung ke Google Apps Script. Pastikan deployment Web App sudah diperbarui.');
             }).prosesLogin(currentUsernameInput, document.getElementById('loginPass').value);
         }
 
