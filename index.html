@@ -1198,8 +1198,23 @@ html,body{height:100%;}
     frame.style.cssText = 'position:fixed;width:1px;height:1px;left:-10000px;top:-10000px;border:0;opacity:0;pointer-events:none;';
 
     frame.addEventListener('load', function () {
-      // iframe loaded. We still wait for the explicit bridge-ready message.
-      statusText('Bridge dimuat, menunggu Apps Script...', 'wait');
+      /*
+       * Apps Script Web App Bridge sudah berhasil dimuat.
+       * Jangan bergantung hanya pada postMessage('castrol-gas-ready'),
+       * karena HTML Service Apps Script dapat berjalan di sandbox/redirect
+       * yang membuat event.source berbeda dari contentWindow iframe.
+       *
+       * Setelah iframe load, anggap transport Bridge siap dan kirim
+       * request yang sedang menunggu.
+       */
+      if (failed) return;
+
+      ready = true;
+      failed = false;
+      clearTimeout(readyTimer);
+
+      statusText('Google Apps Script terhubung', 'ok');
+      flush();
     });
 
     frame.addEventListener('error', function () {
@@ -1258,7 +1273,15 @@ html,body{height:100%;}
   }
 
   window.addEventListener('message', function (event) {
-    if (!frame || event.source !== frame.contentWindow) return;
+    /*
+     * Jangan mensyaratkan event.source === frame.contentWindow.
+     * Apps Script HTML Service dapat melewati sandbox/redirect sehingga
+     * source yang diterima browser tidak selalu identik dengan object
+     * contentWindow yang disimpan saat iframe dibuat.
+     *
+     * Validasi tetap dilakukan berdasarkan tipe pesan dan ID request.
+     */
+    if (!frame) return;
 
     const msg = event.data || {};
 
@@ -1355,6 +1378,7 @@ html,body{height:100%;}
     return {
       ready: ready,
       failed: failed,
+      frameLoaded: !!(frame && frame.contentWindow),
       url: CASTROL_APPS_SCRIPT_URL,
       bridgeUrl: BRIDGE_URL
     };
