@@ -1,4 +1,3 @@
-<!-- CASTROL_BUILD_2026-09-22-TAMBAH-CUSTOMER-OUTLET-V4-PAGED-BRIDGE -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -909,31 +908,6 @@ body{
 </style>
 
 
-<style id="tambah-customer-style">
-#tabTambahCustomer{width:100%;max-width:760px;margin:0 auto}
-#tabTambahCustomer input,#tabTambahCustomer select{min-height:44px}
-#tabTambahCustomer .select2-container{width:100%!important}
-#customerManageModal .select2-container{z-index:100001!important}
-#customerManageModal .select2-dropdown{z-index:100002!important}
-#customerManageModal .select2-container--open{z-index:100001!important}
-#customerManageModal .select2-selection{cursor:pointer!important}
-#tabTambahCustomer .select2-container .select2-selection--single{height:44px!important;border-radius:12px!important;border-color:#d7dee8!important;padding:7px 10px!important}
-#tabTambahCustomer .select2-container--default .select2-selection--single .select2-selection__rendered{line-height:27px!important;font-size:12px!important}
-#tabTambahCustomer .select2-container--default .select2-selection--single .select2-selection__arrow{height:42px!important}
-#customerMaps{cursor:pointer}
-#customerTableWrap{width:100%;overflow:auto;-webkit-overflow-scrolling:touch;border:1px solid #dfe8e2;border-radius:16px;background:#fff}
-#customerTable{width:100%;min-width:820px;border-collapse:separate;border-spacing:0;font-size:11px}
-#customerTable th{padding:10px 12px;text-align:left;background:#f3f8f4;color:#475569;border-bottom:1px solid #dfe8e2;white-space:nowrap;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
-#customerTable td{padding:10px 12px;border-bottom:1px solid #edf2ef;color:#334155;background:#fff;white-space:nowrap;cursor:pointer}
-#customerTable tbody tr:hover td{background:#f8fafc}
-#customerTable th:nth-child(2),#customerTable td:nth-child(2){background:#fff;min-width:220px}
-#customerTable th:nth-child(2){z-index:7;background:#f3f8f4}
-#customerTable tbody tr:hover td:nth-child(2){background:#f8fafc}
-.customer-table-empty{text-align:center!important;padding:32px 12px!important;color:#94a3b8!important;cursor:default!important}
-.customer-action-btn{border:1px solid #dfe8e2;border-radius:9px;padding:6px 9px;font-size:10px;font-weight:800;cursor:pointer;background:#fff}
-@media(max-width:767px){#tabTambahCustomer{max-width:none}#tabTambahCustomer form{padding:12px}#customerTable{min-width:760px}}
-</style>
-
 <style id="logout-modal-center-fix">
 /* =========================================================
    POPUP LOGOUT / MODAL - CENTER DI HP & DESKTOP
@@ -1015,7 +989,6 @@ html,body{height:100%;}
 }
 
 /* Wrapper tabel utama: scroll vertikal berada di tabel, bukan seluruh halaman */
-#customerTableWrap,
 #tabMonitoring .bg-white.border.rounded-xl.shadow-sm>div,
 #tabOutletKontrak .bg-white.border.rounded-xl.shadow-sm>div,
 #tabOutletBWS .bg-white.border.rounded-xl.shadow-sm>div,
@@ -1031,7 +1004,6 @@ html,body{height:100%;}
 }
 
 /* Header tabel selalu terlihat ketika isi tabel discroll */
-#customerTable thead th,
 #tabMonitoring table thead th,
 #tabOutletKontrak table thead th,
 #tabOutletBWS table thead th,
@@ -1051,7 +1023,6 @@ html,body{height:100%;}
 #tabOutletBWS table thead,
 #tabPricelist table thead,
 .riwayat-table thead,
-#customerTable thead,
 .modal-detail-table thead{
   position:sticky;
   top:0;
@@ -1071,25 +1042,21 @@ html,body{height:100%;}
 #tabOutletKontrak table th,#tabOutletKontrak table td,
 #tabOutletBWS table th,#tabOutletBWS table td,
 #tabPricelist table th,#tabPricelist table td,
-.riwayat-table th,.riwayat-table td,
-#customerTable th,#customerTable td{
+.riwayat-table th,.riwayat-table td{
   line-height:1.25;
 }
 
 /* Scrollbar tabel lebih tipis */
-#customerTableWrap::-webkit-scrollbar,
 #tabMonitoring .bg-white.border.rounded-xl.shadow-sm>div::-webkit-scrollbar,
 #tabOutletKontrak .bg-white.border.rounded-xl.shadow-sm>div::-webkit-scrollbar,
 #tabOutletBWS .bg-white.border.rounded-xl.shadow-sm>div::-webkit-scrollbar,
 #tabPricelist .bg-white.border.rounded-xl.shadow-sm>div::-webkit-scrollbar,
 .riwayat-table-wrap::-webkit-scrollbar{width:7px;height:7px}
-#customerTableWrap::-webkit-scrollbar-thumb,
 #tabMonitoring .bg-white.border.rounded-xl.shadow-sm>div::-webkit-scrollbar-thumb,
 #tabOutletKontrak .bg-white.border.rounded-xl.shadow-sm>div::-webkit-scrollbar-thumb,
 #tabOutletBWS .bg-white.border.rounded-xl.shadow-sm>div::-webkit-scrollbar-thumb,
 #tabPricelist .bg-white.border.rounded-xl.shadow-sm>div::-webkit-scrollbar-thumb,
 .riwayat-table-wrap::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:999px}
-#customerTableWrap::-webkit-scrollbar-track,
 #tabMonitoring .bg-white.border.rounded-xl.shadow-sm>div::-webkit-scrollbar-track,
 #tabOutletKontrak .bg-white.border.rounded-xl.shadow-sm>div::-webkit-scrollbar-track,
 #tabOutletBWS .bg-white.border.rounded-xl.shadow-sm>div::-webkit-scrollbar-track,
@@ -1116,16 +1083,14 @@ html,body{height:100%;}
     max-height:calc(100dvh - 58px);
   }
   :root{--table-top-gap:220px;}
-  #customerTableWrap,
-  #tabMonitoring .bg-white.border.rounded-xl.shadow-sm>div,
+    #tabMonitoring .bg-white.border.rounded-xl.shadow-sm>div,
   #tabOutletKontrak .bg-white.border.rounded-xl.shadow-sm>div,
   #tabOutletBWS .bg-white.border.rounded-xl.shadow-sm>div,
   #tabPricelist .bg-white.border.rounded-xl.shadow-sm>div,
   .riwayat-table-wrap{
     max-height:var(--table-max-height)!important;
   }
-  #customerTable thead th,
-  #tabMonitoring table thead th,
+    #tabMonitoring table thead th,
   #tabOutletKontrak table thead th,
   #tabOutletBWS table thead th,
   #tabPricelist table thead th,
@@ -1137,145 +1102,227 @@ html,body{height:100%;}
 }
 </style>
 
-</head>
-<body class="bg-slate-50 font-sans">
-<!-- CASTROL BACKEND TRANSPORT - SILENT HTTP POST -->
-<script>
-console.info('CASTROL BUILD 2026-09-22 TAMBAH CUSTOMER OUTLET V3');
+
+<style id="customer-modal-footer-fix">
+/* FIX: footer/modal action tetap terlihat untuk form Tambah Customer */
+.modern-modal-card{
+    display:flex !important;
+    flex-direction:column !important;
+    overflow:hidden !important;
+}
+.modern-modal-body{
+    flex:1 1 auto !important;
+    min-height:0 !important;
+    overflow-y:auto !important;
+    overflow-x:hidden !important;
+}
+.modern-modal-footer{
+    flex:0 0 auto !important;
+    position:relative !important;
+    z-index:5 !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:flex-end !important;
+    min-height:58px !important;
+}
+#modalOkBtn,#modalCancelBtn{
+    position:relative !important;
+    z-index:6 !important;
+}
+</style>
+
+<style id="tambah-customer-save-force-fix">
+/* TAMBAH CUSTOMER: pastikan area aksi selalu terlihat */
+#customModal .modern-modal-card{
+  display:flex !important;
+  flex-direction:column !important;
+  height:auto !important;
+  max-height:calc(100dvh - 32px) !important;
+  overflow:hidden !important;
+}
+#customModal .modern-modal-header{
+  flex:0 0 auto !important;
+}
+#customModal .modern-modal-body{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+}
+#customModal .modern-modal-footer{
+  flex:0 0 auto !important;
+  display:flex !important;
+  visibility:visible !important;
+  opacity:1 !important;
+  min-height:62px !important;
+  padding:10px 14px !important;
+  position:relative !important;
+  z-index:999 !important;
+  background:#f8fafc !important;
+  border-top:1px solid #e2e8f0 !important;
+}
+#customModal #modalCancelBtn,
+#customModal #modalOkBtn{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  visibility:visible !important;
+  opacity:1 !important;
+  position:relative !important;
+  z-index:1000 !important;
+}
+@media(max-width:767px){
+  #customModal .modern-modal-card{
+    max-height:calc(100dvh - 28px) !important;
+  }
+  #customModal .modern-modal-footer{
+    min-height:60px !important;
+    padding:9px 12px !important;
+  }
+}
+</style>
+
+<script id="castrol-github-bridge">
 (function () {
-  'use strict';
+    // Jika HTML ini dijalankan di GitHub Pages, ganti google.script.run
+    // dengan bridge POST -> Apps Script. Jika dijalankan langsung di Apps Script,
+    // API native google.script.run tetap dipakai.
+    var host = String(window.location.hostname || '').toLowerCase();
+    var isAppsScriptHost = host === 'script.google.com' || host === 'script.googleusercontent.com';
+    if (isAppsScriptHost) return;
 
-  const CASTROL_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx5dkNkseL2AXyP4T3vRATCQEnRC3Ft5ho29iUObmj-Y3H-vRunigrQheYt3jzoBq-p/exec';
-  const BRIDGE_URL = CASTROL_APPS_SCRIPT_URL + (CASTROL_APPS_SCRIPT_URL.indexOf('?') >= 0 ? '&' : '?') + 'bridge=1';
-  const REQUEST_TIMEOUT = 30000;
-  let seq = 0;
-  const pending = Object.create(null);
+    var CASTROL_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx5dkNkseL2AXyP4T3vRATCQEnRC3Ft5ho29iUObmj-Y3H-vRunigrQheYt3jzoBq-p/exec';
+    var BRIDGE_URL = CASTROL_APPS_SCRIPT_URL + (CASTROL_APPS_SCRIPT_URL.indexOf('?') >= 0 ? '&' : '?') + 'bridge=1';
+    var REQUEST_TIMEOUT = 30000;
+    var seq = 0;
+    var pending = Object.create(null);
 
-  function cleanup(p) {
-    if (!p) return;
-    if (p.timer) clearTimeout(p.timer);
-    if (p.frame && p.frame.parentNode) p.frame.parentNode.removeChild(p.frame);
-    if (p.form && p.form.parentNode) p.form.parentNode.removeChild(p.form);
-  }
-
-  function hiddenInput(name, value) {
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = name;
-    input.value = value == null ? '' : String(value);
-    return input;
-  }
-
-  window.addEventListener('message', function (event) {
-    const msg = event.data || {};
-    if (!msg || typeof msg !== 'object') return;
-    if (msg.type !== 'castrol-gas-response' || !msg.id) return;
-
-    const p = pending[msg.id];
-    if (!p) return;
-    delete pending[msg.id];
-    cleanup(p);
-
-    if (msg.ok) {
-      if (p.success) p.success(msg.data);
-    } else {
-      if (p.failure) p.failure(new Error(
-        msg.error && msg.error.message ? msg.error.message : 'Server gagal memproses permintaan.'
-      ));
+    function cleanup(p) {
+        if (!p) return;
+        if (p.timer) clearTimeout(p.timer);
+        if (p.frame && p.frame.parentNode) p.frame.parentNode.removeChild(p.frame);
+        if (p.form && p.form.parentNode) p.form.parentNode.removeChild(p.form);
     }
-  });
 
-  function call(method, args, success, failure) {
-    const id = 'gas_' + Date.now() + '_' + (++seq);
-
-    // Setiap request mendapat iframe + form sendiri.
-    // Ini penting karena beberapa request dapat berjalan bersamaan setelah login.
-    // Dengan iframe tunggal, submit berikutnya dapat menggantikan response request sebelumnya.
-    const frame = document.createElement('iframe');
-    const frameName = 'castrolReq_' + Date.now() + '_' + seq;
-    frame.name = frameName;
-    frame.setAttribute('aria-hidden', 'true');
-    frame.style.cssText = 'position:fixed;width:1px;height:1px;left:-10000px;top:-10000px;border:0;opacity:0;pointer-events:none;';
-    document.body.appendChild(frame);
-
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = BRIDGE_URL;
-    form.target = frameName;
-    form.style.display = 'none';
-    form.appendChild(hiddenInput('bridge', '1'));
-    form.appendChild(hiddenInput('id', id));
-    form.appendChild(hiddenInput('method', method));
-    form.appendChild(hiddenInput('args', JSON.stringify(Array.isArray(args) ? args : [])));
-    document.body.appendChild(form);
-
-    const p = pending[id] = {
-      frame: frame,
-      form: form,
-      success: typeof success === 'function' ? success : null,
-      failure: typeof failure === 'function' ? failure : null,
-      timer: null
-    };
-
-    p.timer = setTimeout(function () {
-      const current = pending[id];
-      if (!current) return;
-      delete pending[id];
-      cleanup(current);
-      if (current.failure) current.failure(new Error('Server tidak merespons permintaan ' + method + '.'));
-    }, REQUEST_TIMEOUT);
-
-    try {
-      form.submit();
-    } catch (err) {
-      delete pending[id];
-      cleanup(p);
-      if (p.failure) p.failure(err);
+    function hiddenInput(name, value) {
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = value == null ? '' : String(value);
+        return input;
     }
-  }
 
-  // Meniru perilaku google.script.run: setiap rantai pemanggilan memiliki
-  // callback sendiri. Jangan memakai satu object state global, karena beberapa
-  // request dapat berjalan bersamaan (terutama saat membuka tab Tambah Customer).
-  function runner(state) {
-    state = state || {success: null, failure: null, userObject: null};
-    return new Proxy({}, {
-      get: function (_target, prop) {
-        if (prop === 'withSuccessHandler') {
-          return function (fn) {
-            return runner({success: typeof fn === 'function' ? fn : null, failure: state.failure, userObject: state.userObject});
-          };
+    window.addEventListener('message', function (event) {
+        var msg = event.data || {};
+        if (!msg || typeof msg !== 'object') return;
+        if (msg.type !== 'castrol-gas-response' || !msg.id) return;
+        var p = pending[msg.id];
+        if (!p) return;
+        delete pending[msg.id];
+        cleanup(p);
+
+        if (msg.ok) {
+            if (p.success) p.success(msg.data, p.userObject);
+        } else {
+            if (p.failure) p.failure(new Error(
+                msg.error && msg.error.message ? msg.error.message : 'Server gagal memproses permintaan.'
+            ), p.userObject);
         }
-        if (prop === 'withFailureHandler') {
-          return function (fn) {
-            return runner({success: state.success, failure: typeof fn === 'function' ? fn : null, userObject: state.userObject});
-          };
-        }
-        if (prop === 'withUserObject') {
-          return function (obj) {
-            return runner({success: state.success, failure: state.failure, userObject: obj});
-          };
-        }
-        if (prop === 'then' || prop === 'catch' || prop === 'toString' || prop === Symbol.toPrimitive) return undefined;
-        return function () {
-          var args = Array.prototype.slice.call(arguments);
-          var success = state.success;
-          var failure = state.failure;
-          var userObject = state.userObject;
-          call(String(prop), args,
-            success ? function (data) { success(data, userObject); } : null,
-            failure ? function (err) { failure(err, userObject); } : null
-          );
-        };
-      }
     });
-  }
 
-  window.google = window.google || {};
-  window.google.script = window.google.script || {};
-  window.google.script.run = runner({success: null, failure: null, userObject: null});
+    function call(method, args, success, failure, userObject) {
+        var id = 'gas_' + Date.now() + '_' + (++seq);
+        var frame = document.createElement('iframe');
+        var frameName = 'castrolReq_' + Date.now() + '_' + seq;
+        frame.name = frameName;
+        frame.setAttribute('aria-hidden', 'true');
+        frame.style.cssText = 'position:fixed;width:1px;height:1px;left:-10000px;top:-10000px;border:0;opacity:0;pointer-events:none;';
+        document.body.appendChild(frame);
+
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = BRIDGE_URL;
+        form.target = frameName;
+        form.style.display = 'none';
+        form.appendChild(hiddenInput('bridge', '1'));
+        form.appendChild(hiddenInput('id', id));
+        form.appendChild(hiddenInput('method', method));
+        form.appendChild(hiddenInput('args', JSON.stringify(Array.isArray(args) ? args : [])));
+        document.body.appendChild(form);
+
+        var p = pending[id] = {
+            frame: frame,
+            form: form,
+            success: typeof success === 'function' ? success : null,
+            failure: typeof failure === 'function' ? failure : null,
+            userObject: userObject,
+            timer: null
+        };
+
+        p.timer = setTimeout(function () {
+            var current = pending[id];
+            if (!current) return;
+            delete pending[id];
+            cleanup(current);
+            if (current.failure) current.failure(new Error('Server tidak merespons permintaan ' + method + '.'));
+        }, REQUEST_TIMEOUT);
+
+        try {
+            form.submit();
+        } catch (err) {
+            delete pending[id];
+            cleanup(p);
+            if (p.failure) p.failure(err, p.userObject);
+        }
+    }
+
+    function runner(state) {
+        state = state || { success: null, failure: null, userObject: null };
+        return new Proxy({}, {
+            get: function (_target, prop) {
+                if (prop === 'withSuccessHandler') {
+                    return function (fn) {
+                        return runner({
+                            success: typeof fn === 'function' ? fn : null,
+                            failure: state.failure,
+                            userObject: state.userObject
+                        });
+                    };
+                }
+                if (prop === 'withFailureHandler') {
+                    return function (fn) {
+                        return runner({
+                            success: state.success,
+                            failure: typeof fn === 'function' ? fn : null,
+                            userObject: state.userObject
+                        });
+                    };
+                }
+                if (prop === 'withUserObject') {
+                    return function (obj) {
+                        return runner({
+                            success: state.success,
+                            failure: state.failure,
+                            userObject: obj
+                        });
+                    };
+                }
+                if (prop === 'then' || prop === 'catch' || prop === 'toString' || prop === Symbol.toPrimitive) return undefined;
+                return function () {
+                    var args = Array.prototype.slice.call(arguments);
+                    call(String(prop), args, state.success, state.failure, state.userObject);
+                };
+            }
+        });
+    }
+
+    window.google = window.google || {};
+    window.google.script = window.google.script || {};
+    window.google.script.run = runner({ success: null, failure: null, userObject: null });
 })();
 </script>
+</head>
+<body class="bg-slate-50 font-sans">
 
 <!-- Loading Spinner Top -->
 <div id="loadingOverlay" class="top-loading" style="display: none;">
@@ -1306,7 +1353,10 @@ console.info('CASTROL BUILD 2026-09-22 TAMBAH CUSTOMER OUTLET V3');
                     <div id="modalSubtitle" class="modern-modal-subtitle"></div>
                 </div>
             </div>
-            <div class="modern-modal-status">DETAIL</div>
+            <div class="flex items-center gap-2 ml-3 shrink-0">
+                <div class="modern-modal-status">DETAIL</div>
+                <button type="button" id="modalCloseXBtn" onclick="closeModal(false)" aria-label="Tutup" title="Tutup" class="w-8 h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center text-lg font-bold leading-none transition">&times;</button>
+            </div>
         </div>
 
         <div id="modalBody" class="modern-modal-body"></div>
@@ -1350,14 +1400,7 @@ console.info('CASTROL BUILD 2026-09-22 TAMBAH CUSTOMER OUTLET V3');
                     <span class="sidebar-icon">🛒</span>
                     <span class="sidebar-text">Input</span>
                 </button>
-
-                <button type="button" onclick="switchTab('tambahcustomer')" id="navTambahCustomer"
-                        class="sidebar-item" title="Tambah Customer" aria-label="Tambah Customer">
-                    <span class="sidebar-icon">👤</span>
-                    <span class="sidebar-text">Tambah Customer</span>
-                </button>
-
-            <button type="button" onclick="switchTab('riwayat')" id="navRiwayat"
+<button type="button" onclick="switchTab('riwayat')" id="navRiwayat"
                         class="sidebar-item" title="Riwayat Transaksi" aria-label="Riwayat Transaksi">
                     <span class="sidebar-icon">📊</span>
                     <span class="sidebar-text">Riwayat</span>
@@ -1392,6 +1435,11 @@ console.info('CASTROL BUILD 2026-09-22 TAMBAH CUSTOMER OUTLET V3');
                         class="sidebar-item" title="Pricelist" aria-label="Pricelist">
                     <span class="sidebar-icon">💰</span>
                     <span class="sidebar-text">Pricelist</span>
+                </button>
+                <button type="button" onclick="switchTab('tambahcustomer')" id="navTambahCustomer"
+                        class="sidebar-item" title="Tambah Customer" aria-label="Tambah Customer">
+                    <span class="sidebar-icon">👤</span>
+                    <span class="sidebar-text">Tambah Customer</span>
                 </button>
                 <button type="button" onclick="switchTab('pesananoutlet')" id="navPesananOutlet"
                         class="sidebar-item" title="Pesanan Outlet" aria-label="Pesanan Outlet">
@@ -1573,72 +1621,6 @@ console.info('CASTROL BUILD 2026-09-22 TAMBAH CUSTOMER OUTLET V3');
                     </div>
                 </div>
 
-                <!-- TAMBAH CUSTOMER -->
-                <div id="tabTambahCustomer" class="tab-content hidden space-y-4">
-                    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-                        <div class="px-4 pt-4 pb-3 border-b border-slate-100">
-                            <div class="flex flex-wrap items-center justify-between gap-3">
-                                <div>
-                                    <div class="text-[9px] font-extrabold uppercase tracking-[0.18em] text-emerald-600">CUSTOMER MASTER</div>
-                                    <h2 class="text-lg font-extrabold text-slate-800 mt-0.5">Data Customer</h2>
-                                    <p class="text-[10px] text-slate-400 mt-1"></p>
-                                </div>
-                                <button type="button" onclick="openTambahCustomerForm()" class="rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2.5 text-xs font-extrabold shadow-sm transition">+ Tambah Customer Baru</button>
-                            </div>
-                        </div>
-                        <div class="p-3 sm:p-4">
-                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
-                                <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Daftar Customer</div>
-                                <div class="flex items-center gap-2">
-                                    <div class="relative flex-1 sm:w-64">
-                                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none">⌕</span>
-                                        <input type="text" id="customerTableSearch" oninput="filterTambahCustomerTable()" autocomplete="off" placeholder="Cari customer..." class="w-full border border-slate-200 rounded-xl pl-8 pr-3 py-2 text-[10px] bg-white outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100">
-                                    </div>
-                                    <span id="customerTableCount" class="text-[9px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-full whitespace-nowrap">0 customer</span>
-                                    <button type="button" onclick="loadTambahCustomerTable(true)" id="btnRefreshCustomer" class="rounded-xl border border-emerald-200 bg-white hover:bg-emerald-50 text-emerald-700 px-3 py-2 text-[10px] font-extrabold whitespace-nowrap">↻ Refresh</button>
-                                </div>
-                            </div>
-                            <div id="customerTableWrap">
-                                <table id="customerTable">
-                                    <thead><tr><th>DAY VISIT</th><th>OUTLET</th><th>CUST.CODE</th><th>DSR</th><th>CHANNEL</th></tr></thead>
-                                    <tbody id="customerTableBody"><tr><td colspan="5" class="customer-table-empty">Memuat data customer...</td></tr></tbody>
-                                </table>
-                            </div>
-                            <div class="mt-2 text-[9px] text-slate-400">Klik baris untuk melihat detail.</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- MODAL TAMBAH / DETAIL / EDIT CUSTOMER -->
-                <div id="customerManageModal" class="modern-modal-overlay" aria-hidden="true">
-                    <div class="modern-modal-card" style="max-width:620px!important;">
-                        <div class="modern-modal-header">
-                            <div class="modern-modal-title-wrap">
-                                <div class="modern-modal-icon">👤</div>
-                                <div><div id="customerModalTitle" class="modern-modal-title">Detail Customer</div><div id="customerModalSubtitle" class="modern-modal-subtitle">-</div></div>
-                            </div>
-                            <button type="button" onclick="closeCustomerManageModal()" class="modern-modal-cancel" style="display:inline-block!important;min-width:34px;padding:7px 10px;">✕</button>
-                        </div>
-                        <div class="modern-modal-body">
-                            <form id="formTambahCustomer" onsubmit="submitTambahCustomer(event)" class="space-y-3">
-                                <input type="hidden" id="customerEditRow">
-                                <div><label class="block text-[10px] font-bold text-slate-600 mb-1">Day Visit <span class="text-red-500">*</span></label><select id="customerDayVisit" required class="w-full border border-slate-200 rounded-xl px-3 py-2.5 bg-white text-xs searchable-select"><option value="">-- Pilih Day Visit --</option></select></div>
-                                <div><label class="block text-[10px] font-bold text-slate-600 mb-1">Outlet <span class="text-red-500">*</span></label><input type="text" id="customerOutlet" required autocomplete="off" oninput="this.value=this.value.toUpperCase()" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 bg-white text-xs uppercase" placeholder="NAMA OUTLET"></div>
-                                <div><label class="block text-[10px] font-bold text-slate-600 mb-1">CUST.CODE</label><input type="text" id="customerCustCode" readonly class="w-full border border-slate-200 rounded-xl px-3 py-2.5 bg-slate-50 text-xs font-bold text-emerald-700" placeholder="Otomatis saat disimpan"></div>
-                                <div><label class="block text-[10px] font-bold text-slate-600 mb-1">DSR <span class="text-red-500">*</span></label><select id="customerDsr" required class="w-full border border-slate-200 rounded-xl px-3 py-2.5 bg-white text-xs searchable-select"><option value="">-- Pilih DSR --</option></select></div>
-                                <div><label class="block text-[10px] font-bold text-slate-600 mb-1">Channel <span class="text-red-500">*</span></label><select id="customerChannel" required class="w-full border border-slate-200 rounded-xl px-3 py-2.5 bg-white text-xs searchable-select"><option value="">-- Pilih Channel --</option></select></div>
-                                <div><label class="block text-[10px] font-bold text-slate-600 mb-1">Tanggal</label><input type="date" id="customerDate" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 bg-white text-xs text-slate-600"></div>
-                                
-                                <div><label class="block text-[10px] font-bold text-slate-600 mb-1">Phone</label><div class="flex gap-2"><input type="tel" id="customerPhone" inputmode="tel" autocomplete="tel" class="flex-1 min-w-0 border border-slate-200 rounded-xl px-3 py-2.5 bg-white text-xs" placeholder="08xxxxxxxxxx"><button type="button" onclick="ambilKontakCustomer()" class="shrink-0 rounded-xl bg-slate-800 hover:bg-slate-900 text-white px-3 text-xs font-bold">📱 Kontak</button></div></div>
-                                <div class="flex flex-wrap justify-end gap-2 pt-2">
-                                    <button type="button" id="btnDeleteCustomer" onclick="deleteCustomerFromModal()" class="hidden rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 text-red-700 py-2.5 px-4 font-extrabold text-xs">Hapus</button>
-                                    <button type="button" onclick="closeCustomerManageModal()" class="rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 py-2.5 px-4 font-bold text-xs">Batal</button>
-                                    <button type="submit" id="btnSimpanCustomer" class="rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white py-2.5 px-4 font-extrabold text-xs shadow-sm transition">+ Simpan Customer</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
 
                 <!-- RIWAYAT -->
                 <div id="tabRiwayat" class="tab-content hidden space-y-3">
@@ -1867,6 +1849,41 @@ console.info('CASTROL BUILD 2026-09-22 TAMBAH CUSTOMER OUTLET V3');
                     <p class="text-[10px] text-slate-400 text-center">Klik baris untuk melihat detail lengkap. Gunakan tombol Edit/Hapus untuk mengelola data.</p>
                 </div>
 
+                <!-- TAMBAH CUSTOMER -->
+                <div id="tabTambahCustomer" class="tab-content hidden space-y-3">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-200 pb-2">
+                        <div>
+                            <h2 class="text-base font-bold text-slate-800">Tambah Customer</h2>
+                            <p class="text-[10px] text-slate-400 mt-0.5">Kelola data customer pada sheet OUTLET. Kolom mengikuti header sheet secara otomatis.</p>
+                        </div>
+                        <button type="button" onclick="openTambahCustomerForm()" class="px-3 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-[10px] font-bold shadow-sm transition">＋ Tambah Customer</button>
+                    </div>
+
+                    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-3">
+                        <div class="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">
+                            <div class="relative flex-1">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">⌕</span>
+                                <input type="text" id="searchTambahCustomer" oninput="filterTambahCustomer()" placeholder="Cari customer, outlet, sales, kode..."
+                                       class="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm transition">
+                            </div>
+                            <button type="button" onclick="loadTambahCustomer(true)" class="px-3 py-2.5 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-[10px] font-bold">↻ Refresh</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto" style="-webkit-overflow-scrolling:touch;">
+                            <table id="tableTambahCustomer" class="w-full text-left border-collapse text-[10px]" style="min-width:720px;" data-customer-table-version="2">
+                                <thead id="tambahCustomerHead"></thead>
+                                <tbody id="tambahCustomerBody">
+                                    <tr><td class="text-slate-400 text-center py-8">Klik menu Tambah Customer untuk memuat data.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <p id="tambahCustomerCount" class="text-[10px] text-slate-400 text-center">0 customer</p>
+                    <p class="text-[9px] text-slate-400 text-center">Klik salah satu baris untuk melihat detail, Edit, atau Hapus customer.</p>
+                </div>
+
                 <!-- PESANAN OUTLET -->
                 <div id="tabPesananOutlet" class="tab-content hidden space-y-3">
                     <div class="flex justify-between items-center border-b border-slate-200 pb-2 gap-2">
@@ -1956,7 +1973,16 @@ console.info('CASTROL BUILD 2026-09-22 TAMBAH CUSTOMER OUTLET V3');
             document.getElementById('customModal').style.display = 'flex';
             
             let cancelBtn = document.getElementById('modalCancelBtn');
+            let okBtn = document.getElementById('modalOkBtn');
             cancelBtn.style.display = isConfirm ? 'inline-block' : 'none';
+
+            // Reset handler setiap kali modal biasa dibuka.
+            // Ini mencegah handler khusus form (mis. saveTambahCustomerForm)
+            // tertinggal dan terpanggil lagi saat user menekan OK pada modal
+            // sukses/informasi.
+            cancelBtn.onclick = function() { closeModal(false); };
+            okBtn.onclick = function() { closeModal(true); };
+            okBtn.textContent = 'OK';
             modalCallback = callback;
         }
 
@@ -2084,9 +2110,7 @@ console.info('CASTROL BUILD 2026-09-22 TAMBAH CUSTOMER OUTLET V3');
             if (restored && String(currentUsernameInput || '').toLowerCase() !== 'admin') {
                 loadInputMasterData();
             }
-            setTanggalTambahCustomer();
-            previewCustCode();
-            startAutoRefresh();
+startAutoRefresh();
         };
 
         let inputMasterLoading = false;
@@ -2135,8 +2159,6 @@ console.info('CASTROL BUILD 2026-09-22 TAMBAH CUSTOMER OUTLET V3');
                     select.append(new Option(s, s));
                 });
                 refreshSelect2('#inputOutlet');
-            }).withFailureHandler(function(err) {
-                console.warn('Gagal memuat daftar sales:', err);
             }).getListSalesOptions();
         }
 
@@ -2179,9 +2201,6 @@ console.info('CASTROL BUILD 2026-09-22 TAMBAH CUSTOMER OUTLET V3');
                 } else {
                     showModal("Login Gagal", res.message);
                 }
-            }).withFailureHandler(function(err) {
-                showLoading(false);
-                showModal('Koneksi Gagal', err && err.message ? err.message : 'Tidak dapat terhubung ke server.');
             }).prosesLogin(currentUsernameInput, document.getElementById('loginPass').value);
         }
 
@@ -4629,12 +4648,12 @@ console.info('CASTROL BUILD 2026-09-22 TAMBAH CUSTOMER OUTLET V3');
             if (modal && modal.style.display === 'flex') return;
 
             const activeTabs = [
-                'tabTambahCustomer',
                 'tabRiwayat',
                 'tabPencapaian',
                 'tabMonitoring',
                 'tabOutletKontrak',
                 'tabOutletBWS',
+                'tabTambahCustomer',
                 'tabPricelist',
                 'tabPesananOutlet'
             ];
@@ -4646,9 +4665,7 @@ console.info('CASTROL BUILD 2026-09-22 TAMBAH CUSTOMER OUTLET V3');
 
             // TAB INPUT sengaja tidak dimasukkan ke daftar di atas.
             // Semua tab lainnya diperbarui secara silent: halaman tidak reload, kontrol/filter dipertahankan, dan tidak menampilkan loading ulang.
-            if (activeTab === 'tabTambahCustomer') {
-                loadTambahCustomerTable(true, true);
-            } else if (activeTab === 'tabRiwayat') {
+            if (activeTab === 'tabRiwayat') {
                 loadRiwayat(true, true);
             } else if (activeTab === 'tabPencapaian') {
                 loadPencapaianSales(true, true);
@@ -4658,6 +4675,8 @@ console.info('CASTROL BUILD 2026-09-22 TAMBAH CUSTOMER OUTLET V3');
                 loadOutletKontrak(true, true);
             } else if (activeTab === 'tabOutletBWS') {
                 loadOutletBWSAdmin(true, true);
+            } else if (activeTab === 'tabTambahCustomer') {
+                loadTambahCustomer(true, true);
             } else if (activeTab === 'tabPricelist') {
                 loadPricelist(true, true);
             } else if (activeTab === 'tabPesananOutlet') {
@@ -4674,8 +4693,8 @@ console.info('CASTROL BUILD 2026-09-22 TAMBAH CUSTOMER OUTLET V3');
         function switchTab(tab) {
             const isAdminLogin = String(currentUsernameInput || '').trim().toLowerCase() === 'admin';
             if (isAdminLogin && tab === 'input') { applyRoleVisibility(); return; }
-            const tabMap = {input:'tabInput',tambahcustomer:'tabTambahCustomer',riwayat:'tabRiwayat',pencapaian:'tabPencapaian',monitoring:'tabMonitoring',outletkontrak:'tabOutletKontrak',outletbws:'tabOutletBWS',pricelist:'tabPricelist',pesananoutlet:'tabPesananOutlet'};
-            const navMap = {input:'navInput',tambahcustomer:'navTambahCustomer',riwayat:'navRiwayat',pencapaian:'navPencapaian',monitoring:'navMonitoring',outletkontrak:'navOutletKontrak',outletbws:'navOutletBWS',pricelist:'navPricelist',pesananoutlet:'navPesananOutlet'};
+            const tabMap = {input:'tabInput',riwayat:'tabRiwayat',pencapaian:'tabPencapaian',monitoring:'tabMonitoring',outletkontrak:'tabOutletKontrak',outletbws:'tabOutletBWS',tambahcustomer:'tabTambahCustomer',pricelist:'tabPricelist',pesananoutlet:'tabPesananOutlet'};
+            const navMap = {input:'navInput',riwayat:'navRiwayat',pencapaian:'navPencapaian',monitoring:'navMonitoring',outletkontrak:'navOutletKontrak',outletbws:'navOutletBWS',tambahcustomer:'navTambahCustomer',pricelist:'navPricelist',pesananoutlet:'navPesananOutlet'};
             Object.keys(tabMap).forEach(function(key){
                 const el=document.getElementById(tabMap[key]);
                 if(!el) return;
@@ -4697,12 +4716,12 @@ console.info('CASTROL BUILD 2026-09-22 TAMBAH CUSTOMER OUTLET V3');
                 }
             });
             setSidebarState(true);
-            if(tab==='tambahcustomer'){loadTambahCustomerMaster();setTanggalTambahCustomer();loadTambahCustomerTable(false);}
-            if(tab==='riwayat')loadRiwayat();
+if(tab==='riwayat')loadRiwayat();
             if(tab==='pencapaian')loadPencapaianSales();
             if(tab==='monitoring')loadMonitoring();
             if(tab==='outletkontrak')loadOutletKontrak();
             if(tab==='outletbws')loadOutletBWSAdmin(false);
+            if(tab==='tambahcustomer')loadTambahCustomer(false);
             if(tab==='pricelist')loadPricelist(false);
             if(tab==='pesananoutlet')loadPesananOutlet(false);
         }
@@ -4825,334 +4844,574 @@ console.info('CASTROL BUILD 2026-09-22 TAMBAH CUSTOMER OUTLET V3');
             });
         }
 
-        /* =========================================================
-           TAMBAH CUSTOMER - TABLE / CRUD
-           ========================================================= */
-        let tambahCustomerMasterLoaded = false;
-        let tambahCustomerMasterLoading = false;
-        let tambahCustomerTableLoading = false;
-        let tambahCustomerTableData = [];
-        let tambahCustomerTableFilteredData = [];
+    
 
-        function loadTambahCustomerMaster(callback, silentRefresh){
-            callback=typeof callback==='function'?callback:function(){};
-            if(tambahCustomerMasterLoaded){callback();return;}
-            if(tambahCustomerMasterLoading){
-                const waitStart=Date.now();
-                const wait=function(){
-                    if(tambahCustomerMasterLoaded){callback();return;}
-                    if(!tambahCustomerMasterLoading||Date.now()-waitStart>10000){callback();return;}
-                    setTimeout(wait,50);
-                };
-                wait();
+        /* ================= TAMBAH CUSTOMER - CRUD OUTLET ================= */
+        let globalTambahCustomerData = { headers: [], rows: [] };
+        let globalTambahCustomerFormMaster = { headers: [], dayVisits: [], channels: [], today: '', salesName: '', isAdmin: false, newCustCode: '' };
+        let tambahCustomerLoading = false;
+        let tambahCustomerLoaded = false;
+        let tambahCustomerFormMasterLoading = false;
+        let tambahCustomerEditingRow = 0;
+        let tambahCustomerEditingValues = [];
+
+        function _customerHeaderNormClient(v) {
+            return String(v == null ? '' : v).trim().toUpperCase().replace(/[.\/_-]+/g, ' ').replace(/\s+/g, ' ').trim();
+        }
+
+        function _customerDateHeaderClient(v) {
+            const h = _customerHeaderNormClient(v);
+            return h.indexOf('DATE') !== -1 || h.indexOf('TANGGAL') !== -1 || h.indexOf('START') !== -1 || h.indexOf('END') !== -1;
+        }
+
+        function _customerSalesHeaderClient(v) {
+            const h = _customerHeaderNormClient(v);
+            return h === 'SALES' || h === 'DSR' || h === 'NAMA SALES';
+        }
+
+        function _customerFieldIndexClient(headers, aliases) {
+            const normalized = (headers || []).map(_customerHeaderNormClient);
+            for (let i = 0; i < aliases.length; i++) {
+                const key = _customerHeaderNormClient(aliases[i]);
+                const idx = normalized.indexOf(key);
+                if (idx !== -1) return idx;
+            }
+            return -1;
+        }
+
+        function _customerEscape(v) {
+            return escapeHtml(v == null ? '' : String(v));
+        }
+
+        function _customerEnsureOption(list, current) {
+            const arr = Array.isArray(list) ? list.slice() : [];
+            const value = String(current == null ? '' : current).trim();
+            if (value && !arr.some(function(x) { return String(x).trim().toUpperCase() === value.toUpperCase(); })) arr.unshift(value);
+            return arr;
+        }
+
+        function loadTambahCustomerFormMaster(callback) {
+            callback = typeof callback === 'function' ? callback : function(){};
+            if (tambahCustomerFormMasterLoading) {
+                setTimeout(function() { loadTambahCustomerFormMaster(callback); }, 120);
                 return;
             }
-            tambahCustomerMasterLoading=true;
-            google.script.run.withSuccessHandler(function(res){
-                tambahCustomerMasterLoading=false;
-                if(!res||!res.success){showModal('Gagal',res&&res.message?res.message:'Master customer gagal dimuat.');callback();return;}
-                const day=document.getElementById('customerDayVisit');
-                if(day){day.innerHTML='<option value="">-- Pilih Day Visit --</option>';(res.dayVisit||[]).forEach(function(x){day.appendChild(new Option(x,x));});}
-                const dsr=document.getElementById('customerDsr');
-                if(dsr){dsr.innerHTML='<option value="">-- Pilih DSR --</option>';(res.dsr||[]).forEach(function(x){dsr.appendChild(new Option(x,x));});}
-                const ch=document.getElementById('customerChannel');
-                if(ch){ch.innerHTML='<option value="">-- Pilih Channel --</option>';(res.channel||[]).forEach(function(x){ch.appendChild(new Option(x,x));});}
-                try{
-                    ['#customerDayVisit','#customerDsr','#customerChannel'].forEach(function(sel){
-                        const el=document.querySelector(sel);
-                        if(el && window.jQuery && $.fn && $.fn.select2){
-                            if($(el).hasClass('select2-hidden-accessible')) $(el).select2('destroy');
-                            $(el).select2({width:'100%', dropdownParent: $('#customerManageModal'), dropdownPosition: 'below'});
-                        }
-                    });
-                }catch(e){console.warn('Select2 customer:',e);}
-                tambahCustomerMasterLoaded=true;
+            if (globalTambahCustomerFormMaster.headers.length &&
+                String(globalTambahCustomerFormMaster.salesName || '').trim().toUpperCase() === String(currentUser || '').trim().toUpperCase()) {
                 callback();
-            }).withFailureHandler(function(err){
-                tambahCustomerMasterLoading=false;
-                showModal('Gagal','Gagal memuat master customer: '+(err&&err.message?err.message:err));
+                return;
+            }
+            tambahCustomerFormMasterLoading = true;
+            google.script.run.withSuccessHandler(function(res) {
+                tambahCustomerFormMasterLoading = false;
+                if (!res || !res.success) {
+                    showModal('Gagal', res && res.message ? res.message : 'Master form customer gagal dimuat.');
+                    return;
+                }
+                globalTambahCustomerFormMaster = {
+                    headers: Array.isArray(res.headers) ? res.headers : [],
+                    dayVisits: Array.isArray(res.dayVisits) ? res.dayVisits : [],
+                    channels: Array.isArray(res.channels) ? res.channels : [],
+                    today: String(res.today || ''),
+                    salesName: String(res.salesName || ''),
+                    isAdmin: !!res.isAdmin,
+                    newCustCode: String(res.newCustCode || '')
+                };
                 callback();
-            }).getTambahCustomerMasterData();
+            }).withFailureHandler(function(err) {
+                tambahCustomerFormMasterLoading = false;
+                showModal('Error Sistem', err && err.message ? err.message : 'Master form customer gagal dimuat.');
+            }).getOutletCustomerFormMaster(currentUsernameInput, currentUser);
         }
 
-        function loadTambahCustomerTable(force, silentRefresh){
-            if(tambahCustomerTableLoading)return;
-            tambahCustomerTableLoading=true;
-
-            const body=document.getElementById('customerTableBody');
-            if(body&&!tambahCustomerTableData.length&&!silentRefresh){
-                body.innerHTML='<tr><td colspan="5" class="customer-table-empty">Memuat data customer...</td></tr>';
+        function loadTambahCustomer(forceReload, silentRefresh) {
+            if (tambahCustomerLoading) return;
+            if (!forceReload && tambahCustomerLoaded) {
+                filterTambahCustomer();
+                loadTambahCustomerFormMaster();
+                return;
             }
+            tambahCustomerLoading = true;
+            const body = document.getElementById('tambahCustomerBody');
+            if (body && !silentRefresh) body.innerHTML = '<tr><td colspan="30" class="text-slate-400 text-center py-8">Memuat data customer...</td></tr>';
 
-            const btn=document.getElementById('btnRefreshCustomer');
-            if(btn)btn.disabled=true;
-
-            // PERBAIKAN: jangan kirim 1.310 baris (~238 KB) dalam satu response Bridge.
-            // Ambil maksimal 300 baris fisik per request. Hasil tiap request kecil,
-            // sehingga iframe Bridge tidak perlu memproses payload ratusan KB.
-            const PAGE_SIZE=300;
-            const allRows=[];
-
-            function finish(){
-                tambahCustomerTableLoading=false;
-                if(btn)btn.disabled=false;
-                tambahCustomerTableData=allRows;
-                // Pertahankan pencarian yang sedang aktif saat auto refresh.
-                filterTambahCustomerTable();
-            }
-
-            function fail(err){
-                tambahCustomerTableLoading=false;
-                if(btn)btn.disabled=false;
-                if(body)body.innerHTML='<tr><td colspan="5" class="customer-table-empty">Gagal memuat data customer.</td></tr>';
-                showModal(
-                    'Gagal',
-                    'Gagal memuat data customer: '+
-                    (err&&err.message?err.message:err)
-                );
-            }
-
-            function loadPage(offset){
-                google.script.run
-                    .withSuccessHandler(function(res){
-                        if(!res || res.success===false){
-                            fail(new Error(
-                                res&&res.message
-                                    ? res.message
-                                    : 'Respons data customer tidak valid.'
-                            ));
-                            return;
-                        }
-
-                        if(Array.isArray(res.rows)){
-                            for(var i=0;i<res.rows.length;i++){
-                                allRows.push(res.rows[i]);
-                            }
-                        }
-
-                        if(res.done){
-                            finish();
-                        }else{
-                            loadPage(Number(res.nextOffset||0));
-                        }
-                    })
-                    .withFailureHandler(fail)
-                    .getTambahCustomerTableDataPage(
-                        currentUser,
-                        currentUsernameInput,
-                        offset,
-                        PAGE_SIZE
-                    );
-            }
-
-            loadPage(0);
+            google.script.run.withSuccessHandler(function(res) {
+                tambahCustomerLoading = false;
+                if (!res || !res.success) {
+                    if (body) body.innerHTML = '<tr><td colspan="30" class="text-red-500 text-center py-8">' + _customerEscape(res && res.message ? res.message : 'Gagal memuat data customer.') + '</td></tr>';
+                    return;
+                }
+                globalTambahCustomerData = {
+                    headers: Array.isArray(res.headers) ? res.headers : [],
+                    rows: Array.isArray(res.rows) ? res.rows : []
+                };
+                tambahCustomerLoaded = true;
+                renderTambahCustomerTable(globalTambahCustomerData.rows);
+                globalTambahCustomerFormMaster.headers = globalTambahCustomerData.headers.slice();
+                loadTambahCustomerFormMaster();
+            }).withFailureHandler(function(err) {
+                tambahCustomerLoading = false;
+                if (body) body.innerHTML = '<tr><td colspan="30" class="text-red-500 text-center py-8">Gagal memuat data customer: ' + _customerEscape(err && err.message ? err.message : 'Terjadi kesalahan.') + '</td></tr>';
+            }).getOutletCustomerData(currentUsernameInput, currentUser);
         }
 
-        function filterTambahCustomerTable(){
-            const search=document.getElementById('customerTableSearch');
-            const keyword=String(search&&search.value||'').trim().toUpperCase();
-            if(!keyword){
-                tambahCustomerTableFilteredData=tambahCustomerTableData.slice();
-            }else{
-                tambahCustomerTableFilteredData=tambahCustomerTableData.filter(function(r){
-                    return [r.dayVisit,r.outlet,r.custCode,r.dsr,r.channel]
-                        .map(function(v){return String(v==null?'':v).toUpperCase();})
-                        .some(function(v){return v.indexOf(keyword)!==-1;});
-                });
-            }
-            renderTambahCustomerTable();
-        }
+        // TABEL TAMBAH CUSTOMER: HANYA 4 KOLOM YANG DITAMPILKAN.
+        // Klik baris membuka detail lengkap; aksi Edit/Hapus tersedia di detail.
+        function renderTambahCustomerTable(rows) {
+            const headers = globalTambahCustomerData.headers || [];
+            const head = document.getElementById('tambahCustomerHead');
+            const body = document.getElementById('tambahCustomerBody');
+            const count = document.getElementById('tambahCustomerCount');
+            if (!head || !body) return;
 
-        function renderTambahCustomerTable(){
-            const body=document.getElementById('customerTableBody');
-            const count=document.getElementById('customerTableCount');
-            const rows=tambahCustomerTableFilteredData.length||String(document.getElementById('customerTableSearch')&&document.getElementById('customerTableSearch').value||'').trim()?tambahCustomerTableFilteredData:tambahCustomerTableData;
-            if(count){
-                const total=tambahCustomerTableData.length;
-                const shown=rows.length;
-                count.textContent=(shown===total?total:shown+' / '+total)+' customer';
+            const idxOutlet = _customerFieldIndexClient(headers, ['OUTLET', 'NAMA OUTLET']);
+            const idxDsr = _customerFieldIndexClient(headers, ['DSR', 'SALES', 'NAMA SALES']);
+            const idxDayVisit = _customerFieldIndexClient(headers, ['DAY VISIT']);
+            const idxChannel = _customerFieldIndexClient(headers, ['CHANNEL', 'CHANNEL OUTLET']);
+
+            const displayCols = [
+                { label: 'OUTLET', idx: idxOutlet },
+                { label: 'DSR', idx: idxDsr },
+                { label: 'DAY VISIT', idx: idxDayVisit },
+                { label: 'CHANNEL', idx: idxChannel }
+            ];
+
+            head.innerHTML = '<tr class="bg-slate-100 text-slate-700 border-b border-slate-200">' +
+                displayCols.map(function(c) {
+                    return '<th class="p-2.5 font-bold whitespace-nowrap">' + _customerEscape(c.label) + '</th>';
+                }).join('') +
+                '</tr>';
+
+            if (!rows.length) {
+                body.innerHTML = '<tr><td colspan="4" class="text-slate-400 text-center py-10">Belum ada data customer.</td></tr>';
+                if (count) count.textContent = '0 customer';
+                return;
             }
-            if(!body)return;
-            if(!tambahCustomerTableData.length){body.innerHTML='<tr><td colspan="5" class="customer-table-empty">Belum ada customer untuk Sales ini.</td></tr>';return;}
-            if(!rows.length){body.innerHTML='<tr><td colspan="5" class="customer-table-empty">Customer tidak ditemukan.</td></tr>';return;}
-            body.innerHTML=rows.map(function(r){
-                const originalIndex=tambahCustomerTableData.indexOf(r);
-                return '<tr onclick="openCustomerDetail('+originalIndex+')">'+
-                    '<td>'+escapeHtml(r.dayVisit||'-')+'</td>'+
-                    '<td>'+escapeHtml(r.outlet||'-')+'</td>'+
-                    '<td>'+escapeHtml(r.custCode||'-')+'</td>'+
-                    '<td>'+escapeHtml(r.dsr||'-')+'</td>'+
-                    '<td>'+escapeHtml(r.channel||'-')+'</td>'+
+
+            body.innerHTML = rows.map(function(item, rowIndex) {
+                const values = item.values || [];
+                const safeRowNumber = Number(item.rowNumber);
+                return '<tr data-customer-row="' + safeRowNumber + '" tabindex="0" role="button" onclick="lihatDetailTambahCustomer(' + safeRowNumber + ')" onkeydown="if(event.key===&quot;Enter&quot; || event.key===&quot; &quot;){event.preventDefault();lihatDetailTambahCustomer(' + safeRowNumber + ')}" class="border-b border-slate-100 hover:bg-emerald-50/50 focus:bg-emerald-50 transition cursor-pointer" title="Klik untuk melihat detail customer">' +
+                    displayCols.map(function(c) {
+                        return '<td class="p-2.5 align-top whitespace-nowrap text-slate-700">' +
+                            _customerEscape(c.idx >= 0 && values[c.idx] != null ? values[c.idx] : '') +
+                        '</td>';
+                    }).join('') +
                 '</tr>';
             }).join('');
+            if (count) count.textContent = rows.length.toLocaleString('id-ID') + ' customer';
         }
 
-        function openCustomerDetail(index){
-            const r=tambahCustomerTableData[index];if(!r)return;
-            openCustomerForm('edit',r);
+        // DETAIL CUSTOMER: seluruh field customer ditampilkan di modal, dengan aksi Edit dan Hapus.
+        function lihatDetailTambahCustomer(rowNumber) {
+            const row = (globalTambahCustomerData.rows || []).find(function(item) {
+                return Number(item.rowNumber) === Number(rowNumber);
+            });
+            if (!row) {
+                showModal('Gagal', 'Data customer tidak ditemukan. Silakan refresh.');
+                return;
+            }
+
+            const headers = globalTambahCustomerData.headers || [];
+            const values = row.values || [];
+            const modal = document.getElementById('customModal');
+            const title = document.getElementById('modalTitle');
+            const subtitle = document.getElementById('modalSubtitle');
+            const body = document.getElementById('modalBody');
+            const cancelBtn = document.getElementById('modalCancelBtn');
+            const okBtn = document.getElementById('modalOkBtn');
+
+            if (!modal || !body || !okBtn || !cancelBtn) return;
+
+            const idxOutlet = _customerFieldIndexClient(headers, ['OUTLET', 'NAMA OUTLET']);
+            const idxDsr = _customerFieldIndexClient(headers, ['DSR', 'SALES', 'NAMA SALES']);
+            const idxDayVisit = _customerFieldIndexClient(headers, ['DAY VISIT']);
+            const idxCust = _customerFieldIndexClient(headers, ['CUST.CODE', 'CUST CODE', 'CUSTCODE', 'CUSTOMER CODE']);
+            const idxChannel = _customerFieldIndexClient(headers, ['CHANNEL', 'CHANNEL OUTLET']);
+            const idxTanggalInput = _customerFieldIndexClient(headers, ['TANGGAL INPUT OUTLET', 'TANGGAL INPUT', 'DATE INPUT OUTLET', 'DATE INPUT']);
+            const idxPhone = _customerFieldIndexClient(headers, ['NOMOR HANDPHONE', 'NO HANDPHONE', 'NO. HANDPHONE', 'NO HP', 'NO. HP', 'HANDPHONE', 'PHONE', 'TELEPON', 'TELP']);
+            const idxMaps = _customerFieldIndexClient(headers, ['MAPS', 'GOOGLE MAPS', 'LOCATION', 'LOKASI', 'KOORDINAT']);
+
+            const getVal = function(idx) {
+                return idx >= 0 ? String(values[idx] == null ? '' : values[idx]) : '';
+            };
+
+            const detailItems = [
+                ['OUTLET', getVal(idxOutlet)],
+                ['DSR', getVal(idxDsr)],
+                ['DAY VISIT', getVal(idxDayVisit)],
+                ['CUST.CODE', getVal(idxCust)],
+                ['CHANNEL', getVal(idxChannel)],
+                ['TANGGAL INPUT OUTLET', getVal(idxTanggalInput)],
+                ['NOMOR HANDPHONE', getVal(idxPhone)],
+                ['MAPS', getVal(idxMaps)]
+            ];
+
+            if (title) title.textContent = 'DETAIL CUSTOMER';
+            if (subtitle) subtitle.textContent = 'Klik Edit untuk mengubah atau Hapus untuk menghapus customer.';
+
+            body.innerHTML = '<div class="space-y-2" data-customer-detail="1">' +
+                detailItems.map(function(item) {
+                    const label = item[0];
+                    const value = item[1];
+                    const isMaps = label === 'MAPS' && value;
+                    const content = isMaps
+                        ? '<a href="' + _customerEscape(value) + '" target="_blank" rel="noopener noreferrer" class="text-emerald-700 hover:text-emerald-900 underline break-all">' + _customerEscape(value) + '</a>'
+                        : '<span class="text-slate-800 break-words">' + _customerEscape(value || '-') + '</span>';
+                    return '<div class="grid grid-cols-1 sm:grid-cols-[170px_1fr] gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2.5">' +
+                        '<div class="text-[9px] font-extrabold uppercase tracking-wider text-slate-400">' + _customerEscape(label) + '</div>' +
+                        '<div class="text-xs font-semibold">' + content + '</div>' +
+                    '</div>';
+                }).join('') +
+            '</div>' +
+            '<div class="mt-3 flex items-center justify-end gap-2">' +
+                '<button type="button" id="btnDetailCustomerHapus" style="position:relative;z-index:20;pointer-events:auto;" class="px-3.5 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-[10px] font-extrabold">🗑 Hapus</button>' +
+                '<button type="button" id="btnDetailCustomerEdit" style="position:relative;z-index:20;pointer-events:auto;" class="px-3.5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-[10px] font-extrabold">✎ Edit</button>' +
+            '</div>';
+
+            cancelBtn.style.display = 'none';
+            okBtn.style.display = 'none';
+            modalCallback = null;
+
+            const btnEdit = document.getElementById('btnDetailCustomerEdit');
+            const btnHapus = document.getElementById('btnDetailCustomerHapus');
+
+            if (btnEdit) {
+                btnEdit.onclick = function(e) {
+                    if (e) { e.preventDefault(); e.stopPropagation(); }
+                    // Edit langsung dari data baris yang sedang dibuka.
+                    // Jangan bergantung pada callback modal/master yang bisa tertahan.
+                    closeModal(false);
+                    setTimeout(function() {
+                        editTambahCustomer(rowNumber);
+                    }, 50);
+                };
+            }
+            if (btnHapus) {
+                btnHapus.onclick = function() {
+                    closeModal();
+                    deleteTambahCustomer(rowNumber);
+                };
+            }
+
+            modal.style.display = 'flex';
         }
 
-        function openTambahCustomerForm(){
-            const modal=document.getElementById('customerManageModal');if(!modal)return;
-            document.getElementById('customerModalTitle').textContent='Tambah Customer Baru';
-            document.getElementById('customerModalSubtitle').textContent=currentUser?'Sales: '+currentUser:'-';
-            document.getElementById('customerEditRow').value='';
-            loadTambahCustomerMaster(function(){
-                resetTambahCustomerForm(false);
+        function filterTambahCustomer() {
+            const q = String((document.getElementById('searchTambahCustomer') || {}).value || '').trim().toLowerCase();
+            const rows = globalTambahCustomerData.rows || [];
+            if (!q) {
+                renderTambahCustomerTable(rows);
+                return;
+            }
+            const filtered = rows.filter(function(item) {
+                return (item.values || []).some(function(v) { return String(v == null ? '' : v).toLowerCase().indexOf(q) !== -1; });
+            });
+            renderTambahCustomerTable(filtered);
+        }
 
-                // Saat menambah customer baru, DSR otomatis mengikuti Sales yang sedang login.
-                const dsr=document.getElementById('customerDsr');
-                const salesName=String(currentUser||'').trim();
-                if(dsr && salesName){
-                    let option=Array.from(dsr.options).find(function(o){
-                        return String(o.value||'').trim().toUpperCase()===salesName.toUpperCase();
-                    });
-                    if(!option){
-                        option=new Option(salesName.toUpperCase(),salesName.toUpperCase(),true,true);
-                        dsr.appendChild(option);
-                    }
-                    dsr.value=option.value;
-                    try{$('#customerDsr').val(option.value).trigger('change');}catch(e){}
+        function _renderCustomerSelectOptions(options, current, placeholder) {
+            const list = _customerEnsureOption(options, current);
+            let html = '<option value="">' + _customerEscape(placeholder || 'Pilih...') + '</option>';
+            html += list.map(function(v) {
+                const selected = String(v).trim().toUpperCase() === String(current || '').trim().toUpperCase() ? ' selected' : '';
+                return '<option value="' + _customerEscape(v) + '"' + selected + '>' + _customerEscape(v) + '</option>';
+            }).join('');
+            return html;
+        }
+
+        function _customerGetMapsValueFromInput() {
+            const idx = _customerFieldIndexClient(globalTambahCustomerData.headers, ['MAPS', 'GOOGLE MAPS', 'LOCATION', 'LOKASI', 'KOORDINAT']);
+            if (idx < 0) return null;
+            const el = document.getElementById('tambahCustomerField_' + idx);
+            return el ? el.value : '';
+        }
+
+        function getLokasiCustomerSaatIni() {
+            const idxMaps = _customerFieldIndexClient(globalTambahCustomerData.headers, ['MAPS', 'GOOGLE MAPS', 'LOCATION', 'LOKASI', 'KOORDINAT']);
+            if (idxMaps < 0) {
+                showModal('Gagal', 'Kolom MAPS/LOKASI pada sheet OUTLET tidak ditemukan.');
+                return;
+            }
+            const input = document.getElementById('tambahCustomerField_' + idxMaps);
+            const button = document.getElementById('btnAmbilLokasiCustomer');
+            if (!navigator.geolocation) {
+                showModal('Gagal', 'Browser ini tidak mendukung penentuan lokasi saat ini.');
+                return;
+            }
+            if (button) { button.disabled = true; button.textContent = 'Mengambil lokasi...'; }
+            navigator.geolocation.getCurrentPosition(function(position) {
+                const lat = Number(position.coords.latitude).toFixed(7);
+                const lng = Number(position.coords.longitude).toFixed(7);
+                const url = 'https://www.google.com/maps?q=' + lat + ',' + lng;
+                if (input) input.value = url;
+                if (button) { button.disabled = false; button.textContent = '📍 Lokasi Saat Ini'; }
+            }, function(err) {
+                if (button) { button.disabled = false; button.textContent = '📍 Lokasi Saat Ini'; }
+                let message = 'Lokasi tidak dapat diambil.';
+                if (err && err.code === 1) message = 'Izin lokasi ditolak. Silakan izinkan akses lokasi pada browser.';
+                if (err && err.code === 2) message = 'Lokasi saat ini tidak tersedia.';
+                if (err && err.code === 3) message = 'Pengambilan lokasi terlalu lama. Silakan coba lagi.';
+                showModal('Lokasi', message);
+            }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+        }
+
+        async function cariKontakCustomer() {
+            const idxPhone = _customerFieldIndexClient(globalTambahCustomerData.headers, ['NOMOR HANDPHONE', 'NO HANDPHONE', 'NO. HANDPHONE', 'NO HP', 'NO. HP', 'HANDPHONE', 'PHONE', 'TELEPON', 'TELP']);
+            if (idxPhone < 0) {
+                showModal('Gagal', 'Kolom NOMOR HANDPHONE pada sheet OUTLET tidak ditemukan.');
+                return;
+            }
+            const input = document.getElementById('tambahCustomerField_' + idxPhone);
+            try {
+                if (!('contacts' in navigator) || typeof navigator.contacts.select !== 'function') {
+                    showModal('Info', 'Fitur pencarian kontak tidak tersedia pada browser/perangkat ini. Silakan gunakan perangkat mobile/browser yang mendukung Contact Picker.');
+                    return;
                 }
+                const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: false });
+                if (!contacts || !contacts.length) return;
+                const contact = contacts[0] || {};
+                const tels = Array.isArray(contact.tel) ? contact.tel : [];
+                const phone = tels.length ? String(tels[0]).trim() : '';
+                if (input) input.value = phone;
+                if (!phone) showModal('Info', 'Kontak dipilih, tetapi nomor handphone tidak tersedia.');
+            } catch (e) {
+                if (e && e.name === 'AbortError') return;
+                showModal('Kontak', e && e.message ? e.message : 'Kontak tidak dapat diambil.');
+            }
+        }
 
-                const del=document.getElementById('btnDeleteCustomer');if(del)del.classList.add('hidden');
-                const btn=document.getElementById('btnSimpanCustomer');if(btn)btn.textContent='+ Simpan Customer';
-                modal.style.display='flex';modal.setAttribute('aria-hidden','false');
+        function openTambahCustomerForm(rowNumber, existingValues) {
+            const headers = globalTambahCustomerData.headers || [];
+            if (!headers.length) {
+                loadTambahCustomer(true);
+                showModal('Informasi', 'Data OUTLET belum selesai dimuat. Silakan buka menu Tambah Customer lagi.');
+                return;
+            }
+
+            tambahCustomerEditingRow = Number(rowNumber || 0);
+            const values = Array.isArray(existingValues) ? existingValues.slice() : new Array(headers.length).fill('');
+            while (values.length < headers.length) values.push('');
+            tambahCustomerEditingValues = values.slice();
+            const isEdit = tambahCustomerEditingRow >= 2;
+
+            const idxDayVisit = _customerFieldIndexClient(headers, ['DAY VISIT']);
+            const idxOutlet = _customerFieldIndexClient(headers, ['OUTLET', 'NAMA OUTLET']);
+            const idxCust = _customerFieldIndexClient(headers, ['CUST.CODE', 'CUST CODE', 'CUSTCODE', 'CUSTOMER CODE']);
+            const idxChannel = _customerFieldIndexClient(headers, ['CHANNEL', 'CHANNEL OUTLET']);
+            const idxTanggalInput = _customerFieldIndexClient(headers, ['TANGGAL INPUT OUTLET', 'TANGGAL INPUT', 'DATE INPUT OUTLET', 'DATE INPUT']);
+            const idxPhone = _customerFieldIndexClient(headers, ['NOMOR HANDPHONE', 'NO HANDPHONE', 'NO. HANDPHONE', 'NO HP', 'NO. HP', 'HANDPHONE', 'PHONE', 'TELEPON', 'TELP']);
+            const idxMaps = _customerFieldIndexClient(headers, ['MAPS', 'GOOGLE MAPS', 'LOCATION', 'LOKASI', 'KOORDINAT']);
+
+            document.getElementById('modalTitle').textContent = isEdit ? 'EDIT CUSTOMER' : 'TAMBAH CUSTOMER';
+            document.getElementById('modalSubtitle').textContent = isEdit ? 'Perbarui data customer pada sheet OUTLET.' : 'Tambahkan customer baru ke sheet OUTLET.';
+            // RESET VISIBILITY TOMBOL SETIAP KALI FORM CUSTOMER DIBUKA.
+            // Modal lain dapat menyembunyikan tombol OK; jangan biarkan style inline itu terbawa.
+            const customerCancelBtn = document.getElementById('modalCancelBtn');
+            const customerOkBtn = document.getElementById('modalOkBtn');
+            customerCancelBtn.style.display = 'inline-flex';
+            customerCancelBtn.style.visibility = 'visible';
+            customerCancelBtn.textContent = 'Batal';
+            customerOkBtn.style.display = 'inline-flex';
+            customerOkBtn.style.visibility = 'visible';
+            customerOkBtn.style.opacity = '1';
+            customerOkBtn.textContent = isEdit ? 'Simpan Perubahan' : 'Simpan Customer';
+
+            const currentDay = idxDayVisit >= 0 ? String(values[idxDayVisit] || '') : '';
+            const currentOutlet = idxOutlet >= 0 ? String(values[idxOutlet] || '') : '';
+            const currentCust = idxCust >= 0 ? String(values[idxCust] || '') : '';
+            const currentChannel = idxChannel >= 0 ? String(values[idxChannel] || '') : '';
+            const currentDate = idxTanggalInput >= 0 ? String(values[idxTanggalInput] || '') : '';
+            const currentPhone = idxPhone >= 0 ? String(values[idxPhone] || '') : '';
+            const currentMaps = idxMaps >= 0 ? String(values[idxMaps] || '') : '';
+            const today = globalTambahCustomerFormMaster.today || new Date().toISOString().slice(0, 10);
+            const custCode = isEdit ? currentCust : (globalTambahCustomerFormMaster.newCustCode || '');
+
+            if (idxDayVisit < 0 || idxOutlet < 0 || idxCust < 0 || idxChannel < 0 || idxTanggalInput < 0 || idxPhone < 0 || idxMaps < 0) {
+                showModal('Gagal', 'Ada kolom wajib form yang tidak ditemukan pada sheet OUTLET. Pastikan header DAY VISIT, OUTLET, CUST.CODE, CHANNEL, TANGGAL INPUT OUTLET, NOMOR HANDPHONE, dan MAPS tersedia.');
+                return;
+            }
+
+            const body = document.getElementById('modalBody');
+            body.innerHTML = `
+                <div class="space-y-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[9px] font-extrabold uppercase tracking-wider text-slate-500 mb-1">DAY VISIT</label>
+                            <select id="tambahCustomerField_${idxDayVisit}" class="w-full min-h-[40px] border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                ${_renderCustomerSelectOptions(globalTambahCustomerFormMaster.dayVisits, currentDay, 'Pilih Day Visit')}
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-[9px] font-extrabold uppercase tracking-wider text-slate-500 mb-1">OUTLET</label>
+                            <input id="tambahCustomerField_${idxOutlet}" type="text" value="${_customerEscape(currentOutlet.toUpperCase())}" oninput="this.value=this.value.toUpperCase()" class="w-full min-h-[40px] border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white uppercase focus:outline-none focus:ring-2 focus:ring-emerald-500" autocomplete="organization" />
+                        </div>
+
+                        <div>
+                            <label class="block text-[9px] font-extrabold uppercase tracking-wider text-slate-500 mb-1">CUST.CODE</label>
+                            <input id="tambahCustomerField_${idxCust}" type="text" value="${_customerEscape(custCode)}" readonly class="w-full min-h-[40px] border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-600 bg-slate-100 focus:outline-none" />
+                            <div class="text-[8px] text-slate-400 mt-1">Otomatis menggunakan Unique ID.</div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[9px] font-extrabold uppercase tracking-wider text-slate-500 mb-1">CHANNEL</label>
+                            <select id="tambahCustomerField_${idxChannel}" class="w-full min-h-[40px] border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                ${_renderCustomerSelectOptions(globalTambahCustomerFormMaster.channels, currentChannel, 'Pilih Channel')}
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-[9px] font-extrabold uppercase tracking-wider text-slate-500 mb-1">TANGGAL INPUT OUTLET</label>
+                            <input id="tambahCustomerField_${idxTanggalInput}" type="date" value="${_customerEscape(currentDate || today)}" class="w-full min-h-[40px] border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                        </div>
+
+                        <div>
+                            <label class="block text-[9px] font-extrabold uppercase tracking-wider text-slate-500 mb-1">NOMOR HANDPHONE</label>
+                            <div class="flex gap-2">
+                                <input id="tambahCustomerField_${idxPhone}" type="tel" value="${_customerEscape(currentPhone)}" class="flex-1 min-w-0 min-h-[40px] border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500" autocomplete="tel" inputmode="tel" />
+                                <button type="button" onclick="cariKontakCustomer()" class="shrink-0 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-[10px] font-extrabold">📇 Kontak</button>
+                            </div>
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label class="block text-[9px] font-extrabold uppercase tracking-wider text-slate-500 mb-1">MAPS</label>
+                            <div class="flex gap-2">
+                                <input id="tambahCustomerField_${idxMaps}" type="url" value="${_customerEscape(currentMaps)}" placeholder="Lokasi Google Maps" class="flex-1 min-w-0 min-h-[40px] border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                                <button type="button" id="btnAmbilLokasiCustomer" onclick="getLokasiCustomerSaatIni()" class="shrink-0 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 text-[10px] font-extrabold">📍 Lokasi Saat Ini</button>
+                            </div>
+                            <div class="text-[8px] text-slate-400 mt-1">Tombol akan mengambil koordinat lokasi perangkat dan menyimpan link Google Maps.</div>
+                        </div>
+                    </div>
+
+                    <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[9px] text-slate-500">
+                        DSR/Sales akan diisi otomatis sesuai nama Sales yang sedang login. Kolom OUTLET - CUST.CODE, OUTLET - DSR, dan OUTLET - CHANNEL tidak ditampilkan pada form.
+                    </div>
+                </div>`;
+
+            customerOkBtn.onclick = function() { saveTambahCustomerForm(); };
+            customerCancelBtn.onclick = function() { closeModal(); };
+            customerOkBtn.style.display = 'inline-flex';
+            customerCancelBtn.style.display = 'inline-flex';
+            modalCallback = null;
+            document.getElementById('customModal').style.display = 'flex';
+        }
+
+        function editTambahCustomer(rowNumber) {
+            const row = (globalTambahCustomerData.rows || []).find(function(item) { return Number(item.rowNumber) === Number(rowNumber); });
+            if (!row) {
+                showModal('Gagal', 'Data customer tidak ditemukan. Silakan refresh.');
+                return;
+            }
+
+            // Pastikan header yang dipakai form selalu berasal dari data OUTLET terbaru.
+            globalTambahCustomerFormMaster.headers = (globalTambahCustomerData.headers || []).slice();
+
+            // Jika master dropdown sudah tersedia untuk user login, buka form langsung.
+            // Jika belum, ambil master terlebih dahulu. Fallback tetap membuka form edit
+            // dengan data yang ada agar tombol Edit tidak gagal hanya karena master belum siap.
+            const masterReady = Array.isArray(globalTambahCustomerFormMaster.dayVisits) &&
+                                Array.isArray(globalTambahCustomerFormMaster.channels) &&
+                                (globalTambahCustomerFormMaster.dayVisits.length > 0 || globalTambahCustomerFormMaster.channels.length > 0 ||
+                                 String(row.values && row.values[_customerFieldIndexClient(globalTambahCustomerData.headers || [], ['DAY VISIT'])] || '').trim() ||
+                                 String(row.values && row.values[_customerFieldIndexClient(globalTambahCustomerData.headers || [], ['CHANNEL', 'CHANNEL OUTLET'])] || '').trim());
+
+            if (masterReady) {
+                openTambahCustomerForm(rowNumber, row.values || []);
+                return;
+            }
+
+            loadTambahCustomerFormMaster(function() {
+                openTambahCustomerForm(rowNumber, row.values || []);
             });
         }
 
-        function openCustomerForm(mode,r){
-            const modal=document.getElementById('customerManageModal');if(!modal)return;
-            loadTambahCustomerMaster(function(){
-                document.getElementById('customerModalTitle').textContent='Detail / Edit Customer';
-                document.getElementById('customerModalSubtitle').textContent=(r.outlet||'-')+' · '+(r.custCode||'-');
-                document.getElementById('customerEditRow').value=r.rowNumber||'';
-                document.getElementById('customerDayVisit').value=r.dayVisit||'';
-                document.getElementById('customerOutlet').value=r.outlet||'';
-                document.getElementById('customerCustCode').value=r.custCode||'';
-                document.getElementById('customerDsr').value=r.dsr||'';
-                document.getElementById('customerChannel').value=r.channel||'';
-                document.getElementById('customerDate').value=toCustomerDateInputValue(r.date);
-                const mapsEl=document.getElementById('customerMaps');if(mapsEl)mapsEl.value=r.maps||'';
-                document.getElementById('customerPhone').value=r.phone||'';
-                try{
-                    ['#customerDayVisit','#customerDsr','#customerChannel'].forEach(function(sel){
-                        const val=String($(sel).val()||'');
-                        const wanted=String((sel==='#customerDayVisit'?r.dayVisit:(sel==='#customerDsr'?r.dsr:r.channel))||'');
-                        if(wanted && $(sel+' option[value=\"'+wanted.replace(/\"/g,'\\\"')+'\"]').length===0) $(sel).append(new Option(wanted,wanted));
-                        $(sel).val(wanted).trigger('change');
-                    });
-                }catch(e){console.warn('Set customer edit values:',e);}
-                const del=document.getElementById('btnDeleteCustomer');if(del)del.classList.remove('hidden');
-                const btn=document.getElementById('btnSimpanCustomer');if(btn)btn.textContent='Simpan Perubahan';
-                modal.style.display='flex';modal.setAttribute('aria-hidden','false');
+        function saveTambahCustomerForm() {
+            const headers = globalTambahCustomerData.headers || [];
+            if (!headers.length) return;
+            const rowNumber = Number(tambahCustomerEditingRow || 0);
+            const values = tambahCustomerEditingValues.slice();
+            while (values.length < headers.length) values.push('');
+
+            const idxDayVisit = _customerFieldIndexClient(headers, ['DAY VISIT']);
+            const idxOutlet = _customerFieldIndexClient(headers, ['OUTLET', 'NAMA OUTLET']);
+            const idxCust = _customerFieldIndexClient(headers, ['CUST.CODE', 'CUST CODE', 'CUSTCODE', 'CUSTOMER CODE']);
+            const idxChannel = _customerFieldIndexClient(headers, ['CHANNEL', 'CHANNEL OUTLET']);
+            const idxTanggalInput = _customerFieldIndexClient(headers, ['TANGGAL INPUT OUTLET', 'TANGGAL INPUT', 'DATE INPUT OUTLET', 'DATE INPUT']);
+            const idxPhone = _customerFieldIndexClient(headers, ['NOMOR HANDPHONE', 'NO HANDPHONE', 'NO. HANDPHONE', 'NO HP', 'NO. HP', 'HANDPHONE', 'PHONE', 'TELEPON', 'TELP']);
+            const idxMaps = _customerFieldIndexClient(headers, ['MAPS', 'GOOGLE MAPS', 'LOCATION', 'LOKASI', 'KOORDINAT']);
+
+            [idxDayVisit, idxOutlet, idxCust, idxChannel, idxTanggalInput, idxPhone, idxMaps].forEach(function(idx) {
+                if (idx >= 0) {
+                    const el = document.getElementById('tambahCustomerField_' + idx);
+                    if (el) values[idx] = el.value;
+                }
             });
+
+            if (idxOutlet >= 0) values[idxOutlet] = String(values[idxOutlet] || '').trim().toUpperCase();
+            if (idxCust >= 0 && rowNumber < 2) values[idxCust] = '';
+
+            const btn = document.getElementById('modalOkBtn');
+            if (btn) {
+                btn.disabled = true;
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+
+            google.script.run.withSuccessHandler(function(res) {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+                if (res && res.success) {
+                    closeModal();
+                    tambahCustomerLoaded = false;
+                    globalTambahCustomerFormMaster = { headers: [], dayVisits: [], channels: [], today: '', salesName: '', isAdmin: false, newCustCode: '' };
+                    showModal('Berhasil', res.message || 'Data customer berhasil disimpan.');
+                    loadTambahCustomer(true, true);
+                } else {
+                    showModal('Gagal', res && res.message ? res.message : 'Data customer gagal disimpan.');
+                }
+            }).withFailureHandler(function(err) {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+                showModal('Error Sistem', err && err.message ? err.message : 'Terjadi kesalahan.');
+            }).saveOutletCustomer(currentUsernameInput, currentUser, rowNumber, values);
         }
 
-        function toCustomerDateInputValue(value){
-            const v=String(value==null?'':value).trim();
-            if(!v)return '';
-            if(/^\d{4}-\d{2}-\d{2}$/.test(v))return v;
-            const m=v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-            if(m)return m[3]+'-'+String(m[2]).padStart(2,'0')+'-'+String(m[1]).padStart(2,'0');
-            const d=new Date(v);
-            return isNaN(d.getTime())?'':d.toISOString().slice(0,10);
-        }
+        function deleteTambahCustomer(rowNumber) {
+            const row = (globalTambahCustomerData.rows || []).find(function(item) { return Number(item.rowNumber) === Number(rowNumber); });
+            if (!row) {
+                showModal('Gagal', 'Data customer tidak ditemukan. Silakan refresh.');
+                return;
+            }
+            const headers = globalTambahCustomerData.headers || [];
+            const idxOutlet = headers.findIndex(function(h) { const n = _customerHeaderNormClient(h); return n === 'OUTLET' || n === 'NAMA OUTLET'; });
+            const idxCust = headers.findIndex(function(h) { const n = _customerHeaderNormClient(h); return n === 'CUST CODE' || n === 'CUSTCODE' || n === 'CUSTOMER CODE'; });
+            const outlet = idxOutlet >= 0 ? String((row.values || [])[idxOutlet] || '') : '';
+            const cust = idxCust >= 0 ? String((row.values || [])[idxCust] || '') : '';
 
-        function closeCustomerManageModal(){
-            const modal=document.getElementById('customerManageModal');if(modal){modal.style.display='none';modal.setAttribute('aria-hidden','true');}
-        }
-
-        function setTanggalTambahCustomer(){
-            const el=document.getElementById('customerDate');if(!el)return;
-            const d=new Date();el.value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-        }
-
-        function previewCustCode(){
-            const el=document.getElementById('customerCustCode');if(!el)return;
-            const random=Math.floor(100000+Math.random()*900000);
-            el.value='CNOO'+random;
-        }
-
-        function resetTambahCustomerForm(closeAfter){
-            const form=document.getElementById('formTambahCustomer');if(form)form.reset();
-            const row=document.getElementById('customerEditRow');if(row)row.value='';
-            const code=document.getElementById('customerCustCode');if(code)code.value='';
-            const maps=document.getElementById('customerMaps');if(maps){maps.value='';maps.onclick=null;}
-            setTanggalTambahCustomer();previewCustCode();
-            try{$('#customerDayVisit').val('').trigger('change');$('#customerDsr').val('').trigger('change');$('#customerChannel').val('').trigger('change');}catch(e){}
-            if(closeAfter!==false)closeCustomerManageModal();
-        }
-
-        function ambilLokasiCustomer(){
-            const input=document.getElementById('customerMaps');if(!input)return;
-            if(!navigator.geolocation){showModal('Lokasi Tidak Didukung','Browser/perangkat ini tidak mendukung lokasi.');return;}
-            input.value='Mengambil lokasi...';
-            navigator.geolocation.getCurrentPosition(function(pos){
-                const url='https://www.google.com/maps?q='+pos.coords.latitude+','+pos.coords.longitude;
-                input.value=url;input.onclick=function(){window.open(url,'_blank');};
-            },function(err){input.value='';let msg='Lokasi tidak dapat diambil.';if(err.code===1)msg='Izin lokasi ditolak. Silakan izinkan lokasi pada browser.';if(err.code===2)msg='Lokasi tidak tersedia.';if(err.code===3)msg='Waktu mengambil lokasi habis.';showModal('Gagal Mengambil Lokasi',msg);},{enableHighAccuracy:true,timeout:15000,maximumAge:0});
-        }
-
-        async function ambilKontakCustomer(){
-            const phone=document.getElementById('customerPhone');if(!phone)return;
-            if(!navigator.contacts||typeof navigator.contacts.select!=='function'){showModal('Kontak Tidak Didukung','Browser ini tidak mendukung pemilihan kontak langsung. Silakan masukkan nomor HP secara manual.');phone.focus();return;}
-            try{const contacts=await navigator.contacts.select(['name','tel'],{multiple:false});if(contacts&&contacts.length&&contacts[0].tel&&contacts[0].tel.length)phone.value=contacts[0].tel[0];}catch(e){console.warn('Contact Picker:',e);}
-        }
-
-        function submitTambahCustomer(event){
-            event.preventDefault();
-            const rowNumber=Number(document.getElementById('customerEditRow').value||0);
-            const payload={
-                dayVisit:document.getElementById('customerDayVisit').value,
-                outlet:document.getElementById('customerOutlet').value.trim().toUpperCase(),
-                dsr:document.getElementById('customerDsr').value,
-                channel:document.getElementById('customerChannel').value,
-                date:document.getElementById('customerDate').value,
-                maps:document.getElementById('customerMaps').value.trim(),
-                phone:document.getElementById('customerPhone').value.trim()
-            };
-            if(!payload.dayVisit)return showModal('Data Belum Lengkap','Silakan pilih Day Visit.');
-            if(!payload.outlet)return showModal('Data Belum Lengkap','Silakan isi Outlet.');
-            if(!payload.dsr)return showModal('Data Belum Lengkap','Silakan pilih DSR.');
-            if(!payload.channel)return showModal('Data Belum Lengkap','Silakan pilih Channel.');
-            const btn=document.getElementById('btnSimpanCustomer');if(btn){btn.disabled=true;btn.textContent='Menyimpan...';}showLoading(true);
-            const handler=function(res){
-                showLoading(false);if(btn){btn.disabled=false;btn.textContent=rowNumber?'Simpan Perubahan':'+ Simpan Customer';}
-                if(!res||!res.success){showModal('Gagal',res&&res.message?res.message:'Customer gagal disimpan.');return;}
-                closeCustomerManageModal();
-                loadTambahCustomerTable(true);
-                showModal('Berhasil',res.message||'Customer berhasil disimpan.');
-            };
-            const fail=function(err){showLoading(false);if(btn){btn.disabled=false;btn.textContent=rowNumber?'Simpan Perubahan':'+ Simpan Customer';}showModal('Error','Terjadi kesalahan: '+(err&&err.message?err.message:err));};
-            if(rowNumber){google.script.run.withSuccessHandler(handler).withFailureHandler(fail).updateTambahCustomer(rowNumber,payload,currentUser,currentUsernameInput);}
-            else{google.script.run.withSuccessHandler(function(res){
-                showLoading(false);if(btn){btn.disabled=false;btn.textContent='+ Simpan Customer';}
-                if(!res||!res.success){showModal('Gagal',res&&res.message?res.message:'Customer gagal disimpan.');return;}
-                closeCustomerManageModal();loadTambahCustomerTable(true);showModal('Berhasil','Customer berhasil ditambahkan.\n\nCUST.CODE: '+(res.custCode||''));
-            }).withFailureHandler(fail).simpanTambahCustomer(payload,currentUser,currentUsernameInput);}
-        }
-
-        function deleteCustomerFromModal(){
-            const rowNumber=Number(document.getElementById('customerEditRow').value||0);if(!rowNumber)return;
-            const outlet=document.getElementById('customerOutlet').value||'customer ini';
-
-            // Tutup detail/edit customer terlebih dahulu, lalu tampilkan konfirmasi hapus.
-            closeCustomerManageModal();
-
-            showModal('Konfirmasi Hapus','Hapus customer '+outlet+'?',true,function(ok){
-                if(!ok)return;
+            showModal('Konfirmasi', 'Hapus customer ' + (outlet || cust || 'ini') + '?', true, function(ok) {
+                if (!ok) return;
                 showLoading(true);
-                google.script.run.withSuccessHandler(function(res){
+                google.script.run.withSuccessHandler(function(res) {
                     showLoading(false);
-                    if(!res||!res.success){showModal('Gagal',res&&res.message?res.message:'Customer gagal dihapus.');return;}
-                    loadTambahCustomerTable(true);
-                    showModal('Berhasil',res.message||'Customer berhasil dihapus.');
-                }).withFailureHandler(function(err){showLoading(false);showModal('Error','Terjadi kesalahan: '+(err&&err.message?err.message:err));}).deleteTambahCustomer(rowNumber,currentUser,currentUsernameInput);
+                    if (res && res.success) {
+                        tambahCustomerLoaded = false;
+                        globalTambahCustomerFormMaster = { headers: [], dayVisits: [], channels: [], today: '', salesName: '', isAdmin: false, newCustCode: '' };
+                        showModal('Berhasil', res.message || 'Customer berhasil dihapus.');
+                        loadTambahCustomer(true, true);
+                    } else {
+                        showModal('Gagal', res && res.message ? res.message : 'Customer gagal dihapus.');
+                    }
+                }).withFailureHandler(function(err) {
+                    showLoading(false);
+                    showModal('Error Sistem', err && err.message ? err.message : 'Terjadi kesalahan.');
+                }).deleteOutletCustomer(currentUsernameInput, currentUser, rowNumber);
             });
         }
 
-    
 </script>
 </body>
 </html>
