@@ -1,4 +1,4 @@
-<!-- CASTROL_BUILD_2026-09-22-TAMBAH-CUSTOMER-OUTLET-V3 -->
+<!-- CASTROL_BUILD_2026-09-22-TAMBAH-CUSTOMER-OUTLET-V4-PAGED-BRIDGE -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -4878,19 +4878,74 @@ console.info('CASTROL BUILD 2026-09-22 TAMBAH CUSTOMER OUTLET V3');
         function loadTambahCustomerTable(force, silentRefresh){
             if(tambahCustomerTableLoading)return;
             tambahCustomerTableLoading=true;
+
             const body=document.getElementById('customerTableBody');
-            if(body&&!tambahCustomerTableData.length&&!silentRefresh)body.innerHTML='<tr><td colspan="5" class="customer-table-empty">Memuat data customer...</td></tr>';
-            const btn=document.getElementById('btnRefreshCustomer');if(btn)btn.disabled=true;
-            google.script.run.withSuccessHandler(function(rows){
-                tambahCustomerTableLoading=false;if(btn)btn.disabled=false;
-                tambahCustomerTableData=Array.isArray(rows)?rows:[];
+            if(body&&!tambahCustomerTableData.length&&!silentRefresh){
+                body.innerHTML='<tr><td colspan="5" class="customer-table-empty">Memuat data customer...</td></tr>';
+            }
+
+            const btn=document.getElementById('btnRefreshCustomer');
+            if(btn)btn.disabled=true;
+
+            // PERBAIKAN: jangan kirim 1.310 baris (~238 KB) dalam satu response Bridge.
+            // Ambil maksimal 300 baris fisik per request. Hasil tiap request kecil,
+            // sehingga iframe Bridge tidak perlu memproses payload ratusan KB.
+            const PAGE_SIZE=300;
+            const allRows=[];
+
+            function finish(){
+                tambahCustomerTableLoading=false;
+                if(btn)btn.disabled=false;
+                tambahCustomerTableData=allRows;
                 // Pertahankan pencarian yang sedang aktif saat auto refresh.
                 filterTambahCustomerTable();
-            }).withFailureHandler(function(err){
-                tambahCustomerTableLoading=false;if(btn)btn.disabled=false;
+            }
+
+            function fail(err){
+                tambahCustomerTableLoading=false;
+                if(btn)btn.disabled=false;
                 if(body)body.innerHTML='<tr><td colspan="5" class="customer-table-empty">Gagal memuat data customer.</td></tr>';
-                showModal('Gagal','Gagal memuat data customer: '+(err&&err.message?err.message:err));
-            }).getTambahCustomerTableData(currentUser,currentUsernameInput);
+                showModal(
+                    'Gagal',
+                    'Gagal memuat data customer: '+
+                    (err&&err.message?err.message:err)
+                );
+            }
+
+            function loadPage(offset){
+                google.script.run
+                    .withSuccessHandler(function(res){
+                        if(!res || res.success===false){
+                            fail(new Error(
+                                res&&res.message
+                                    ? res.message
+                                    : 'Respons data customer tidak valid.'
+                            ));
+                            return;
+                        }
+
+                        if(Array.isArray(res.rows)){
+                            for(var i=0;i<res.rows.length;i++){
+                                allRows.push(res.rows[i]);
+                            }
+                        }
+
+                        if(res.done){
+                            finish();
+                        }else{
+                            loadPage(Number(res.nextOffset||0));
+                        }
+                    })
+                    .withFailureHandler(fail)
+                    .getTambahCustomerTableDataPage(
+                        currentUser,
+                        currentUsernameInput,
+                        offset,
+                        PAGE_SIZE
+                    );
+            }
+
+            loadPage(0);
         }
 
         function filterTambahCustomerTable(){
