@@ -1138,72 +1138,22 @@ html,body{height:100%;}
 
 </head>
 <body class="bg-slate-50 font-sans">
-<!-- CASTROL GITHUB BRIDGE - HTTP POST TRANSPORT -->
+<!-- CASTROL BACKEND TRANSPORT - SILENT HTTP POST -->
 <script>
 (function () {
   'use strict';
 
   const CASTROL_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx5dkNkseL2AXyP4T3vRATCQEnRC3Ft5ho29iUObmj-Y3H-vRunigrQheYt3jzoBq-p/exec';
   const BRIDGE_URL = CASTROL_APPS_SCRIPT_URL + (CASTROL_APPS_SCRIPT_URL.indexOf('?') >= 0 ? '&' : '?') + 'bridge=1';
-  const READY_TIMEOUT = 20000;
   const REQUEST_TIMEOUT = 30000;
-  const BRIDGE_TOKEN = 'castrol_' + Date.now() + '_' + Math.random().toString(36).slice(2);
-
-  let frame = null;
-  let form = null;
-  let ready = false;
-  let failed = false;
   let seq = 0;
-  let readyTimer = null;
-  const queue = [];
   const pending = Object.create(null);
 
-  function failAll(err) {
-    while (queue.length) {
-      const item = queue.shift();
-      const p = pending[item.id];
-      if (p) {
-        delete pending[item.id];
-        if (p.timer) clearTimeout(p.timer);
-        if (p.failure) p.failure(err);
-      }
-    }
-    Object.keys(pending).forEach(function(id) {
-      const p = pending[id];
-      delete pending[id];
-      if (p && p.timer) clearTimeout(p.timer);
-      if (p && p.failure) p.failure(err);
-    });
-  }
-
-  function ensureFrame() {
-    if (frame) return frame;
-
-    frame = document.createElement('iframe');
-    frame.id = 'castrolGasBridge';
-    frame.name = 'castrolGasBridge_' + Date.now();
-    frame.title = 'Castrol API Bridge';
-    frame.src = 'about:blank';
-    frame.setAttribute('aria-hidden', 'true');
-    frame.style.cssText = 'position:fixed;width:1px;height:1px;left:-10000px;top:-10000px;border:0;opacity:0;pointer-events:none;';
-    (document.body || document.documentElement).appendChild(frame);
-
-    form = document.createElement('form');
-    form.method = 'POST';
-    form.action = BRIDGE_URL;
-    form.target = frame.name;
-    form.style.display = 'none';
-    document.body.appendChild(form);
-
-    clearTimeout(readyTimer);
-    readyTimer = setTimeout(function () {
-      if (!ready) {
-        failed = true;
-        failAll(new Error('Apps Script Bridge tidak merespons POST. Pastikan versi Code.gs HTTP POST sudah di-deploy sebagai Web App.'));
-      }
-    }, READY_TIMEOUT);
-
-    return frame;
+  function cleanup(p) {
+    if (!p) return;
+    if (p.timer) clearTimeout(p.timer);
+    if (p.frame && p.frame.parentNode) p.frame.parentNode.removeChild(p.frame);
+    if (p.form && p.form.parentNode) p.form.parentNode.removeChild(p.form);
   }
 
   function hiddenInput(name, value) {
@@ -1214,107 +1164,82 @@ html,body{height:100%;}
     return input;
   }
 
-  function send(item) {
-    ensureFrame();
-    if (!form) return false;
-    try {
-      while (form.firstChild) form.removeChild(form.firstChild);
-      form.appendChild(hiddenInput('bridge', '1'));
-      form.appendChild(hiddenInput('token', BRIDGE_TOKEN));
-      form.appendChild(hiddenInput('id', item.id));
-      form.appendChild(hiddenInput('method', item.method));
-      form.appendChild(hiddenInput('args', JSON.stringify(item.args || [])));
-      form.submit();
-      return true;
-    } catch (e) {
-      if (item.fail) item.fail(e);
-      return false;
-    }
-  }
-
-  function flush() {
-    if (!ready) return;
-    while (queue.length) send(queue.shift());
-  }
-
   window.addEventListener('message', function (event) {
     const msg = event.data || {};
     if (!msg || typeof msg !== 'object') return;
-    if (msg.token && msg.token !== BRIDGE_TOKEN) return;
     if (msg.type !== 'castrol-gas-response' || !msg.id) return;
 
     const p = pending[msg.id];
     if (!p) return;
     delete pending[msg.id];
-    if (p.timer) clearTimeout(p.timer);
+    cleanup(p);
 
     if (msg.ok) {
-      if (!ready) {
-        ready = true;
-        failed = false;
-        clearTimeout(readyTimer);
-        flush();
-      }
       if (p.success) p.success(msg.data);
     } else {
-      if (p.failure) p.failure(new Error(msg.error && msg.error.message ? msg.error.message : 'Google Apps Script gagal memproses permintaan.'));
+      if (p.failure) p.failure(new Error(
+        msg.error && msg.error.message ? msg.error.message : 'Server gagal memproses permintaan.'
+      ));
     }
   });
 
   function call(method, args, success, failure) {
-    ensureFrame();
-
     const id = 'gas_' + Date.now() + '_' + (++seq);
-    const item = {
-      id: id,
-      method: String(method),
-      args: Array.isArray(args) ? args : [],
-      fail: function(err) {
-        const p = pending[id];
-        delete pending[id];
-        if (p && p.timer) clearTimeout(p.timer);
-        if (p && p.failure) p.failure(err);
-      }
-    };
 
-    pending[id] = {
+    // Setiap request mendapat iframe + form sendiri.
+    // Ini penting karena beberapa request dapat berjalan bersamaan setelah login.
+    // Dengan iframe tunggal, submit berikutnya dapat menggantikan response request sebelumnya.
+    const frame = document.createElement('iframe');
+    const frameName = 'castrolReq_' + Date.now() + '_' + seq;
+    frame.name = frameName;
+    frame.setAttribute('aria-hidden', 'true');
+    frame.style.cssText = 'position:fixed;width:1px;height:1px;left:-10000px;top:-10000px;border:0;opacity:0;pointer-events:none;';
+    document.body.appendChild(frame);
+
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = BRIDGE_URL;
+    form.target = frameName;
+    form.style.display = 'none';
+    form.appendChild(hiddenInput('bridge', '1'));
+    form.appendChild(hiddenInput('id', id));
+    form.appendChild(hiddenInput('method', method));
+    form.appendChild(hiddenInput('args', JSON.stringify(Array.isArray(args) ? args : [])));
+    document.body.appendChild(form);
+
+    const p = pending[id] = {
+      frame: frame,
+      form: form,
       success: typeof success === 'function' ? success : null,
       failure: typeof failure === 'function' ? failure : null,
-      timer: setTimeout(function() {
-        const p = pending[id];
-        if (!p) return;
-        delete pending[id];
-        if (p.failure) p.failure(new Error('Timeout: Google Apps Script tidak merespons permintaan ' + method + '.'));
-      }, REQUEST_TIMEOUT)
+      timer: null
     };
 
-    if (!ready) {
-      if (failed) {
-        const p = pending[id];
-        delete pending[id];
-        clearTimeout(p.timer);
-        if (p.failure) p.failure(new Error('Bridge Google Apps Script tidak terhubung.'));
-      } else if (String(method) === 'bridgePing') {
-        // PENTING: bridgePing harus dikirim langsung.
-        // Jika bridgePing ikut masuk queue, queue menunggu ready, sedangkan
-        // ready baru bisa terjadi setelah bridgePing mendapat respons -> deadlock.
-        send(item);
-      } else {
-        queue.push(item);
-      }
-    } else {
-      send(item);
+    p.timer = setTimeout(function () {
+      const current = pending[id];
+      if (!current) return;
+      delete pending[id];
+      cleanup(current);
+      if (current.failure) current.failure(new Error('Server tidak merespons permintaan ' + method + '.'));
+    }, REQUEST_TIMEOUT);
+
+    try {
+      form.submit();
+    } catch (err) {
+      delete pending[id];
+      cleanup(p);
+      if (p.failure) p.failure(err);
     }
   }
 
   function runner(state) {
     return new Proxy({}, {
-      get: function(_target, prop) {
-        if (prop === 'withSuccessHandler') return function(fn) { state.success = fn; return runner(state); };
-        if (prop === 'withFailureHandler') return function(fn) { state.failure = fn; return runner(state); };
-        if (prop === 'withUserObject') return function() { return runner(state); };
+      get: function (_target, prop) {
+        if (prop === 'withSuccessHandler') return function (fn) { state.success = fn; return runner(state); };
+        if (prop === 'withFailureHandler') return function (fn) { state.failure = fn; return runner(state); };
+        if (prop === 'withUserObject') return function () { return runner(state); };
         if (prop === 'then' || prop === 'catch' || prop === 'toString' || prop === Symbol.toPrimitive) return undefined;
-        return function() {
+        return function () {
           call(String(prop), Array.prototype.slice.call(arguments), state.success, state.failure);
         };
       }
@@ -1323,21 +1248,7 @@ html,body{height:100%;}
 
   window.google = window.google || {};
   window.google.script = window.google.script || {};
-  window.google.script.run = runner({success:null, failure:null});
-
-
-  // Tidak menggunakan postMessage untuk mengirim request ke iframe.
-  // Request dikirim sebagai HTTP POST langsung ke doPost(e).
-  // bridgePing dikirim langsung (bukan menunggu ready) untuk memulai handshake.
-  ensureFrame();
-  setTimeout(function(){
-    call('bridgePing', [], function(){
-      // Respons bridgePing sudah diproses oleh listener message.
-    }, function(){
-      failed = true;
-      // Koneksi bridge berjalan diam-diam tanpa status UI.
-    });
-  }, 50);
+  window.google.script.run = runner({success: null, failure: null});
 })();
 </script>
 
@@ -2245,7 +2156,7 @@ html,body{height:100%;}
                 }
             }).withFailureHandler(function(err) {
                 showLoading(false);
-                showModal('Koneksi Gagal', err && err.message ? err.message : 'Tidak dapat terhubung ke Google Apps Script.');
+                showModal('Koneksi Gagal', err && err.message ? err.message : 'Tidak dapat terhubung ke server.');
             }).prosesLogin(currentUsernameInput, document.getElementById('loginPass').value);
         }
 
