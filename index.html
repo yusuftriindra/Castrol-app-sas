@@ -1138,30 +1138,25 @@ html,body{height:100%;}
 
 </head>
 <body class="bg-slate-50 font-sans">
-<!-- CASTROL GITHUB BRIDGE - FINAL DIAGNOSTIC VERSION -->
+<!-- CASTROL GITHUB BRIDGE - DIAGNOSTIC / ROBUST VERSION -->
 <script>
 (function () {
   'use strict';
 
   const CASTROL_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx5dkNkseL2AXyP4T3vRATCQEnRC3Ft5ho29iUObmj-Y3H-vRunigrQheYt3jzoBq-p/exec';
   const BRIDGE_URL = CASTROL_APPS_SCRIPT_URL + (CASTROL_APPS_SCRIPT_URL.indexOf('?') >= 0 ? '&' : '?') + 'bridge=1';
-  const READY_TIMEOUT = 12000;
+  const READY_TIMEOUT = 10000;
   const REQUEST_TIMEOUT = 20000;
-  const PING_TIMEOUT = 10000;
 
   let frame = null;
   let ready = false;
   let failed = false;
-  let frameLoaded = false;
-  let pingStarted = false;
-  let pingDone = false;
   let seq = 0;
   let readyTimer = null;
-  let pingTimer = null;
   const queue = [];
   const pending = Object.create(null);
 
-  function statusText(text, type, keep) {
+  function statusText(text, type) {
     let el = document.getElementById('castrolBridgeStatus');
     if (!el) {
       el = document.createElement('div');
@@ -1169,9 +1164,9 @@ html,body{height:100%;}
       el.style.cssText = [
         'position:fixed','top:12px','left:50%','transform:translateX(-50%)',
         'z-index:100000','display:flex','align-items:center','gap:7px',
-        'padding:8px 13px','border-radius:999px','font:700 11px/1.2 Arial,sans-serif',
+        'padding:7px 12px','border-radius:999px','font:700 11px/1.2 Arial,sans-serif',
         'box-shadow:0 5px 18px rgba(15,23,42,.14)','border:1px solid #e2e8f0',
-        'background:#fff','transition:.2s ease','pointer-events:none','max-width:90vw'
+        'background:#fff','transition:.2s ease','pointer-events:none'
       ].join(';');
       document.body.appendChild(el);
     }
@@ -1181,43 +1176,18 @@ html,body{height:100%;}
     const fg  = type === 'ok' ? '#166534' : type === 'error' ? '#991b1b' : '#92400e';
     el.style.background = bg;
     el.style.color = fg;
-    el.style.opacity = '1';
-    el.innerHTML = '<span style="width:8px;height:8px;border-radius:50%;background:' + dot + ';display:inline-block;flex:0 0 auto"></span>' + text;
+    el.innerHTML = '<span style="width:8px;height:8px;border-radius:50%;background:' + dot + ';display:inline-block"></span>' + text;
 
-    if (type === 'ok' && !keep) {
-      setTimeout(function(){ if (el) el.style.opacity = '0'; }, 4000);
-      setTimeout(function(){ if (el && el.parentNode) el.parentNode.removeChild(el); }, 4350);
+    if (type === 'ok') {
+      setTimeout(function(){ if (el) el.style.opacity = '0'; }, 2500);
+      setTimeout(function(){ if (el && el.parentNode) el.parentNode.removeChild(el); }, 2850);
     }
-  }
-
-  function diagnosticText(stage, detail) {
-    let el = document.getElementById('castrolBridgeDiagnostic');
-    if (!el) {
-      el = document.createElement('div');
-      el.id = 'castrolBridgeDiagnostic';
-      el.style.cssText = [
-        'position:fixed','left:12px','bottom:12px','z-index:99999',
-        'max-width:min(520px,calc(100vw - 24px))','padding:10px 12px',
-        'border:1px solid #cbd5e1','border-radius:10px','background:rgba(255,255,255,.96)',
-        'box-shadow:0 5px 18px rgba(15,23,42,.12)','font:12px/1.45 Arial,sans-serif',
-        'color:#334155','pointer-events:none'
-      ].join(';');
-      document.body.appendChild(el);
-    }
-    el.innerHTML = '<b>Bridge diagnostic</b><br>Stage: ' + escapeDiag(stage) + '<br>' + escapeDiag(detail || '');
-  }
-
-  function escapeDiag(value) {
-    return String(value == null ? '' : value).replace(/[&<>"']/g, function(c){
-      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);
-    });
   }
 
   function ensureFrame() {
     if (frame) return frame;
 
-    statusText('Menghubungkan ke Google Apps Script...', 'wait', true);
-    diagnosticText('creating iframe', 'Membuat iframe Bridge: ' + BRIDGE_URL);
+    statusText('Menghubungkan ke Google Apps Script...', 'wait');
 
     frame = document.createElement('iframe');
     frame.id = 'castrolGasBridge';
@@ -1228,69 +1198,28 @@ html,body{height:100%;}
     frame.style.cssText = 'position:fixed;width:1px;height:1px;left:-10000px;top:-10000px;border:0;opacity:0;pointer-events:none;';
 
     frame.addEventListener('load', function () {
-      if (failed) return;
-
-      frameLoaded = true;
-      ready = true;
-      clearTimeout(readyTimer);
-
-      statusText('Bridge iframe termuat — mengetes bridgePing...', 'wait', true);
-      diagnosticText('iframe loaded', 'Iframe Apps Script berhasil load. Mengirim bridgePing().');
-
-      flush();
-      startBridgePing();
+      // iframe loaded. We still wait for the explicit bridge-ready message.
+      statusText('Bridge dimuat, menunggu Apps Script...', 'wait');
     });
 
     frame.addEventListener('error', function () {
       failed = true;
-      statusText('Bridge gagal dimuat', 'error', true);
-      diagnosticText('iframe error', 'Iframe Apps Script gagal dimuat.');
-      failAll(new Error('Google Apps Script Bridge gagal dimuat.'));
+      statusText('Bridge gagal dimuat', 'error');
+      failAll(new Error('Google Apps Script Bridge gagal dimuat. Pastikan Web App masih aktif dan Code.gs terbaru sudah di-deploy.'));
     });
 
     (document.body || document.documentElement).appendChild(frame);
 
     clearTimeout(readyTimer);
     readyTimer = setTimeout(function () {
-      if (!frameLoaded && !failed) {
+      if (!ready) {
         failed = true;
-        statusText('Bridge tidak terhubung', 'error', true);
-        diagnosticText('iframe timeout', 'Iframe tidak memberikan event load dalam ' + READY_TIMEOUT + ' ms.');
-        failAll(new Error('Google Apps Script Bridge tidak memberikan event load.'));
+        statusText('Bridge tidak terhubung', 'error');
+        failAll(new Error('Google Apps Script Bridge tidak memberikan respons. Pastikan Code.gs terbaru sudah di-deploy sebagai Web App dan aksesnya diatur ke Anyone.'));
       }
     }, READY_TIMEOUT);
 
     return frame;
-  }
-
-  function startBridgePing() {
-    if (pingStarted || failed) return;
-    pingStarted = true;
-    diagnosticText('ping started', 'Mengirim request bridgePing ke Apps Script...');
-
-    let finished = false;
-    pingTimer = setTimeout(function(){
-      if (finished) return;
-      finished = true;
-      pingDone = false;
-      statusText('Bridge load OK, tetapi bridgePing timeout', 'error', true);
-      diagnosticText('ping timeout', 'iframe berhasil load tetapi tidak ada response dari bridgePing() dalam ' + PING_TIMEOUT + ' ms.');
-    }, PING_TIMEOUT);
-
-    call('bridgePing', [], function(data){
-      if (finished) return;
-      finished = true;
-      clearTimeout(pingTimer);
-      pingDone = true;
-      statusText('Bridge terhubung — bridgePing berhasil', 'ok', true);
-      diagnosticText('ping success', 'Response Apps Script diterima: ' + JSON.stringify(data));
-    }, function(err){
-      if (finished) return;
-      finished = true;
-      clearTimeout(pingTimer);
-      statusText('BridgePing gagal', 'error', true);
-      diagnosticText('ping failure', err && err.message ? err.message : String(err));
-    });
   }
 
   function failAll(err) {
@@ -1325,28 +1254,41 @@ html,body{height:100%;}
 
   function flush() {
     if (!ready) return;
-    while (queue.length) {
-      send(queue.shift());
-    }
+    while (queue.length) send(queue.shift());
   }
 
   window.addEventListener('message', function (event) {
-    // Jangan bergantung pada event.source === frame.contentWindow.
-    // Apps Script HTML Service dapat melewati sandbox/redirect.
     if (!frame) return;
 
     const msg = event.data || {};
-    if (!msg || typeof msg !== 'object') return;
+    const allowedType = msg.type === 'castrol-gas-ready' ||
+                        msg.type === 'castrol-gas-response' ||
+                        msg.type === 'castrol-gas-selftest';
+    if (!allowedType) return;
+
+    // Apps Script dapat melewati sandbox/redirect sehingga event.source tidak
+    // selalu identik dengan frame.contentWindow. Jangan menolak handshake hanya
+    // karena perbedaan WindowProxy. Pesan dibatasi ke tipe Bridge di atas.
 
     if (msg.type === 'castrol-gas-ready') {
       ready = true;
       failed = false;
       clearTimeout(readyTimer);
-      frameLoaded = true;
-      statusText('Bridge siap — mengetes bridgePing...', 'wait', true);
-      diagnosticText('ready message', 'castrol-gas-ready diterima dari Apps Script.');
+      statusText('Google Apps Script terhubung', 'ok');
       flush();
-      startBridgePing();
+      return;
+    }
+
+    if (msg.type === 'castrol-gas-selftest') {
+      if (msg.ok) {
+        ready = true;
+        failed = false;
+        clearTimeout(readyTimer);
+        statusText('Bridge self-test berhasil', 'ok');
+        flush();
+      } else {
+        statusText('Bridge self-test gagal', 'error');
+      }
       return;
     }
 
@@ -1434,14 +1376,12 @@ html,body{height:100%;}
     return {
       ready: ready,
       failed: failed,
-      frameLoaded: frameLoaded,
-      pingStarted: pingStarted,
-      pingDone: pingDone,
       url: CASTROL_APPS_SCRIPT_URL,
       bridgeUrl: BRIDGE_URL
     };
   };
 
+  // Start bridge after DOM is available.
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', ensureFrame, {once:true});
   } else {
