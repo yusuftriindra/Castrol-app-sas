@@ -1258,17 +1258,18 @@ html,body{height:100%;}
   }
 
   window.addEventListener('message', function (event) {
-    if (!frame) return;
-
+    /*
+     * Apps Script HTML Service dapat melakukan redirect/sandbox sehingga
+     * event.source tidak selalu identik dengan frame.contentWindow.
+     * Karena itu JANGAN menolak pesan hanya berdasarkan event.source.
+     *
+     * Kita hanya menerima tiga tipe pesan yang memang dibuat oleh Bridge:
+     *   castrol-gas-ready
+     *   castrol-gas-selftest
+     *   castrol-gas-response
+     */
     const msg = event.data || {};
-    const allowedType = msg.type === 'castrol-gas-ready' ||
-                        msg.type === 'castrol-gas-response' ||
-                        msg.type === 'castrol-gas-selftest';
-    if (!allowedType) return;
-
-    // Apps Script dapat melewati sandbox/redirect sehingga event.source tidak
-    // selalu identik dengan frame.contentWindow. Jangan menolak handshake hanya
-    // karena perbedaan WindowProxy. Pesan dibatasi ke tipe Bridge di atas.
+    if (!msg || typeof msg !== 'object') return;
 
     if (msg.type === 'castrol-gas-ready') {
       ready = true;
@@ -1284,10 +1285,15 @@ html,body{height:100%;}
         ready = true;
         failed = false;
         clearTimeout(readyTimer);
-        statusText('Bridge self-test berhasil', 'ok');
+        statusText('Google Apps Script terhubung', 'ok');
         flush();
       } else {
-        statusText('Bridge self-test gagal', 'error');
+        failed = true;
+        const em = msg.error && msg.error.message
+          ? msg.error.message
+          : 'Bridge self-test gagal.';
+        statusText('Bridge gagal: ' + em, 'error');
+        failAll(new Error(em));
       }
       return;
     }
@@ -1303,7 +1309,13 @@ html,body{height:100%;}
     if (msg.ok) {
       if (p.success) p.success(msg.data);
     } else {
-      if (p.failure) p.failure(new Error(msg.error && msg.error.message ? msg.error.message : 'Google Apps Script gagal memproses permintaan.'));
+      if (p.failure) {
+        p.failure(new Error(
+          msg.error && msg.error.message
+            ? msg.error.message
+            : 'Google Apps Script gagal memproses permintaan.'
+        ));
+      }
     }
   });
 
