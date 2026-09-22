@@ -1324,6 +1324,11 @@ html,body{height:100%;}
         delete pending[id];
         clearTimeout(p.timer);
         if (p.failure) p.failure(new Error('Bridge Google Apps Script tidak terhubung.'));
+      } else if (String(method) === 'bridgePing') {
+        // PENTING: bridgePing harus dikirim langsung.
+        // Jika bridgePing ikut masuk queue, queue menunggu ready, sedangkan
+        // ready baru bisa terjadi setelah bridgePing mendapat respons -> deadlock.
+        send(item);
       } else {
         queue.push(item);
       }
@@ -1355,11 +1360,13 @@ html,body{height:100%;}
   };
 
   // Tidak menggunakan postMessage untuk mengirim request ke iframe.
-  // Request dikirim sebagai HTTP POST langsung ke doPost(e), sehingga
-  // sandbox iframe Apps Script tidak lagi menjadi penghalang.
+  // Request dikirim sebagai HTTP POST langsung ke doPost(e).
+  // bridgePing dikirim langsung (bukan menunggu ready) untuk memulai handshake.
   ensureFrame();
   setTimeout(function(){
-    call('bridgePing', [], function(){}, function(err){
+    call('bridgePing', [], function(){
+      // Respons bridgePing sudah diproses oleh listener message.
+    }, function(err){
       failed = true;
       statusText('Bridge gagal: ' + (err && err.message ? err.message : String(err)), 'error');
     });
