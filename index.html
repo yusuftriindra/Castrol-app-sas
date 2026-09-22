@@ -5073,7 +5073,7 @@ html,body{height:100%;}
                 showLoading(false);if(btn){btn.disabled=false;btn.textContent='+ Simpan Customer';}
                 if(!res||!res.success){showModal('Gagal',res&&res.message?res.message:'Customer gagal disimpan.');return;}
                 closeCustomerManageModal();loadTambahCustomerTable(true);showModal('Berhasil','Customer berhasil ditambahkan.\n\nCUST.CODE: '+(res.custCode||''));
-            }).withFailureHandler(fail).simpanTambahCustomer(payload);}
+            }).withFailureHandler(fail).simpanTambahCustomer(payload,currentUser,currentUsernameInput);}
         }
 
         function deleteCustomerFromModal(){
