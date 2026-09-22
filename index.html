@@ -1158,32 +1158,6 @@ html,body{height:100%;}
   const queue = [];
   const pending = Object.create(null);
 
-  function statusText(text, type) {
-    let el = document.getElementById('castrolBridgeStatus');
-    if (!el) {
-      el = document.createElement('div');
-      el.id = 'castrolBridgeStatus';
-      el.style.cssText = [
-        'position:fixed','top:12px','left:50%','transform:translateX(-50%)',
-        'z-index:100000','display:flex','align-items:center','gap:8px',
-        'padding:7px 12px','border-radius:999px','font:600 12px Arial,sans-serif',
-        'box-shadow:0 8px 24px rgba(15,23,42,.12)','transition:opacity .3s'
-      ].join(';');
-      document.body.appendChild(el);
-    }
-    const dot = type === 'ok' ? '#16a34a' : type === 'error' ? '#dc2626' : '#f59e0b';
-    const bg  = type === 'ok' ? '#f0fdf4' : type === 'error' ? '#fef2f2' : '#fffbeb';
-    const fg  = type === 'ok' ? '#166534' : type === 'error' ? '#991b1b' : '#92400e';
-    el.style.background = bg;
-    el.style.color = fg;
-    el.style.opacity = '1';
-    el.innerHTML = '<span style="width:8px;height:8px;border-radius:50%;background:' + dot + ';display:inline-block"></span>' + text;
-    if (type === 'ok') {
-      setTimeout(function(){ if (el) el.style.opacity = '0'; }, 2500);
-      setTimeout(function(){ if (el && el.parentNode) el.parentNode.removeChild(el); }, 2850);
-    }
-  }
-
   function failAll(err) {
     while (queue.length) {
       const item = queue.shift();
@@ -1205,8 +1179,6 @@ html,body{height:100%;}
   function ensureFrame() {
     if (frame) return frame;
 
-    statusText('Menghubungkan ke Google Apps Script...', 'wait');
-
     frame = document.createElement('iframe');
     frame.id = 'castrolGasBridge';
     frame.name = 'castrolGasBridge_' + Date.now();
@@ -1227,7 +1199,6 @@ html,body{height:100%;}
     readyTimer = setTimeout(function () {
       if (!ready) {
         failed = true;
-        statusText('Bridge tidak terhubung', 'error');
         failAll(new Error('Apps Script Bridge tidak merespons POST. Pastikan versi Code.gs HTTP POST sudah di-deploy sebagai Web App.'));
       }
     }, READY_TIMEOUT);
@@ -1282,7 +1253,6 @@ html,body{height:100%;}
         ready = true;
         failed = false;
         clearTimeout(readyTimer);
-        statusText('Google Apps Script terhubung', 'ok');
         flush();
       }
       if (p.success) p.success(msg.data);
@@ -1355,9 +1325,6 @@ html,body{height:100%;}
   window.google.script = window.google.script || {};
   window.google.script.run = runner({success:null, failure:null});
 
-  window.castrolBridgeStatus = function() {
-    return {ready:ready, failed:failed, url:CASTROL_APPS_SCRIPT_URL, bridgeUrl:BRIDGE_URL, transport:'HTTP POST'};
-  };
 
   // Tidak menggunakan postMessage untuk mengirim request ke iframe.
   // Request dikirim sebagai HTTP POST langsung ke doPost(e).
@@ -1366,9 +1333,9 @@ html,body{height:100%;}
   setTimeout(function(){
     call('bridgePing', [], function(){
       // Respons bridgePing sudah diproses oleh listener message.
-    }, function(err){
+    }, function(){
       failed = true;
-      statusText('Bridge gagal: ' + (err && err.message ? err.message : String(err)), 'error');
+      // Koneksi bridge berjalan diam-diam tanpa status UI.
     });
   }, 50);
 })();
