@@ -4844,9 +4844,8 @@ startAutoRefresh();
                     };
                 }
                 if(btnTolak){
-                    const isAdmin=String(currentUsernameInput||'').trim().toLowerCase()==='admin';
-                    btnTolak.style.display=isAdmin?'inline-block':'none';
-                    btnTolak.disabled=!isAdmin;
+                    btnTolak.style.display='inline-flex';
+                    btnTolak.disabled=false;
                     btnTolak.onclick=function(){bukaPopupTolakPesananOutlet(headers,row,btnTolak);};
                 }
             }).withFailureHandler(function(err){
@@ -5056,9 +5055,8 @@ startAutoRefresh();
             const btnTolak=document.getElementById('btnTolakPesananOutlet');
             if(btn)btn.onclick=function(){bukaPopupCashbackRespon(headers,row,dh,dr,totalVolume,btn);};
             if(btnTolak){
-                const isAdmin=String(currentUsernameInput||'').trim().toLowerCase()==='admin';
-                btnTolak.style.display=isAdmin?'inline-block':'none';
-                btnTolak.disabled=!isAdmin;
+                btnTolak.style.display='inline-flex';
+                btnTolak.disabled=false;
                 btnTolak.onclick=function(){bukaPopupTolakPesananOutlet(headers,row,btnTolak);};
             }
             modal.style.display='flex';
