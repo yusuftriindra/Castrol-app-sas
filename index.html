@@ -1226,7 +1226,7 @@ html,body{height:100%;}
 
     var CASTROL_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx5dkNkseL2AXyP4T3vRATCQEnRC3Ft5ho29iUObmj-Y3H-vRunigrQheYt3jzoBq-p/exec';
     var BRIDGE_URL = CASTROL_APPS_SCRIPT_URL + (CASTROL_APPS_SCRIPT_URL.indexOf('?') >= 0 ? '&' : '?') + 'bridge=1';
-    var REQUEST_TIMEOUT = 120000;
+    var REQUEST_TIMEOUT = 30000;
     var seq = 0;
     var pending = Object.create(null);
 
@@ -1297,7 +1297,7 @@ html,body{height:100%;}
             if (!current) return;
             delete pending[id];
             cleanup(current);
-            if (current.failure) current.failure(new Error('Server tidak merespons permintaan ' + method + ' setelah 120 detik.'));
+            if (current.failure) current.failure(new Error('Server tidak merespons permintaan ' + method + '.'));
         }, REQUEST_TIMEOUT);
 
         try {
@@ -1354,59 +1354,6 @@ html,body{height:100%;}
     window.google.script.run = runner({ success: null, failure: null, userObject: null });
 })();
 </script>
-
-<style id="mobile-scroll-header-fix">
-/* =========================================================
-   MOBILE SCROLL FIX
-   Header tidak lagi menutupi isi saat halaman HP di-scroll.
-   Pada desktop perilaku sticky header tetap dipertahankan.
-   ========================================================= */
-@media (max-width: 767px) {
-  /* Header ikut berada di alur halaman, sehingga konten tidak
-     berjalan di bawah header ketika user scroll ke bawah. */
-  #mainHeader {
-    position: relative !important;
-    top: auto !important;
-    z-index: 60 !important;
-    flex: 0 0 auto !important;
-  }
-
-  /* Scroll utama dikembalikan ke halaman, bukan container setinggi viewport.
-     Ini mencegah bagian bawah tab tertutup/terpotong oleh header. */
-  #app.app-shell {
-    height: auto !important;
-    min-height: 100dvh !important;
-  }
-
-  #app > .p-4.flex-1.overflow-y-auto {
-    height: auto !important;
-    max-height: none !important;
-    min-height: calc(100dvh - 58px) !important;
-    overflow-y: visible !important;
-    overflow-x: hidden !important;
-    overscroll-behavior: auto !important;
-    scrollbar-gutter: auto !important;
-    padding-bottom: 28px !important;
-  }
-
-  /* Sidebar tetap menjadi overlay saat menu dibuka. */
-  #leftNav.app-sidebar {
-    position: absolute !important;
-    top: 58px !important;
-    z-index: 55 !important;
-  }
-
-  /* Jangan biarkan wrapper tabel memaksa tinggi layar di HP. */
-  #tabMonitoring .bg-white.border.rounded-xl.shadow-sm > div,
-  #tabOutletKontrak .bg-white.border.rounded-xl.shadow-sm > div,
-  #tabOutletBWS .bg-white.border.rounded-xl.shadow-sm > div,
-  #tabPricelist .bg-white.border.rounded-xl.shadow-sm > div,
-  #listRiwayat .riwayat-table-wrap,
-  .riwayat-table-wrap {
-    max-height: none !important;
-  }
-}
-</style>
 </head>
 <body class="bg-slate-50 font-sans">
 
@@ -2096,8 +2043,6 @@ html,body{height:100%;}
         let riwayatLoading = false;
         let riwayatPage = 1;
         let selectedRiwayatIds = {};
-        // Menyimpan pilihan APPROVE/DECLINE agar tidak hilang saat auto-refresh.
-        let selectedRiwayatStatus = {};
         const RIWAYAT_PAGE_SIZE = 60;
         let monitoringLoading = false;
         let kontrakLoading = false;
@@ -2633,8 +2578,8 @@ startAutoRefresh();
                         data-order-id="${escapeHtml(item.id)}"
                         data-current-status="${escapeHtml(status)}">
                         <option value="">${escapeHtml(status)} / TIDAK DIUBAH</option>
-                        <option value="APPROVE" ${selectedRiwayatStatus[String(item.id)] === 'APPROVE' ? 'selected' : ''}>APPROVE</option>
-                        <option value="DECLINE" ${selectedRiwayatStatus[String(item.id)] === 'DECLINE' ? 'selected' : ''}>DECLINE</option>
+                        <option value="APPROVE">APPROVE</option>
+                        <option value="DECLINE">DECLINE</option>
                     </select>
                 ` : `
                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border text-[9px] font-extrabold ${statusClass}">
@@ -2755,24 +2700,14 @@ startAutoRefresh();
 
         function pilihSemuaStatusRiwayat(status) {
             document.querySelectorAll('.bulk-status-select').forEach(function(select) {
-                const id = String(select.dataset.orderId || '').trim();
                 select.value = status;
-                if (id) {
-                    if (status === 'APPROVE' || status === 'DECLINE') {
-                        selectedRiwayatStatus[id] = status;
-                    } else {
-                        delete selectedRiwayatStatus[id];
-                    }
-                }
             });
             updateBulkStatusInfo();
         }
 
         function resetPilihanStatusRiwayat() {
             document.querySelectorAll('.bulk-status-select').forEach(function(select) {
-                const id = String(select.dataset.orderId || '').trim();
                 select.value = '';
-                if (id) delete selectedRiwayatStatus[id];
             });
             updateBulkStatusInfo();
         }
@@ -2794,19 +2729,6 @@ startAutoRefresh();
 
         document.addEventListener('change', function(e) {
             if (e.target && e.target.classList.contains('bulk-status-select')) {
-                const select = e.target;
-                const id = String(select.dataset.orderId || '').trim();
-                const value = String(select.value || '').toUpperCase();
-
-                // Simpan pilihan lokal. Auto-refresh akan memakai nilai ini
-                // sehingga pilihan APPROVE/DECLINE tidak kembali kosong.
-                if (id) {
-                    if (value === 'APPROVE' || value === 'DECLINE') {
-                        selectedRiwayatStatus[id] = value;
-                    } else {
-                        delete selectedRiwayatStatus[id];
-                    }
-                }
                 updateBulkStatusInfo();
             }
         });
@@ -2855,12 +2777,6 @@ startAutoRefresh();
                     function processNext() {
                         if (index >= changes.length) {
                             showLoading(false);
-
-                            // Pilihan yang sudah berhasil dikirim jangan dipasang lagi
-                            // setelah refresh karena status server sudah berubah.
-                            changes.forEach(function(ch) {
-                                delete selectedRiwayatStatus[String(ch.id)];
-                            });
 
                             if (failed === 0) {
                                 showModal('Berhasil', `${success} transaksi berhasil diperbarui.`);
@@ -4221,7 +4137,7 @@ startAutoRefresh();
             return formatNumberID(value, 0);
         }
 
-        function renderPencapaianCategory(label, icon, category, type, sales) {
+        function renderPencapaianCategory(label, icon, category, type) {
             category = category || {months: [], quarter: {actual:0,target:0,percentage:0}};
             const months = Array.isArray(category.months) ? category.months : [];
             const q = category.quarter || {actual:0,target:0,percentage:0};
@@ -4244,7 +4160,7 @@ startAutoRefresh();
             const qColor = qPct >= 100 ? 'bg-emerald-600' : qPct >= 80 ? 'bg-amber-500' : 'bg-red-500';
 
             return `
-                <div class="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm cursor-pointer hover:border-emerald-300 hover:shadow-md transition" role="button" tabindex="0" onclick="openPencapaianDetail('${escapeHtml(categoryKeyForDetail(type))}', '${escapeHtml(sales || '')}')" onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); openPencapaianDetail('${escapeHtml(categoryKeyForDetail(type))}', '${escapeHtml(sales || '')}'); }">
+                <div class="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm">
                     <div class="flex items-center gap-2 mb-2">
                         <div class="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-lg shrink-0">${icon}</div>
                         <div>
@@ -4306,198 +4222,14 @@ startAutoRefresh();
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            ${renderPencapaianCategory('Value', '💰', item.categories && item.categories.value, 'value', item.sales)}
-                            ${renderPencapaianCategory('Volume', '📦', item.categories && item.categories.volume, 'volume', item.sales)}
-                            ${renderPencapaianCategory('Active Outlet', '🏪', item.categories && item.categories.active, 'active', item.sales)}
-                            ${renderPencapaianCategory('Produk Fokus', '🎯', item.categories && item.categories.product, 'product', item.sales)}
-                            ${renderPencapaianCategory('Power Brand', '🏆', item.categories && item.categories.powerBrand, 'powerBrand', item.sales)}
+                            ${renderPencapaianCategory('Value', '💰', item.categories && item.categories.value, 'value')}
+                            ${renderPencapaianCategory('Volume', '📦', item.categories && item.categories.volume, 'volume')}
+                            ${renderPencapaianCategory('Active Outlet', '🏪', item.categories && item.categories.active, 'active')}
+                            ${renderPencapaianCategory('Produk Fokus', '🎯', item.categories && item.categories.product, 'product')}
+                            ${renderPencapaianCategory('Power Brand', '🏆', item.categories && item.categories.powerBrand, 'powerBrand')}
                         </div>
                     </div>`;
             }).join('');
-        }
-
-        function categoryKeyForDetail(type) {
-            return String(type || '').trim().toLowerCase();
-        }
-
-        function closePencapaianDetail() {
-            const modal = document.getElementById('customModal');
-            if (modal && modal.style.display !== 'none') {
-                closeModal(false);
-            }
-        }
-
-        function openPencapaianDetail(category, sales) {
-            const periodSelect = document.getElementById('pencapaianPeriodSelect');
-            const selectedPeriod = periodSelect && periodSelect.value ? periodSelect.value : '';
-            const titleMap = {
-                value: 'Value',
-                volume: 'Volume',
-                active: 'Active Outlet',
-                product: 'Produk Fokus',
-                powerbrand: 'Power Brand'
-            };
-            const title = titleMap[String(category || '').toLowerCase()] || category;
-
-            // Gunakan modal standar aplikasi agar konsisten dengan tab lain.
-            showModal('Detail ' + title, 'Memuat detail transaksi...', false, null);
-            document.getElementById('modalSubtitle').textContent =
-                String(sales || '-') + ' · ' + String(selectedPeriod || '-');
-
-            const cancelBtn = document.getElementById('modalCancelBtn');
-            const okBtn = document.getElementById('modalOkBtn');
-            if (cancelBtn) cancelBtn.style.display = 'none';
-            if (okBtn) okBtn.textContent = 'Tutup';
-
-            const modal = document.getElementById('customModal');
-            const card = modal ? modal.querySelector('.modern-modal-card') : null;
-            if (card) card.classList.add('bws-detail-modal-card');
-
-            const body = document.getElementById('modalBody');
-            if (body) {
-                body.innerHTML = `
-                    <div class="rounded-xl border border-slate-200 bg-white overflow-hidden">
-                        <div class="px-3 py-2 bg-slate-50 border-b border-slate-200 flex items-center justify-between gap-2">
-                            <div class="text-[9px] font-extrabold uppercase tracking-wider text-slate-500">Transaksi Outlet</div>
-                            <div class="text-[9px] text-slate-400">${escapeHtml(title)}</div>
-                        </div>
-                        <div id="pencapaianDetailBody" class="modal-table-wrap p-2">
-                            <div class="text-center text-xs text-slate-400 py-10">Memuat detail transaksi...</div>
-                        </div>
-                    </div>`;
-            }
-
-            google.script.run.withSuccessHandler(function(res) {
-                const detailBody = document.getElementById('pencapaianDetailBody');
-                if (!detailBody) return;
-
-                if (!res || !res.success) {
-                    detailBody.innerHTML = '<div class="text-center text-xs text-red-500 py-10">' +
-                        escapeHtml((res && res.message) || 'Detail tidak tersedia.') + '</div>';
-                    return;
-                }
-
-                const rows = Array.isArray(res.data) ? res.data : [];
-                if (!rows.length) {
-                    detailBody.innerHTML = '<div class="text-center text-xs text-slate-400 py-10">' +
-                        'Tidak ada transaksi outlet untuk kategori ini.</div>';
-                    return;
-                }
-
-                const valueText = function(value) {
-                    return 'Rp ' + Number(value || 0).toLocaleString('id-ID');
-                };
-                const volumeText = function(value) {
-                    return Number(value || 0).toLocaleString('id-ID') + ' L';
-                };
-
-                // Kelompokkan card berdasarkan BULAN agar detail lebih mudah dibaca.
-                const monthLabel = function(monthKey) {
-                    const m = String(monthKey || '').match(/^(\d{4})-(\d{2})$/);
-                    if (!m) return String(monthKey || '-');
-                    const names = [
-                        'Januari','Februari','Maret','April','Mei','Juni',
-                        'Juli','Agustus','September','Oktober','November','Desember'
-                    ];
-                    const idx = Number(m[2]) - 1;
-                    return (names[idx] || m[2]) + ' ' + m[1];
-                };
-
-                const grouped = {};
-                rows.forEach(function(r) {
-                    const key = String(r.month || '-');
-                    if (!grouped[key]) grouped[key] = [];
-                    grouped[key].push(r);
-                });
-
-                const monthKeys = Object.keys(grouped).sort(function(a, b) {
-                    return String(a).localeCompare(String(b));
-                });
-
-                const monthSections = monthKeys.map(function(monthKey) {
-                    const monthRows = grouped[monthKey] || [];
-
-                    const cards = monthRows.map(function(r, index) {
-                        const products = Array.isArray(r.products)
-                            ? r.products.filter(function(p) { return p && String(p.name || '').trim() !== ''; })
-                            : [];
-
-                        const productText = products.length
-                            ? products.map(function(p) {
-                                const qty = Number(p.volume || 0);
-                                return escapeHtml(p.name) + (qty ? ' · ' + qty.toLocaleString('id-ID') + ' L' : '');
-                            }).join('<br>')
-                            : '-';
-
-                        return `
-                            <article class="riwayat-card" style="cursor:default">
-                                <div class="riwayat-card-top">
-                                    <div class="min-w-0">
-                                        <div class="flex flex-wrap items-center gap-2">
-                                            <span class="riwayat-card-number">#${index + 1}</span>
-                                        </div>
-                                        <div class="riwayat-card-outlet mt-1">${escapeHtml(r.outlet || '-')}</div>
-                                    </div>
-                                    <span class="inline-flex items-center px-2.5 py-1.5 rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700 text-[9px] font-extrabold shrink-0">
-                                        DETAIL
-                                    </span>
-                                </div>
-
-                                <div class="riwayat-card-products">
-                                    <div class="riwayat-card-label">PRODUK</div>
-                                    <div class="riwayat-card-product-text">${productText}</div>
-                                </div>
-
-                                <div class="riwayat-card-summary">
-                                    <div class="riwayat-card-stat">
-                                        <span class="riwayat-card-label">TRANSAKSI</span>
-                                        <strong>${Number(r.transactions || 0).toLocaleString('id-ID')}</strong>
-                                    </div>
-                                    <div class="riwayat-card-stat">
-                                        <span class="riwayat-card-label">VOLUME</span>
-                                        <strong>${volumeText(r.volume)}</strong>
-                                    </div>
-                                    <div class="riwayat-card-stat" style="grid-column:1 / -1">
-                                        <span class="riwayat-card-label">NILAI</span>
-                                        <strong>${valueText(r.value)}</strong>
-                                    </div>
-                                </div>
-
-                                <div class="riwayat-card-footer">
-                                    <span class="text-[9px] text-slate-400 font-medium">${escapeHtml(title)} · ${escapeHtml(selectedPeriod || '-')}</span>
-                                    <span class="text-[9px] text-emerald-700 font-extrabold">OUTLET</span>
-                                </div>
-                            </article>`;
-                    }).join('');
-
-                    return `
-                        <section class="mb-4 last:mb-0">
-                            <div class="flex items-center justify-between gap-2 px-1 mb-2">
-                                <div class="flex items-center gap-2 min-w-0">
-                                    <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs">📅</span>
-                                    <div class="min-w-0">
-                                        <div class="text-[11px] font-extrabold text-slate-700">${escapeHtml(monthLabel(monthKey))}</div>
-                                        <div class="text-[9px] text-slate-400">${monthRows.length.toLocaleString('id-ID')} outlet</div>
-                                    </div>
-                                </div>
-                                <span class="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider">BULAN</span>
-                            </div>
-                            <div class="riwayat-cards-grid">${cards}</div>
-                        </section>`;
-                }).join('');
-
-                detailBody.innerHTML = `
-                    <div class="riwayat-cards-wrap">
-                        ${monthSections}
-                    </div>`;
-            }).withFailureHandler(function(err) {
-                const detailBody = document.getElementById('pencapaianDetailBody');
-                if (detailBody) {
-                    detailBody.innerHTML = '<div class="text-center text-xs text-red-500 py-10">' +
-                        'Gagal memuat detail: ' +
-                        escapeHtml(err && err.message ? err.message : 'Terjadi kesalahan.') + '</div>';
-                }
-            }).getPencapaianSalesDetail(sales, currentUsernameInput, selectedPeriod, category);
         }
 
         function loadPencapaianSalesFilter() {
@@ -4701,25 +4433,8 @@ startAutoRefresh();
         function renderPesananOutlet(res) {
             const head=document.getElementById('pesananOutletTableHead'), body=document.getElementById('pesananOutletTableBody'); if(!head||!body)return;
             const headers=Array.isArray(res.headers)?res.headers:[], rows=Array.isArray(res.rows)?res.rows:[];
-            // Pesanan Outlet: urutkan berdasarkan DATE/TANGGAL terbaru ke paling atas.
-            function parsePesananOutletDate(value){
-                const s=String(value==null?'':value).trim();
-                if(!s)return 0;
-                // Format ISO / yyyy-mm-dd
-                let m=s.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
-                if(m){
-                    const d=new Date(Number(m[1]),Number(m[2])-1,Number(m[3]),Number(m[4]||0),Number(m[5]||0),Number(m[6]||0));
-                    return isNaN(d.getTime())?0:d.getTime();
-                }
-                // Format Indonesia: dd/mm/yyyy atau dd-mm-yyyy
-                m=s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
-                if(m){
-                    const d=new Date(Number(m[3]),Number(m[2])-1,Number(m[1]),Number(m[4]||0),Number(m[5]||0),Number(m[6]||0));
-                    return isNaN(d.getTime())?0:d.getTime();
-                }
-                const d=new Date(s);
-                return isNaN(d.getTime())?0:d.getTime();
-            }
+            globalPesananOutletHeaders=headers;
+            globalPesananOutletRows=rows;
             // Tabel utama hanya menampilkan 4 kolom yang diperlukan.
             function findTableIdx(aliases){
                 const norm=function(v){return String(v==null?'':v).trim().toUpperCase().replace(/[.\/_-]+/g,' ').replace(/\s+/g,' ').replace(/[^A-Z0-9]/g,'');};
@@ -4730,14 +4445,6 @@ startAutoRefresh();
             const idxOutlet=findTableIdx(['OUTLET','NAMA OUTLET']);
             const idxDate=findTableIdx(['DATE','TANGGAL','TGL']);
             const idxDsr=findTableIdx(['DSR','SALES','NAMA SALES']);
-            // Terbaru selalu di posisi pertama. Jika tanggal sama, pertahankan urutan asli.
-            rows.sort(function(a,b){
-                const da=idxDate>=0?parsePesananOutletDate(a[idxDate]):0;
-                const db=idxDate>=0?parsePesananOutletDate(b[idxDate]):0;
-                return db-da;
-            });
-            globalPesananOutletHeaders=headers;
-            globalPesananOutletRows=rows;
             const idxPayment=findTableIdx(['PAYMENT','PEMBAYARAN']);
             const displayCols=[
                 {label:'OUTLET',idx:idxOutlet},
@@ -5768,105 +5475,3 @@ if(tab==='riwayat')loadRiwayat();
 </script>
 </body>
 </html>
-<style id="mobile-monitoring-pricelist-bottom-fix">
-/* =========================================================
-   MOBILE MONITORING + PRICELIST BOTTOM SCROLL FIX
-   Pada HP tabel tidak memakai scroll vertikal internal. Halaman
-   yang melakukan scroll, sehingga baris paling bawah tidak
-   tertutup/terpotong di area bawah layar.
-   Scroll horizontal tabel tetap tersedia.
-   ========================================================= */
-@media (max-width: 767px) {
-  #tabMonitoring .bg-white.border.rounded-xl.shadow-sm > div,
-  #tabPricelist .bg-white.border.rounded-xl.shadow-sm > div {
-    max-height: none !important;
-    height: auto !important;
-    overflow-y: visible !important;
-    overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: auto !important;
-    padding-bottom: 72px !important;
-    box-sizing: border-box !important;
-  }
-
-  #tabMonitoring .bg-white.border.rounded-xl.shadow-sm,
-  #tabPricelist .bg-white.border.rounded-xl.shadow-sm {
-    overflow: visible !important;
-    margin-bottom: 24px !important;
-  }
-
-  #tabMonitoring table,
-  #tabPricelist table {
-    margin-bottom: 8px !important;
-  }
-
-  /* Beri ruang ekstra setelah baris terakhir agar aman dari
-     browser toolbar / area bawah viewport HP. */
-  #listMonitoringTableBody::after,
-  #listPricelistTableBody::after {
-    content: "";
-    display: block;
-    height: 36px;
-  }
-}
-</style>
-
-<style id="fixed-main-header-final">
-/* =========================================================
-   FIXED MAIN HEADER
-   Header aplikasi tetap terlihat saat area konten/tabel discroll.
-   Scroll hanya terjadi pada area konten di bawah header.
-   ========================================================= */
-#app.app-shell{
-  position:relative!important;
-  height:100dvh!important;
-  min-height:100vh!important;
-  overflow:hidden!important;
-  padding-top:62px!important;
-}
-#mainHeader{
-  position:fixed!important;
-  top:0!important;
-  left:0!important;
-  right:0!important;
-  width:100%!important;
-  height:62px!important;
-  min-height:62px!important;
-  box-sizing:border-box!important;
-  z-index:1000!important;
-}
-#app>.p-4.flex-1.overflow-y-auto{
-  min-height:0!important;
-  height:calc(100dvh - 62px)!important;
-  max-height:calc(100dvh - 62px)!important;
-  overflow-y:auto!important;
-  overflow-x:hidden!important;
-  overscroll-behavior:contain;
-}
-#leftNav.app-sidebar{
-  z-index:900!important;
-}
-
-@media (max-width:767px){
-  #app.app-shell{
-    height:100dvh!important;
-    min-height:100vh!important;
-    padding-top:58px!important;
-  }
-  #mainHeader{
-    height:58px!important;
-    min-height:58px!important;
-    top:0!important;
-  }
-  #app>.p-4.flex-1.overflow-y-auto{
-    height:calc(100dvh - 58px)!important;
-    max-height:calc(100dvh - 58px)!important;
-    overflow-y:auto!important;
-    overflow-x:hidden!important;
-  }
-  #leftNav.app-sidebar{
-    top:58px!important;
-    z-index:900!important;
-  }
-}
-</style>
