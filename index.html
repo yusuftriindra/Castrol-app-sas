@@ -4321,8 +4321,10 @@ startAutoRefresh();
         }
 
         function closePencapaianDetail() {
-            const modal = document.getElementById('pencapaianDetailModal');
-            if (modal) modal.remove();
+            const modal = document.getElementById('customModal');
+            if (modal && modal.style.display !== 'none') {
+                closeModal(false);
+            }
         }
 
         function openPencapaianDetail(category, sales) {
@@ -4336,69 +4338,95 @@ startAutoRefresh();
                 powerbrand: 'Power Brand'
             };
             const title = titleMap[String(category || '').toLowerCase()] || category;
-            closePencapaianDetail();
-            const modal = document.createElement('div');
-            modal.id = 'pencapaianDetailModal';
-            modal.className = 'fixed inset-0 z-[100] bg-black/50 flex items-end sm:items-center justify-center p-0 sm:p-4';
-            modal.innerHTML = `
-                <div class="bg-white w-full sm:max-w-4xl sm:rounded-2xl rounded-t-2xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
-                    <div class="px-4 py-3 border-b border-slate-200 flex items-center justify-between gap-3 shrink-0">
-                        <div>
-                            <div class="text-sm font-extrabold text-slate-800">Detail ${escapeHtml(title)}</div>
-                            <div class="text-[10px] text-slate-400">${escapeHtml(sales || '-')} · ${escapeHtml(selectedPeriod || '-')}</div>
+
+            // Gunakan modal standar aplikasi agar tampilannya konsisten
+            // dengan detail/form lain (showModal + customModal).
+            showModal('Detail ' + title, 'Memuat detail transaksi...', false, null);
+            document.getElementById('modalSubtitle').textContent =
+                String(sales || '-') + ' · ' + String(selectedPeriod || '-');
+
+            const cancelBtn = document.getElementById('modalCancelBtn');
+            const okBtn = document.getElementById('modalOkBtn');
+            if (cancelBtn) cancelBtn.style.display = 'none';
+            if (okBtn) okBtn.textContent = 'Tutup';
+
+            const modal = document.getElementById('customModal');
+            const card = modal ? modal.querySelector('.modern-modal-card') : null;
+            if (card) card.classList.add('bws-detail-modal-card');
+
+            const body = document.getElementById('modalBody');
+            if (body) {
+                body.innerHTML = `
+                    <div class="rounded-xl border border-slate-200 bg-white overflow-hidden">
+                        <div class="px-3 py-2 bg-slate-50 border-b border-slate-200 flex items-center justify-between gap-2">
+                            <div class="text-[9px] font-extrabold uppercase tracking-wider text-slate-500">Transaksi Outlet</div>
+                            <div class="text-[9px] text-slate-400">${escapeHtml(title)}</div>
                         </div>
-                        <button type="button" onclick="closePencapaianDetail()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 font-bold">×</button>
-                    </div>
-                    <div id="pencapaianDetailBody" class="overflow-auto p-3">
-                        <div class="text-center text-xs text-slate-400 py-10">Memuat detail transaksi...</div>
-                    </div>
-                </div>`;
-            document.body.appendChild(modal);
-            modal.addEventListener('click', function(e){ if (e.target === modal) closePencapaianDetail(); });
+                        <div id="pencapaianDetailBody" class="modal-table-wrap">
+                            <div class="text-center text-xs text-slate-400 py-10">Memuat detail transaksi...</div>
+                        </div>
+                    </div>`;
+            }
 
             google.script.run.withSuccessHandler(function(res) {
-                const body = document.getElementById('pencapaianDetailBody');
-                if (!body) return;
+                const detailBody = document.getElementById('pencapaianDetailBody');
+                if (!detailBody) return;
+
                 if (!res || !res.success) {
-                    body.innerHTML = '<div class="text-center text-xs text-red-500 py-10">' + escapeHtml((res && res.message) || 'Detail tidak tersedia.') + '</div>';
+                    detailBody.innerHTML = '<div class="text-center text-xs text-red-500 py-10">' +
+                        escapeHtml((res && res.message) || 'Detail tidak tersedia.') + '</div>';
                     return;
                 }
+
                 const rows = Array.isArray(res.data) ? res.data : [];
                 if (!rows.length) {
-                    body.innerHTML = '<div class="text-center text-xs text-slate-400 py-10">Tidak ada transaksi outlet untuk kategori ini.</div>';
+                    detailBody.innerHTML = '<div class="text-center text-xs text-slate-400 py-10">' +
+                        'Tidak ada transaksi outlet untuk kategori ini.</div>';
                     return;
                 }
-                body.innerHTML = `
+
+                detailBody.innerHTML = `
                     <div class="overflow-x-auto">
-                        <table class="min-w-[720px] w-full text-[10px]">
-                            <thead class="sticky top-0 bg-slate-50 z-10">
-                                <tr class="border-b border-slate-200 text-slate-500">
-                                    <th class="text-left p-2">Outlet</th>
-                                    <th class="text-left p-2">Bulan</th>
-                                    <th class="text-right p-2">Transaksi</th>
-                                    <th class="text-right p-2">Volume</th>
-                                    <th class="text-right p-2">Value</th>
-                                    <th class="text-left p-2">Produk</th>
+                        <table class="modal-detail-table min-w-[720px] w-full text-[10px]">
+                            <thead>
+                                <tr>
+                                    <th class="text-left">Outlet</th>
+                                    <th class="text-left">Bulan</th>
+                                    <th class="text-right">Transaksi</th>
+                                    <th class="text-right">Volume</th>
+                                    <th class="text-right">Value</th>
+                                    <th class="text-left">Produk</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 ${rows.map(function(r){
-                                    const products = Array.isArray(r.products) ? r.products.map(function(p){ return escapeHtml(p.name) + (Number(p.volume || 0) ? ' (' + Number(p.volume || 0).toLocaleString('id-ID') + ')' : ''); }).join(', ') : '-';
-                                    return `<tr class="border-b border-slate-100 hover:bg-slate-50">
-                                        <td class="p-2 font-extrabold text-slate-700">${escapeHtml(r.outlet || '-')}</td>
-                                        <td class="p-2 text-slate-500">${escapeHtml(r.month || '-')}</td>
-                                        <td class="p-2 text-right text-slate-600">${Number(r.transactions || 0).toLocaleString('id-ID')}</td>
-                                        <td class="p-2 text-right font-bold text-slate-700">${Number(r.volume || 0).toLocaleString('id-ID')}</td>
-                                        <td class="p-2 text-right font-bold text-slate-700">${Number(r.value || 0).toLocaleString('id-ID')}</td>
-                                        <td class="p-2 text-slate-600">${products || '-'}</td>
+                                    const products = Array.isArray(r.products)
+                                        ? r.products.map(function(p){
+                                            return escapeHtml(p.name) +
+                                                (Number(p.volume || 0)
+                                                    ? ' (' + Number(p.volume || 0).toLocaleString('id-ID') + ')'
+                                                    : '');
+                                          }).join(', ')
+                                        : '-';
+                                    return `<tr>
+                                        <td class="font-extrabold text-slate-700">${escapeHtml(r.outlet || '-')}</td>
+                                        <td class="text-slate-500">${escapeHtml(r.month || '-')}</td>
+                                        <td class="text-right text-slate-600">${Number(r.transactions || 0).toLocaleString('id-ID')}</td>
+                                        <td class="text-right font-bold text-slate-700">${Number(r.volume || 0).toLocaleString('id-ID')}</td>
+                                        <td class="text-right font-bold text-slate-700">${Number(r.value || 0).toLocaleString('id-ID')}</td>
+                                        <td class="text-slate-600 break-words">${products || '-'}</td>
                                     </tr>`;
                                 }).join('')}
                             </tbody>
                         </table>
                     </div>`;
             }).withFailureHandler(function(err) {
-                const body = document.getElementById('pencapaianDetailBody');
-                if (body) body.innerHTML = '<div class="text-center text-xs text-red-500 py-10">Gagal memuat detail: ' + escapeHtml(err && err.message ? err.message : 'Terjadi kesalahan.') + '</div>';
+                const detailBody = document.getElementById('pencapaianDetailBody');
+                if (detailBody) {
+                    detailBody.innerHTML = '<div class="text-center text-xs text-red-500 py-10">' +
+                        'Gagal memuat detail: ' +
+                        escapeHtml(err && err.message ? err.message : 'Terjadi kesalahan.') + '</div>';
+                }
             }).getPencapaianSalesDetail(sales, currentUsernameInput, selectedPeriod, category);
         }
 
