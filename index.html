@@ -4339,8 +4339,7 @@ startAutoRefresh();
             };
             const title = titleMap[String(category || '').toLowerCase()] || category;
 
-            // Gunakan modal standar aplikasi agar tampilannya konsisten
-            // dengan detail/form lain (showModal + customModal).
+            // Gunakan modal standar aplikasi agar konsisten dengan tab lain.
             showModal('Detail ' + title, 'Memuat detail transaksi...', false, null);
             document.getElementById('modalSubtitle').textContent =
                 String(sales || '-') + ' · ' + String(selectedPeriod || '-');
@@ -4362,7 +4361,7 @@ startAutoRefresh();
                             <div class="text-[9px] font-extrabold uppercase tracking-wider text-slate-500">Transaksi Outlet</div>
                             <div class="text-[9px] text-slate-400">${escapeHtml(title)}</div>
                         </div>
-                        <div id="pencapaianDetailBody" class="modal-table-wrap">
+                        <div id="pencapaianDetailBody" class="modal-table-wrap p-2">
                             <div class="text-center text-xs text-slate-400 py-10">Memuat detail transaksi...</div>
                         </div>
                     </div>`;
@@ -4385,40 +4384,70 @@ startAutoRefresh();
                     return;
                 }
 
+                const valueText = function(value) {
+                    return 'Rp ' + Number(value || 0).toLocaleString('id-ID');
+                };
+                const volumeText = function(value) {
+                    return Number(value || 0).toLocaleString('id-ID') + ' L';
+                };
+
+                const cards = rows.map(function(r, index) {
+                    const products = Array.isArray(r.products)
+                        ? r.products.filter(function(p) { return p && String(p.name || '').trim() !== ''; })
+                        : [];
+
+                    const productText = products.length
+                        ? products.map(function(p) {
+                            const qty = Number(p.volume || 0);
+                            return escapeHtml(p.name) + (qty ? ' · ' + qty.toLocaleString('id-ID') + ' L' : '');
+                        }).join('<br>')
+                        : '-';
+
+                    return `
+                        <article class="riwayat-card" style="cursor:default">
+                            <div class="riwayat-card-top">
+                                <div class="min-w-0">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="riwayat-card-number">#${index + 1}</span>
+                                        <span class="text-[10px] text-slate-400 font-medium">${escapeHtml(r.month || '-')}</span>
+                                    </div>
+                                    <div class="riwayat-card-outlet mt-1">${escapeHtml(r.outlet || '-')}</div>
+                                </div>
+                                <span class="inline-flex items-center px-2.5 py-1.5 rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700 text-[9px] font-extrabold shrink-0">
+                                    DETAIL
+                                </span>
+                            </div>
+
+                            <div class="riwayat-card-products">
+                                <div class="riwayat-card-label">PRODUK</div>
+                                <div class="riwayat-card-product-text">${productText}</div>
+                            </div>
+
+                            <div class="riwayat-card-summary">
+                                <div class="riwayat-card-stat">
+                                    <span class="riwayat-card-label">TRANSAKSI</span>
+                                    <strong>${Number(r.transactions || 0).toLocaleString('id-ID')}</strong>
+                                </div>
+                                <div class="riwayat-card-stat">
+                                    <span class="riwayat-card-label">VOLUME</span>
+                                    <strong>${volumeText(r.volume)}</strong>
+                                </div>
+                                <div class="riwayat-card-stat" style="grid-column:1 / -1">
+                                    <span class="riwayat-card-label">NILAI</span>
+                                    <strong>${valueText(r.value)}</strong>
+                                </div>
+                            </div>
+
+                            <div class="riwayat-card-footer">
+                                <span class="text-[9px] text-slate-400 font-medium">${escapeHtml(title)} · ${escapeHtml(selectedPeriod || '-')}</span>
+                                <span class="text-[9px] text-emerald-700 font-extrabold">OUTLET</span>
+                            </div>
+                        </article>`;
+                }).join('');
+
                 detailBody.innerHTML = `
-                    <div class="overflow-x-auto">
-                        <table class="modal-detail-table min-w-[720px] w-full text-[10px]">
-                            <thead>
-                                <tr>
-                                    <th class="text-left">Outlet</th>
-                                    <th class="text-left">Bulan</th>
-                                    <th class="text-right">Transaksi</th>
-                                    <th class="text-right">Volume</th>
-                                    <th class="text-right">Value</th>
-                                    <th class="text-left">Produk</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${rows.map(function(r){
-                                    const products = Array.isArray(r.products)
-                                        ? r.products.map(function(p){
-                                            return escapeHtml(p.name) +
-                                                (Number(p.volume || 0)
-                                                    ? ' (' + Number(p.volume || 0).toLocaleString('id-ID') + ')'
-                                                    : '');
-                                          }).join(', ')
-                                        : '-';
-                                    return `<tr>
-                                        <td class="font-extrabold text-slate-700">${escapeHtml(r.outlet || '-')}</td>
-                                        <td class="text-slate-500">${escapeHtml(r.month || '-')}</td>
-                                        <td class="text-right text-slate-600">${Number(r.transactions || 0).toLocaleString('id-ID')}</td>
-                                        <td class="text-right font-bold text-slate-700">${Number(r.volume || 0).toLocaleString('id-ID')}</td>
-                                        <td class="text-right font-bold text-slate-700">${Number(r.value || 0).toLocaleString('id-ID')}</td>
-                                        <td class="text-slate-600 break-words">${products || '-'}</td>
-                                    </tr>`;
-                                }).join('')}
-                            </tbody>
-                        </table>
+                    <div class="riwayat-cards-wrap">
+                        <div class="riwayat-cards-grid">${cards}</div>
                     </div>`;
             }).withFailureHandler(function(err) {
                 const detailBody = document.getElementById('pencapaianDetailBody');
