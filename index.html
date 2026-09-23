@@ -467,6 +467,39 @@
         }
 
     
+
+/* ===== RIWAYAT CARDS ===== */
+.riwayat-cards-wrap{width:100%;}
+.riwayat-cards-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+.riwayat-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:14px;box-shadow:0 2px 8px rgba(15,23,42,.04);cursor:pointer;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease;}
+.riwayat-card:hover{transform:translateY(-1px);box-shadow:0 7px 20px rgba(15,23,42,.08);border-color:#cbd5e1;}
+.riwayat-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding-bottom:12px;border-bottom:1px solid #eef2f7;}
+.riwayat-card-number{display:inline-flex;align-items:center;padding:3px 7px;border-radius:999px;background:#f1f5f9;color:#64748b;font-size:9px;font-weight:800;}
+.riwayat-card-outlet{font-size:13px;line-height:1.35;font-weight:800;color:#0f172a;word-break:break-word;}
+.riwayat-card-products{padding:12px 0;border-bottom:1px solid #eef2f7;}
+.riwayat-card-label{font-size:8px;line-height:1.2;font-weight:800;letter-spacing:.08em;color:#94a3b8;margin-bottom:5px;}
+.riwayat-card-product-text{font-size:10px;line-height:1.65;color:#475569;word-break:break-word;}
+.riwayat-card-summary{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 0;}
+.riwayat-card-stat{min-width:0;padding:9px 10px;background:#f8fafc;border-radius:10px;}
+.riwayat-card-stat strong{display:block;font-size:11px;color:#334155;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.riwayat-card-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:10px;}
+.riwayat-action{display:inline-flex;align-items:center;justify-content:center;min-height:29px;padding:0 9px;border-radius:8px;font-size:9px;font-weight:800;transition:.15s ease;border:1px solid transparent;}
+.riwayat-action-edit{background:#2563eb;color:#fff;border-color:#1d4ed8;}
+.riwayat-action-edit:hover{background:#1d4ed8;}
+.riwayat-action-wa{background:#059669;color:#fff;border-color:#047857;}
+.riwayat-action-wa:hover{background:#047857;}
+.riwayat-action-delete{background:#fff1f2;color:#dc2626;border-color:#fecdd3;min-width:31px;padding:0 7px;}
+.riwayat-action-delete:hover{background:#ffe4e6;}
+@media(max-width:900px){.riwayat-cards-grid{grid-template-columns:1fr;}}
+@media(max-width:640px){
+    .riwayat-card{padding:12px;border-radius:14px;}
+    .riwayat-card-top{gap:8px;}
+    .riwayat-card-outlet{font-size:12px;}
+    .riwayat-card-footer{align-items:flex-end;flex-direction:column;}
+    .riwayat-card-footer>div{width:100%;}
+    .riwayat-action{flex:1;}
+}
+
 /* ===== RIWAYAT TABLE ===== */
 .riwayat-table {
     width: 100%;
@@ -1854,7 +1887,7 @@ html,body{height:100%;}
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-200 pb-2">
                         <div>
                             <h2 class="text-base font-bold text-slate-800">Tambah Customer</h2>
-                            <p class="text-[10px] text-slate-400 mt-0.5"></p>
+                            <p class="text-[10px] text-slate-400 mt-0.5">Kelola data customer pada sheet OUTLET. Kolom mengikuti header sheet secara otomatis.</p>
                         </div>
                         <button type="button" onclick="openTambahCustomerForm()" class="px-3 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-[10px] font-bold shadow-sm transition">＋ Tambah Customer</button>
                     </div>
@@ -2500,6 +2533,7 @@ startAutoRefresh();
             if (data.length === 0) {
                 container.innerHTML = `
                     <div class="text-slate-400 text-center py-10 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                        <div class="text-3xl mb-2">📋</div>
                         <p class="text-xs font-medium">Tidak ada riwayat transaksi ditemukan.</p>
                     </div>`;
                 return;
@@ -2512,7 +2546,7 @@ startAutoRefresh();
             const startIndex = isAdmin ? (riwayatPage - 1) * RIWAYAT_PAGE_SIZE : 0;
             const visibleData = isAdmin ? data.slice(startIndex, startIndex + RIWAYAT_PAGE_SIZE) : data;
 
-            let rows = "";
+            let cards = '';
 
             visibleData.forEach((item, index) => {
                 const status = String(item.status || 'PENDING').toUpperCase();
@@ -2522,6 +2556,12 @@ startAutoRefresh();
                     : status === 'DECLINE'
                         ? 'text-red-700 bg-red-50 border-red-200'
                         : 'text-amber-700 bg-amber-50 border-amber-200';
+
+                const statusDot = status === 'APPROVE'
+                    ? 'bg-emerald-500'
+                    : status === 'DECLINE'
+                        ? 'bg-red-500'
+                        : 'bg-amber-500';
 
                 const products = Array.isArray(item.products)
                     ? item.products.filter(p => String(p || '').trim() !== '')
@@ -2533,7 +2573,8 @@ startAutoRefresh();
 
                 const statusCell = isAdmin ? `
                     <select
-                        onclick="event.stopPropagation()" class="bulk-status-select w-full min-w-[120px] border border-slate-300 rounded-md px-2 py-1.5 text-[9px] font-bold bg-white"
+                        onclick="event.stopPropagation()"
+                        class="bulk-status-select w-full border border-slate-300 rounded-lg px-2.5 py-2 text-[10px] font-bold bg-white"
                         data-order-id="${escapeHtml(item.id)}"
                         data-current-status="${escapeHtml(status)}">
                         <option value="">${escapeHtml(status)} / TIDAK DIUBAH</option>
@@ -2541,52 +2582,81 @@ startAutoRefresh();
                         <option value="DECLINE">DECLINE</option>
                     </select>
                 ` : `
-                    <span class="inline-flex justify-center items-center px-2 py-1 rounded-full border text-[9px] font-extrabold ${statusClass}">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border text-[9px] font-extrabold ${statusClass}">
+                        <span class="w-1.5 h-1.5 rounded-full ${statusDot}"></span>
                         ${escapeHtml(status)}
                     </span>`;
 
-                rows += `
-                    <tr class="riwayat-row hover:bg-emerald-50/40 transition align-top cursor-pointer" onclick="lihatDetail('${escapeHtml(item.id)}')">
-                        <td class="p-2.5 text-center">
-                            <input type="checkbox" class="riwayat-select-checkbox w-3.5 h-3.5 accent-emerald-600 cursor-pointer"
-                                data-order-id="${escapeHtml(item.id)}"
-                                ${selectedRiwayatIds[String(item.id)] ? 'checked' : ''}
-                                onclick="event.stopPropagation()" onchange="toggleRiwayatSelection(this)">
-                        </td>
-                        <td class="p-2.5 text-center text-slate-400 font-semibold">${startIndex + index + 1}</td>
-                        <td class="p-2.5 whitespace-nowrap text-slate-600">${escapeHtml(item.tanggal || '-')}</td>
-                        <td class="p-2.5">
-                            <div class="font-bold text-slate-800 min-w-[130px]">${escapeHtml(item.outlet || '-')}</div>
-                            ${isAdmin ? `<div class="text-[9px] text-slate-400 mt-1">DSR: ${escapeHtml(item.dsr || '-')}</div>` : ''}
-                        </td>
-                        <td class="p-2.5">
-                            <div class="text-[10px] leading-5 text-slate-600 min-w-[180px]">${productText}</div>
-                        </td>
-                        <td class="p-2.5 text-right whitespace-nowrap font-semibold text-slate-700">${escapeHtml(item.volume || '0')} L</td>
-                        <td class="p-2.5 text-right whitespace-nowrap font-semibold text-slate-700">Rp ${Number(item.value || 0).toLocaleString('id-ID')}</td>
-                        <td class="p-2.5">${statusCell}</td>
-                        <td class="p-2.5">
-                            <div class="flex items-center gap-1.5 min-w-[100px]">
+                const selected = selectedRiwayatIds[String(item.id)] ? 'checked' : '';
+                const number = startIndex + index + 1;
+                const valueText = `Rp ${Number(item.value || 0).toLocaleString('id-ID')}`;
+                const volumeText = `${escapeHtml(item.volume || '0')} L`;
+
+                cards += `
+                    <article class="riwayat-card group" onclick="lihatDetail('${escapeHtml(item.id)}')">
+                        <div class="riwayat-card-top">
+                            <div class="flex items-start gap-2 min-w-0">
+                                <input type="checkbox"
+                                    class="riwayat-select-checkbox w-4 h-4 mt-0.5 accent-emerald-600 cursor-pointer shrink-0"
+                                    data-order-id="${escapeHtml(item.id)}"
+                                    ${selected}
+                                    onclick="event.stopPropagation()"
+                                    onchange="toggleRiwayatSelection(this)"
+                                    title="Pilih transaksi">
+                                <div class="min-w-0">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="riwayat-card-number">#${number}</span>
+                                        <span class="text-[10px] text-slate-400 font-medium">${escapeHtml(item.tanggal || '-')}</span>
+                                    </div>
+                                    <div class="riwayat-card-outlet mt-1">${escapeHtml(item.outlet || '-')}</div>
+                                    ${isAdmin ? `<div class="text-[9px] text-slate-400 mt-0.5">DSR: ${escapeHtml(item.dsr || '-')}</div>` : ''}
+                                </div>
+                            </div>
+                            <div class="shrink-0" onclick="event.stopPropagation()">${statusCell}</div>
+                        </div>
+
+                        <div class="riwayat-card-products">
+                            <div class="riwayat-card-label">PRODUK</div>
+                            <div class="riwayat-card-product-text">${productText}</div>
+                        </div>
+
+                        <div class="riwayat-card-summary">
+                            <div class="riwayat-card-stat">
+                                <span class="riwayat-card-label">VOLUME</span>
+                                <strong>${volumeText}</strong>
+                            </div>
+                            <div class="riwayat-card-stat">
+                                <span class="riwayat-card-label">NILAI</span>
+                                <strong>${valueText}</strong>
+                            </div>
+                        </div>
+
+                        <div class="riwayat-card-footer" onclick="event.stopPropagation()">
+                            <span class="text-[9px] text-slate-400 font-medium">ID: ${escapeHtml(item.id || '-')}</span>
+                            <div class="flex items-center gap-1.5">
                                 <button type="button"
-                                    onclick="event.stopPropagation(); editRiwayat('${escapeHtml(item.id)}'); return false;"
-                                    style="display:inline-flex !important;align-items:center;justify-content:center;min-width:48px !important;visibility:visible !important;opacity:1 !important;"
-                                    class="bg-blue-600 hover:bg-blue-700 text-white py-1.5 px-2.5 rounded-md font-bold text-[9px] border border-blue-700 transition"
+                                    onclick="editRiwayat('${escapeHtml(item.id)}'); return false;"
+                                    class="riwayat-action riwayat-action-edit"
                                     title="Edit order">✏️ EDIT</button>
                                 <button type="button"
-                                    onclick="event.stopPropagation(); kirimUlangWA('${escapeHtml(item.id)}')"
-                                    class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-1.5 px-2.5 rounded-md font-semibold text-[9px] transition"
+                                    onclick="kirimUlangWA('${escapeHtml(item.id)}')"
+                                    class="riwayat-action riwayat-action-wa"
                                     title="Kirim ulang WhatsApp">💬 WA</button>
                                 <button type="button"
-                                    onclick="event.stopPropagation(); hapusRiwayat('${escapeHtml(item.id)}')"
-                                    class="bg-red-50 hover:bg-red-100 text-red-600 py-1.5 px-2.5 rounded-md font-medium border border-red-200/60 transition"
+                                    onclick="hapusRiwayat('${escapeHtml(item.id)}')"
+                                    class="riwayat-action riwayat-action-delete"
                                     title="Hapus">🗑️</button>
                             </div>
-                        </td>
-                    </tr>`;
+                        </div>
+                    </article>`;
             });
 
             const bulkControls = isAdmin ? `
-                <div class="flex flex-wrap items-center gap-2 p-3 bg-slate-50 border-b border-slate-200">
+                <div class="flex flex-wrap items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl mb-3">
+                    <button type="button" onclick="toggleSelectAllRiwayatVisible(true)"
+                        class="px-3 py-1.5 rounded-md bg-white hover:bg-slate-100 text-slate-600 text-[10px] font-bold border border-slate-200">
+                        PILIH SEMUA
+                    </button>
                     <button type="button" onclick="resetPilihanStatusRiwayat()"
                         class="px-3 py-1.5 rounded-md bg-white hover:bg-slate-100 text-slate-600 text-[10px] font-bold border border-slate-200">
                         RESET
@@ -2596,37 +2666,27 @@ startAutoRefresh();
                         DONE
                     </button>
                     <span id="bulkStatusInfo" class="text-[10px] text-slate-500 font-semibold ml-auto">
-                        Pilih status pada masing-masing baris lalu klik DONE.
+                        Pilih status pada masing-masing card lalu klik DONE.
                     </span>
                 </div>` : '';
 
-            container.innerHTML = `
-                <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-                    ${bulkControls}
-                    <div class="riwayat-table-wrap">
-                        <table class="riwayat-table w-full text-left border-collapse text-[10px] ${!isAdmin ? 'riwayat-sales-table' : ''}" style="min-width: 1090px;">
-                            <thead>
-                                <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
-                                    <th class="p-2.5 font-bold text-center whitespace-nowrap w-10">
-                                        <input type="checkbox" id="selectAllRiwayatVisible" onclick="toggleSelectAllRiwayatVisible(true)"
-                                            class="w-3.5 h-3.5 accent-emerald-600 cursor-pointer" title="Pilih semua yang tampil">
-                                    </th>
-                                    <th class="p-2.5 font-bold text-center whitespace-nowrap">No</th>
-                                    
-                                    <th class="p-2.5 font-bold whitespace-nowrap">Tanggal</th>
-                                    <th class="p-2.5 font-bold whitespace-nowrap">Outlet</th>
-                                    <th class="p-2.5 font-bold whitespace-nowrap">Produk</th>
-                                    <th class="p-2.5 font-bold text-right whitespace-nowrap">Volume</th>
-                                    <th class="p-2.5 font-bold text-right whitespace-nowrap">Nilai</th>
-                                    <th class="p-2.5 font-bold text-center whitespace-nowrap">Status</th>
-                                    <th class="p-2.5 font-bold text-center whitespace-nowrap">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>${rows}</tbody>
-                        </table>
+            const pagination = isAdmin && totalPages > 1 ? `
+                <div class="flex items-center justify-between gap-2 mt-3 px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 text-[10px]">
+                    <span class="text-slate-500">Menampilkan ${startIndex + 1}-${Math.min(startIndex + RIWAYAT_PAGE_SIZE, data.length)} dari ${data.length} transaksi</span>
+                    <div class="flex items-center gap-1">
+                        <button type="button" onclick="changeRiwayatPage(-1)" class="px-2.5 py-1.5 rounded-lg border bg-white ${riwayatPage <= 1 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-slate-100'}" ${riwayatPage <= 1 ? 'disabled' : ''}>‹</button>
+                        <span class="px-2 font-bold">Halaman ${riwayatPage}/${totalPages}</span>
+                        <button type="button" onclick="changeRiwayatPage(1)" class="px-2.5 py-1.5 rounded-lg border bg-white ${riwayatPage >= totalPages ? 'opacity-40 cursor-not-allowed' : 'hover:bg-slate-100'}" ${riwayatPage >= totalPages ? 'disabled' : ''}>›</button>
                     </div>
-                    ${isAdmin && totalPages > 1 ? `<div class="flex items-center justify-between gap-2 px-3 py-2 border-t border-slate-200 bg-slate-50 text-[10px]"><span class="text-slate-500">Menampilkan ${startIndex + 1}-${Math.min(startIndex + RIWAYAT_PAGE_SIZE, data.length)} dari ${data.length} transaksi</span><div class="flex items-center gap-1"><button type="button" onclick="changeRiwayatPage(-1)" class="px-2 py-1 rounded border bg-white ${riwayatPage <= 1 ? 'opacity-40 cursor-not-allowed' : ''}" ${riwayatPage <= 1 ? 'disabled' : ''}>‹</button><span class="px-2 font-bold">Halaman ${riwayatPage}/${totalPages}</span><button type="button" onclick="changeRiwayatPage(1)" class="px-2 py-1 rounded border bg-white ${riwayatPage >= totalPages ? 'opacity-40 cursor-not-allowed' : ''}" ${riwayatPage >= totalPages ? 'disabled' : ''}>›</button></div></div>` : ''}
+                </div>` : '';
+
+            container.innerHTML = `
+                <div class="riwayat-cards-wrap">
+                    ${bulkControls}
+                    <div class="riwayat-cards-grid">${cards}</div>
+                    ${pagination}
                 </div>`;
+
             updateSelectedRiwayatUI();
         }
 
@@ -5204,7 +5264,7 @@ if(tab==='riwayat')loadRiwayat();
             const idxMaps = _customerFieldIndexClient(headers, ['MAPS', 'GOOGLE MAPS', 'LOCATION', 'LOKASI', 'KOORDINAT']);
 
             document.getElementById('modalTitle').textContent = isEdit ? 'EDIT CUSTOMER' : 'TAMBAH CUSTOMER';
-            document.getElementById('modalSubtitle').textContent = isEdit ? 'Perbarui data customer pada sheet OUTLET.' : '';
+            document.getElementById('modalSubtitle').textContent = isEdit ? 'Perbarui data customer pada sheet OUTLET.' : 'Tambahkan customer baru ke sheet OUTLET.';
             // RESET VISIBILITY TOMBOL SETIAP KALI FORM CUSTOMER DIBUKA.
             // Modal lain dapat menyembunyikan tombol OK; jangan biarkan style inline itu terbawa.
             const customerCancelBtn = document.getElementById('modalCancelBtn');
@@ -5251,7 +5311,7 @@ if(tab==='riwayat')loadRiwayat();
                         <div>
                             <label class="block text-[9px] font-extrabold uppercase tracking-wider text-slate-500 mb-1">CUST.CODE</label>
                             <input id="tambahCustomerField_${idxCust}" type="text" value="${_customerEscape(custCode)}" readonly class="w-full min-h-[40px] border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-600 bg-slate-100 focus:outline-none" />
-                            <div class="text-[8px] text-slate-400 mt-1"></div>
+                            <div class="text-[8px] text-slate-400 mt-1">Otomatis menggunakan Unique ID.</div>
                         </div>
 
                         <div>
@@ -5284,7 +5344,9 @@ if(tab==='riwayat')loadRiwayat();
                         </div>
                     </div>
 
-                    <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[9px] text-slate-500"></div>
+                    <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[9px] text-slate-500">
+                        DSR/Sales akan diisi otomatis sesuai nama Sales yang sedang login. Kolom OUTLET - CUST.CODE, OUTLET - DSR, dan OUTLET - CHANNEL tidak ditampilkan pada form.
+                    </div>
                 </div>`;
 
             customerOkBtn.onclick = function() { saveTambahCustomerForm(); };
