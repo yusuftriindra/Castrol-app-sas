@@ -1879,7 +1879,7 @@ html,body{height:100%;}
                             </table>
                         </div>
                     </div>
-                    <p class="text-[10px] text-slate-400 text-center">Klik baris untuk melihat detail lengkap. Gunakan tombol Edit/Hapus untuk mengelola data.</p>
+                    <p class="text-[10px] text-slate-400 text-center">Klik baris untuk melihat detail lengkap.</p>
                 </div>
 
                 <!-- TAMBAH CUSTOMER -->
@@ -1887,7 +1887,7 @@ html,body{height:100%;}
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-200 pb-2">
                         <div>
                             <h2 class="text-base font-bold text-slate-800">Tambah Customer</h2>
-                            <p class="text-[10px] text-slate-400 mt-0.5">Kelola data customer pada sheet OUTLET. Kolom mengikuti header sheet secara otomatis.</p>
+                            <p class="text-[10px] text-slate-400 mt-0.5"></p>
                         </div>
                         <button type="button" onclick="openTambahCustomerForm()" class="px-3 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-[10px] font-bold shadow-sm transition">＋ Tambah Customer</button>
                     </div>
@@ -2043,6 +2043,8 @@ html,body{height:100%;}
         let riwayatLoading = false;
         let riwayatPage = 1;
         let selectedRiwayatIds = {};
+        // Menyimpan pilihan APPROVE/DECLINE agar tidak hilang saat auto-refresh.
+        let selectedRiwayatStatus = {};
         const RIWAYAT_PAGE_SIZE = 60;
         let monitoringLoading = false;
         let kontrakLoading = false;
@@ -2578,8 +2580,8 @@ startAutoRefresh();
                         data-order-id="${escapeHtml(item.id)}"
                         data-current-status="${escapeHtml(status)}">
                         <option value="">${escapeHtml(status)} / TIDAK DIUBAH</option>
-                        <option value="APPROVE">APPROVE</option>
-                        <option value="DECLINE">DECLINE</option>
+                        <option value="APPROVE" ${selectedRiwayatStatus[String(item.id)] === 'APPROVE' ? 'selected' : ''}>APPROVE</option>
+                        <option value="DECLINE" ${selectedRiwayatStatus[String(item.id)] === 'DECLINE' ? 'selected' : ''}>DECLINE</option>
                     </select>
                 ` : `
                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border text-[9px] font-extrabold ${statusClass}">
@@ -2700,14 +2702,24 @@ startAutoRefresh();
 
         function pilihSemuaStatusRiwayat(status) {
             document.querySelectorAll('.bulk-status-select').forEach(function(select) {
+                const id = String(select.dataset.orderId || '').trim();
                 select.value = status;
+                if (id) {
+                    if (status === 'APPROVE' || status === 'DECLINE') {
+                        selectedRiwayatStatus[id] = status;
+                    } else {
+                        delete selectedRiwayatStatus[id];
+                    }
+                }
             });
             updateBulkStatusInfo();
         }
 
         function resetPilihanStatusRiwayat() {
             document.querySelectorAll('.bulk-status-select').forEach(function(select) {
+                const id = String(select.dataset.orderId || '').trim();
                 select.value = '';
+                if (id) delete selectedRiwayatStatus[id];
             });
             updateBulkStatusInfo();
         }
@@ -2729,6 +2741,19 @@ startAutoRefresh();
 
         document.addEventListener('change', function(e) {
             if (e.target && e.target.classList.contains('bulk-status-select')) {
+                const select = e.target;
+                const id = String(select.dataset.orderId || '').trim();
+                const value = String(select.value || '').toUpperCase();
+
+                // Simpan pilihan lokal. Auto-refresh akan memakai nilai ini
+                // sehingga pilihan APPROVE/DECLINE tidak kembali kosong.
+                if (id) {
+                    if (value === 'APPROVE' || value === 'DECLINE') {
+                        selectedRiwayatStatus[id] = value;
+                    } else {
+                        delete selectedRiwayatStatus[id];
+                    }
+                }
                 updateBulkStatusInfo();
             }
         });
@@ -2762,9 +2787,9 @@ startAutoRefresh();
             const decline = changes.filter(x => x.status === 'DECLINE').length;
 
             showModal(
-    'Konfirmasi',
-    `Berhasil di ubah.`,
-    true,
+                'Konfirmasi',
+                `Lanjutkan dengan pilihan status anda?`,
+                true,
                 function(isOk) {
                     if (!isOk) return;
 
@@ -2777,6 +2802,12 @@ startAutoRefresh();
                     function processNext() {
                         if (index >= changes.length) {
                             showLoading(false);
+
+                            // Pilihan yang sudah berhasil dikirim jangan dipasang lagi
+                            // setelah refresh karena status server sudah berubah.
+                            changes.forEach(function(ch) {
+                                delete selectedRiwayatStatus[String(ch.id)];
+                            });
 
                             if (failed === 0) {
                                 showModal('Berhasil', `${success} transaksi berhasil diperbarui.`);
@@ -5264,7 +5295,7 @@ if(tab==='riwayat')loadRiwayat();
             const idxMaps = _customerFieldIndexClient(headers, ['MAPS', 'GOOGLE MAPS', 'LOCATION', 'LOKASI', 'KOORDINAT']);
 
             document.getElementById('modalTitle').textContent = isEdit ? 'EDIT CUSTOMER' : 'TAMBAH CUSTOMER';
-            document.getElementById('modalSubtitle').textContent = isEdit ? 'Perbarui data customer pada sheet OUTLET.' : 'Tambahkan customer baru ke sheet OUTLET.';
+            document.getElementById('modalSubtitle').textContent = isEdit ? 'Perbarui data customer pada sheet OUTLET.' : '';
             // RESET VISIBILITY TOMBOL SETIAP KALI FORM CUSTOMER DIBUKA.
             // Modal lain dapat menyembunyikan tombol OK; jangan biarkan style inline itu terbawa.
             const customerCancelBtn = document.getElementById('modalCancelBtn');
@@ -5344,9 +5375,7 @@ if(tab==='riwayat')loadRiwayat();
                         </div>
                     </div>
 
-                    <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[9px] text-slate-500">
-                        DSR/Sales akan diisi otomatis sesuai nama Sales yang sedang login. Kolom OUTLET - CUST.CODE, OUTLET - DSR, dan OUTLET - CHANNEL tidak ditampilkan pada form.
-                    </div>
+                    <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[9px] text-slate-500"></div>
                 </div>`;
 
             customerOkBtn.onclick = function() { saveTambahCustomerForm(); };
