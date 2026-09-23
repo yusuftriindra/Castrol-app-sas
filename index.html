@@ -4391,63 +4391,104 @@ startAutoRefresh();
                     return Number(value || 0).toLocaleString('id-ID') + ' L';
                 };
 
-                const cards = rows.map(function(r, index) {
-                    const products = Array.isArray(r.products)
-                        ? r.products.filter(function(p) { return p && String(p.name || '').trim() !== ''; })
-                        : [];
+                // Kelompokkan card berdasarkan BULAN agar detail lebih mudah dibaca.
+                const monthLabel = function(monthKey) {
+                    const m = String(monthKey || '').match(/^(\d{4})-(\d{2})$/);
+                    if (!m) return String(monthKey || '-');
+                    const names = [
+                        'Januari','Februari','Maret','April','Mei','Juni',
+                        'Juli','Agustus','September','Oktober','November','Desember'
+                    ];
+                    const idx = Number(m[2]) - 1;
+                    return (names[idx] || m[2]) + ' ' + m[1];
+                };
 
-                    const productText = products.length
-                        ? products.map(function(p) {
-                            const qty = Number(p.volume || 0);
-                            return escapeHtml(p.name) + (qty ? ' · ' + qty.toLocaleString('id-ID') + ' L' : '');
-                        }).join('<br>')
-                        : '-';
+                const grouped = {};
+                rows.forEach(function(r) {
+                    const key = String(r.month || '-');
+                    if (!grouped[key]) grouped[key] = [];
+                    grouped[key].push(r);
+                });
+
+                const monthKeys = Object.keys(grouped).sort(function(a, b) {
+                    return String(a).localeCompare(String(b));
+                });
+
+                const monthSections = monthKeys.map(function(monthKey) {
+                    const monthRows = grouped[monthKey] || [];
+
+                    const cards = monthRows.map(function(r, index) {
+                        const products = Array.isArray(r.products)
+                            ? r.products.filter(function(p) { return p && String(p.name || '').trim() !== ''; })
+                            : [];
+
+                        const productText = products.length
+                            ? products.map(function(p) {
+                                const qty = Number(p.volume || 0);
+                                return escapeHtml(p.name) + (qty ? ' · ' + qty.toLocaleString('id-ID') + ' L' : '');
+                            }).join('<br>')
+                            : '-';
+
+                        return `
+                            <article class="riwayat-card" style="cursor:default">
+                                <div class="riwayat-card-top">
+                                    <div class="min-w-0">
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            <span class="riwayat-card-number">#${index + 1}</span>
+                                        </div>
+                                        <div class="riwayat-card-outlet mt-1">${escapeHtml(r.outlet || '-')}</div>
+                                    </div>
+                                    <span class="inline-flex items-center px-2.5 py-1.5 rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700 text-[9px] font-extrabold shrink-0">
+                                        DETAIL
+                                    </span>
+                                </div>
+
+                                <div class="riwayat-card-products">
+                                    <div class="riwayat-card-label">PRODUK</div>
+                                    <div class="riwayat-card-product-text">${productText}</div>
+                                </div>
+
+                                <div class="riwayat-card-summary">
+                                    <div class="riwayat-card-stat">
+                                        <span class="riwayat-card-label">TRANSAKSI</span>
+                                        <strong>${Number(r.transactions || 0).toLocaleString('id-ID')}</strong>
+                                    </div>
+                                    <div class="riwayat-card-stat">
+                                        <span class="riwayat-card-label">VOLUME</span>
+                                        <strong>${volumeText(r.volume)}</strong>
+                                    </div>
+                                    <div class="riwayat-card-stat" style="grid-column:1 / -1">
+                                        <span class="riwayat-card-label">NILAI</span>
+                                        <strong>${valueText(r.value)}</strong>
+                                    </div>
+                                </div>
+
+                                <div class="riwayat-card-footer">
+                                    <span class="text-[9px] text-slate-400 font-medium">${escapeHtml(title)} · ${escapeHtml(selectedPeriod || '-')}</span>
+                                    <span class="text-[9px] text-emerald-700 font-extrabold">OUTLET</span>
+                                </div>
+                            </article>`;
+                    }).join('');
 
                     return `
-                        <article class="riwayat-card" style="cursor:default">
-                            <div class="riwayat-card-top">
-                                <div class="min-w-0">
-                                    <div class="flex flex-wrap items-center gap-2">
-                                        <span class="riwayat-card-number">#${index + 1}</span>
-                                        <span class="text-[10px] text-slate-400 font-medium">${escapeHtml(r.month || '-')}</span>
+                        <section class="mb-4 last:mb-0">
+                            <div class="flex items-center justify-between gap-2 px-1 mb-2">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs">📅</span>
+                                    <div class="min-w-0">
+                                        <div class="text-[11px] font-extrabold text-slate-700">${escapeHtml(monthLabel(monthKey))}</div>
+                                        <div class="text-[9px] text-slate-400">${monthRows.length.toLocaleString('id-ID')} outlet</div>
                                     </div>
-                                    <div class="riwayat-card-outlet mt-1">${escapeHtml(r.outlet || '-')}</div>
                                 </div>
-                                <span class="inline-flex items-center px-2.5 py-1.5 rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700 text-[9px] font-extrabold shrink-0">
-                                    DETAIL
-                                </span>
+                                <span class="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider">BULAN</span>
                             </div>
-
-                            <div class="riwayat-card-products">
-                                <div class="riwayat-card-label">PRODUK</div>
-                                <div class="riwayat-card-product-text">${productText}</div>
-                            </div>
-
-                            <div class="riwayat-card-summary">
-                                <div class="riwayat-card-stat">
-                                    <span class="riwayat-card-label">TRANSAKSI</span>
-                                    <strong>${Number(r.transactions || 0).toLocaleString('id-ID')}</strong>
-                                </div>
-                                <div class="riwayat-card-stat">
-                                    <span class="riwayat-card-label">VOLUME</span>
-                                    <strong>${volumeText(r.volume)}</strong>
-                                </div>
-                                <div class="riwayat-card-stat" style="grid-column:1 / -1">
-                                    <span class="riwayat-card-label">NILAI</span>
-                                    <strong>${valueText(r.value)}</strong>
-                                </div>
-                            </div>
-
-                            <div class="riwayat-card-footer">
-                                <span class="text-[9px] text-slate-400 font-medium">${escapeHtml(title)} · ${escapeHtml(selectedPeriod || '-')}</span>
-                                <span class="text-[9px] text-emerald-700 font-extrabold">OUTLET</span>
-                            </div>
-                        </article>`;
+                            <div class="riwayat-cards-grid">${cards}</div>
+                        </section>`;
                 }).join('');
 
                 detailBody.innerHTML = `
                     <div class="riwayat-cards-wrap">
-                        <div class="riwayat-cards-grid">${cards}</div>
+                        ${monthSections}
                     </div>`;
             }).withFailureHandler(function(err) {
                 const detailBody = document.getElementById('pencapaianDetailBody');
