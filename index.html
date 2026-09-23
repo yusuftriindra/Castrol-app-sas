@@ -4221,7 +4221,7 @@ startAutoRefresh();
             return formatNumberID(value, 0);
         }
 
-        function renderPencapaianCategory(label, icon, category, type) {
+        function renderPencapaianCategory(label, icon, category, type, sales) {
             category = category || {months: [], quarter: {actual:0,target:0,percentage:0}};
             const months = Array.isArray(category.months) ? category.months : [];
             const q = category.quarter || {actual:0,target:0,percentage:0};
@@ -4244,7 +4244,7 @@ startAutoRefresh();
             const qColor = qPct >= 100 ? 'bg-emerald-600' : qPct >= 80 ? 'bg-amber-500' : 'bg-red-500';
 
             return `
-                <div class="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm">
+                <div class="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm cursor-pointer hover:border-emerald-300 hover:shadow-md transition" role="button" tabindex="0" onclick="openPencapaianDetail('${escapeHtml(categoryKeyForDetail(type))}', '${escapeHtml(sales || '')}')" onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); openPencapaianDetail('${escapeHtml(categoryKeyForDetail(type))}', '${escapeHtml(sales || '')}'); }">
                     <div class="flex items-center gap-2 mb-2">
                         <div class="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-lg shrink-0">${icon}</div>
                         <div>
@@ -4306,14 +4306,100 @@ startAutoRefresh();
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            ${renderPencapaianCategory('Value', '💰', item.categories && item.categories.value, 'value')}
-                            ${renderPencapaianCategory('Volume', '📦', item.categories && item.categories.volume, 'volume')}
-                            ${renderPencapaianCategory('Active Outlet', '🏪', item.categories && item.categories.active, 'active')}
-                            ${renderPencapaianCategory('Produk Fokus', '🎯', item.categories && item.categories.product, 'product')}
-                            ${renderPencapaianCategory('Power Brand', '🏆', item.categories && item.categories.powerBrand, 'powerBrand')}
+                            ${renderPencapaianCategory('Value', '💰', item.categories && item.categories.value, 'value', item.sales)}
+                            ${renderPencapaianCategory('Volume', '📦', item.categories && item.categories.volume, 'volume', item.sales)}
+                            ${renderPencapaianCategory('Active Outlet', '🏪', item.categories && item.categories.active, 'active', item.sales)}
+                            ${renderPencapaianCategory('Produk Fokus', '🎯', item.categories && item.categories.product, 'product', item.sales)}
+                            ${renderPencapaianCategory('Power Brand', '🏆', item.categories && item.categories.powerBrand, 'powerBrand', item.sales)}
                         </div>
                     </div>`;
             }).join('');
+        }
+
+        function categoryKeyForDetail(type) {
+            return String(type || '').trim().toLowerCase();
+        }
+
+        function closePencapaianDetail() {
+            const modal = document.getElementById('pencapaianDetailModal');
+            if (modal) modal.remove();
+        }
+
+        function openPencapaianDetail(category, sales) {
+            const periodSelect = document.getElementById('pencapaianPeriodSelect');
+            const selectedPeriod = periodSelect && periodSelect.value ? periodSelect.value : '';
+            const titleMap = {
+                value: 'Value',
+                volume: 'Volume',
+                active: 'Active Outlet',
+                product: 'Produk Fokus',
+                powerbrand: 'Power Brand'
+            };
+            const title = titleMap[String(category || '').toLowerCase()] || category;
+            closePencapaianDetail();
+            const modal = document.createElement('div');
+            modal.id = 'pencapaianDetailModal';
+            modal.className = 'fixed inset-0 z-[100] bg-black/50 flex items-end sm:items-center justify-center p-0 sm:p-4';
+            modal.innerHTML = `
+                <div class="bg-white w-full sm:max-w-4xl sm:rounded-2xl rounded-t-2xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+                    <div class="px-4 py-3 border-b border-slate-200 flex items-center justify-between gap-3 shrink-0">
+                        <div>
+                            <div class="text-sm font-extrabold text-slate-800">Detail ${escapeHtml(title)}</div>
+                            <div class="text-[10px] text-slate-400">${escapeHtml(sales || '-')} · ${escapeHtml(selectedPeriod || '-')}</div>
+                        </div>
+                        <button type="button" onclick="closePencapaianDetail()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 font-bold">×</button>
+                    </div>
+                    <div id="pencapaianDetailBody" class="overflow-auto p-3">
+                        <div class="text-center text-xs text-slate-400 py-10">Memuat detail transaksi...</div>
+                    </div>
+                </div>`;
+            document.body.appendChild(modal);
+            modal.addEventListener('click', function(e){ if (e.target === modal) closePencapaianDetail(); });
+
+            google.script.run.withSuccessHandler(function(res) {
+                const body = document.getElementById('pencapaianDetailBody');
+                if (!body) return;
+                if (!res || !res.success) {
+                    body.innerHTML = '<div class="text-center text-xs text-red-500 py-10">' + escapeHtml((res && res.message) || 'Detail tidak tersedia.') + '</div>';
+                    return;
+                }
+                const rows = Array.isArray(res.data) ? res.data : [];
+                if (!rows.length) {
+                    body.innerHTML = '<div class="text-center text-xs text-slate-400 py-10">Tidak ada transaksi outlet untuk kategori ini.</div>';
+                    return;
+                }
+                body.innerHTML = `
+                    <div class="overflow-x-auto">
+                        <table class="min-w-[720px] w-full text-[10px]">
+                            <thead class="sticky top-0 bg-slate-50 z-10">
+                                <tr class="border-b border-slate-200 text-slate-500">
+                                    <th class="text-left p-2">Outlet</th>
+                                    <th class="text-left p-2">Bulan</th>
+                                    <th class="text-right p-2">Transaksi</th>
+                                    <th class="text-right p-2">Volume</th>
+                                    <th class="text-right p-2">Value</th>
+                                    <th class="text-left p-2">Produk</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rows.map(function(r){
+                                    const products = Array.isArray(r.products) ? r.products.map(function(p){ return escapeHtml(p.name) + (Number(p.volume || 0) ? ' (' + Number(p.volume || 0).toLocaleString('id-ID') + ')' : ''); }).join(', ') : '-';
+                                    return `<tr class="border-b border-slate-100 hover:bg-slate-50">
+                                        <td class="p-2 font-extrabold text-slate-700">${escapeHtml(r.outlet || '-')}</td>
+                                        <td class="p-2 text-slate-500">${escapeHtml(r.month || '-')}</td>
+                                        <td class="p-2 text-right text-slate-600">${Number(r.transactions || 0).toLocaleString('id-ID')}</td>
+                                        <td class="p-2 text-right font-bold text-slate-700">${Number(r.volume || 0).toLocaleString('id-ID')}</td>
+                                        <td class="p-2 text-right font-bold text-slate-700">${Number(r.value || 0).toLocaleString('id-ID')}</td>
+                                        <td class="p-2 text-slate-600">${products || '-'}</td>
+                                    </tr>`;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>`;
+            }).withFailureHandler(function(err) {
+                const body = document.getElementById('pencapaianDetailBody');
+                if (body) body.innerHTML = '<div class="text-center text-xs text-red-500 py-10">Gagal memuat detail: ' + escapeHtml(err && err.message ? err.message : 'Terjadi kesalahan.') + '</div>';
+            }).getPencapaianSalesDetail(sales, currentUsernameInput, selectedPeriod, category);
         }
 
         function loadPencapaianSalesFilter() {
