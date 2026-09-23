@@ -2762,9 +2762,9 @@ startAutoRefresh();
             const decline = changes.filter(x => x.status === 'DECLINE').length;
 
             showModal(
-                'Konfirmasi Bulk Status',
-                `Akan diproses ${changes.length} transaksi.<br><br>APPROVE: ${approve}<br>DECLINE: ${decline}<br><br>Lanjutkan?`,
-                true,
+    'Konfirmasi',
+    `Berhasil di ubah.`,
+    true,
                 function(isOk) {
                     if (!isOk) return;
 
