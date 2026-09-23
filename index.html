@@ -4701,8 +4701,7 @@ startAutoRefresh();
         function renderPesananOutlet(res) {
             const head=document.getElementById('pesananOutletTableHead'), body=document.getElementById('pesananOutletTableBody'); if(!head||!body)return;
             const headers=Array.isArray(res.headers)?res.headers:[], rows=Array.isArray(res.rows)?res.rows:[];
-            globalPesananOutletHeaders=headers;
-            globalPesananOutletRows=rows;
+            // Urutan Pesanan Outlet mengikuti urutan row dari sheet: row paling terakhir tampil paling atas.
             // Tabel utama hanya menampilkan 4 kolom yang diperlukan.
             function findTableIdx(aliases){
                 const norm=function(v){return String(v==null?'':v).trim().toUpperCase().replace(/[.\/_-]+/g,' ').replace(/\s+/g,' ').replace(/[^A-Z0-9]/g,'');};
@@ -4713,6 +4712,9 @@ startAutoRefresh();
             const idxOutlet=findTableIdx(['OUTLET','NAMA OUTLET']);
             const idxDate=findTableIdx(['DATE','TANGGAL','TGL']);
             const idxDsr=findTableIdx(['DSR','SALES','NAMA SALES']);
+            // Urutan baris dari Apps Script sudah dibalik: row paling terakhir tampil paling atas.
+            globalPesananOutletHeaders=headers;
+            globalPesananOutletRows=rows;
             const idxPayment=findTableIdx(['PAYMENT','PEMBAYARAN']);
             const displayCols=[
                 {label:'OUTLET',idx:idxOutlet},
@@ -4749,6 +4751,7 @@ startAutoRefresh();
                 '<div id="pesananOutletDetailBody" class="p-3 text-[10px] text-slate-400">Mengambil daftar order...</div>'+
                 '</div>'+
                 '<div class="mt-3 flex justify-end gap-2">'+
+                '<button type="button" id="btnTolakPesananOutlet" class="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[10px] font-extrabold shadow-sm">✕ Tolak Pesanan</button>'+
                 '<button type="button" id="btnResponPesananOutlet" class="px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-[10px] font-extrabold shadow-sm">↩ Respon</button>'+
                 '</div>';
             if(cancelBtn)cancelBtn.style.display='none';
@@ -4758,16 +4761,19 @@ startAutoRefresh();
             google.script.run.withSuccessHandler(function(res){
                 const detail=document.getElementById('pesananOutletDetailBody');
                 const btn=document.getElementById('btnResponPesananOutlet');
+                const btnTolak=document.getElementById('btnTolakPesananOutlet');
                 if(!detail)return;
                 if(!res||!res.success){
                     detail.innerHTML='<div class="text-red-500">'+escapeHtml(res&&res.message?res.message:'Gagal mengambil daftar order.')+'</div>';
                     if(btn)btn.disabled=true;
+                    if(btnTolak)btnTolak.disabled=true;
                     return;
                 }
                 const dh=Array.isArray(res.headers)?res.headers:[], dr=Array.isArray(res.rows)?res.rows:[];
                 if(!dr.length){
                     detail.innerHTML='<div class="text-slate-400 py-2">'+escapeHtml(res.message||'Tidak ada order yang ditemukan di sheet ORDERS.')+'</div>';
                     if(btn)btn.disabled=true;
+                    if(btnTolak)btnTolak.disabled=true;
                     return;
                 }
 
@@ -4780,7 +4786,13 @@ startAutoRefresh();
                 // PO OUTLET: J = NOTE ORDER, K = VOLUME, L = VALUE.
                 // Gunakan posisi kolom tetap sesuai struktur sheet agar detail selalu mengambil
                 // nilai dari sumber yang benar, bukan dari header ORDERS.
-                const noteOrderDetail = row && row.length > 9 ? String(row[9] == null ? '' : row[9]).trim() : '';
+                const idxNotePO = (function(){
+                    const ph=(Array.isArray(headers)?headers:[]).map(function(v){return String(v==null?'':v).trim().toUpperCase().replace(/[.\/_-]+/g,' ').replace(/\s+/g,' ').replace(/[^A-Z0-9]/g,'');});
+                    const aliases=['NOTE ORDER','NOTE','CATATAN'];
+                    for(const a of aliases){const i=ph.indexOf(a.replace(/[^A-Z0-9]/g,''));if(i>=0)return i;}
+                    return 9;
+                })();
+                const noteOrderDetail = row && row.length > idxNotePO ? String(row[idxNotePO] == null ? '' : row[idxNotePO]).trim() : '';
                 const volumeDetail = row && row.length > 10 ? row[10] : '';
                 const valueDetail = row && row.length > 11 ? row[11] : '';
 
@@ -4801,7 +4813,7 @@ startAutoRefresh();
 
                 let html='<div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-3">'+
                     '<div class="rounded-xl border border-slate-200 bg-slate-50 p-3">'+
-                    '<div class="text-[9px] font-bold uppercase tracking-wide text-slate-400">Note Order</div>'+
+                    '<div class="text-[9px] font-bold uppercase tracking-wide text-slate-400">Note</div>'+
                     '<div class="mt-1 text-sm font-extrabold text-slate-800 break-words">'+escapeHtml(noteOrderDetail||'-')+'</div>'+
                     '</div>'+
                     '<div class="rounded-xl border border-slate-200 bg-slate-50 p-3">'+
@@ -4831,12 +4843,79 @@ startAutoRefresh();
                         bukaPopupCashbackRespon(headers,row,dh,dr,res.totalVolume||0,btn);
                     };
                 }
+                if(btnTolak){
+                    const isAdmin=String(currentUsernameInput||'').trim().toLowerCase()==='admin';
+                    btnTolak.style.display=isAdmin?'inline-block':'none';
+                    btnTolak.disabled=!isAdmin;
+                    btnTolak.onclick=function(){bukaPopupTolakPesananOutlet(headers,row,btnTolak);};
+                }
             }).withFailureHandler(function(err){
                 const detail=document.getElementById('pesananOutletDetailBody');
                 const btn=document.getElementById('btnResponPesananOutlet');
                 if(detail)detail.innerHTML='<div class="text-red-500">'+escapeHtml(err&&err.message?err.message:'Gagal mengambil daftar order.')+'</div>';
                 if(btn)btn.disabled=true;
             }).getPesananOutletDetail(headers,row);
+        }
+
+        function bukaPopupTolakPesananOutlet(headers,row,sourceBtn){
+            const modal=document.getElementById('customModal');
+            const title=document.getElementById('modalTitle');
+            const subtitle=document.getElementById('modalSubtitle');
+            const body=document.getElementById('modalBody');
+            const cancelBtn=document.getElementById('modalCancelBtn');
+            const okBtn=document.getElementById('modalOkBtn');
+            if(!modal||!body||!okBtn)return;
+
+            title.textContent='Tolak Pesanan Outlet';
+            subtitle.textContent='';
+            cancelBtn.style.display='inline-block';
+            okBtn.style.display='inline-block';
+            okBtn.textContent='Tolak Pesanan';
+            body.innerHTML=''+
+                '<div class="rounded-2xl border border-rose-200 bg-rose-50 p-3 mb-3">'+
+                    '<div class="text-[10px] font-extrabold text-rose-800 uppercase tracking-wide">Alasan Penolakan</div>'+
+                    '<div class="text-xs font-semibold text-rose-900 mt-1">Tulis alasan penolakan. Note pesanan akan diubah menjadi alasan ini.</div>'+
+                '</div>'+
+                '<label class="text-[9px] uppercase tracking-wide font-bold text-slate-500">Note / Alasan Penolakan <span class="text-rose-500">*</span></label>'+
+                '<textarea id="tolakPesananNoteInput" rows="4" maxlength="500" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 bg-white text-xs mt-1" placeholder="Contoh: Stok tidak tersedia / pembayaran tidak sesuai..."></textarea>';
+            modal.style.display='flex';
+            modalCallback=function(isOk){
+                if(!isOk){
+                    modalCallback=null;
+                    if(sourceBtn){sourceBtn.disabled=false;}
+                    // Kembalikan detail order tanpa mengubah data.
+                    const targetId=document.getElementById('pesananOutletDetailBody');
+                    if(targetId){ targetId.scrollTop=0; }
+                    return;
+                }
+                const noteEl=document.getElementById('tolakPesananNoteInput');
+                const note=noteEl?String(noteEl.value||'').trim():'';
+                if(!note){
+                    showModal('Peringatan','Alasan penolakan wajib diisi.');
+                    if(noteEl)noteEl.focus();
+                    return;
+                }
+                if(sourceBtn){sourceBtn.disabled=true;sourceBtn.innerHTML='⏳ Menolak...';}
+                showLoading(true);
+                google.script.run.withSuccessHandler(function(res){
+                    showLoading(false);
+                    if(res&&res.success){
+                        if(sourceBtn){sourceBtn.innerHTML='✓ Ditolak';sourceBtn.classList.remove('bg-rose-600','hover:bg-rose-700');sourceBtn.classList.add('bg-slate-500');}
+                        showModal('Berhasil',res.message||'Pesanan berhasil ditolak.');
+                        try{sessionStorage.removeItem('pesananOutletCache');}catch(e){}
+                        loadPesananOutlet(true);
+                    }else{
+                        if(sourceBtn){sourceBtn.disabled=false;sourceBtn.innerHTML='✕ Tolak Pesanan';}
+                        showModal('Gagal',res&&res.message?res.message:'Gagal menolak pesanan.');
+                    }
+                }).withFailureHandler(function(err){
+                    showLoading(false);
+                    if(sourceBtn){sourceBtn.disabled=false;sourceBtn.innerHTML='✕ Tolak Pesanan';}
+                    showModal('Error Sistem',err&&err.message?err.message:'Gagal menolak pesanan.');
+                }).tolakPesananOutlet(headers,row,currentUsernameInput,note);
+            };
+            const noteEl=document.getElementById('tolakPesananNoteInput');
+            if(noteEl)setTimeout(function(){noteEl.focus();},50);
         }
 
         function formatVolumeRespon(v){
