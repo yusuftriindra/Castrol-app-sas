@@ -1354,6 +1354,59 @@ html,body{height:100%;}
     window.google.script.run = runner({ success: null, failure: null, userObject: null });
 })();
 </script>
+
+<style id="mobile-scroll-header-fix">
+/* =========================================================
+   MOBILE SCROLL FIX
+   Header tidak lagi menutupi isi saat halaman HP di-scroll.
+   Pada desktop perilaku sticky header tetap dipertahankan.
+   ========================================================= */
+@media (max-width: 767px) {
+  /* Header ikut berada di alur halaman, sehingga konten tidak
+     berjalan di bawah header ketika user scroll ke bawah. */
+  #mainHeader {
+    position: relative !important;
+    top: auto !important;
+    z-index: 60 !important;
+    flex: 0 0 auto !important;
+  }
+
+  /* Scroll utama dikembalikan ke halaman, bukan container setinggi viewport.
+     Ini mencegah bagian bawah tab tertutup/terpotong oleh header. */
+  #app.app-shell {
+    height: auto !important;
+    min-height: 100dvh !important;
+  }
+
+  #app > .p-4.flex-1.overflow-y-auto {
+    height: auto !important;
+    max-height: none !important;
+    min-height: calc(100dvh - 58px) !important;
+    overflow-y: visible !important;
+    overflow-x: hidden !important;
+    overscroll-behavior: auto !important;
+    scrollbar-gutter: auto !important;
+    padding-bottom: 28px !important;
+  }
+
+  /* Sidebar tetap menjadi overlay saat menu dibuka. */
+  #leftNav.app-sidebar {
+    position: absolute !important;
+    top: 58px !important;
+    z-index: 55 !important;
+  }
+
+  /* Jangan biarkan wrapper tabel memaksa tinggi layar di HP. */
+  #tabMonitoring .bg-white.border.rounded-xl.shadow-sm > div,
+  #tabOutletKontrak .bg-white.border.rounded-xl.shadow-sm > div,
+  #tabOutletBWS .bg-white.border.rounded-xl.shadow-sm > div,
+  #tabPricelist .bg-white.border.rounded-xl.shadow-sm > div,
+  #listRiwayat .riwayat-table-wrap,
+  .riwayat-table-wrap {
+    max-height: none !important;
+  }
+}
+</style>
 </head>
 <body class="bg-slate-50 font-sans">
 
