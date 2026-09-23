@@ -4716,17 +4716,19 @@ startAutoRefresh();
             globalPesananOutletHeaders=headers;
             globalPesananOutletRows=rows;
             const idxPayment=findTableIdx(['PAYMENT','PEMBAYARAN']);
+            const idxNote=findTableIdx(['NOTE ORDER','NOTE','CATATAN']);
             const displayCols=[
                 {label:'OUTLET',idx:idxOutlet},
                 {label:'DATE',idx:idxDate},
                 {label:'DSR',idx:idxDsr},
-                {label:'PAYMENT',idx:idxPayment}
+                {label:'PAYMENT',idx:idxPayment},
+                {label:'NOTE',idx:idxNote,wrap:true}
             ];
             head.innerHTML='<tr class="bg-slate-100 text-slate-700 border-b border-slate-200">'+displayCols.map(function(c){return '<th class="p-2.5 font-bold whitespace-nowrap">'+c.label+'</th>';}).join('')+'</tr>';
-            if(!rows.length){body.innerHTML='<tr><td colspan="4" class="text-slate-400 text-center py-6">Belum ada data Pesanan dari Outlet anda.</td></tr>';return;}
+            if(!rows.length){body.innerHTML='<tr><td colspan="5" class="text-slate-400 text-center py-6">Belum ada data Pesanan dari Outlet anda.</td></tr>';return;}
             body.innerHTML=rows.map(function(row,rowIndex){
                 return '<tr onclick="lihatDetailPesananOutlet('+rowIndex+')" class="border-b border-slate-200 hover:bg-emerald-50/50 cursor-pointer transition" title="Klik untuk melihat detail order">'+
-                    displayCols.map(function(c){return '<td class="p-2.5 align-top whitespace-nowrap">'+escapeHtml(c.idx>=0 && row[c.idx]!=null?row[c.idx]:'')+'</td>';}).join('')+
+                    displayCols.map(function(c){return '<td class="p-2.5 align-top '+(c.wrap?'whitespace-normal min-w-[180px] max-w-[320px] break-words':'whitespace-nowrap')+'">'+escapeHtml(c.idx>=0 && row[c.idx]!=null?row[c.idx]:'')+'</td>';}).join('')+
                     '</tr>';
             }).join('');
         }
