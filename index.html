@@ -5559,3 +5559,45 @@ if(tab==='riwayat')loadRiwayat();
 </script>
 </body>
 </html>
+<style id="mobile-monitoring-pricelist-bottom-fix">
+/* =========================================================
+   MOBILE MONITORING + PRICELIST BOTTOM SCROLL FIX
+   Pada HP tabel tidak memakai scroll vertikal internal. Halaman
+   yang melakukan scroll, sehingga baris paling bawah tidak
+   tertutup/terpotong di area bawah layar.
+   Scroll horizontal tabel tetap tersedia.
+   ========================================================= */
+@media (max-width: 767px) {
+  #tabMonitoring .bg-white.border.rounded-xl.shadow-sm > div,
+  #tabPricelist .bg-white.border.rounded-xl.shadow-sm > div {
+    max-height: none !important;
+    height: auto !important;
+    overflow-y: visible !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: auto !important;
+    padding-bottom: 72px !important;
+    box-sizing: border-box !important;
+  }
+
+  #tabMonitoring .bg-white.border.rounded-xl.shadow-sm,
+  #tabPricelist .bg-white.border.rounded-xl.shadow-sm {
+    overflow: visible !important;
+    margin-bottom: 24px !important;
+  }
+
+  #tabMonitoring table,
+  #tabPricelist table {
+    margin-bottom: 8px !important;
+  }
+
+  /* Beri ruang ekstra setelah baris terakhir agar aman dari
+     browser toolbar / area bawah viewport HP. */
+  #listMonitoringTableBody::after,
+  #listPricelistTableBody::after {
+    content: "";
+    display: block;
+    height: 36px;
+  }
+}
+</style>
