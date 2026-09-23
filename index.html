@@ -4701,8 +4701,25 @@ startAutoRefresh();
         function renderPesananOutlet(res) {
             const head=document.getElementById('pesananOutletTableHead'), body=document.getElementById('pesananOutletTableBody'); if(!head||!body)return;
             const headers=Array.isArray(res.headers)?res.headers:[], rows=Array.isArray(res.rows)?res.rows:[];
-            globalPesananOutletHeaders=headers;
-            globalPesananOutletRows=rows;
+            // Pesanan Outlet: urutkan berdasarkan DATE/TANGGAL terbaru ke paling atas.
+            function parsePesananOutletDate(value){
+                const s=String(value==null?'':value).trim();
+                if(!s)return 0;
+                // Format ISO / yyyy-mm-dd
+                let m=s.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+                if(m){
+                    const d=new Date(Number(m[1]),Number(m[2])-1,Number(m[3]),Number(m[4]||0),Number(m[5]||0),Number(m[6]||0));
+                    return isNaN(d.getTime())?0:d.getTime();
+                }
+                // Format Indonesia: dd/mm/yyyy atau dd-mm-yyyy
+                m=s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+                if(m){
+                    const d=new Date(Number(m[3]),Number(m[2])-1,Number(m[1]),Number(m[4]||0),Number(m[5]||0),Number(m[6]||0));
+                    return isNaN(d.getTime())?0:d.getTime();
+                }
+                const d=new Date(s);
+                return isNaN(d.getTime())?0:d.getTime();
+            }
             // Tabel utama hanya menampilkan 4 kolom yang diperlukan.
             function findTableIdx(aliases){
                 const norm=function(v){return String(v==null?'':v).trim().toUpperCase().replace(/[.\/_-]+/g,' ').replace(/\s+/g,' ').replace(/[^A-Z0-9]/g,'');};
@@ -4713,6 +4730,14 @@ startAutoRefresh();
             const idxOutlet=findTableIdx(['OUTLET','NAMA OUTLET']);
             const idxDate=findTableIdx(['DATE','TANGGAL','TGL']);
             const idxDsr=findTableIdx(['DSR','SALES','NAMA SALES']);
+            // Terbaru selalu di posisi pertama. Jika tanggal sama, pertahankan urutan asli.
+            rows.sort(function(a,b){
+                const da=idxDate>=0?parsePesananOutletDate(a[idxDate]):0;
+                const db=idxDate>=0?parsePesananOutletDate(b[idxDate]):0;
+                return db-da;
+            });
+            globalPesananOutletHeaders=headers;
+            globalPesananOutletRows=rows;
             const idxPayment=findTableIdx(['PAYMENT','PEMBAYARAN']);
             const displayCols=[
                 {label:'OUTLET',idx:idxOutlet},
