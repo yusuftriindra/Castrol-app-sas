@@ -1225,13 +1225,11 @@ html,body{height:100%;}
 
     var CASTROL_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx5dkNkseL2AXyP4T3vRATCQEnRC3Ft5ho29iUObmj-Y3H-vRunigrQheYt3jzoBq-p/exec';
     var BRIDGE_URL = CASTROL_APPS_SCRIPT_URL + (CASTROL_APPS_SCRIPT_URL.indexOf('?') >= 0 ? '&' : '?') + 'bridge=1';
-    var REQUEST_TIMEOUT = 120000;
     var seq = 0;
     var pending = Object.create(null);
 
     function cleanup(p) {
         if (!p) return;
-        if (p.timer) clearTimeout(p.timer);
         if (p.frame && p.frame.parentNode) p.frame.parentNode.removeChild(p.frame);
         if (p.form && p.form.parentNode) p.form.parentNode.removeChild(p.form);
     }
@@ -1287,17 +1285,9 @@ html,body{height:100%;}
             form: form,
             success: typeof success === 'function' ? success : null,
             failure: typeof failure === 'function' ? failure : null,
-            userObject: userObject,
-            timer: null
+            userObject: userObject
         };
 
-        p.timer = setTimeout(function () {
-            var current = pending[id];
-            if (!current) return;
-            delete pending[id];
-            cleanup(current);
-            if (current.failure) current.failure(new Error('Permintaan timeout: ' + method + '.'));
-        }, REQUEST_TIMEOUT);
 
         try {
             form.submit();
