@@ -607,6 +607,7 @@ button{touch-action:manipulation}
 .modern-modal-card{width:min(700px,100%)!important;max-height:min(88vh,800px)!important;border-radius:20px!important;overflow:hidden}
 .bws-detail-modal-card{width:min(860px,100%)!important;max-height:min(90vh,860px)!important}
 .bws-detail-modal-card .modern-modal-footer{display:none!important}
+.bws-detail-modal-card #modalOkBtn,.bws-detail-modal-card #modalCancelBtn{display:none!important}
 .bws-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .bws-detail-item{padding:10px 11px;border:1px solid #e2e8f0;border-radius:12px;background:#fff;min-width:0}
 .bws-detail-label{font-size:9px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.04em}
@@ -1927,7 +1928,7 @@ html,body{height:100%;}
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-200 pb-2">
                         <div>
                             <h2 class="text-base font-bold text-slate-800">Tambah Customer</h2>
-                            <p class="text-[10px] text-slate-400 mt-0.5"></p>
+                            <p class="text-[10px] text-slate-400 mt-0.5">Kelola data customer pada sheet OUTLET. Kolom mengikuti header sheet secara otomatis.</p>
                         </div>
                         <button type="button" onclick="openTambahCustomerForm()" class="px-3 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-[10px] font-bold shadow-sm transition">＋ Tambah Customer</button>
                     </div>
@@ -3080,6 +3081,7 @@ startAutoRefresh();
             if (monitoringCard) monitoringCard.classList.add('bws-detail-modal-card');
             monitoringModal.style.display = 'flex';
             document.getElementById('modalCancelBtn').style.display = 'none';
+            document.getElementById('modalOkBtn').style.display = 'none';
 
             google.script.run
                 .withSuccessHandler(function(produkList) {
@@ -3323,7 +3325,9 @@ startAutoRefresh();
                   subtitle=document.getElementById('modalSubtitle'), body=document.getElementById('modalBody'),
                   targetId=String(idInput==null?'':idInput).trim();
             title.textContent='DETAIL ORDER'; subtitle.textContent='ID INPUT: '+targetId;
-            document.getElementById('modalCancelBtn').style.display='none'; modal.style.display='flex';
+            document.getElementById('modalCancelBtn').style.display='none';
+            document.getElementById('modalOkBtn').style.display='none';
+            modal.style.display='flex';
             const order=(globalRiwayatData||[]).find(function(item){return String(item.id||'').trim()===targetId;});
             if(!order){body.innerHTML='<div class="modal-empty-state"><div class="modal-empty-icon">📦</div><div class="font-bold text-slate-700">Order tidak ditemukan</div></div>';return;}
             const detail=Array.isArray(order.products)?order.products:[];
@@ -3663,7 +3667,7 @@ startAutoRefresh();
             document.getElementById('modalTitle').textContent = 'DETAIL OUTLET BWS';
             document.getElementById('modalSubtitle').textContent = outlet ? String(outlet) : 'Data Outlet BWS';
             document.getElementById('modalCancelBtn').style.display = 'none';
-            document.getElementById('modalOkBtn').textContent = 'Tutup';
+            document.getElementById('modalOkBtn').style.display = 'none';
             document.getElementById('modalBody').innerHTML =
                 '<div class="space-y-3">' +
                     '<div class="modal-detail-headline">' +
@@ -4251,6 +4255,7 @@ startAutoRefresh();
             document.getElementById('modalBody').innerHTML = messageHtml;
             document.getElementById('customModal').style.display = 'flex';
             document.getElementById('modalCancelBtn').style.display = 'none';
+            document.getElementById('modalOkBtn').style.display = 'none';
         }
 
 
@@ -4390,7 +4395,7 @@ startAutoRefresh();
             const cancelBtn = document.getElementById('modalCancelBtn');
             const okBtn = document.getElementById('modalOkBtn');
             if (cancelBtn) cancelBtn.style.display = 'none';
-            if (okBtn) okBtn.textContent = 'Oke';
+            if (okBtn) okBtn.style.display = 'none';
 
             const modal = document.getElementById('customModal');
             const card = modal ? modal.querySelector('.modern-modal-card') : null;
@@ -4842,10 +4847,7 @@ startAutoRefresh();
             if(title)title.textContent='Detail Order';
             if(subtitle)subtitle.textContent=outletName!=='-'?outletName:'';
             if(cancelBtn)cancelBtn.style.display='none';
-            if(okBtn){
-                okBtn.style.display='inline-block';
-                okBtn.textContent='Oke';
-            }
+            if(okBtn)okBtn.style.display='none';
 
             // Detail item ORDERS sudah dipreload saat tab Pesanan Outlet dimuat,
             // jadi saat baris diklik item langsung ditampilkan tanpa tulisan
@@ -5124,8 +5126,7 @@ startAutoRefresh();
             const detailOrderCard = modal.querySelector('.modern-modal-card');
             if (detailOrderCard) detailOrderCard.classList.add('bws-detail-modal-card');
             cancelBtn.style.display='none';
-            okBtn.style.display='inline-block';
-            okBtn.textContent='Tutup';
+            okBtn.style.display='none';
 
             let html='<div class="rounded-xl border border-slate-200 bg-white overflow-hidden">'+
                 '<div class="px-3 py-2.5 border-b border-slate-100 flex items-center justify-between gap-2">'+
@@ -5743,7 +5744,7 @@ if(tab==='riwayat')loadRiwayat();
             const idxMaps = _customerFieldIndexClient(headers, ['MAPS', 'GOOGLE MAPS', 'LOCATION', 'LOKASI', 'KOORDINAT']);
 
             document.getElementById('modalTitle').textContent = isEdit ? 'EDIT CUSTOMER' : 'TAMBAH CUSTOMER';
-            document.getElementById('modalSubtitle').textContent = isEdit ? 'Perbarui data.' : 'Tambahkan customer.';
+            document.getElementById('modalSubtitle').textContent = isEdit ? 'Perbarui data customer pada sheet OUTLET.' : 'Tambahkan customer baru ke sheet OUTLET.';
             // RESET VISIBILITY TOMBOL SETIAP KALI FORM CUSTOMER DIBUKA.
             // Modal lain dapat menyembunyikan tombol OK; jangan biarkan style inline itu terbawa.
             const customerCancelBtn = document.getElementById('modalCancelBtn');
@@ -5823,7 +5824,9 @@ if(tab==='riwayat')loadRiwayat();
                         </div>
                     </div>
 
-                    <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[9px] text-slate-500"></div>
+                    <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[9px] text-slate-500">
+                        DSR/Sales akan diisi otomatis sesuai nama Sales yang sedang login. Kolom OUTLET - CUST.CODE, OUTLET - DSR, dan OUTLET - CHANNEL tidak ditampilkan pada form.
+                    </div>
                 </div>`;
 
             customerOkBtn.onclick = function() { saveTambahCustomerForm(); };
