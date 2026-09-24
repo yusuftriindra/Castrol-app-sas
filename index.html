@@ -1720,30 +1720,44 @@ html,body{height:100%;}
                         </button>
                     </div>
 
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                        </span>
-                        <input type="text" id="searchRiwayatInput" oninput="filterRiwayat()" placeholder="Cari berdasarkan nama outlet atau ID..." class="w-full pl-9 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent shadow-sm transition">
-                        <button type="button" id="clearSearchBtn" onclick="clearSearch()" class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600 hidden">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    <div class="flex flex-wrap items-center gap-2 bg-white border border-slate-200 rounded-2xl p-3 shadow-sm">
-                        <div class="text-[10px] font-extrabold text-slate-500 mr-1">SORT TANGGAL</div>
-                        <select id="filterRiwayatMonth" onchange="filterRiwayat()" class="min-h-[38px] border border-slate-200 rounded-xl px-3 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                            <option value="">Semua Bulan</option>
-                            <option value="01">Januari</option><option value="02">Februari</option><option value="03">Maret</option><option value="04">April</option><option value="05">Mei</option><option value="06">Juni</option><option value="07">Juli</option><option value="08">Agustus</option><option value="09">September</option><option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
-                        </select>
-                        <select id="filterRiwayatYear" onchange="filterRiwayat()" class="min-h-[38px] border border-slate-200 rounded-xl px-3 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                            <option value="">Semua Tahun</option>
-                        </select>
-                        <button type="button" onclick="resetRiwayatDateFilter()" class="min-h-[38px] px-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600 text-[10px] font-bold">RESET</button>
+                    <div id="riwayatFiltersBox" class="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm">
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <div>
+                                <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Filter Riwayat</div>
+                                <div class="text-[9px] text-slate-400 mt-0.5">Gunakan filter untuk menampilkan transaksi yang sesuai.</div>
+                            </div>
+                            <button type="button" onclick="resetRiwayatAllFilter()" class="shrink-0 text-[10px] font-bold text-slate-500 hover:text-emerald-700 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-emerald-50 transition">Reset</button>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2">
+                            <div class="sm:col-span-2 lg:col-span-1 relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                </span>
+                                <input type="text" id="searchRiwayatInput" oninput="filterRiwayat()" placeholder="Cari outlet atau ID..." class="w-full pl-9 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent shadow-sm transition">
+                                <button type="button" id="clearSearchBtn" onclick="clearSearch()" class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600 hidden">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <select id="filterRiwayatMonth" onchange="filterRiwayat()" class="min-h-[42px] border border-slate-200 rounded-xl px-3 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="">Semua Bulan</option>
+                                <option value="01">Januari</option><option value="02">Februari</option><option value="03">Maret</option><option value="04">April</option><option value="05">Mei</option><option value="06">Juni</option><option value="07">Juli</option><option value="08">Agustus</option><option value="09">September</option><option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
+                            </select>
+                            <select id="filterRiwayatYear" onchange="filterRiwayat()" class="min-h-[42px] border border-slate-200 rounded-xl px-3 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="">Semua Tahun</option>
+                            </select>
+                            <div id="riwayatAdminFilterFields" class="contents">
+                                <select id="filterRiwayatDsr" onchange="filterRiwayat()" class="min-h-[42px] border border-slate-200 rounded-xl px-3 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                    <option value="">Semua DSR / Sales</option>
+                                </select>
+                                <select id="filterRiwayatStatus" onchange="filterRiwayat()" class="min-h-[42px] border border-slate-200 rounded-xl px-3 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 hidden">
+                                    <option value="">Semua Status</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
 
                     <div id="riwayatSelectionActions" class="hidden flex items-center justify-end gap-2 mb-2">
@@ -1755,19 +1769,6 @@ html,body{height:100%;}
                             class="px-3 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-500 text-[10px] font-bold border border-slate-200 transition">
                             BATAL PILIHAN
                         </button>
-                    </div>
-
-                    <div id="riwayatAdminTools" class="hidden bg-white border border-slate-200 rounded-2xl p-3 shadow-sm">
-                        <div class="flex items-center justify-between gap-2 mb-2">
-                            <div>
-                                <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Filter & Approval Admin</div>
-                                <div class="text-[9px] text-slate-400 mt-0.5">Filter berdasarkan DSR / Nama Sales dan tentukan status order.</div>
-                            </div>
-                            <button type="button" onclick="resetRiwayatAdminFilter()" class="shrink-0 text-[10px] font-bold text-slate-500 hover:text-emerald-700 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-emerald-50 transition">Reset</button>
-                        </div>
-                        <select id="filterRiwayatDsr" onchange="filterRiwayat()" class="w-full min-h-[42px] border border-slate-200 rounded-xl px-3 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                            <option value="">Semua DSR / Sales</option>
-                        </select>
                     </div>
 
                     <div id="listRiwayat" class="space-y-2.5 text-xs">
@@ -2551,7 +2552,7 @@ startAutoRefresh();
         function loadRiwayat(forceReload, silentRefresh) {
             if (forceReload && !silentRefresh) riwayatPage = 1;
             if (!forceReload && globalRiwayatData && globalRiwayatData.length) {
-                if (currentUsernameInput && currentUsernameInput.toLowerCase() === 'admin') populateRiwayatDsrFilter();
+                if (currentUsernameInput && currentUsernameInput.toLowerCase() === 'admin') { populateRiwayatDsrFilter(); populateRiwayatStatusFilter(); }
                 populateRiwayatYearFilter(globalRiwayatData);
                 filterRiwayat();
                 return;
@@ -2563,7 +2564,7 @@ startAutoRefresh();
             google.script.run.withSuccessHandler(function(data) {
                 riwayatLoading = false;
                 globalRiwayatData = Array.isArray(data) ? data : [];
-                if (currentUsernameInput && currentUsernameInput.toLowerCase() === 'admin') populateRiwayatDsrFilter();
+                if (currentUsernameInput && currentUsernameInput.toLowerCase() === 'admin') { populateRiwayatDsrFilter(); populateRiwayatStatusFilter(); }
                 populateRiwayatYearFilter(globalRiwayatData);
                 filterRiwayat();
             }).withFailureHandler(function(err) {
@@ -3215,6 +3216,20 @@ startAutoRefresh();
             if (values.includes(previous)) select.value = previous;
         }
 
+        function populateRiwayatStatusFilter() {
+            const select = document.getElementById('filterRiwayatStatus');
+            if (!select) return;
+            const previous = String(select.value || '');
+            const values = [...new Set((globalRiwayatData || []).map(function(item) {
+                return String(item.status || 'PENDING').trim();
+            }).filter(Boolean))].sort(function(a,b){ return a.localeCompare(b,'id'); });
+            select.innerHTML = '<option value="">Semua Status</option>' + values.map(function(v) {
+                return '<option value="' + escapeHtml(v) + '">' + escapeHtml(v) + '</option>';
+            }).join('');
+            if (values.includes(previous)) select.value = previous;
+            select.classList.toggle('hidden', !(currentUsernameInput && currentUsernameInput.toLowerCase() === 'admin'));
+        }
+
         function populateRiwayatYearFilter(data) {
             const select = document.getElementById('filterRiwayatYear');
             if (!select) return;
@@ -3236,9 +3251,11 @@ startAutoRefresh();
             const monthEl = document.getElementById('filterRiwayatMonth');
             const yearEl = document.getElementById('filterRiwayatYear');
             const dsrEl = document.getElementById('filterRiwayatDsr');
+            const statusEl = document.getElementById('filterRiwayatStatus');
             const month = String(monthEl && monthEl.value || '');
             const year = String(yearEl && yearEl.value || '');
             const dsr = String(dsrEl && dsrEl.value || '').trim().toUpperCase();
+            const status = String(statusEl && statusEl.value || '').trim().toUpperCase();
             const clearBtn = document.getElementById('clearSearchBtn');
             if (clearBtn) clearBtn.classList.toggle('hidden', !keyword);
             let filtered = (globalRiwayatData || []).filter(function(item) {
@@ -3249,6 +3266,7 @@ startAutoRefresh();
                 if (month && (!ym || ym[2] !== month)) return false;
                 if (year && (!ym || ym[1] !== year)) return false;
                 if (dsr && String(item.dsr || '').trim().toUpperCase() !== dsr) return false;
+                if (status && String(item.status || 'PENDING').trim().toUpperCase() !== status) return false;
                 return true;
             });
             filtered.sort(function(a,b){ return new Date(String(b.tanggal||'')).getTime() - new Date(String(a.tanggal||'')).getTime(); });
@@ -3261,6 +3279,30 @@ startAutoRefresh();
             const year = document.getElementById('filterRiwayatYear');
             if (month) month.value = '';
             if (year) year.value = '';
+            filterRiwayat();
+        }
+
+        function resetRiwayatAdminFilter() {
+            const dsr = document.getElementById('filterRiwayatDsr');
+            const status = document.getElementById('filterRiwayatStatus');
+            if (dsr) dsr.value = '';
+            if (status) status.value = '';
+            filterRiwayat();
+        }
+
+        function resetRiwayatAllFilter() {
+            const search = document.getElementById('searchRiwayatInput');
+            const month = document.getElementById('filterRiwayatMonth');
+            const year = document.getElementById('filterRiwayatYear');
+            const dsr = document.getElementById('filterRiwayatDsr');
+            const status = document.getElementById('filterRiwayatStatus');
+            if (search) search.value = '';
+            if (month) month.value = '';
+            if (year) year.value = '';
+            if (dsr) dsr.value = '';
+            if (status) status.value = '';
+            const clearBtn = document.getElementById('clearSearchBtn');
+            if (clearBtn) clearBtn.classList.add('hidden');
             filterRiwayat();
         }
 
