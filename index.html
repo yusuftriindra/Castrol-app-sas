@@ -1257,7 +1257,7 @@ html,body{height:100%;}
             if (p.success) p.success(msg.data, p.userObject);
         } else {
             if (p.failure) p.failure(new Error(
-                msg.error && msg.error.message ? msg.error.message : 'Server gagal memproses permintaan.'
+                msg.error && msg.error.message ? msg.error.message : 'Permintaan tidak dapat diproses.'
             ), p.userObject);
         }
     });
@@ -1296,7 +1296,7 @@ html,body{height:100%;}
             if (!current) return;
             delete pending[id];
             cleanup(current);
-            if (current.failure) current.failure(new Error('Server tidak merespons permintaan ' + method + ' setelah 120 detik.'));
+            if (current.failure) current.failure(new Error('Permintaan timeout: ' + method + '.'));
         }, REQUEST_TIMEOUT);
 
         try {
@@ -2049,6 +2049,15 @@ html,body{height:100%;}
         }
 
         function showModal(title, message, isConfirm = false, callback = null) {
+            // Peringatan koneksi/Apps Script tidak ditampilkan ke pengguna.
+            // Sistem tetap menjalankan callback failure agar proses internal tidak macet.
+            const _modalTitle = String(title == null ? '' : title);
+            const _modalMessage = String(message == null ? '' : message);
+            const _connectionWarning = /apps\s*script|koneksi\s*gagal|tidak\s*dapat\s*(mengakses|terhubung)|bridge\s+google/i.test(_modalTitle + ' ' + _modalMessage);
+            if (_connectionWarning && !isConfirm) {
+                console.warn('Peringatan koneksi disembunyikan:', _modalTitle, _modalMessage);
+                return;
+            }
             document.getElementById('modalTitle').textContent = title;
             document.getElementById('modalSubtitle').textContent = '';
             document.getElementById('modalBody').textContent = message;
