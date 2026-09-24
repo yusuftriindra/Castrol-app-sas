@@ -3465,7 +3465,7 @@ startAutoRefresh();
                             showLoading(false);
                             showModal('Error Sistem', err && err.message ? err.message : 'Gagal menghapus transaksi terpilih.');
                         })
-                        .hapusOrderByIds(ids);
+                        .hapusOrderByIds(ids, currentUsernameInput);
                 }
             );
         }
@@ -3484,7 +3484,7 @@ startAutoRefresh();
                             filterRiwayat();
                         }
                         showModal("Informasi", res && res.message ? res.message : "Tidak ada respons server.");
-                    }).hapusOrderById(idInput);
+                    }).hapusOrderById(idInput, currentUsernameInput);
                 }
             });
         }
