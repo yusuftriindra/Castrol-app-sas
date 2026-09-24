@@ -4785,18 +4785,88 @@ startAutoRefresh();
             if(!modal||!body)return;
 
             const headers=globalPesananOutletHeaders||[];
+
+            function findRowIdx(aliases){
+                const norm=function(v){
+                    return String(v==null?'':v).trim().toUpperCase()
+                        .replace(/[.\/_-]+/g,' ').replace(/\s+/g,' ')
+                        .replace(/[^A-Z0-9]/g,'');
+                };
+                const hh=headers.map(norm);
+                for(const a of aliases){
+                    const i=hh.indexOf(norm(a));
+                    if(i>=0)return i;
+                }
+                return -1;
+            }
+
+            const idxOutlet=findRowIdx(['OUTLET','NAMA OUTLET']);
+            const idxStatus=findRowIdx(['STATUS APPROVE','STATUS']);
+            const idxNote=findRowIdx(['NOTE ORDER','NOTE','CATATAN']);
+            const idxVolume=findRowIdx(['VOLUME','TOTAL VOLUME']);
+            const idxValue=findRowIdx(['VALUE','TOTAL VALUE','NILAI']);
+
+            const outletName=idxOutlet>=0?String(row[idxOutlet]==null?'':row[idxOutlet]).trim():'-';
+            const statusValue=idxStatus>=0?String(row[idxStatus]==null?'':row[idxStatus]).trim():'';
+            const noteValue=idxNote>=0?String(row[idxNote]==null?'':row[idxNote]).trim():'';
+            const volumeValue=idxVolume>=0?row[idxVolume]:'';
+            const valueValue=idxValue>=0?row[idxValue]:'';
+
+            function compactValue(v){
+                const raw=String(v==null?'':v).trim();
+                if(!raw)return '-';
+                const n=Number(raw.replace(/[^0-9,.-]/g,'').replace(/\./g,'').replace(',','.'));
+                return isFinite(n)?n.toLocaleString('id-ID',{maximumFractionDigits:0}):raw;
+            }
+
+            const statusBadge=statusValue?
+                '<span class="inline-flex items-center px-2 py-1 rounded-lg bg-slate-100 text-slate-600 text-[9px] font-extrabold">'+escapeHtml(statusValue)+'</span>':'';
+
             if(title)title.textContent='Detail Order';
-            if(subtitle)subtitle.textContent='';
-            body.innerHTML='<div class="rounded-xl border border-slate-200 overflow-hidden">'+
-                '<div class="px-3 py-2 bg-slate-100 text-[10px] font-extrabold text-slate-600">LIST ORDER</div>'+
-                '<div id="pesananOutletDetailBody" class="p-3 text-[10px] text-slate-400">Mengambil daftar order...</div>'+
+            if(subtitle)subtitle.textContent=outletName!=='-'?outletName:'';
+            if(cancelBtn)cancelBtn.style.display='none';
+            if(okBtn){
+                okBtn.style.display='inline-block';
+                okBtn.textContent='Tutup';
+            }
+
+            // Tampilkan detail dasar langsung dari baris PO OUTLET.
+            // Daftar item ORDERS dimuat menyusul tanpa menahan tampilan popup.
+            body.innerHTML=
+                '<div class="rounded-xl border border-slate-200 bg-white overflow-hidden">'+
+                    '<div class="px-3 py-2.5 border-b border-slate-100 flex items-center justify-between gap-2">'+
+                        '<div class="min-w-0">'+
+                            '<div class="text-[9px] uppercase tracking-wide font-bold text-slate-400">Outlet</div>'+
+                            '<div class="text-sm font-extrabold text-slate-800 truncate">'+escapeHtml(outletName||'-')+'</div>'+
+                        '</div>'+
+                        statusBadge+
+                    '</div>'+
+                    '<div class="p-3">'+
+                        '<div class="grid grid-cols-2 gap-2 mb-2">'+
+                            '<div class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">'+
+                                '<div class="text-[8px] uppercase tracking-wide font-bold text-slate-400">Volume</div>'+
+                                '<div class="mt-0.5 text-sm font-extrabold text-slate-800">'+escapeHtml(formatVolumeRespon(volumeValue||0))+'</div>'+
+                            '</div>'+
+                            '<div class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">'+
+                                '<div class="text-[8px] uppercase tracking-wide font-bold text-slate-400">Value</div>'+
+                                '<div class="mt-0.5 text-sm font-extrabold text-slate-800">Rp '+escapeHtml(compactValue(valueValue))+'</div>'+
+                            '</div>'+
+                        '</div>'+
+                        '<div class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">'+
+                            '<div class="text-[8px] uppercase tracking-wide font-bold text-slate-400">Note</div>'+
+                            '<div class="mt-0.5 text-xs font-bold text-slate-700 break-words">'+escapeHtml(noteValue||'-')+'</div>'+
+                        '</div>'+
+                        '<div id="pesananOutletDetailBody" class="mt-3">'+
+                            '<div class="text-[10px] text-slate-400 py-2">Memuat item order...</div>'+
+                        '</div>'+
+                    '</div>'+
                 '</div>'+
                 '<div class="mt-3 flex justify-end gap-2">'+
-                '<button type="button" id="btnTolakPesananOutlet" class="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[10px] font-extrabold shadow-sm">✕ Tolak Pesanan</button>'+
-                '<button type="button" id="btnResponPesananOutlet" class="px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-[10px] font-extrabold shadow-sm">↩ Respon</button>'+
+                    '<button type="button" id="btnTolakPesananOutlet" class="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[10px] font-extrabold shadow-sm">✕ Tolak Pesanan</button>'+
+                    '<button type="button" id="btnResponPesananOutlet" class="px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-[10px] font-extrabold shadow-sm">↩ Respon</button>'+
                 '</div>';
-            if(cancelBtn)cancelBtn.style.display='none';
-            if(okBtn)okBtn.textContent='Tutup';
+
+            // Popup langsung dibuka sebelum request detail ORDERS selesai.
             modal.style.display='flex';
 
             google.script.run.withSuccessHandler(function(res){
@@ -4805,78 +4875,32 @@ startAutoRefresh();
                 const btnTolak=document.getElementById('btnTolakPesananOutlet');
                 if(!detail)return;
                 if(!res||!res.success){
-                    detail.innerHTML='<div class="text-red-500">'+escapeHtml(res&&res.message?res.message:'Gagal mengambil daftar order.')+'</div>';
+                    detail.innerHTML='<div class="text-[10px] text-red-500 py-2">'+escapeHtml(res&&res.message?res.message:'Gagal mengambil daftar order.')+'</div>';
                     if(btn)btn.disabled=true;
                     if(btnTolak)btnTolak.disabled=true;
                     return;
                 }
-                const dh=Array.isArray(res.headers)?res.headers:[], dr=Array.isArray(res.rows)?res.rows:[];
+
+                const dh=Array.isArray(res.headers)?res.headers:[];
+                const dr=Array.isArray(res.rows)?res.rows:[];
+
                 if(!dr.length){
-                    detail.innerHTML='<div class="text-slate-400 py-2">'+escapeHtml(res.message||'Tidak ada order yang ditemukan di sheet ORDERS.')+'</div>';
+                    detail.innerHTML='<div class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-[10px] text-slate-400">Tidak ada item order.</div>';
                     if(btn)btn.disabled=true;
                     if(btnTolak)btnTolak.disabled=true;
                     return;
                 }
 
-                function findIdx(aliases){
-                    const norm=function(v){return String(v==null?'':v).trim().toUpperCase().replace(/[.\/_-]+/g,' ').replace(/\s+/g,' ').replace(/[^A-Z0-9]/g,'');};
-                    const hh=dh.map(norm);
-                    for(const a of aliases){const i=hh.indexOf(norm(a));if(i>=0)return i;}
-                    return -1;
-                }
-                // PO OUTLET: J = NOTE ORDER, K = VOLUME, L = VALUE.
-                // Gunakan posisi kolom tetap sesuai struktur sheet agar detail selalu mengambil
-                // nilai dari sumber yang benar, bukan dari header ORDERS.
-                const idxNotePO = (function(){
-                    const ph=(Array.isArray(headers)?headers:[]).map(function(v){return String(v==null?'':v).trim().toUpperCase().replace(/[.\/_-]+/g,' ').replace(/\s+/g,' ').replace(/[^A-Z0-9]/g,'');});
-                    const aliases=['NOTE ORDER','NOTE','CATATAN'];
-                    for(const a of aliases){const i=ph.indexOf(a.replace(/[^A-Z0-9]/g,''));if(i>=0)return i;}
-                    return 9;
-                })();
-                const noteOrderDetail = row && row.length > idxNotePO ? String(row[idxNotePO] == null ? '' : row[idxNotePO]).trim() : '';
-                const volumeDetail = row && row.length > 10 ? row[10] : '';
-                const valueDetail = row && row.length > 11 ? row[11] : '';
-
-                const formatDetailVolume=function(v){
-                    const raw=String(v==null?'':v).trim();
-                    if(!raw) return '-';
-                    const n=Number(raw.replace(/[^0-9,.-]/g,'').replace(/\./g,'').replace(',','.'));
-                    if(!isFinite(n)) return raw;
-                    return n.toLocaleString('id-ID',{minimumFractionDigits:0,maximumFractionDigits:2})+' L';
-                };
-                const formatDetailValue=function(v){
-                    const raw=String(v==null?'':v).trim();
-                    if(!raw) return '-';
-                    const n=Number(raw.replace(/[^0-9,.-]/g,'').replace(/\./g,'').replace(',','.'));
-                    if(!isFinite(n)) return raw;
-                    return 'Rp '+n.toLocaleString('id-ID',{maximumFractionDigits:0});
-                };
-
-                let html='<div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-3">'+
-                    '<div class="rounded-xl border border-slate-200 bg-slate-50 p-3">'+
-                    '<div class="text-[9px] font-bold uppercase tracking-wide text-slate-400">Note</div>'+
-                    '<div class="mt-1 text-sm font-extrabold text-slate-800 break-words">'+escapeHtml(noteOrderDetail||'-')+'</div>'+
-                    '</div>'+
-                    '<div class="rounded-xl border border-slate-200 bg-slate-50 p-3">'+
-                    '<div class="text-[9px] font-bold uppercase tracking-wide text-slate-400">Volume</div>'+
-                    '<div class="mt-1 text-sm font-extrabold text-slate-800">'+escapeHtml(formatDetailVolume(volumeDetail))+'</div>'+
-                    '</div>'+
-                    '<div class="rounded-xl border border-slate-200 bg-slate-50 p-3">'+
-                    '<div class="text-[9px] font-bold uppercase tracking-wide text-slate-400">Value</div>'+
-                    '<div class="mt-1 text-sm font-extrabold text-slate-800">'+escapeHtml(formatDetailValue(valueDetail))+'</div>'+
-                    '</div>'+
-                    '</div>'+
-                    '<div class="space-y-2">';
+                let listHtml='<div class="text-[8px] uppercase tracking-wide font-bold text-slate-400 mb-1.5">Item Order</div><div class="space-y-1.5">';
                 dr.forEach(function(r,idx){
-                    const nilaiOrder = r && r.length > 13 ? String(r[13] == null ? '' : r[13]).trim() : '';
-                    html+='<div class="rounded-xl bg-white border border-slate-200 p-3 shadow-sm">'+
-                        '<div class="flex items-start gap-3">'+
-                        '<div class="shrink-0 w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px] font-extrabold">'+(idx+1)+'</div>'+
-                        '<div class="min-w-0 text-xs font-extrabold text-slate-800 break-words">'+escapeHtml(nilaiOrder||'-')+'</div>'+
-                        '</div></div>';
+                    const nilaiOrder=r&&r.length>13?String(r[13]==null?'':r[13]).trim():'';
+                    listHtml+='<div class="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-2.5 py-2">'+
+                        '<div class="shrink-0 w-6 h-6 rounded-md bg-emerald-100 text-emerald-700 flex items-center justify-center text-[9px] font-extrabold">'+(idx+1)+'</div>'+
+                        '<div class="min-w-0 text-[11px] font-bold text-slate-800 break-words">'+escapeHtml(nilaiOrder||'-')+'</div>'+
+                    '</div>';
                 });
-                html+='</div>';
-                detail.innerHTML=html;
+                listHtml+='</div>';
+                detail.innerHTML=listHtml;
 
                 if(btn){
                     btn.disabled=false;
@@ -4892,10 +4916,13 @@ startAutoRefresh();
             }).withFailureHandler(function(err){
                 const detail=document.getElementById('pesananOutletDetailBody');
                 const btn=document.getElementById('btnResponPesananOutlet');
-                if(detail)detail.innerHTML='<div class="text-red-500">'+escapeHtml(err&&err.message?err.message:'Gagal mengambil daftar order.')+'</div>';
+                const btnTolak=document.getElementById('btnTolakPesananOutlet');
+                if(detail)detail.innerHTML='<div class="text-[10px] text-red-500 py-2">'+escapeHtml(err&&err.message?err.message:'Gagal mengambil daftar order.')+'</div>';
                 if(btn)btn.disabled=true;
+                if(btnTolak)btn.disabled=true;
             }).getPesananOutletDetail(headers,row);
         }
+
 
         function bukaPopupTolakPesananOutlet(headers,row,sourceBtn){
             const modal=document.getElementById('customModal');
@@ -5069,32 +5096,84 @@ startAutoRefresh();
             const cancelBtn=document.getElementById('modalCancelBtn');
             const okBtn=document.getElementById('modalOkBtn');
             if(!modal||!body)return;
-            title.textContent='Detail Order';
-            subtitle.textContent='';
+
+            const _poNorm=function(v){
+                return String(v==null?'':v).trim().toUpperCase()
+                    .replace(/[.\/\_-]+/g,' ').replace(/\s+/g,' ')
+                    .replace(/[^A-Z0-9]/g,'');
+            };
+            const _poHeaders=(Array.isArray(headers)?headers:[]).map(_poNorm);
+
+            function _findPoIdx(aliases){
+                for(const a of aliases){
+                    const i=_poHeaders.indexOf(_poNorm(a));
+                    if(i>=0)return i;
+                }
+                return -1;
+            }
+
+            let _outletIdx=_findPoIdx(['OUTLET','NAMA OUTLET']);
+            let _statusIdx=_findPoIdx(['STATUS APPROVE','STATUS']);
+            let _noteIdx=_findPoIdx(['NOTE ORDER','NOTE','CATATAN']);
+            let _volumeIdx=_findPoIdx(['VOLUME','TOTAL VOLUME']);
+            let _valueIdx=_findPoIdx(['VALUE','TOTAL VALUE','NILAI']);
+
+            const _outletValue=_outletIdx>=0&&row&&row.length>_outletIdx?String(row[_outletIdx]==null?'':row[_outletIdx]).trim():'-';
+            const _statusValue=_statusIdx>=0&&row&&row.length>_statusIdx?String(row[_statusIdx]==null?'':row[_statusIdx]).trim():'';
+            const _noteValue=_noteIdx>=0&&row&&row.length>_noteIdx?String(row[_noteIdx]==null?'':row[_noteIdx]).trim():'';
+            const _volumeValue=_volumeIdx>=0&&row&&row.length>_volumeIdx?row[_volumeIdx]:totalVolume;
+            const _valueValue=_valueIdx>=0&&row&&row.length>_valueIdx?row[_valueIdx]:'';
+
+            function _money(v){
+                const raw=String(v==null?'':v).trim();
+                if(!raw)return '-';
+                const n=Number(raw.replace(/[^0-9,.-]/g,'').replace(/\./g,'').replace(',','.'));
+                return isFinite(n)?'Rp '+n.toLocaleString('id-ID',{maximumFractionDigits:0}):raw;
+            }
+
+            if(title)title.textContent='Detail Order';
+            if(subtitle)subtitle.textContent=_outletValue!=='-'?_outletValue:'';
             cancelBtn.style.display='none';
             okBtn.style.display='inline-block';
             okBtn.textContent='Tutup';
 
-            // Note diambil dari PO OUTLET, bukan dari ORDERS.
-            const _poNorm=function(v){return String(v==null?'':v).trim().toUpperCase().replace(/[.\/\_-]+/g,' ').replace(/\s+/g,' ').replace(/[^A-Z0-9]/g,'');};
-            const _poHeaders=(Array.isArray(headers)?headers:[]).map(_poNorm);
-            let _noteIdx=-1;
-            ['NOTE ORDER','NOTE','CATATAN'].some(function(a){const i=_poHeaders.indexOf(_poNorm(a));if(i>=0){_noteIdx=i;return true;}return false;});
-            if(_noteIdx<0)_noteIdx=9;
-            const _noteValue=row&&row.length>_noteIdx?String(row[_noteIdx]==null?'':row[_noteIdx]).trim():'';
+            let html='<div class="rounded-xl border border-slate-200 bg-white overflow-hidden">'+
+                '<div class="px-3 py-2.5 border-b border-slate-100 flex items-center justify-between gap-2">'+
+                    '<div class="min-w-0">'+
+                        '<div class="text-[8px] uppercase tracking-wide font-bold text-slate-400">Outlet</div>'+
+                        '<div class="text-sm font-extrabold text-slate-800 truncate">'+escapeHtml(_outletValue||'-')+'</div>'+
+                    '</div>'+
+                    (_statusValue?'<span class="shrink-0 px-2 py-1 rounded-lg bg-slate-100 text-slate-600 text-[8px] font-extrabold">'+escapeHtml(_statusValue)+'</span>':'')+
+                '</div>'+
+                '<div class="p-3">'+
+                    '<div class="grid grid-cols-2 gap-2 mb-2">'+
+                        '<div class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2"><div class="text-[8px] uppercase tracking-wide font-bold text-slate-400">Volume</div><div class="mt-0.5 text-sm font-extrabold text-slate-800">'+escapeHtml(formatVolumeRespon(_volumeValue||0))+'</div></div>'+
+                        '<div class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2"><div class="text-[8px] uppercase tracking-wide font-bold text-slate-400">Value</div><div class="mt-0.5 text-sm font-extrabold text-slate-800">'+escapeHtml(_money(_valueValue))+'</div></div>'+
+                    '</div>'+
+                    '<div class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 mb-3"><div class="text-[8px] uppercase tracking-wide font-bold text-slate-400">Note</div><div class="mt-0.5 text-xs font-bold text-slate-700 break-words">'+escapeHtml(_noteValue||'-')+'</div></div>'+
+                    '<div class="text-[8px] uppercase tracking-wide font-bold text-slate-400 mb-1.5">Item Order</div>'+
+                    '<div class="space-y-1.5">';
 
-            let html='<div class="rounded-xl border border-slate-200 overflow-hidden"><div class="px-3 py-2 bg-slate-100 text-[10px] font-extrabold text-slate-600">LIST ORDER</div><div class="p-3 text-[10px]">'+
-                '<div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-3">'+
-                    '<div class="rounded-xl border border-slate-200 bg-slate-50 p-3"><div class="text-[9px] font-bold uppercase tracking-wide text-slate-400">Note</div><div class="mt-1 text-sm font-extrabold text-slate-800 break-words">'+escapeHtml(_noteValue||'-')+'</div></div>'+
-                    '<div class="rounded-xl border border-slate-200 bg-slate-50 p-3"><div class="text-[9px] font-bold uppercase tracking-wide text-slate-400">Volume</div><div class="mt-1 text-sm font-extrabold text-slate-800">'+escapeHtml(formatVolumeRespon(totalVolume))+'</div></div>'+
-                    '<div class="rounded-xl border border-slate-200 bg-slate-50 p-3"><div class="text-[9px] font-bold uppercase tracking-wide text-slate-400">Value</div><div class="mt-1 text-sm font-extrabold text-slate-800">'+escapeHtml((function(v){const n=Number(String(v==null?'':v).replace(/[^0-9,.-]/g,'').replace(/\./g,'').replace(',','.'));return isFinite(n)&&String(v).trim()?'Rp '+n.toLocaleString('id-ID',{maximumFractionDigits:0}):(String(v||'').trim()||'-');})(row&&row.length>11?row[11]:''))+'</div></div>'+
+            dr.forEach(function(r,idx){
+                const nilaiOrder=r&&r.length>13?String(r[13]==null?'':r[13]).trim():'';
+                html+='<div class="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-2.5 py-2">'+
+                    '<div class="shrink-0 w-6 h-6 rounded-md bg-emerald-100 text-emerald-700 flex items-center justify-center text-[9px] font-extrabold">'+(idx+1)+'</div>'+
+                    '<div class="min-w-0 text-[11px] font-bold text-slate-800 break-words">'+escapeHtml(nilaiOrder||'-')+'</div>'+
                 '</div>';
-            dr.forEach(function(r,idx){const nilaiOrder=r&&r.length>13?String(r[13]==null?'':r[13]).trim():'';html+='<div class="rounded-xl bg-white border border-slate-200 p-3 shadow-sm mb-2"><div class="flex items-start gap-3"><div class="shrink-0 w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px] font-extrabold">'+(idx+1)+'</div><div class="min-w-0 text-xs font-extrabold text-slate-800 break-words">'+escapeHtml(nilaiOrder||'-')+'</div></div></div>';});
-            html+='</div></div><div class="mt-3 flex items-center justify-end gap-2"><button type="button" id="btnTolakPesananOutlet" class="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[10px] font-extrabold shadow-sm">✕ Tolak Pesanan</button><button type="button" id="btnResponPesananOutlet" class="px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-[10px] font-extrabold shadow-sm">↩ Respon</button></div>';
+            });
+            html+='</div></div></div>'+
+                '<div class="mt-3 flex items-center justify-end gap-2">'+
+                    '<button type="button" id="btnTolakPesananOutlet" class="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[10px] font-extrabold shadow-sm">✕ Tolak Pesanan</button>'+
+                    '<button type="button" id="btnResponPesananOutlet" class="px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-[10px] font-extrabold shadow-sm">↩ Respon</button>'+
+                '</div>';
+
             body.innerHTML=html;
             const btn=document.getElementById('btnResponPesananOutlet');
             const btnTolak=document.getElementById('btnTolakPesananOutlet');
-            if(btn)btn.onclick=function(){bukaPopupCashbackRespon(headers,row,dh,dr,totalVolume,btn);};
+            if(btn){
+                btn.disabled=false;
+                btn.onclick=function(){bukaPopupCashbackRespon(headers,row,dh,dr,totalVolume,btn);};
+            }
             if(btnTolak){
                 btnTolak.style.display='inline-flex';
                 btnTolak.disabled=false;
@@ -5102,6 +5181,7 @@ startAutoRefresh();
             }
             modal.style.display='flex';
         }
+
 
         // Auto refresh setiap 5 detik untuk SEMUA tab kecuali tab Input.
         // Refresh hanya dilakukan pada tab yang sedang aktif agar ringan dan tidak
