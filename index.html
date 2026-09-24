@@ -4729,10 +4729,17 @@ startAutoRefresh();
             if(!forceRefresh){try{const c=sessionStorage.getItem('pesananOutletCache');if(c){renderPesananOutlet(JSON.parse(c));return;}}catch(e){}}
             if (!silentRefresh) body.innerHTML='<tr><td colspan="20" class="text-slate-400 text-center py-6">Memuat Pesanan Outlet...</td></tr>';
             google.script.run.withSuccessHandler(function(res){
-                if(!res||!res.success){body.innerHTML='<tr><td colspan="20" class="text-red-500 text-center py-6">'+escapeHtml(res&&res.error?res.error:'Gagal memuat data.')+'</td></tr>';return;}
+                if(!res||!res.success){
+                    console.warn('Pesanan Outlet tidak berhasil dimuat:', res);
+                    return;
+                }
                 try{sessionStorage.setItem('pesananOutletCache',JSON.stringify(res));}catch(e){}
                 renderPesananOutlet(res);
-            }).withFailureHandler(function(err){body.innerHTML='<tr><td colspan="20" class="text-red-500 text-center py-6">'+escapeHtml(err&&err.message?err.message:'Terjadi kesalahan.')+'</td></tr>';}).getPesananOutletData(!!forceRefresh, currentUser || '', currentUsernameInput || '');
+            }).withFailureHandler(function(err){
+                console.warn('Pesanan Outlet gagal dimuat:', err);
+                // Jangan tampilkan pesan error server ke halaman.
+                // Tampilan yang sudah ada dibiarkan tetap seperti semula.
+            }).getPesananOutletData(!!forceRefresh, currentUser || '', currentUsernameInput || '');
         }
 
         let globalPesananOutletHeaders = [];
