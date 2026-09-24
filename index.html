@@ -550,8 +550,7 @@
 
 
         .riwayat-select-checkbox{vertical-align:middle;}
-        #riwayatBulkDeleteTools{position:sticky;top:0;z-index:5;}
-        #btnHapusRiwayatTerpilih:disabled{opacity:.45;cursor:not-allowed;}
+        #riwayatSelectionActions{position:sticky;top:0;z-index:5;}
         .riwayat-bulk-fast{font-size:10px;color:#64748b;}
 
 /* Sidebar dan tabel mobile */
@@ -1747,18 +1746,14 @@ html,body{height:100%;}
                         <button type="button" onclick="resetRiwayatDateFilter()" class="min-h-[38px] px-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600 text-[10px] font-bold">RESET</button>
                     </div>
 
-                    <div id="riwayatBulkDeleteTools" class="flex flex-wrap items-center gap-2 bg-white border border-slate-200 rounded-2xl p-3 shadow-sm">
-                        <button type="button" onclick="toggleSelectAllRiwayatVisible()" id="btnSelectAllRiwayat"
-                            class="px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 text-[10px] font-bold border border-slate-200 transition">
-                            ☑ PILIH SEMUA
-                        </button>
-                        <button type="button" onclick="hapusRiwayatTerpilih()" id="btnHapusRiwayatTerpilih" disabled
-                            class="px-3 py-2 rounded-xl bg-red-600 hover:bg-red-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white text-[10px] font-extrabold border border-red-700 disabled:border-slate-200 transition">
+                    <div id="riwayatSelectionActions" class="hidden flex items-center justify-end gap-2 mb-2">
+                        <button type="button" onclick="hapusRiwayatTerpilih()" id="btnHapusRiwayatTerpilih"
+                            class="px-3 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-[10px] font-extrabold border border-red-700 transition">
                             🗑️ HAPUS TERPILIH (<span id="selectedRiwayatCount">0</span>)
                         </button>
                         <button type="button" onclick="clearPilihanRiwayat()"
                             class="px-3 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-500 text-[10px] font-bold border border-slate-200 transition">
-                            RESET PILIHAN
+                            BATAL PILIHAN
                         </button>
                     </div>
 
@@ -3370,9 +3365,9 @@ startAutoRefresh();
         function updateSelectedRiwayatUI() {
             const count = Object.keys(selectedRiwayatIds).length;
             const countEl = document.getElementById('selectedRiwayatCount');
-            const btn = document.getElementById('btnHapusRiwayatTerpilih');
+            const actionBar = document.getElementById('riwayatSelectionActions');
             if (countEl) countEl.textContent = count;
-            if (btn) btn.disabled = count === 0;
+            if (actionBar) actionBar.classList.toggle('hidden', count === 0);
 
             const visibleBoxes = Array.from(document.querySelectorAll('.riwayat-select-checkbox'));
             const checkedVisible = visibleBoxes.filter(function(cb){ return cb.checked; }).length;
