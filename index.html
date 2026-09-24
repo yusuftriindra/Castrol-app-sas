@@ -1966,6 +1966,38 @@ html,body{height:100%;}
                         <div><h2 class="text-base font-bold text-slate-800">Pesanan Outlet</h2><p class="text-[10px] text-slate-400 mt-0.5">Tolong di konfirmasikan lagi ke Outlet yang bersangkutan.</p></div>
                         <button type="button" onclick="loadPesananOutlet(true)" class="px-3 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-[10px] font-bold">↻ Refresh</button>
                     </div>
+
+                    <!-- FILTER PESANAN OUTLET -->
+                    <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+                            <div class="lg:col-span-2">
+                                <label for="filterPesananOutletSearch" class="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Pencarian</label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">⌕</span>
+                                    <input type="text" id="filterPesananOutletSearch" oninput="filterPesananOutlet()" placeholder="Cari outlet, DSR, payment, note..." class="w-full pl-8 pr-3 py-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm">
+                                </div>
+                            </div>
+                            <div>
+                                <label for="filterPesananOutletDateFrom" class="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Tanggal Mulai</label>
+                                <input type="date" id="filterPesananOutletDateFrom" onchange="filterPesananOutlet()" class="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm">
+                            </div>
+                            <div>
+                                <label for="filterPesananOutletDateTo" class="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Tanggal Sampai</label>
+                                <input type="date" id="filterPesananOutletDateTo" onchange="filterPesananOutlet()" class="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm">
+                            </div>
+                            <div>
+                                <label for="filterPesananOutletStatus" class="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Status</label>
+                                <select id="filterPesananOutletStatus" onchange="filterPesananOutlet()" class="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm">
+                                    <option value="">Semua Status</option>
+                                </select>
+                            </div>
+                            <div class="flex items-end">
+                                <button type="button" onclick="resetFilterPesananOutlet()" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600 text-[10px] font-bold">↺ Reset Filter</button>
+                            </div>
+                        </div>
+                        <div id="pesananOutletFilterCount" class="mt-2 text-[9px] text-slate-400 text-right"></div>
+                    </div>
+
                     <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden"><div id="pesananOutletTableWrap" class="overflow-x-auto"><table id="pesananOutletTable" class="w-full text-left border-collapse text-[10px]"><thead id="pesananOutletTableHead"></thead><tbody id="pesananOutletTableBody"><tr><td class="text-slate-400 text-center py-6">Klik menu Pesanan Outlet untuk memuat data.</td></tr></tbody></table></div></div>
                 </div>
 
@@ -4787,6 +4819,81 @@ startAutoRefresh();
         let globalPesananOutletRows = [];
         let globalPesananOutletOrdersHeaders = [];
         let globalPesananOutletDetailRowsById = {};
+        let globalPesananOutletDisplayCols = [];
+
+        function normalizePesananOutletDate(value) {
+            const raw=String(value==null?'':value).trim();
+            if(!raw)return '';
+            let m=raw.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+            if(m)return m[3]+'-'+String(m[2]).padStart(2,'0')+'-'+String(m[1]).padStart(2,'0');
+            m=raw.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+            if(m)return m[1]+'-'+String(m[2]).padStart(2,'0')+'-'+String(m[3]).padStart(2,'0');
+            const d=new Date(raw);
+            if(!isNaN(d.getTime()))return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+            return '';
+        }
+
+        function populatePesananOutletStatusFilter() {
+            const el=document.getElementById('filterPesananOutletStatus');
+            if(!el)return;
+            const current=el.value||'';
+            const idxStatus=globalPesananOutletHeaders.findIndex(function(h){
+                const n=String(h==null?'':h).trim().toUpperCase().replace(/[.\/_-]+/g,' ').replace(/\s+/g,' ');
+                return n==='STATUS APPROVE' || n==='STATUS';
+            });
+            const values=[];
+            if(idxStatus>=0){
+                globalPesananOutletRows.forEach(function(row){
+                    const v=String(row[idxStatus]==null?'':row[idxStatus]).trim();
+                    if(v && values.indexOf(v)<0)values.push(v);
+                });
+            }
+            values.sort(function(a,b){return a.localeCompare(b,'id');});
+            el.innerHTML='<option value="">Semua Status</option>'+values.map(function(v){return '<option value="'+escapeHtml(v)+'">'+escapeHtml(v)+'</option>';}).join('');
+            if(values.indexOf(current)>=0)el.value=current;
+        }
+
+        function filterPesananOutlet() {
+            const body=document.getElementById('pesananOutletTableBody');
+            if(!body || !globalPesananOutletDisplayCols.length)return;
+            const search=String((document.getElementById('filterPesananOutletSearch')||{}).value||'').trim().toLowerCase();
+            const dateFrom=String((document.getElementById('filterPesananOutletDateFrom')||{}).value||'');
+            const dateTo=String((document.getElementById('filterPesananOutletDateTo')||{}).value||'');
+            const status=String((document.getElementById('filterPesananOutletStatus')||{}).value||'').trim().toLowerCase();
+            const idxDate=globalPesananOutletDisplayCols.find(function(c){return c.label==='DATE';})?.idx ?? -1;
+            const idxStatus=globalPesananOutletDisplayCols.find(function(c){return c.label==='STATUS';})?.idx ?? -1;
+            const filtered=[];
+            globalPesananOutletRows.forEach(function(row,rowIndex){
+                const rowText=row.map(function(v){return String(v==null?'':v);}).join(' ').toLowerCase();
+                if(search && rowText.indexOf(search)<0)return;
+                if(status && String(idxStatus>=0?row[idxStatus]:'').trim().toLowerCase()!==status)return;
+                if(dateFrom || dateTo){
+                    const rowDate=normalizePesananOutletDate(idxDate>=0?row[idxDate]:'');
+                    if(!rowDate)return;
+                    if(dateFrom && rowDate<dateFrom)return;
+                    if(dateTo && rowDate>dateTo)return;
+                }
+                filtered.push({row:row,rowIndex:rowIndex});
+            });
+            if(!filtered.length){
+                body.innerHTML='<tr><td colspan="'+globalPesananOutletDisplayCols.length+'" class="text-slate-400 text-center py-6">Tidak ada Pesanan Outlet yang sesuai dengan filter.</td></tr>';
+            }else{
+                body.innerHTML=filtered.map(function(item){
+                    const row=item.row,rowIndex=item.rowIndex;
+                    return '<tr onclick="lihatDetailPesananOutlet('+rowIndex+')" class="border-b border-slate-200 hover:bg-emerald-50/50 cursor-pointer transition" title="Klik untuk melihat detail order">'+
+                        globalPesananOutletDisplayCols.map(function(c){return '<td class="p-2.5 align-top '+(c.wrap?'whitespace-normal min-w-[180px] max-w-[320px] break-words':'whitespace-nowrap')+'">'+escapeHtml(c.idx>=0 && row[c.idx]!=null?row[c.idx]:'')+'</td>';}).join('')+
+                        '</tr>';
+                }).join('');
+            }
+            const countEl=document.getElementById('pesananOutletFilterCount');
+            if(countEl)countEl.textContent=filtered.length+' dari '+globalPesananOutletRows.length+' pesanan';
+        }
+
+        function resetFilterPesananOutlet() {
+            ['filterPesananOutletSearch','filterPesananOutletDateFrom','filterPesananOutletDateTo'].forEach(function(id){const el=document.getElementById(id);if(el)el.value='';});
+            const status=document.getElementById('filterPesananOutletStatus');if(status)status.value='';
+            filterPesananOutlet();
+        }
 
         function renderPesananOutlet(res) {
             const head=document.getElementById('pesananOutletTableHead'), body=document.getElementById('pesananOutletTableBody'); if(!head||!body)return;
@@ -4818,13 +4925,11 @@ startAutoRefresh();
                 {label:'STATUS',idx:idxStatus},
                 {label:'NOTE',idx:idxNote,wrap:true}
             ];
+            globalPesananOutletDisplayCols=displayCols;
             head.innerHTML='<tr class="bg-slate-100 text-slate-700 border-b border-slate-200">'+displayCols.map(function(c){return '<th class="p-2.5 font-bold whitespace-nowrap">'+c.label+'</th>';}).join('')+'</tr>';
-            if(!rows.length){body.innerHTML='<tr><td colspan="6" class="text-slate-400 text-center py-6">Belum ada data Pesanan dari Outlet anda.</td></tr>';return;}
-            body.innerHTML=rows.map(function(row,rowIndex){
-                return '<tr onclick="lihatDetailPesananOutlet('+rowIndex+')" class="border-b border-slate-200 hover:bg-emerald-50/50 cursor-pointer transition" title="Klik untuk melihat detail order">'+
-                    displayCols.map(function(c){return '<td class="p-2.5 align-top '+(c.wrap?'whitespace-normal min-w-[180px] max-w-[320px] break-words':'whitespace-nowrap')+'">'+escapeHtml(c.idx>=0 && row[c.idx]!=null?row[c.idx]:'')+'</td>';}).join('')+
-                    '</tr>';
-            }).join('');
+            populatePesananOutletStatusFilter();
+            if(!rows.length){body.innerHTML='<tr><td colspan="6" class="text-slate-400 text-center py-6">Belum ada data Pesanan dari Outlet anda.</td></tr>';const countEl=document.getElementById('pesananOutletFilterCount');if(countEl)countEl.textContent='0 pesanan';return;}
+            filterPesananOutlet();
         }
 
         function lihatDetailPesananOutlet(rowIndex) {
