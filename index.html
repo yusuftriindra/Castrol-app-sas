@@ -1930,7 +1930,7 @@ html,body{height:100%;}
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-200 pb-2">
                         <div>
                             <h2 class="text-base font-bold text-slate-800">Tambah Customer</h2>
-                            <p class="text-[10px] text-slate-400 mt-0.5">Kelola data customer pada sheet OUTLET. Kolom mengikuti header sheet secara otomatis.</p>
+                            <p class="text-[10px] text-slate-400 mt-0.5"></p>
                         </div>
                         <button type="button" onclick="openTambahCustomerForm()" class="px-3 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-[10px] font-bold shadow-sm transition">＋ Tambah Customer</button>
                     </div>
@@ -5784,7 +5784,7 @@ if(tab==='riwayat')loadRiwayat();
             const idxMaps = _customerFieldIndexClient(headers, ['MAPS', 'GOOGLE MAPS', 'LOCATION', 'LOKASI', 'KOORDINAT']);
 
             document.getElementById('modalTitle').textContent = isEdit ? 'EDIT CUSTOMER' : 'TAMBAH CUSTOMER';
-            document.getElementById('modalSubtitle').textContent = isEdit ? 'Perbarui data customer pada sheet OUTLET.' : 'Tambahkan customer baru ke sheet OUTLET.';
+            document.getElementById('modalSubtitle').textContent = isEdit ? 'Perbarui data customer.' : 'Tambahkan customer baru.';
             // RESET VISIBILITY TOMBOL SETIAP KALI FORM CUSTOMER DIBUKA.
             // Modal lain dapat menyembunyikan tombol OK; jangan biarkan style inline itu terbawa.
             const customerCancelBtn = document.getElementById('modalCancelBtn');
@@ -5864,9 +5864,7 @@ if(tab==='riwayat')loadRiwayat();
                         </div>
                     </div>
 
-                    <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[9px] text-slate-500">
-                        DSR/Sales akan diisi otomatis sesuai nama Sales yang sedang login. Kolom OUTLET - CUST.CODE, OUTLET - DSR, dan OUTLET - CHANNEL tidak ditampilkan pada form.
-                    </div>
+                    <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[9px] text-slate-500"></div>
                 </div>`;
 
             customerOkBtn.onclick = function() { saveTambahCustomerForm(); };
