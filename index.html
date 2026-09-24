@@ -2058,13 +2058,16 @@ html,body{height:100%;}
             let okBtn = document.getElementById('modalOkBtn');
             cancelBtn.style.display = isConfirm ? 'inline-block' : 'none';
 
+            // Popup informasi/berhasil/detail hanya memakai satu tombol Oke.
+            // Tombol Batal tetap dipakai untuk popup konfirmasi dan form.
+
             // Reset handler setiap kali modal biasa dibuka.
             // Ini mencegah handler khusus form (mis. saveTambahCustomerForm)
             // tertinggal dan terpanggil lagi saat user menekan OK pada modal
             // sukses/informasi.
             cancelBtn.onclick = function() { closeModal(false); };
             okBtn.onclick = function() { closeModal(true); };
-            okBtn.textContent = 'OK';
+            okBtn.textContent = isConfirm ? 'OK' : 'Oke';
             modalCallback = callback;
         }
 
@@ -4384,7 +4387,7 @@ startAutoRefresh();
             const cancelBtn = document.getElementById('modalCancelBtn');
             const okBtn = document.getElementById('modalOkBtn');
             if (cancelBtn) cancelBtn.style.display = 'none';
-            if (okBtn) okBtn.textContent = 'Tutup';
+            if (okBtn) okBtn.textContent = 'Oke';
 
             const modal = document.getElementById('customModal');
             const card = modal ? modal.querySelector('.modern-modal-card') : null;
@@ -4827,7 +4830,7 @@ startAutoRefresh();
             if(cancelBtn)cancelBtn.style.display='none';
             if(okBtn){
                 okBtn.style.display='inline-block';
-                okBtn.textContent='Tutup';
+                okBtn.textContent='Oke';
             }
 
             // Tampilkan detail dasar langsung dari baris PO OUTLET.
