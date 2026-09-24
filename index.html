@@ -4949,6 +4949,8 @@ startAutoRefresh();
         }
 
         function bukaPopupTolakPesananOutlet(headers,row,sourceBtn){
+            // Popup form penolakan BUKAN mode detail: footer tombol tetap harus tampil.
+            clearDetailModalNoFooter();
             const modal=document.getElementById('customModal');
             const title=document.getElementById('modalTitle');
             const subtitle=document.getElementById('modalSubtitle');
@@ -5015,6 +5017,8 @@ startAutoRefresh();
         }
 
         function bukaPopupCashbackRespon(headers,row,dh,dr,totalVolume,sourceBtn){
+            // Popup form cashback/discount BUKAN mode detail: footer tombol tetap harus tampil.
+            clearDetailModalNoFooter();
             const modal=document.getElementById('customModal');
             const title=document.getElementById('modalTitle');
             const subtitle=document.getElementById('modalSubtitle');
