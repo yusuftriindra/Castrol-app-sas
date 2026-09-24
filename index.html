@@ -607,6 +607,8 @@ button{touch-action:manipulation}
 .modern-modal-card{width:min(700px,100%)!important;max-height:min(88vh,800px)!important;border-radius:20px!important;overflow:hidden}
 .bws-detail-modal-card{width:min(860px,100%)!important;max-height:min(90vh,860px)!important}
 .bws-detail-modal-card .modern-modal-footer{display:none!important}
+#customModal.detail-modal-active .modern-modal-footer{display:none!important}
+#customModal .modern-modal-card.detail-no-footer .modern-modal-footer{display:none!important}
 .bws-detail-modal-card #modalOkBtn,.bws-detail-modal-card #modalCancelBtn{display:none!important}
 .bws-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .bws-detail-item{padding:10px 11px;border:1px solid #e2e8f0;border-radius:12px;background:#fff;min-width:0}
@@ -2040,6 +2042,30 @@ html,body{height:100%;}
             document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
         }
 
+        function setDetailModalNoFooter() {
+            const modal = document.getElementById('customModal');
+            if (!modal) return;
+            modal.classList.add('detail-modal-active');
+            const card = modal.querySelector('.modern-modal-card');
+            if (card) card.classList.add('detail-no-footer');
+            const footer = modal.querySelector('.modern-modal-footer');
+            if (footer) footer.style.display = 'none';
+            const cancelBtn = document.getElementById('modalCancelBtn');
+            const okBtn = document.getElementById('modalOkBtn');
+            if (cancelBtn) cancelBtn.style.display = 'none';
+            if (okBtn) okBtn.style.display = 'none';
+        }
+
+        function clearDetailModalNoFooter() {
+            const modal = document.getElementById('customModal');
+            if (!modal) return;
+            modal.classList.remove('detail-modal-active');
+            const card = modal.querySelector('.modern-modal-card');
+            if (card) card.classList.remove('detail-no-footer');
+            const footer = modal.querySelector('.modern-modal-footer');
+            if (footer) footer.style.display = '';
+        }
+
         function showModal(title, message, isConfirm = false, callback = null) {
             // Peringatan koneksi/Apps Script tidak ditampilkan ke pengguna.
             // Sistem tetap menjalankan callback failure agar proses internal tidak macet.
@@ -2050,6 +2076,7 @@ html,body{height:100%;}
                 console.warn('Peringatan koneksi disembunyikan:', _modalTitle, _modalMessage);
                 return;
             }
+            clearDetailModalNoFooter();
             document.getElementById('modalTitle').textContent = title;
             document.getElementById('modalSubtitle').textContent = '';
             document.getElementById('modalBody').textContent = message;
@@ -2073,6 +2100,7 @@ html,body{height:100%;}
         }
 
         function closeModal(isOk) {
+            clearDetailModalNoFooter();
             document.getElementById('customModal').style.display = 'none';
             const modalCard = document.getElementById('customModal').querySelector('.modern-modal-card');
             if (modalCard) modalCard.classList.remove('bws-detail-modal-card');
@@ -3045,6 +3073,7 @@ startAutoRefresh();
         }
 
         function tampilkanDetailMonitoring(encodedData) {
+            setDetailModalNoFooter();
             let data = JSON.parse(decodeURIComponent(encodedData));
             let initialMsg = `Rincian transaksi outlet akan ditampilkan di sini.`;
 
@@ -3321,6 +3350,7 @@ startAutoRefresh();
         }
 
         function lihatDetail(idInput) {
+            setDetailModalNoFooter();
             const modal=document.getElementById('customModal'), title=document.getElementById('modalTitle'),
                   subtitle=document.getElementById('modalSubtitle'), body=document.getElementById('modalBody'),
                   targetId=String(idInput==null?'':idInput).trim();
@@ -3630,6 +3660,7 @@ startAutoRefresh();
         }
 
         function openOutletBWSDetail(rowNumber) {
+            setDetailModalNoFooter();
             const item = (globalOutletBWSData.rows || []).find(function(row) {
                 return Number(row.rowNumber) === Number(rowNumber);
             });
@@ -4136,6 +4167,7 @@ startAutoRefresh();
         }
 
         function tampilkanDetailOutletKontrak(encodedData) {
+            setDetailModalNoFooter();
             let data;
             try {
                 data = JSON.parse(decodeURIComponent(encodedData));
@@ -4376,6 +4408,7 @@ startAutoRefresh();
         }
 
         function openPencapaianDetail(category, sales) {
+            setDetailModalNoFooter();
             const periodSelect = document.getElementById('pencapaianPeriodSelect');
             const selectedPeriod = periodSelect && periodSelect.value ? periodSelect.value : '';
             const titleMap = {
@@ -4795,6 +4828,7 @@ startAutoRefresh();
         }
 
         function lihatDetailPesananOutlet(rowIndex) {
+            setDetailModalNoFooter();
             const row=globalPesananOutletRows[Number(rowIndex)];
             if(!row){showModal('Detail Order','Data order tidak ditemukan.');return;}
 
@@ -5079,6 +5113,7 @@ startAutoRefresh();
         }
 
         function renderDetailOrderPesananOutletModal(headers,row,dh,dr,totalVolume,sourceBtn){
+            setDetailModalNoFooter();
             const modal=document.getElementById('customModal');
             const title=document.getElementById('modalTitle');
             const subtitle=document.getElementById('modalSubtitle');
@@ -5542,6 +5577,7 @@ if(tab==='riwayat')loadRiwayat();
 
         // DETAIL CUSTOMER: seluruh field customer ditampilkan di modal, dengan aksi Edit dan Hapus.
         function lihatDetailTambahCustomer(rowNumber) {
+            setDetailModalNoFooter();
             const row = (globalTambahCustomerData.rows || []).find(function(item) {
                 return Number(item.rowNumber) === Number(rowNumber);
             });
