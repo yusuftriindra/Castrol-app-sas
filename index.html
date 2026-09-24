@@ -4892,7 +4892,7 @@ startAutoRefresh();
             const btnTolak=document.getElementById('btnTolakPesananOutlet');
             if(btn){
                 btn.disabled=false;
-                btn.onclick=function(){bukaPopupCashbackRespon(headers,row,dh,dr,Number(totalVolume)||0,btn);};
+                btn.onclick=function(){bukaPopupCashbackRespon(headers,row,dh,dr,Number(volumeValue)||0,btn);};
             }
             if(btnTolak){
                 btnTolak.style.display='inline-flex';
