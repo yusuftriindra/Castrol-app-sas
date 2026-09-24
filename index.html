@@ -4737,6 +4737,8 @@ startAutoRefresh();
 
         let globalPesananOutletHeaders = [];
         let globalPesananOutletRows = [];
+        let globalPesananOutletOrdersHeaders = [];
+        let globalPesananOutletDetailRowsById = {};
 
         function renderPesananOutlet(res) {
             const head=document.getElementById('pesananOutletTableHead'), body=document.getElementById('pesananOutletTableBody'); if(!head||!body)return;
@@ -4755,6 +4757,8 @@ startAutoRefresh();
             // Urutan baris dari Apps Script sudah dibalik: row paling terakhir tampil paling atas.
             globalPesananOutletHeaders=headers;
             globalPesananOutletRows=rows;
+            globalPesananOutletOrdersHeaders=Array.isArray(res.ordersHeaders)?res.ordersHeaders:[];
+            globalPesananOutletDetailRowsById=(res&&res.detailRowsById&&typeof res.detailRowsById==='object')?res.detailRowsById:{};
             const idxPayment=findTableIdx(['PAYMENT','PEMBAYARAN']);
             const idxStatus=findTableIdx(['STATUS APPROVE']);
             const idxNote=findTableIdx(['NOTE ORDER','NOTE','CATATAN']);
@@ -4833,8 +4837,34 @@ startAutoRefresh();
                 okBtn.textContent='Oke';
             }
 
-            // Tampilkan detail dasar langsung dari baris PO OUTLET.
-            // Daftar item ORDERS dimuat menyusul tanpa menahan tampilan popup.
+            // Detail item ORDERS sudah dipreload saat tab Pesanan Outlet dimuat,
+            // jadi saat baris diklik item langsung ditampilkan tanpa tulisan
+            // "Memuat item order..." dan tanpa request tambahan.
+            const idInputIdx=findRowIdx(['ID INPUT','INPUT ID','NO INPUT']);
+            const detailId=idInputIdx>=0?String(row[idInputIdx]==null?'':row[idInputIdx]).trim():'';
+            const dh=globalPesananOutletOrdersHeaders||[];
+            const dr=Array.isArray(globalPesananOutletDetailRowsById[detailId])?globalPesananOutletDetailRowsById[detailId]:[];
+            const nilaiOrderIdx=(function(){
+                const hh=dh.map(function(v){return String(v==null?'':v).trim().toUpperCase().replace(/[.\/_-]+/g,' ').replace(/\s+/g,' ').replace(/[^A-Z0-9]/g,'');});
+                for(const a of ['ORDER','PRODUK','RINCIAN PRODUK','ITEM','NAMA PRODUK']){
+                    const i=hh.indexOf(String(a).toUpperCase().replace(/[.\/_-]+/g,' ').replace(/\s+/g,' ').replace(/[^A-Z0-9]/g,''));
+                    if(i>=0)return i;
+                }
+                return 13;
+            })();
+
+            let itemHtml='';
+            if(dr.length){
+                itemHtml='<div class="text-[8px] uppercase tracking-wide font-bold text-slate-400 mb-1.5">Produk</div>';
+                dr.forEach(function(r){
+                    const item=r&&r.length>nilaiOrderIdx?String(r[nilaiOrderIdx]==null?'':r[nilaiOrderIdx]).trim():'';
+                    if(item) itemHtml+='<div class="text-[11px] font-medium text-slate-700 py-0.5 break-words">'+escapeHtml(item)+'</div>';
+                });
+                if(itemHtml.endsWith('mb-1.5">Produk</div>')) itemHtml='<div class="text-[10px] text-slate-400 py-1">Tidak ada item order.</div>';
+            }else{
+                itemHtml='<div class="text-[10px] text-slate-400 py-1">Tidak ada item order.</div>';
+            }
+
             body.innerHTML=
                 '<div class="rounded-xl border border-slate-200 bg-white overflow-hidden">'+
                     '<div class="px-3 py-2.5 border-b border-slate-100 flex items-center justify-between gap-2">'+
@@ -4846,22 +4876,11 @@ startAutoRefresh();
                     '</div>'+
                     '<div class="p-3">'+
                         '<div class="grid grid-cols-2 gap-2 mb-2">'+
-                            '<div class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">'+
-                                '<div class="text-[8px] uppercase tracking-wide font-bold text-slate-400">Volume</div>'+
-                                '<div class="mt-0.5 text-sm font-extrabold text-slate-800">'+escapeHtml(formatVolumeRespon(volumeValue||0))+'</div>'+
-                            '</div>'+
-                            '<div class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">'+
-                                '<div class="text-[8px] uppercase tracking-wide font-bold text-slate-400">Value</div>'+
-                                '<div class="mt-0.5 text-sm font-extrabold text-slate-800">Rp '+escapeHtml(compactValue(valueValue))+'</div>'+
-                            '</div>'+
+                            '<div class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2"><div class="text-[8px] uppercase tracking-wide font-bold text-slate-400">Volume</div><div class="mt-0.5 text-sm font-extrabold text-slate-800">'+escapeHtml(formatVolumeRespon(volumeValue||0))+'</div></div>'+
+                            '<div class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2"><div class="text-[8px] uppercase tracking-wide font-bold text-slate-400">Value</div><div class="mt-0.5 text-sm font-extrabold text-slate-800">Rp '+escapeHtml(compactValue(valueValue))+'</div></div>'+
                         '</div>'+
-                        '<div class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">'+
-                            '<div class="text-[8px] uppercase tracking-wide font-bold text-slate-400">Note</div>'+
-                            '<div class="mt-0.5 text-xs font-bold text-slate-700 break-words">'+escapeHtml(noteValue||'-')+'</div>'+
-                        '</div>'+
-                        '<div id="pesananOutletDetailBody" class="mt-3">'+
-                            '<div class="text-[10px] text-slate-400 py-2">Memuat item order...</div>'+
-                        '</div>'+
+                        '<div class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2"><div class="text-[8px] uppercase tracking-wide font-bold text-slate-400">Note</div><div class="mt-0.5 text-xs font-bold text-slate-700 break-words">'+escapeHtml(noteValue||'-')+'</div></div>'+
+                        '<div class="mt-3">'+itemHtml+'</div>'+
                     '</div>'+
                 '</div>'+
                 '<div class="mt-3 flex justify-end gap-2">'+
@@ -4869,63 +4888,19 @@ startAutoRefresh();
                     '<button type="button" id="btnResponPesananOutlet" class="px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-[10px] font-extrabold shadow-sm">↩ Respon</button>'+
                 '</div>';
 
-            // Popup langsung dibuka sebelum request detail ORDERS selesai.
+            const btn=document.getElementById('btnResponPesananOutlet');
+            const btnTolak=document.getElementById('btnTolakPesananOutlet');
+            if(btn){
+                btn.disabled=false;
+                btn.onclick=function(){bukaPopupCashbackRespon(headers,row,dh,dr,Number(totalVolume)||0,btn);};
+            }
+            if(btnTolak){
+                btnTolak.style.display='inline-flex';
+                btnTolak.disabled=false;
+                btnTolak.onclick=function(){bukaPopupTolakPesananOutlet(headers,row,btnTolak);};
+            }
             modal.style.display='flex';
-
-            google.script.run.withSuccessHandler(function(res){
-                const detail=document.getElementById('pesananOutletDetailBody');
-                const btn=document.getElementById('btnResponPesananOutlet');
-                const btnTolak=document.getElementById('btnTolakPesananOutlet');
-                if(!detail)return;
-                if(!res||!res.success){
-                    detail.innerHTML='<div class="text-[10px] text-red-500 py-2">'+escapeHtml(res&&res.message?res.message:'Gagal mengambil daftar order.')+'</div>';
-                    if(btn)btn.disabled=true;
-                    if(btnTolak)btnTolak.disabled=true;
-                    return;
-                }
-
-                const dh=Array.isArray(res.headers)?res.headers:[];
-                const dr=Array.isArray(res.rows)?res.rows:[];
-
-                if(!dr.length){
-                    detail.innerHTML='<div class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-[10px] text-slate-400">Tidak ada item order.</div>';
-                    if(btn)btn.disabled=true;
-                    if(btnTolak)btnTolak.disabled=true;
-                    return;
-                }
-
-                let listHtml='<div class="text-[8px] uppercase tracking-wide font-bold text-slate-400 mb-1.5">Item Order</div><div class="space-y-1.5">';
-                dr.forEach(function(r,idx){
-                    const nilaiOrder=r&&r.length>13?String(r[13]==null?'':r[13]).trim():'';
-                    listHtml+='<div class="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-2.5 py-2">'+
-                        '<div class="shrink-0 w-6 h-6 rounded-md bg-emerald-100 text-emerald-700 flex items-center justify-center text-[9px] font-extrabold">'+(idx+1)+'</div>'+
-                        '<div class="min-w-0 text-[11px] font-bold text-slate-800 break-words">'+escapeHtml(nilaiOrder||'-')+'</div>'+
-                    '</div>';
-                });
-                listHtml+='</div>';
-                detail.innerHTML=listHtml;
-
-                if(btn){
-                    btn.disabled=false;
-                    btn.onclick=function(){
-                        bukaPopupCashbackRespon(headers,row,dh,dr,res.totalVolume||0,btn);
-                    };
-                }
-                if(btnTolak){
-                    btnTolak.style.display='inline-flex';
-                    btnTolak.disabled=false;
-                    btnTolak.onclick=function(){bukaPopupTolakPesananOutlet(headers,row,btnTolak);};
-                }
-            }).withFailureHandler(function(err){
-                const detail=document.getElementById('pesananOutletDetailBody');
-                const btn=document.getElementById('btnResponPesananOutlet');
-                const btnTolak=document.getElementById('btnTolakPesananOutlet');
-                if(detail)detail.innerHTML='<div class="text-[10px] text-red-500 py-2">'+escapeHtml(err&&err.message?err.message:'Gagal mengambil daftar order.')+'</div>';
-                if(btn)btn.disabled=true;
-                if(btnTolak)btn.disabled=true;
-            }).getPesananOutletDetail(headers,row);
         }
-
 
         function bukaPopupTolakPesananOutlet(headers,row,sourceBtn){
             const modal=document.getElementById('customModal');
