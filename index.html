@@ -2573,7 +2573,10 @@ startAutoRefresh();
                 items: shoppingCart
             };
 
-            showModal("Konfirmasi Order", "Kirim order sekarang?", true, function(isOk) {
+            const cartSummary = shoppingCart.map(function(item, i) {
+                return (i + 1) + '. ' + String(item.produk || '-') + ' · ' + Number(item.qty || 0) + ' ' + String(item.satuan || 'Pcs');
+            }).join(' | ');
+            showModal("Konfirmasi Order", "Periksa pesanan. Outlet: " + String(outlet) + " | KERANJANG: " + cartSummary + " | Lanjutkan kirim order?", true, function(isOk) {
                 if (isOk) {
                     isSubmitting = true;
                     let btnKirim = document.getElementById('btnKirimOrder');
@@ -2901,7 +2904,7 @@ startAutoRefresh();
 
             showModal(
                 'Konfirmasi Bulk Status',
-                `Akan diproses ${changes.length} transaksi.<br><br>APPROVE: ${approve}<br>DECLINE: ${decline}<br><br>Lanjutkan?`,
+                `Akan diproses ${changes.length} transaksi.  APPROVE: ${approve}  DECLINE: ${decline}.  Lanjutkan?`,
                 true,
                 function(isOk) {
                     if (!isOk) return;
@@ -3443,24 +3446,20 @@ startAutoRefresh();
                     }
                     editOrderItems=res.order.products||[];
 
-                    // V6: pastikan master PRODUK tersedia sebelum membuat <select> edit.
-                    // Pada Admin, produk tidak dimuat saat login demi performa, sehingga
-                    // produkDataList bisa kosong dan semua produk akan dianggap tidak valid.
-                    if(Array.isArray(produkDataList) && produkDataList.length>0){
-                        renderEditOrderForm(res.order);
-                        return;
+                    // Tampilkan form edit segera dari data order yang sudah ditemukan.
+                    // Master produk lengkap dimuat menyusul agar klik EDIT tidak menunggu request kedua.
+                    renderEditOrderForm(res.order);
+                    if(!(Array.isArray(produkDataList) && produkDataList.length>0)){
+                        google.script.run
+                            .withSuccessHandler(function(list){
+                                produkDataList=Array.isArray(list)?list:[];
+                                if(document.getElementById('customModal').style.display !== 'none') renderEditOrderProducts();
+                            })
+                            .withFailureHandler(function(err){
+                                console.warn('Master produk edit gagal dimuat:', err);
+                            })
+                            .getListProduk();
                     }
-
-                    google.script.run
-                        .withSuccessHandler(function(list){
-                            produkDataList=Array.isArray(list)?list:[];
-                            renderEditOrderForm(res.order);
-                        })
-                        .withFailureHandler(function(err){
-                            document.getElementById('modalOkBtn').textContent='OK';
-                            document.getElementById('modalBody').innerHTML='<div class="text-center text-xs text-red-500 py-8">Gagal memuat master produk: '+escapeHtml(err&&err.message?err.message:'Terjadi kesalahan.')+'</div>';
-                        })
-                        .getListProduk();
                 })
                 .withFailureHandler(function(err){
                     document.getElementById('modalOkBtn').textContent='OK';
@@ -4466,6 +4465,10 @@ startAutoRefresh();
             const card = modal ? modal.querySelector('.modern-modal-card') : null;
             if (card) card.classList.add('bws-detail-modal-card');
 
+            const detailCacheKey = String(sales || '').trim().toUpperCase() + '|' + String(currentUsernameInput || '').trim().toLowerCase() + '|' + String(selectedPeriod || '') + '|' + String(category || '').toLowerCase();
+            window.__pencapaianDetailCache = window.__pencapaianDetailCache || {};
+            const cachedDetail = window.__pencapaianDetailCache[detailCacheKey];
+
             const body = document.getElementById('modalBody');
             if (body) {
                 body.innerHTML = `
@@ -4475,7 +4478,7 @@ startAutoRefresh();
                             <div class="text-[9px] text-slate-400">${escapeHtml(title)}</div>
                         </div>
                         <div id="pencapaianDetailBody" class="modal-table-wrap p-2">
-                            <div class="text-center text-xs text-slate-400 py-10">Memuat detail transaksi...</div>
+                            <div class="text-center text-xs text-slate-400 py-10">${cachedDetail ? 'Menampilkan detail...' : 'Memuat detail transaksi...'}</div>
                         </div>
                     </div>`;
             }
@@ -4484,6 +4487,7 @@ startAutoRefresh();
                 const detailBody = document.getElementById('pencapaianDetailBody');
                 if (!detailBody) return;
 
+                if (res && res.success) window.__pencapaianDetailCache[detailCacheKey] = res;
                 if (!res || !res.success) {
                     detailBody.innerHTML = '<div class="text-center text-xs text-red-500 py-10">' +
                         escapeHtml((res && res.message) || 'Detail tidak tersedia.') + '</div>';
@@ -5530,7 +5534,7 @@ if(tab==='riwayat')loadRiwayat();
 
         /* ================= TAMBAH CUSTOMER - CRUD OUTLET ================= */
         let globalTambahCustomerData = { headers: [], rows: [] };
-        let globalTambahCustomerFormMaster = { headers: [], dayVisits: [], channels: [], today: '', salesName: '', isAdmin: false, newCustCode: '' };
+        let globalTambahCustomerFormMaster = { headers: [], dayVisits: [], channels: [], dsrs: [], today: '', salesName: '', isAdmin: false, newCustCode: '' };
         let tambahCustomerLoading = false;
         let tambahCustomerLoaded = false;
         let tambahCustomerFormMasterLoading = false;
@@ -5594,6 +5598,7 @@ if(tab==='riwayat')loadRiwayat();
                     headers: Array.isArray(res.headers) ? res.headers : [],
                     dayVisits: Array.isArray(res.dayVisits) ? res.dayVisits : [],
                     channels: Array.isArray(res.channels) ? res.channels : [],
+                    dsrs: Array.isArray(res.dsrs) ? res.dsrs : [],
                     today: String(res.today || ''),
                     salesName: String(res.salesName || ''),
                     isAdmin: !!res.isAdmin,
@@ -5884,6 +5889,7 @@ if(tab==='riwayat')loadRiwayat();
             const idxOutlet = _customerFieldIndexClient(headers, ['OUTLET', 'NAMA OUTLET']);
             const idxCust = _customerFieldIndexClient(headers, ['CUST.CODE', 'CUST CODE', 'CUSTCODE', 'CUSTOMER CODE']);
             const idxChannel = _customerFieldIndexClient(headers, ['CHANNEL', 'CHANNEL OUTLET']);
+            const idxDsr = _customerFieldIndexClient(headers, ['DSR', 'SALES', 'NAMA SALES']);
             const idxTanggalInput = _customerFieldIndexClient(headers, ['TANGGAL INPUT OUTLET', 'TANGGAL INPUT', 'DATE INPUT OUTLET', 'DATE INPUT']);
             const idxPhone = _customerFieldIndexClient(headers, ['NOMOR HANDPHONE', 'NO HANDPHONE', 'NO. HANDPHONE', 'NO HP', 'NO. HP', 'HANDPHONE', 'PHONE', 'TELEPON', 'TELP']);
             const idxMaps = _customerFieldIndexClient(headers, ['MAPS', 'GOOGLE MAPS', 'LOCATION', 'LOKASI', 'KOORDINAT']);
@@ -5905,6 +5911,7 @@ if(tab==='riwayat')loadRiwayat();
             const currentDay = idxDayVisit >= 0 ? String(values[idxDayVisit] || '') : '';
             const currentOutlet = idxOutlet >= 0 ? String(values[idxOutlet] || '') : '';
             const currentCust = idxCust >= 0 ? String(values[idxCust] || '') : '';
+            const currentDsr = idxDsr >= 0 ? String(values[idxDsr] || '') : '';
             const currentChannel = idxChannel >= 0 ? String(values[idxChannel] || '') : '';
             const currentDate = idxTanggalInput >= 0 ? String(values[idxTanggalInput] || '') : '';
             const currentPhone = idxPhone >= 0 ? String(values[idxPhone] || '') : '';
@@ -5912,7 +5919,7 @@ if(tab==='riwayat')loadRiwayat();
             const today = globalTambahCustomerFormMaster.today || new Date().toISOString().slice(0, 10);
             const custCode = isEdit ? currentCust : (globalTambahCustomerFormMaster.newCustCode || '');
 
-            if (idxDayVisit < 0 || idxOutlet < 0 || idxCust < 0 || idxChannel < 0 || idxTanggalInput < 0 || idxPhone < 0 || idxMaps < 0) {
+            if (idxDayVisit < 0 || idxOutlet < 0 || idxCust < 0 || idxChannel < 0 || idxTanggalInput < 0 || idxPhone < 0 || idxMaps < 0 || (globalTambahCustomerFormMaster.isAdmin && idxDsr < 0)) {
                 showModal('Gagal', 'Ada kolom wajib form yang tidak ditemukan pada sheet OUTLET. Pastikan header DAY VISIT, OUTLET, CUST.CODE, CHANNEL, TANGGAL INPUT OUTLET, NOMOR HANDPHONE, dan MAPS tersedia.');
                 return;
             }
@@ -5938,6 +5945,14 @@ if(tab==='riwayat')loadRiwayat();
                             <input id="tambahCustomerField_${idxCust}" type="text" value="${_customerEscape(custCode)}" readonly class="w-full min-h-[40px] border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-600 bg-slate-100 focus:outline-none" />
                             <div class="text-[8px] text-slate-400 mt-1">Otomatis menggunakan Unique ID.</div>
                         </div>
+
+                        ${globalTambahCustomerFormMaster.isAdmin && idxDsr >= 0 ? `
+                        <div>
+                            <label class="block text-[9px] font-extrabold uppercase tracking-wider text-slate-500 mb-1">DSR</label>
+                            <select id="tambahCustomerField_${idxDsr}" class="w-full min-h-[40px] border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                ${_renderCustomerSelectOptions(_customerEnsureOption(globalTambahCustomerFormMaster.dsrs, currentDsr), currentDsr, 'Pilih DSR')}
+                            </select>
+                        </div>` : ''}
 
                         <div>
                             <label class="block text-[9px] font-extrabold uppercase tracking-wider text-slate-500 mb-1">CHANNEL</label>
@@ -6020,11 +6035,12 @@ if(tab==='riwayat')loadRiwayat();
             const idxOutlet = _customerFieldIndexClient(headers, ['OUTLET', 'NAMA OUTLET']);
             const idxCust = _customerFieldIndexClient(headers, ['CUST.CODE', 'CUST CODE', 'CUSTCODE', 'CUSTOMER CODE']);
             const idxChannel = _customerFieldIndexClient(headers, ['CHANNEL', 'CHANNEL OUTLET']);
+            const idxDsr = _customerFieldIndexClient(headers, ['DSR', 'SALES', 'NAMA SALES']);
             const idxTanggalInput = _customerFieldIndexClient(headers, ['TANGGAL INPUT OUTLET', 'TANGGAL INPUT', 'DATE INPUT OUTLET', 'DATE INPUT']);
             const idxPhone = _customerFieldIndexClient(headers, ['NOMOR HANDPHONE', 'NO HANDPHONE', 'NO. HANDPHONE', 'NO HP', 'NO. HP', 'HANDPHONE', 'PHONE', 'TELEPON', 'TELP']);
             const idxMaps = _customerFieldIndexClient(headers, ['MAPS', 'GOOGLE MAPS', 'LOCATION', 'LOKASI', 'KOORDINAT']);
 
-            [idxDayVisit, idxOutlet, idxCust, idxChannel, idxTanggalInput, idxPhone, idxMaps].forEach(function(idx) {
+            [idxDayVisit, idxOutlet, idxCust, idxChannel, idxDsr, idxTanggalInput, idxPhone, idxMaps].forEach(function(idx) {
                 if (idx >= 0) {
                     const el = document.getElementById('tambahCustomerField_' + idx);
                     if (el) values[idx] = el.value;
@@ -6048,7 +6064,7 @@ if(tab==='riwayat')loadRiwayat();
                 if (res && res.success) {
                     closeModal();
                     tambahCustomerLoaded = false;
-                    globalTambahCustomerFormMaster = { headers: [], dayVisits: [], channels: [], today: '', salesName: '', isAdmin: false, newCustCode: '' };
+                    globalTambahCustomerFormMaster = { headers: [], dayVisits: [], channels: [], dsrs: [], today: '', salesName: '', isAdmin: false, newCustCode: '' };
                     showModal('Berhasil', res.message || 'Data customer berhasil disimpan.');
                     loadTambahCustomer(true, true);
                 } else {
@@ -6082,7 +6098,7 @@ if(tab==='riwayat')loadRiwayat();
                     showLoading(false);
                     if (res && res.success) {
                         tambahCustomerLoaded = false;
-                        globalTambahCustomerFormMaster = { headers: [], dayVisits: [], channels: [], today: '', salesName: '', isAdmin: false, newCustCode: '' };
+                        globalTambahCustomerFormMaster = { headers: [], dayVisits: [], channels: [], dsrs: [], today: '', salesName: '', isAdmin: false, newCustCode: '' };
                         showModal('Berhasil', res.message || 'Customer berhasil dihapus.');
                         loadTambahCustomer(true, true);
                     } else {
@@ -6198,5 +6214,19 @@ if(tab==='riwayat')loadRiwayat();
     top:58px!important;
     z-index:900!important;
   }
+}
+</style>
+<style id="pencapaian-sales-professional-fix">
+#tabPencapaian #pencapaianSalesList>div{border-radius:18px!important;border-color:#dbe7e0!important;background:linear-gradient(180deg,#ffffff 0%,#f8fbf9 100%)!important;box-shadow:0 6px 20px rgba(15,23,42,.06)!important}
+#tabPencapaian #pencapaianSalesList>div>div:first-child{padding:10px 12px!important;border-bottom:1px solid #e7eee9!important}
+#tabPencapaian #pencapaianSalesList .cursor-pointer{border-radius:15px!important;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease!important}
+#tabPencapaian #pencapaianSalesList .cursor-pointer:hover{transform:translateY(-1px)!important;box-shadow:0 8px 18px rgba(15,23,42,.07)!important}
+#tabPencapaian #pencapaianSalesList .cursor-pointer:focus-visible{outline:2px solid #10b981!important;outline-offset:2px}
+</style>
+
+<style id="mobile-outlet-kontrak-touch-scroll-fix">
+@media (max-width:767px){
+  #tabOutletKontrak .bg-white.border.rounded-xl.shadow-sm>div{touch-action:pan-x pan-y!important;overflow-x:auto!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior:auto!important;scrollbar-gutter:stable!important;max-height:var(--table-max-height)!important;position:relative!important}
+  #tabOutletKontrak .bg-white.border.rounded-xl.shadow-sm>div table{touch-action:pan-x pan-y!important}
 }
 </style>
