@@ -5942,12 +5942,14 @@ if(tab==='riwayat')loadRiwayat();
                             <div class="text-[8px] text-slate-400 mt-1">Otomatis menggunakan Unique ID.</div>
                         </div>
 
-                        ${globalTambahCustomerFormMaster.isAdmin && idxDsr >= 0 ? `
+                        ${idxDsr >= 0 && (globalTambahCustomerFormMaster.isAdmin || isEdit) ? `
                         <div>
                             <label class="block text-[9px] font-extrabold uppercase tracking-wider text-slate-500 mb-1">DSR</label>
+                            ${globalTambahCustomerFormMaster.isAdmin ? `
                             <select id="tambahCustomerField_${idxDsr}" class="w-full min-h-[40px] border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
                                 ${_renderCustomerSelectOptions(globalTambahCustomerFormMaster.dsrs, currentDsr, 'Pilih DSR')}
-                            </select>
+                            </select>` : `
+                            <input id="tambahCustomerField_${idxDsr}" type="text" value="${_customerEscape(currentDsr)}" readonly class="w-full min-h-[40px] border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-600 bg-slate-100 focus:outline-none" />`}
                         </div>` : ''}
 
                         <div>
@@ -6001,20 +6003,8 @@ if(tab==='riwayat')loadRiwayat();
             // Pastikan header yang dipakai form selalu berasal dari data OUTLET terbaru.
             globalTambahCustomerFormMaster.headers = (globalTambahCustomerData.headers || []).slice();
 
-            // Jika master dropdown sudah tersedia untuk user login, buka form langsung.
-            // Jika belum, ambil master terlebih dahulu. Fallback tetap membuka form edit
-            // dengan data yang ada agar tombol Edit tidak gagal hanya karena master belum siap.
-            const masterReady = Array.isArray(globalTambahCustomerFormMaster.dayVisits) &&
-                                Array.isArray(globalTambahCustomerFormMaster.channels) &&
-                                (globalTambahCustomerFormMaster.dayVisits.length > 0 || globalTambahCustomerFormMaster.channels.length > 0 ||
-                                 String(row.values && row.values[_customerFieldIndexClient(globalTambahCustomerData.headers || [], ['DAY VISIT'])] || '').trim() ||
-                                 String(row.values && row.values[_customerFieldIndexClient(globalTambahCustomerData.headers || [], ['CHANNEL', 'CHANNEL OUTLET'])] || '').trim());
-
-            if (masterReady) {
-                openTambahCustomerForm(rowNumber, row.values || []);
-                return;
-            }
-
+            // Saat EDIT, selalu pastikan master terbaru dari sheet OUTLET sudah dimuat.
+            // Ini menjaga DAY VISIT, CHANNEL, dan DSR selalu menampilkan seluruh data terbaru.
             loadTambahCustomerFormMaster(function() {
                 openTambahCustomerForm(rowNumber, row.values || []);
             });
