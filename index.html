@@ -2903,8 +2903,8 @@ startAutoRefresh();
             const decline = changes.filter(x => x.status === 'DECLINE').length;
 
             showModal(
-                'Konfirmasi',
-                `Akan diproses ${changes.length} transaksi. APPROVE: ${approve}DECLINE: ${decline}Lanjutkan?`,
+                'Konfirmasi Bulk Status',
+                `Akan diproses ${changes.length} transaksi.<br><br>APPROVE: ${approve}<br>DECLINE: ${decline}<br><br>Lanjutkan?`,
                 true,
                 function(isOk) {
                     if (!isOk) return;
@@ -3096,8 +3096,8 @@ startAutoRefresh();
                 html += `
                     <tr class="${rowBg} border-b border-slate-100 hover:bg-emerald-50/60 cursor-pointer transition" onclick="tampilkanDetailMonitoring('${dataString}')">
                         <td class="p-2.5 font-semibold text-slate-700 text-center align-middle whitespace-nowrap">${escapeHtml(item.dsr || '-')}</td>
-                        <td class="p-2.5 font-semibold text-slate-800 text-center align-middle whitespace-nowrap overflow-hidden text-ellipsis">${escapeHtml(item.outlet || '')}</td>
-                        <td class="p-2.5 font-semibold text-slate-700 text-center align-middle whitespace-nowrap">${escapeHtml(item.custCode || '-')}</td>
+                        <td class="p-2.5 font-semibold text-slate-800 text-left align-middle whitespace-nowrap overflow-hidden text-ellipsis">${escapeHtml(item.outlet || '')}</td>
+                        <td class="p-2.5 font-semibold text-slate-700 text-left align-middle whitespace-nowrap">${escapeHtml(item.custCode || '-')}</td>
                         <td class="p-2.5 text-center align-middle whitespace-nowrap text-slate-600 font-medium">${target.toFixed(1)} dus</td>
                         <td class="p-2.5 text-center align-middle whitespace-nowrap text-slate-600 font-medium">${actual.toFixed(1)} dus</td>
                         <td class="p-2.5 text-center align-middle whitespace-nowrap text-slate-600 font-medium">${(actual-target).toFixed(1)} dus</td>
