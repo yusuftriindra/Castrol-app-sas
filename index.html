@@ -1780,7 +1780,7 @@ html,body{height:100%;}
                         </div>
                         <div class="flex items-center gap-2">
                             <label for="pencapaianPeriodSelect" class="text-[9px] font-bold text-slate-500">Periode</label>
-                            <select id="pencapaianSalesFilter" onchange="loadPencapaianSales()" class="hidden bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[10px] text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <select id="pencapaianSalesFilter" onchange="loadPencapaianSales(true, false)" class="hidden bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[10px] text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500">
                                 <option value="">Semua Sales</option>
                             </select>
                             <select id="pencapaianPeriodSelect" onchange="loadPencapaianSales()" class="bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[10px] text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500">
@@ -2102,7 +2102,7 @@ html,body{height:100%;}
             // Peringatan koneksi/Apps Script tidak ditampilkan ke pengguna.
             // Sistem tetap menjalankan callback failure agar proses internal tidak macet.
             const _modalTitle = String(title == null ? '' : title);
-            const _modalMessage = String(message == null ? '' : message);
+            const _modalMessage = String(message == null ? '' : message).replace(/<br\s*\/?>/gi, '\n');
             const _connectionWarning = /apps\s*script|koneksi\s*gagal|tidak\s*dapat\s*(mengakses|terhubung)|bridge\s+google/i.test(_modalTitle + ' ' + _modalMessage);
             if (_connectionWarning && !isConfirm) {
                 console.warn('Peringatan koneksi disembunyikan:', _modalTitle, _modalMessage);
@@ -2111,7 +2111,7 @@ html,body{height:100%;}
             clearDetailModalNoFooter();
             document.getElementById('modalTitle').textContent = title;
             document.getElementById('modalSubtitle').textContent = '';
-            document.getElementById('modalBody').textContent = message;
+            document.getElementById('modalBody').textContent = _modalMessage;
             document.getElementById('customModal').style.display = 'flex';
             
             let cancelBtn = document.getElementById('modalCancelBtn');
@@ -2929,7 +2929,7 @@ startAutoRefresh();
                                 showModal('Berhasil', `${success} transaksi berhasil diperbarui.`);
                             } else {
                                 showModal('Selesai dengan Catatan',
-                                    `Berhasil: ${success}<br>Gagal: ${failed}`);
+                                    `Berhasil: ${success}\nGagal: ${failed}`);
                             }
 
                             loadRiwayat();
@@ -5887,9 +5887,9 @@ if(tab==='riwayat')loadRiwayat();
 
             const idxDayVisit = _customerFieldIndexClient(headers, ['DAY VISIT']);
             const idxOutlet = _customerFieldIndexClient(headers, ['OUTLET', 'NAMA OUTLET']);
+            const idxDsr = _customerFieldIndexClient(headers, ['DSR', 'SALES', 'NAMA SALES']);
             const idxCust = _customerFieldIndexClient(headers, ['CUST.CODE', 'CUST CODE', 'CUSTCODE', 'CUSTOMER CODE']);
             const idxChannel = _customerFieldIndexClient(headers, ['CHANNEL', 'CHANNEL OUTLET']);
-            const idxDsr = _customerFieldIndexClient(headers, ['DSR', 'SALES', 'NAMA SALES']);
             const idxTanggalInput = _customerFieldIndexClient(headers, ['TANGGAL INPUT OUTLET', 'TANGGAL INPUT', 'DATE INPUT OUTLET', 'DATE INPUT']);
             const idxPhone = _customerFieldIndexClient(headers, ['NOMOR HANDPHONE', 'NO HANDPHONE', 'NO. HANDPHONE', 'NO HP', 'NO. HP', 'HANDPHONE', 'PHONE', 'TELEPON', 'TELP']);
             const idxMaps = _customerFieldIndexClient(headers, ['MAPS', 'GOOGLE MAPS', 'LOCATION', 'LOKASI', 'KOORDINAT']);
@@ -6228,5 +6228,14 @@ if(tab==='riwayat')loadRiwayat();
 @media (max-width:767px){
   #tabOutletKontrak .bg-white.border.rounded-xl.shadow-sm>div{touch-action:pan-x pan-y!important;overflow-x:auto!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior:auto!important;scrollbar-gutter:stable!important;max-height:var(--table-max-height)!important;position:relative!important}
   #tabOutletKontrak .bg-white.border.rounded-xl.shadow-sm>div table{touch-action:pan-x pan-y!important}
+}
+</style>
+
+<style id="mobile-kontrak-scroll-fix-v2">
+@media (max-width:767px){
+ #tabOutletKontrak{overflow:visible!important;min-height:0!important;}
+ #tabOutletKontrak .bg-white.border.rounded-xl.shadow-sm{overflow:visible!important;}
+ #tabOutletKontrak .bg-white.border.rounded-xl.shadow-sm > div{overflow-x:auto!important;overflow-y:visible!important;max-height:none!important;height:auto!important;-webkit-overflow-scrolling:touch!important;touch-action:pan-x pan-y!important;}
+ #tabOutletKontrak table{min-width:900px;}
 }
 </style>
