@@ -1823,19 +1823,19 @@ html,body{height:100%;}
                     <!-- Pembungkus Tabel dengan Dukungan Scroll Kanan-Kiri yang Responsif -->
                     <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
                         <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
-                            <table class="w-full text-left border-collapse text-[11px]" style="min-width: 820px;">
+                            <table class="w-full text-left border-collapse text-[11px]" style="min-width: 1180px; table-layout: fixed;">
                                 <thead>
                                     <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
-                                        <th class="p-2.5 font-bold" style="width: 10%;">DSR</th>
-                                        <th class="p-2.5 font-bold" style="width: 18%;">Nama Outlet</th>
-                                        <th class="p-2.5 font-bold" style="width: 12%;">CUST.CODE</th>
-                                        <th class="p-2.5 font-bold text-right" style="width: 11%;">Target Quartal</th>
-                                        <th class="p-2.5 font-bold text-right" style="width: 13%;">Actual</th>
-                                        <th class="p-2.5 font-bold text-right" style="width: 12%;">Gap</th>
-                                        <th class="p-2.5 font-bold text-right" style="width: 12%;">Ach.</th>
-                                        <th id="thM1" class="p-2.5 font-bold text-right" style="width: 12%;">Bulan 1</th>
-                                        <th id="thM2" class="p-2.5 font-bold text-right" style="width: 12%;">Bulan 2</th>
-                                        <th id="thM3" class="p-2.5 font-bold text-right" style="width: 13%;">Bulan 3</th>
+                                        <th class="p-2.5 font-bold text-center whitespace-nowrap" style="width: 12%;">DSR</th>
+                                        <th class="p-2.5 font-bold text-center whitespace-nowrap" style="width: 22%;">Nama Outlet</th>
+                                        <th class="p-2.5 font-bold text-center whitespace-nowrap" style="width: 12%;">CUST.CODE</th>
+                                        <th class="p-2.5 font-bold text-center whitespace-nowrap" style="width: 11%;">Target</th>
+                                        <th class="p-2.5 font-bold text-center whitespace-nowrap" style="width: 11%;">Actual</th>
+                                        <th class="p-2.5 font-bold text-center whitespace-nowrap" style="width: 11%;">Gap</th>
+                                        <th class="p-2.5 font-bold text-center whitespace-nowrap" style="width: 9%;">Ach.</th>
+                                        <th id="thM1" class="p-2.5 font-bold text-center whitespace-nowrap" style="width: 10%;">Bulan 1</th>
+                                        <th id="thM2" class="p-2.5 font-bold text-center whitespace-nowrap" style="width: 10%;">Bulan 2</th>
+                                        <th id="thM3" class="p-2.5 font-bold text-center whitespace-nowrap" style="width: 10%;">Bulan 3</th>
                                     </tr>
                                 </thead>
                                 <tbody id="listMonitoringTableBody">
@@ -2903,8 +2903,8 @@ startAutoRefresh();
             const decline = changes.filter(x => x.status === 'DECLINE').length;
 
             showModal(
-                'Konfirmasi Bulk Status',
-                `Akan diproses ${changes.length} transaksi.<br><br>APPROVE: ${approve}<br>DECLINE: ${decline}<br><br>Lanjutkan?`,
+                'Konfirmasi',
+                `Akan diproses ${changes.length} transaksi. APPROVE: ${approve}DECLINE: ${decline}Lanjutkan?`,
                 true,
                 function(isOk) {
                     if (!isOk) return;
@@ -3095,16 +3095,16 @@ startAutoRefresh();
                 let achClass = achievement >= 100 ? 'text-emerald-700' : (achievement >= 80 ? 'text-amber-600' : 'text-red-600');
                 html += `
                     <tr class="${rowBg} border-b border-slate-100 hover:bg-emerald-50/60 cursor-pointer transition" onclick="tampilkanDetailMonitoring('${dataString}')">
-                        <td class="p-2.5 font-semibold text-slate-700">${escapeHtml(item.dsr || '-')}</td>
-                        <td class="p-2.5 font-semibold text-slate-800">${escapeHtml(item.outlet || '')}</td>
-                        <td class="p-2.5 font-semibold text-slate-700">${escapeHtml(item.custCode || '-')}</td>
-                        <td class="p-2.5 text-right font-bold text-slate-700">${target.toFixed(1)} dus</td>
-                        <td class="p-2.5 text-right font-bold text-emerald-700">${actual.toFixed(1)} dus</td>
-                        <td class="p-2.5 text-right font-semibold ${actual - target >= 0 ? 'text-emerald-700' : 'text-red-600'}">${(actual - target).toFixed(1)} dus</td>
-                        <td class="p-2.5 text-right font-bold ${achClass}">${target > 0 ? achievement.toFixed(1) + '%' : '-'}</td>
-                        <td class="p-2.5 text-right text-slate-600 font-medium">${Number(item.m1 || 0).toFixed(1)} dus</td>
-                        <td class="p-2.5 text-right text-slate-600 font-medium">${Number(item.m2 || 0).toFixed(1)} dus</td>
-                        <td class="p-2.5 text-right text-slate-600 font-medium">${Number(item.m3 || 0).toFixed(1)} dus</td>
+                        <td class="p-2.5 font-semibold text-slate-700 text-center align-middle whitespace-nowrap">${escapeHtml(item.dsr || '-')}</td>
+                        <td class="p-2.5 font-semibold text-slate-800 text-center align-middle whitespace-nowrap overflow-hidden text-ellipsis">${escapeHtml(item.outlet || '')}</td>
+                        <td class="p-2.5 font-semibold text-slate-700 text-center align-middle whitespace-nowrap">${escapeHtml(item.custCode || '-')}</td>
+                        <td class="p-2.5 text-center align-middle whitespace-nowrap text-slate-600 font-medium">${target.toFixed(1)} dus</td>
+                        <td class="p-2.5 text-center align-middle whitespace-nowrap text-slate-600 font-medium">${actual.toFixed(1)} dus</td>
+                        <td class="p-2.5 text-center align-middle whitespace-nowrap text-slate-600 font-medium">${(actual-target).toFixed(1)} dus</td>
+                        <td class="p-2.5 text-center align-middle whitespace-nowrap font-semibold ${achClass}">${achievement.toFixed(1)}%</td>
+                        <td class="p-2.5 text-center align-middle whitespace-nowrap text-slate-600 font-medium">${Number(item.m1 || 0).toFixed(1)} dus</td>
+                        <td class="p-2.5 text-center align-middle whitespace-nowrap text-slate-600 font-medium">${Number(item.m2 || 0).toFixed(1)} dus</td>
+                        <td class="p-2.5 text-center align-middle whitespace-nowrap text-slate-600 font-medium">${Number(item.m3 || 0).toFixed(1)} dus</td>
                     </tr>
                 `;
             });
@@ -3154,19 +3154,6 @@ startAutoRefresh();
             google.script.run
                 .withSuccessHandler(function(produkList) {
                     let produkHtml = "";
-                    const detailDsr = [...new Set((produkList || []).map(function(p) { return String(p.dsr || '').trim(); }).filter(Boolean))];
-                    const detailCust = [...new Set((produkList || []).map(function(p) { return String(p.custCode || '').trim(); }).filter(Boolean))];
-                    const detailMetaHtml = `
-                        <div class="grid grid-cols-2 gap-2 mb-3">
-                            <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
-                                <div class="text-[9px] font-bold uppercase tracking-wider text-slate-400">DSR</div>
-                                <div class="mt-0.5 text-xs font-bold text-slate-700">${escapeHtml(detailDsr.join(', ') || '-')}</div>
-                            </div>
-                            <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
-                                <div class="text-[9px] font-bold uppercase tracking-wider text-slate-400">CUST.CODE</div>
-                                <div class="mt-0.5 text-xs font-bold text-slate-700">${escapeHtml(detailCust.join(', ') || '-')}</div>
-                            </div>
-                        </div>`;
                     if (!produkList || produkList.length === 0) {
                         produkHtml = `<p class="text-slate-400 text-xs py-2 italic">Tidak ada transaksi pada periode ini.</p>`;
                     } else {
@@ -3192,8 +3179,6 @@ startAutoRefresh();
                                     <thead>
                                         <tr>
                                             <th style="width:55px; text-align:center;">No</th>
-                                            <th style="text-align:left;">DSR</th>
-                                            <th style="text-align:left;">CUST.CODE</th>
                                             <th style="text-align:left;">Produk</th>
                                         </tr>
                                     </thead>
@@ -3214,7 +3199,7 @@ startAutoRefresh();
 
                             produkHtml += `
                                 <tr class="monitor-date-group-row">
-                                    <td colspan="4" class="monitor-date-group-cell">
+                                    <td colspan="2" class="monitor-date-group-cell">
                                         <div class="monitor-date-group-label">
                                             <span class="monitor-date-group-icon">📅</span>
                                             <span>${escapeHtml(dateLabel)}</span>
@@ -3229,8 +3214,6 @@ startAutoRefresh();
                                 produkHtml += `
                                     <tr>
                                         <td class="p-2.5 text-center text-slate-400 font-bold">${nomor++}</td>
-                                        <td class="p-2.5 text-slate-700 font-medium">${escapeHtml(String(p.dsr || '').trim() || '-')}</td>
-                                        <td class="p-2.5 text-slate-700 font-medium">${escapeHtml(String(p.custCode || '').trim() || '-')}</td>
                                         <td class="modal-product-name">${escapeHtml(produkValue)}</td>
                                     </tr>
                                 `;
@@ -3250,7 +3233,6 @@ startAutoRefresh();
                     const detailAch = detailTarget > 0 ? (detailActual / detailTarget) * 100 : 0;
 
                     let finalMsgHtml = `
-                        ${detailMetaHtml}
                         <div class="modal-detail-summary">
                             <div class="modal-stat-card">
                                 <div class="modal-stat-label">Target</div>
