@@ -5448,19 +5448,71 @@ startAutoRefresh();
         }
 
 
-        // Auto refresh setiap 5 detik untuk SEMUA tab kecuali tab Input.
-        // Refresh hanya dilakukan pada tab yang sedang aktif agar ringan dan tidak
-        // mengambil data dari semua tab sekaligus. Modal/detail tetap tidak diganggu.
+        // Auto refresh aman: tetap aktif, tetapi tidak berjalan saat pengguna sedang
+        // mengetik, membuka dropdown, memilih checklist, atau mengedit data.
         let autoRefreshTimer = null;
+        let lastUserInteractionAt = Date.now();
+        const AUTO_REFRESH_INTERVAL = 10000; // 10 detik
+        const AUTO_REFRESH_IDLE_DELAY = 4000; // tunggu 4 detik setelah interaksi terakhir
+
+        function markUserInteraction() {
+            lastUserInteractionAt = Date.now();
+        }
+
+        function getVisibleTabKey() {
+            const map = {
+                input:'tabInput', riwayat:'tabRiwayat', pencapaian:'tabPencapaian',
+                monitoring:'tabMonitoring', outletkontrak:'tabOutletKontrak',
+                outletbws:'tabOutletBWS', tambahcustomer:'tabTambahCustomer',
+                pricelist:'tabPricelist', pesananoutlet:'tabPesananOutlet'
+            };
+            for (const key in map) {
+                const el = document.getElementById(map[key]);
+                if (el && !el.classList.contains('hidden')) return key;
+            }
+            return '';
+        }
+
+        function isUserBusy() {
+            if (Date.now() - lastUserInteractionAt < AUTO_REFRESH_IDLE_DELAY) return true;
+            if (document.hidden) return true;
+            if (document.querySelector('.select2-container--open')) return true;
+            if (document.querySelector('[role="dialog"]:not([style*="display: none"]), .modal:not(.hidden)')) return true;
+
+            const active = document.activeElement;
+            if (active && /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(active.tagName)) return true;
+            return false;
+        }
+
         function autoRefreshActiveTab() {
-            // Auto-refresh sengaja dinonaktifkan agar tidak mengganggu input, dropdown,
-            // checklist, pencarian, dan modal yang sedang dibuka. Data diperbarui saat
-            // tab dibuka kembali atau melalui tombol Refresh/manual action.
-            return;
+            if (isUserBusy()) return;
+
+            const tab = getVisibleTabKey();
+            try {
+                // Gunakan silentRefresh agar data diperbarui tanpa mengganti isi tabel
+                // menjadi "Memuat..." dan tanpa menutup dropdown atau menghapus input.
+                if (tab === 'riwayat') loadRiwayat(true, true);
+                else if (tab === 'pencapaian') loadPencapaianSales(true, true);
+                else if (tab === 'monitoring') loadMonitoring(true, true);
+                else if (tab === 'outletkontrak') loadOutletKontrak(true, true);
+                else if (tab === 'outletbws') loadOutletBWSAdmin(true, true);
+                else if (tab === 'pricelist') loadPricelist(true, true);
+                else if (tab === 'pesananoutlet') loadPesananOutlet(true, true);
+                // Tab input/tambah customer tidak dipaksa reload agar isian form aman.
+            } catch (e) {
+                console.warn('Auto refresh:', e);
+            }
         }
+
         function startAutoRefresh() {
-            if (autoRefreshTimer) { clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
+            if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+            autoRefreshTimer = setInterval(autoRefreshActiveTab, AUTO_REFRESH_INTERVAL);
         }
+
+        // Semua interaksi pengguna menunda refresh berikutnya.
+        ['pointerdown','keydown','input','change','focusin','click','touchstart'].forEach(function(evt) {
+            document.addEventListener(evt, markUserInteraction, true);
+        });
 
         function switchTab(tab) {
             const isAdminLogin = String(currentUsernameInput || '').trim().toLowerCase() === 'admin';
