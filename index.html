@@ -5572,13 +5572,14 @@ if(tab==='riwayat')loadRiwayat();
             return arr;
         }
 
-        function loadTambahCustomerFormMaster(callback) {
+        function loadTambahCustomerFormMaster(callback, forceReload) {
             callback = typeof callback === 'function' ? callback : function(){};
+            forceReload = !!forceReload;
             if (tambahCustomerFormMasterLoading) {
-                setTimeout(function() { loadTambahCustomerFormMaster(callback); }, 120);
+                setTimeout(function() { loadTambahCustomerFormMaster(callback, forceReload); }, 120);
                 return;
             }
-            if (globalTambahCustomerFormMaster.headers.length &&
+            if (!forceReload && globalTambahCustomerFormMaster.headers.length &&
                 String(globalTambahCustomerFormMaster.salesName || '').trim().toUpperCase() === String(currentUser || '').trim().toUpperCase()) {
                 callback();
                 return;
@@ -5942,14 +5943,17 @@ if(tab==='riwayat')loadRiwayat();
                             <div class="text-[8px] text-slate-400 mt-1">Otomatis menggunakan Unique ID.</div>
                         </div>
 
-                        ${idxDsr >= 0 && (globalTambahCustomerFormMaster.isAdmin || isEdit) ? `
+                        ${idxDsr >= 0 && (isEdit || globalTambahCustomerFormMaster.isAdmin) ? `
                         <div>
                             <label class="block text-[9px] font-extrabold uppercase tracking-wider text-slate-500 mb-1">DSR</label>
-                            ${globalTambahCustomerFormMaster.isAdmin ? `
+                            ${isEdit && globalTambahCustomerFormMaster.isAdmin ? `
                             <select id="tambahCustomerField_${idxDsr}" class="w-full min-h-[40px] border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
                                 ${_renderCustomerSelectOptions(globalTambahCustomerFormMaster.dsrs, currentDsr, 'Pilih DSR')}
-                            </select>` : `
-                            <input id="tambahCustomerField_${idxDsr}" type="text" value="${_customerEscape(currentDsr)}" readonly class="w-full min-h-[40px] border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-600 bg-slate-100 focus:outline-none" />`}
+                            </select>` : isEdit ? `
+                            <input id="tambahCustomerField_${idxDsr}" type="text" value="${_customerEscape(currentDsr)}" readonly class="w-full min-h-[40px] border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-600 bg-slate-100 focus:outline-none" />` : `
+                            <select id="tambahCustomerField_${idxDsr}" class="w-full min-h-[40px] border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                ${_renderCustomerSelectOptions(globalTambahCustomerFormMaster.dsrs, currentDsr, 'Pilih DSR')}
+                            </select>`}
                         </div>` : ''}
 
                         <div>
@@ -6003,11 +6007,12 @@ if(tab==='riwayat')loadRiwayat();
             // Pastikan header yang dipakai form selalu berasal dari data OUTLET terbaru.
             globalTambahCustomerFormMaster.headers = (globalTambahCustomerData.headers || []).slice();
 
-            // Saat EDIT, selalu pastikan master terbaru dari sheet OUTLET sudah dimuat.
+            // KHUSUS EDIT: paksa ambil master terbaru dari sheet OUTLET.
             // Ini menjaga DAY VISIT, CHANNEL, dan DSR selalu menampilkan seluruh data terbaru.
+            // Form TAMBAH CUSTOMER tidak diubah perilakunya.
             loadTambahCustomerFormMaster(function() {
                 openTambahCustomerForm(rowNumber, row.values || []);
-            });
+            }, true);
         }
 
         function saveTambahCustomerForm() {
