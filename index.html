@@ -1138,43 +1138,7 @@ html,body{height:100%;}
 }
 </style>
 
-<style id="kontrak-mobile-scroll-fix-v2">
-@media (max-width:767px){
-  /* Tab Kontrak: scroll vertikal dikembalikan ke halaman utama HP.
-     Hanya scroll horizontal yang tetap berada di tabel. */
-  #tabOutletKontrak .bg-white.border.rounded-xl.shadow-sm>div{
-    max-height:none!important;
-    height:auto!important;
-    overflow-x:auto!important;
-    overflow-y:visible!important;
-    -webkit-overflow-scrolling:touch;
-    touch-action:pan-x pan-y;
-  }
-  #tabOutletKontrak table{min-width:760px;}
-  #tabOutletKontrak{overflow:visible!important;}
-}
-</style>
 
-<style id="edit-order-modal-compact-v2">
-#customModal.edit-order-active .modern-modal-card{
-  max-height:calc(100dvh - 20px)!important;
-}
-#customModal.edit-order-active .modern-modal-body{
-  min-height:0!important;
-  max-height:calc(100dvh - 150px)!important;
-  overflow-y:auto!important;
-  -webkit-overflow-scrolling:touch;
-  padding-bottom:10px!important;
-}
-#customModal.edit-order-active .modern-modal-footer{
-  position:sticky!important;
-  bottom:0!important;
-  flex:0 0 auto!important;
-}
-@media(max-width:767px){
-  #customModal.edit-order-active .modern-modal-body{max-height:calc(100dvh - 145px)!important;}
-}
-</style>
 <style id="customer-modal-footer-fix">
 /* FIX: footer/modal action tetap terlihat untuk form Tambah Customer */
 .modern-modal-card{
@@ -2169,8 +2133,6 @@ html,body{height:100%;}
 
         function closeModal(isOk) {
             clearDetailModalNoFooter();
-            const modalRoot = document.getElementById('customModal');
-            if (modalRoot) modalRoot.classList.remove('edit-order-active');
             document.getElementById('customModal').style.display = 'none';
             const modalCard = document.getElementById('customModal').querySelector('.modern-modal-card');
             if (modalCard) modalCard.classList.remove('bws-detail-modal-card');
@@ -2201,9 +2163,6 @@ html,body{height:100%;}
         let kontrakLoading = false;
         let pencapaianLoading = false;
         let pencapaianCache = {};
-        let pencapaianAdminAllCache = {};
-        let pencapaianRenderedData = {};
-        let editingOrderOriginalData = null;
         let globalOutletBWSData = { headers: [], rows: [] };
         let outletBWSLoading = false;
         let outletBWSFormMaster = { sales: [], outletMap: {} };
@@ -2809,6 +2768,10 @@ startAutoRefresh();
 
             const bulkControls = isAdmin ? `
                 <div class="flex flex-wrap items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl mb-3">
+                    <button type="button" onclick="toggleSelectAllRiwayatVisible(true)"
+                        class="px-3 py-1.5 rounded-md bg-white hover:bg-slate-100 text-slate-600 text-[10px] font-bold border border-slate-200">
+                        PILIH SEMUA
+                    </button>
                     <button type="button" onclick="resetPilihanStatusRiwayat()"
                         class="px-3 py-1.5 rounded-md bg-white hover:bg-slate-100 text-slate-600 text-[10px] font-bold border border-slate-200">
                         RESET
@@ -2937,8 +2900,8 @@ startAutoRefresh();
             const decline = changes.filter(x => x.status === 'DECLINE').length;
 
             showModal(
-                'Konfirmasi Status',
-                `Akan diproses ${changes.length} transaksi. APPROVE: ${approve} DECLINE: ${decline} Lanjutkan?`,
+                'Konfirmasi Bulk Status',
+                `Akan diproses ${changes.length} transaksi.<br><br>APPROVE: ${approve}<br>DECLINE: ${decline}<br><br>Lanjutkan?`,
                 true,
                 function(isOk) {
                     if (!isOk) return;
@@ -3184,6 +3147,19 @@ startAutoRefresh();
             google.script.run
                 .withSuccessHandler(function(produkList) {
                     let produkHtml = "";
+                    const detailDsr = [...new Set((produkList || []).map(function(p) { return String(p.dsr || '').trim(); }).filter(Boolean))];
+                    const detailCust = [...new Set((produkList || []).map(function(p) { return String(p.custCode || '').trim(); }).filter(Boolean))];
+                    const detailMetaHtml = `
+                        <div class="grid grid-cols-2 gap-2 mb-3">
+                            <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+                                <div class="text-[9px] font-bold uppercase tracking-wider text-slate-400">DSR</div>
+                                <div class="mt-0.5 text-xs font-bold text-slate-700">${escapeHtml(detailDsr.join(', ') || '-')}</div>
+                            </div>
+                            <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+                                <div class="text-[9px] font-bold uppercase tracking-wider text-slate-400">CUST.CODE</div>
+                                <div class="mt-0.5 text-xs font-bold text-slate-700">${escapeHtml(detailCust.join(', ') || '-')}</div>
+                            </div>
+                        </div>`;
                     if (!produkList || produkList.length === 0) {
                         produkHtml = `<p class="text-slate-400 text-xs py-2 italic">Tidak ada transaksi pada periode ini.</p>`;
                     } else {
@@ -3263,6 +3239,7 @@ startAutoRefresh();
                     const detailAch = detailTarget > 0 ? (detailActual / detailTarget) * 100 : 0;
 
                     let finalMsgHtml = `
+                        ${detailMetaHtml}
                         <div class="modal-detail-summary">
                             <div class="modal-stat-card">
                                 <div class="modal-stat-label">Target</div>
@@ -3463,114 +3440,55 @@ startAutoRefresh();
         function editRiwayat(idInput){
             editingOrderId=String(idInput||'').trim();
             if(!editingOrderId||editingOrderId==='-')return;
-            const cached=(globalRiwayatData||[]).find(function(item){return String(item.id||'').trim()===editingOrderId;});
-            const cachedOrder=cached && cached.editData ? cached.editData : null;
-            if(!cachedOrder){
-                showModal('Gagal','Data edit order belum tersedia pada Riwayat. Silakan refresh Riwayat.');
-                return;
-            }
-
-            editingOrderOriginalData=cachedOrder;
-            editOrderItems=Array.isArray(cachedOrder.products)?cachedOrder.products.map(function(x){return Object.assign({},x);}):[];
             document.getElementById('modalTitle').textContent='EDIT ORDER';
             document.getElementById('modalSubtitle').textContent='ID INPUT: '+editingOrderId;
+            document.getElementById('modalBody').innerHTML='<div class="text-center text-xs text-slate-500 py-8">Memuat data order...</div>';
             document.getElementById('modalCancelBtn').style.display='inline-block';
             document.getElementById('modalOkBtn').textContent='Simpan Perubahan';
-            document.getElementById('customModal').classList.add('edit-order-active');
             document.getElementById('customModal').style.display='flex';
             modalCallback=function(ok){if(ok)simpanEditOrder();};
 
-            // Tampilkan data yang sudah ada di Riwayat terlebih dahulu, tanpa request order baru.
-            renderEditOrderForm(cachedOrder);
+            google.script.run
+                .withSuccessHandler(function(res){
+                    if(!res||!res.success){
+                        document.getElementById('modalOkBtn').textContent='OK';
+                        showModal('Gagal',res&&res.message?res.message:'Order tidak dapat dimuat.');
+                        return;
+                    }
+                    editOrderItems=res.order.products||[];
 
-            // Jika master produk belum ada, muat di belakang layar untuk daftar pilihan.
-            // Form sudah tampil dan dapat dibaca user sejak awal.
-            if(!Array.isArray(produkDataList) || !produkDataList.length){
-                google.script.run.withSuccessHandler(function(list){
-                    produkDataList=Array.isArray(list)?list:[];
-                    if(document.getElementById('customModal').style.display==='flex' && editingOrderId===String(cachedOrder.idInput||editingOrderId)) renderEditOrderProducts();
-                }).getListProduk();
-            }
-            // Cashback juga tidak menghalangi pembukaan form.
-            const cbNow=document.getElementById('cashbackSelect');
-            if(!cbNow || !cbNow.options.length){
-                google.script.run.withSuccessHandler(function(list){
-                    const cb=document.getElementById('cashbackSelect');
-                    if(cb){ cb.innerHTML='<option value="">-- Pilih Cashback --</option>'+(list||[]).map(function(v){return '<option value="'+escapeHtml(v)+'">'+escapeHtml(v)+'</option>';}).join(''); }
-                    if(document.getElementById('customModal').style.display==='flex' && editingOrderId===String(cachedOrder.idInput||editingOrderId)) renderEditOrderForm(cachedOrder);
-                }).getListCashback();
-            }
+                    // V6: pastikan master PRODUK tersedia sebelum membuat <select> edit.
+                    // Pada Admin, produk tidak dimuat saat login demi performa, sehingga
+                    // produkDataList bisa kosong dan semua produk akan dianggap tidak valid.
+                    if(Array.isArray(produkDataList) && produkDataList.length>0){
+                        renderEditOrderForm(res.order);
+                        return;
+                    }
+
+                    google.script.run
+                        .withSuccessHandler(function(list){
+                            produkDataList=Array.isArray(list)?list:[];
+                            renderEditOrderForm(res.order);
+                        })
+                        .withFailureHandler(function(err){
+                            document.getElementById('modalOkBtn').textContent='OK';
+                            document.getElementById('modalBody').innerHTML='<div class="text-center text-xs text-red-500 py-8">Gagal memuat master produk: '+escapeHtml(err&&err.message?err.message:'Terjadi kesalahan.')+'</div>';
+                        })
+                        .getListProduk();
+                })
+                .withFailureHandler(function(err){
+                    document.getElementById('modalOkBtn').textContent='OK';
+                    showModal('Gagal',err&&err.message?err.message:'Gagal memuat order.');
+                })
+                .getEditableOrderById(editingOrderId,currentUser,currentUsernameInput);
         }
         function getEditOutletOptions(selected){let html='<option value="">-- Pilih Outlet --</option>',seen={};(outletDataList||[]).forEach(function(o){let n=String(o.outlet||'').trim();if(n&&!seen[n]){seen[n]=1;html+='<option value="'+escapeHtml(n)+'" '+(n===String(selected||'')?'selected':'')+'>'+escapeHtml(n)+'</option>';}});if(selected&&!seen[String(selected)])html='<option value="'+escapeHtml(selected)+'" selected>'+escapeHtml(selected)+'</option>'+html.slice(html.indexOf('</option>')+9);return html;}
         function getEditProductOptions(selected,selectedKode){let html='<option value="">-- Pilih Produk --</option>';let selectedText=String(selected||'').trim();let selectedCode=String(selectedKode||'').trim();let found=false;(produkDataList||[]).forEach(function(p){let n=String(p.nama||'').trim();if(!n)return;let kode=String(p.kode||'').trim();let isSelected=(selectedText&&n===selectedText)||(selectedCode&&kode===selectedCode);if(isSelected)found=true;html+='<option value="'+escapeHtml(n)+'" '+(isSelected?'selected':'')+'>'+escapeHtml(n)+' ('+Number(p.liter||0)+'L | Rp '+Number(p.harga||0).toLocaleString('id-ID')+')</option>';});if(selectedText&&!found){html+='<option value="'+escapeHtml(selectedText)+'" selected>'+escapeHtml(selectedText)+' (Produk saat ini)</option>';}return html;}
         function renderEditOrderProducts(){let b=document.getElementById('editProducts');if(!b)return;if(!editOrderItems.length){b.innerHTML='<div class="text-xs text-slate-400 text-center py-3">Belum ada produk.</div>';return;}b.innerHTML=editOrderItems.map(function(it,i){return '<div class="border border-slate-200 rounded-lg p-2 mb-2 bg-slate-50"><div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center"><select id="editProd'+i+'" class="sm:col-span-7 w-full border rounded p-2 bg-white text-xs">'+getEditProductOptions(it.produk,it.kode)+'</select><input id="editQty'+i+'" type="number" min="1" value="'+Number(it.qty||1)+'" class="sm:col-span-2 w-full border rounded p-2 text-xs"><select id="editUnit'+i+'" class="sm:col-span-2 w-full border rounded p-2 bg-white text-xs"><option value="Pcs" '+(String(it.satuan).toUpperCase()==='PCS'?'selected':'')+'>Pcs</option><option value="Dus" '+(String(it.satuan).toUpperCase()==='DUS'?'selected':'')+'>Dus</option></select><button type="button" onclick="removeEditProduct('+i+')" class="sm:col-span-1 text-red-600 bg-red-50 border border-red-200 rounded p-2">✕</button></div></div>';}).join('');}
         function addEditProduct(){editOrderItems.push({produk:'',qty:1,satuan:'Pcs'});renderEditOrderProducts();}
         function removeEditProduct(i){editOrderItems.splice(i,1);renderEditOrderProducts();}
-        function renderEditOrderForm(o){
-            o=o||{};
-            let cb=document.getElementById('cashbackSelect'),opts='<option value="">-- Pilih Cashback --</option>';
-            if(cb && cb.options && cb.options.length){
-                Array.from(cb.options).forEach(function(x){
-                    if(x.value) opts+='<option value="'+escapeHtml(x.value)+'" '+(x.value===String(o.cashback||'')?'selected':'')+'>'+escapeHtml(x.textContent)+'</option>';
-                });
-            }
-            if(!opts.includes('selected') && o.cashback){
-                opts+='<option value="'+escapeHtml(o.cashback)+'" selected>'+escapeHtml(o.cashback)+'</option>';
-            }
-            document.getElementById('modalBody').innerHTML='<div class="space-y-3 text-xs">'+
-                '<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">'+
-                '<label class="font-semibold">Outlet<input id="editOutlet" value="'+escapeHtml(o.outlet||'')+'" readonly class="w-full border rounded-xl p-2.5 mt-1 bg-slate-100 text-slate-600 cursor-not-allowed"></label>'+
-                '<label class="font-semibold">Payment<input id="editPayment" value="'+escapeHtml(o.payment||'')+'" class="w-full border rounded-xl p-2.5 mt-1 bg-white"></label>'+
-                '<label class="font-semibold">Disc<input id="editDisc" value="'+escapeHtml(o.disc==null?'':o.disc) + '" class="w-full border rounded-xl p-2.5 mt-1 bg-white"></label>'+
-                '<label class="font-semibold">Cust.Code<input id="editCustCode" value="'+escapeHtml(o.custCode||'')+'" class="w-full border rounded-xl p-2.5 mt-1 bg-white"></label>'+
-                '<label class="font-semibold sm:col-span-2">Cashback<select id="editCashback" class="w-full border rounded-xl p-2.5 mt-1 bg-white">'+opts+'</select></label>'+
-                '</div>'+
-                '<div class="border-t pt-3"><div class="flex justify-between items-center mb-2"><div><b class="text-slate-700">Produk</b><div class="text-[9px] text-slate-400">Sesuaikan produk, qty, dan satuan.</div></div><button type="button" onclick="addEditProduct()" class="bg-emerald-600 text-white rounded-xl px-3 py-1.5 text-[10px] font-bold">+ Tambah Produk</button></div><div id="editProducts"></div></div>'+
-                '<label class="font-semibold block pt-1">Note Order<textarea id="editNote" rows="2" class="w-full border rounded-xl p-2.5 mt-1 bg-white">'+escapeHtml(o.note||'')+'</textarea></label>'+
-                '</div>';
-            renderEditOrderProducts();
-        }
-
-        function simpanEditOrder(){
-            if(!editingOrderId)return;
-            let items=[];
-            for(let i=0;i<editOrderItems.length;i++){
-                let p=document.getElementById('editProd'+i),q=document.getElementById('editQty'+i),u=document.getElementById('editUnit'+i);
-                if(!p||!p.value||!q||Number(q.value)<=0){showModal('Peringatan','Produk dan Qty harus diisi dengan benar.');return;}
-                var originalName=editOrderItems[i]&&editOrderItems[i].produk?String(editOrderItems[i].produk).trim():'';
-                var originalCode=editOrderItems[i]&&editOrderItems[i].kode?String(editOrderItems[i].kode).trim():'';
-                var selectedObj=(produkDataList||[]).find(function(x){return String(x.nama||'').trim()===String(p.value||'').trim();})||{};
-                var selectedCode=String(selectedObj.kode||'').trim();
-                var codeToSend=selectedCode||originalCode;
-                items.push({produk:p.value,kode:codeToSend,originalProduk:originalName,originalKode:originalCode,qty:Number(q.value),satuan:u?u.value:'Pcs',harga:Number(selectedObj.harga)||Number(editOrderItems[i].harga)||0,liter:Number(selectedObj.liter)||Number(editOrderItems[i].liter)||1,pack:Number(selectedObj.pack)||Number(editOrderItems[i].pack)||1});
-            }
-            if(!items.length){showModal('Peringatan','Minimal harus ada 1 produk.');return;}
-            const modal=document.getElementById('customModal');
-            if(modal) { modal.style.display='none'; modal.classList.remove('edit-order-active'); }
-            const original=editingOrderOriginalData||{};
-            const payload={
-                outlet:original.outlet||'',
-                tanggal:original.tanggal||'',
-                payment:document.getElementById('editPayment') ? document.getElementById('editPayment').value : (original.payment||''),
-                disc:document.getElementById('editDisc') ? document.getElementById('editDisc').value : (original.disc||0),
-                custCode:document.getElementById('editCustCode') ? document.getElementById('editCustCode').value : (original.custCode||''),
-                channel:original.channel||'',
-                note:document.getElementById('editNote') ? document.getElementById('editNote').value : (original.note||''),
-                cashback:document.getElementById('editCashback') ? document.getElementById('editCashback').value : (original.cashback||''),
-                items:items
-            };
-            showLoading(true);
-            google.script.run.withSuccessHandler(function(res){
-                showLoading(false);
-                editingOrderId='';editOrderItems=[];editingOrderOriginalData=null;
-                const modalRoot=document.getElementById('customModal'); if(modalRoot) modalRoot.classList.remove('edit-order-active');
-                showModal(res&&res.success?'Berhasil':'Gagal',res&&res.message?res.message:'Tidak ada respons.');
-                if(res&&res.success){ loadRiwayat(true,true); }
-            }).withFailureHandler(function(err){
-                showLoading(false);
-                showModal('Gagal',err&&err.message?err.message:'Gagal menyimpan perubahan.');
-            }).updateOrderById(editingOrderId,payload,currentUser,currentUsernameInput);
-        }
+        function renderEditOrderForm(o){let cb=document.getElementById('cashbackSelect'),opts='<option value="">-- Pilih Cashback --</option>';if(cb)Array.from(cb.options).forEach(function(x){if(x.value)opts+='<option value="'+escapeHtml(x.value)+'" '+(x.value===String(o.cashback||'')?'selected':'')+'>'+escapeHtml(x.textContent)+'</option>';});document.getElementById('modalBody').innerHTML='<div class="space-y-3 text-xs"><div class="grid grid-cols-1 sm:grid-cols-2 gap-2"><label class="font-semibold">Outlet<select id="editOutlet" class="w-full border rounded p-2 bg-white mt-1">'+getEditOutletOptions(o.outlet)+'</select></label><label class="font-semibold">Tanggal<input id="editTanggal" type="date" value="'+escapeHtml(o.tanggal||'')+'" class="w-full border rounded p-2 mt-1"></label><label class="font-semibold">Payment<input id="editPayment" value="'+escapeHtml(o.payment||'')+'" class="w-full border rounded p-2 mt-1"></label><label class="font-semibold">Disc<input id="editDisc" value="'+escapeHtml(o.disc||'')+'" class="w-full border rounded p-2 mt-1"></label><label class="font-semibold">Cust.Code<input id="editCustCode" value="'+escapeHtml(o.custCode||'')+'" class="w-full border rounded p-2 mt-1"></label><label class="font-semibold">Channel<input id="editChannel" value="'+escapeHtml(o.channel||'')+'" class="w-full border rounded p-2 mt-1"></label><label class="font-semibold sm:col-span-2">Cashback<select id="editCashback" class="w-full border rounded p-2 bg-white mt-1">'+opts+'</select></label><label class="font-semibold sm:col-span-2">Note Order<textarea id="editNote" rows="2" class="w-full border rounded p-2 mt-1">'+escapeHtml(o.note||'')+'</textarea></label></div><div class="border-t pt-3"><div class="flex justify-between items-center mb-2"><b>Produk</b><button type="button" onclick="addEditProduct()" class="bg-emerald-600 text-white rounded px-3 py-1.5 text-[10px] font-bold">+ Tambah Produk</button></div><div id="editProducts"></div></div></div>';renderEditOrderProducts();}
+        function simpanEditOrder(){if(!editingOrderId)return;let items=[];for(let i=0;i<editOrderItems.length;i++){let p=document.getElementById('editProd'+i),q=document.getElementById('editQty'+i),u=document.getElementById('editUnit'+i);if(!p||!p.value||!q||Number(q.value)<=0){showModal('Peringatan','Produk dan Qty harus diisi dengan benar.');return;}var originalName=editOrderItems[i]&&editOrderItems[i].produk?String(editOrderItems[i].produk).trim():'';var originalCode=editOrderItems[i]&&editOrderItems[i].kode?String(editOrderItems[i].kode).trim():'';var selectedObj=(produkDataList||[]).find(function(x){return String(x.nama||'').trim()===String(p.value||'').trim();})||{};var selectedCode=String(selectedObj.kode||'').trim();var codeToSend=selectedCode||originalCode;items.push({produk:p.value,kode:codeToSend,originalProduk:originalName,originalKode:originalCode,qty:Number(q.value),satuan:u?u.value:'Pcs',harga:Number(selectedObj.harga)||0,liter:Number(selectedObj.liter)||1,pack:Number(selectedObj.pack)||1});}if(!items.length){showModal('Peringatan','Minimal harus ada 1 produk.');return;}showLoading(true);document.getElementById('customModal').style.display='none';let payload={outlet:document.getElementById('editOutlet').value,tanggal:document.getElementById('editTanggal').value,payment:document.getElementById('editPayment').value,disc:document.getElementById('editDisc').value,custCode:document.getElementById('editCustCode').value,channel:document.getElementById('editChannel').value,note:document.getElementById('editNote').value,cashback:document.getElementById('editCashback').value,items:items};google.script.run.withSuccessHandler(function(res){showLoading(false);showModal(res&&res.success?'Berhasil':'Gagal',res&&res.message?res.message:'Tidak ada respons.');if(res&&res.success){editingOrderId='';editOrderItems=[];loadRiwayat(true, true);}}).withFailureHandler(function(err){showLoading(false);showModal('Gagal',err&&err.message?err.message:'Gagal menyimpan perubahan.');}).updateOrderById(editingOrderId,payload,currentUser,currentUsernameInput);}
 
         function updateSelectedRiwayatUI() {
             const count = Object.keys(selectedRiwayatIds).length;
@@ -4499,11 +4417,6 @@ startAutoRefresh();
                 return;
             }
 
-            pencapaianRenderedData = {};
-            (data || []).forEach(function(item){
-                const salesKey=String(item.sales||'').trim().toUpperCase();
-                pencapaianRenderedData[salesKey]=item;
-            });
             container.innerHTML = data.map(function(item) {
                 return `
                     <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3">
@@ -4568,28 +4481,15 @@ startAutoRefresh();
             if (card) card.classList.add('bws-detail-modal-card');
 
             const body = document.getElementById('modalBody');
-            const renderedItem = pencapaianRenderedData[String(sales||'').trim().toUpperCase()];
-            const catKey = String(category||'').trim().toLowerCase();
-            const catNow = renderedItem && renderedItem.categories ? renderedItem.categories[catKey === 'powerbrand' ? 'powerBrand' : catKey] : null;
-            const monthNow = catNow && Array.isArray(catNow.months) ? catNow.months : [];
-            const qNow = catNow && catNow.quarter ? catNow.quarter : {actual:0,target:0,percentage:0,gap:0};
             if (body) {
                 body.innerHTML = `
-                    <div class="rounded-2xl border border-slate-200 bg-white overflow-hidden">
-                        <div class="px-3 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between gap-2">
-                            <div><div class="text-[9px] font-extrabold uppercase tracking-wider text-slate-500">${escapeHtml(title)}</div><div class="text-[11px] font-extrabold text-slate-800 mt-0.5">Ringkasan periode</div></div>
-                            <div class="text-[10px] font-extrabold text-emerald-700">${formatPercentID(Number(qNow.percentage||0))}</div>
+                    <div class="rounded-xl border border-slate-200 bg-white overflow-hidden">
+                        <div class="px-3 py-2 bg-slate-50 border-b border-slate-200 flex items-center justify-between gap-2">
+                            <div class="text-[9px] font-extrabold uppercase tracking-wider text-slate-500">Transaksi Outlet</div>
+                            <div class="text-[9px] text-slate-400">${escapeHtml(title)}</div>
                         </div>
                         <div id="pencapaianDetailBody" class="modal-table-wrap p-2">
-                            <div class="grid grid-cols-3 gap-2 mb-2">
-                                <div class="rounded-xl bg-slate-50 border border-slate-200 p-2"><div class="text-[8px] text-slate-400">TARGET</div><div class="text-[11px] font-extrabold text-slate-700 mt-1">${formatPencapaianValue(qNow.target||0, catKey)}</div></div>
-                                <div class="rounded-xl bg-slate-50 border border-slate-200 p-2"><div class="text-[8px] text-slate-400">ACTUAL</div><div class="text-[11px] font-extrabold text-slate-700 mt-1">${formatPencapaianValue(qNow.actual||0, catKey)}</div></div>
-                                <div class="rounded-xl bg-slate-50 border border-slate-200 p-2"><div class="text-[8px] text-slate-400">GAP</div><div class="text-[11px] font-extrabold ${Number(qNow.gap||0)>=0?'text-emerald-700':'text-red-600'} mt-1">${formatPencapaianValue(qNow.gap||0, catKey)}</div></div>
-                            </div>
-                            <div class="rounded-xl border border-slate-200 overflow-hidden">
-                                ${monthNow.map(function(m){return '<div class="flex items-center justify-between gap-2 px-3 py-2 border-b border-slate-100 last:border-b-0"><span class="text-[9px] font-bold text-slate-500">'+escapeHtml(m.period||('MONTH '+m.monthNo))+'</span><span class="text-[10px] font-extrabold text-slate-700">'+formatPencapaianValue(m.actual||0,catKey)+' <span class="text-slate-400 font-normal">/ '+formatPencapaianValue(m.target||0,catKey)+'</span></span></div>';}).join('') || '<div class="text-center text-[10px] text-slate-400 py-5">Memuat rincian outlet...</div>'}
-                            </div>
-                            <div class="text-[9px] text-slate-400 text-center mt-2">Rincian outlet sedang diperbarui...</div>
+                            <div class="text-center text-xs text-slate-400 py-10">Memuat detail transaksi...</div>
                         </div>
                     </div>`;
             }
@@ -4757,22 +4657,7 @@ startAutoRefresh();
             const isAdminLogin = String(currentUsernameInput || '').trim().toLowerCase() === 'admin';
             const selectedPeriod = periodSelect && periodSelect.value ? periodSelect.value : '';
             const selectedSales = isAdminLogin && salesFilter && salesFilter.value ? salesFilter.value : '';
-            const periodKey = String(selectedPeriod || '');
-            const allKey = (currentUsernameInput || 'admin').toLowerCase() + '|' + periodKey;
-
-            // Admin: setelah data semua Sales sudah pernah dimuat untuk periode ini,
-            // filter Sales hanya memfilter data di browser. Tidak ada request/loading ulang.
-            if (isAdminLogin && selectedSales && pencapaianAdminAllCache[allKey]) {
-                const base = pencapaianAdminAllCache[allKey];
-                const filtered = (base.data || []).filter(function(item){ return String(item.sales||'').trim().toUpperCase() === String(selectedSales).trim().toUpperCase(); });
-                if (loading) loading.classList.add('hidden');
-                if (container) renderPencapaianSales(filtered);
-                const periodeEl=document.getElementById('pencapaianPeriode');
-                if(periodeEl) periodeEl.textContent='Periode: '+(base.periode||'-')+(base.volumeQuarter?' · Volume: '+base.volumeQuarter:'');
-                return;
-            }
-
-            const cacheKey = (currentUsernameInput || 'admin').toLowerCase() + '|' + selectedSales + '|' + periodKey;
+            const cacheKey = (currentUsernameInput || 'admin').toLowerCase() + '|' + selectedSales + '|' + selectedPeriod;
             if (!forceReloadPeriods && pencapaianCache[cacheKey]) {
                 const res = pencapaianCache[cacheKey];
                 if (loading) loading.classList.add('hidden');
@@ -4780,34 +4665,33 @@ startAutoRefresh();
                     periodSelect.innerHTML = res.periods.map(function(p){return '<option value="'+escapeHtml(p.value)+'">'+escapeHtml(p.label)+'</option>';}).join('');
                     periodSelect.value = res.selectedPeriod || selectedPeriod || res.periods[0].value;
                 }
-                if(isAdminLogin && !selectedSales) pencapaianAdminAllCache[(currentUsernameInput||'admin').toLowerCase()+'|'+String(res.selectedPeriod||selectedPeriod||'')] = res;
                 renderPencapaianSales(res.data || []);
                 return;
             }
             if (pencapaianLoading) return;
             pencapaianLoading = true;
+            // Saat auto refresh (silentRefresh=true), jangan tampilkan loading
+            // atau mengosongkan tampilan yang sedang dilihat user. Data baru
+            // langsung menggantikan data lama setelah server selesai.
             if (loading && !silentRefresh) loading.classList.remove('hidden');
             if (container && !silentRefresh) container.innerHTML = '';
             google.script.run.withSuccessHandler(function(res) {
                 pencapaianLoading = false;
-                const result=res||{};
-                pencapaianCache[cacheKey] = result;
-                const periods = Array.isArray(result.periods) ? result.periods : [];
+                pencapaianCache[cacheKey] = res || {};
+                const periods = Array.isArray(res && res.periods) ? res.periods : [];
                 if (periodSelect && periods.length) {
-                    const currentValue = selectedPeriod || result.selectedPeriod || '';
+                    const currentValue = selectedPeriod || (res && res.selectedPeriod ? res.selectedPeriod : '');
                     periodSelect.innerHTML = periods.map(function(p){ return '<option value="'+escapeHtml(p.value)+'">'+escapeHtml(p.label)+'</option>'; }).join('');
                     periodSelect.value = periods.some(function(p){return p.value===currentValue;}) ? currentValue : periods[0].value;
                 }
-                const actualPeriod=String(result.selectedPeriod||periodSelect&&periodSelect.value||selectedPeriod||'');
-                if(isAdminLogin){ pencapaianAdminAllCache[(currentUsernameInput||'admin').toLowerCase()+'|'+actualPeriod]=result; }
                 const periodeEl = document.getElementById('pencapaianPeriode');
-                if (periodeEl) { let txt='Periode: '+(result.periode ? result.periode : '-'); if(result.volumeQuarter) txt+=' · Volume: '+result.volumeQuarter; periodeEl.textContent=txt; }
-                renderPencapaianSales(Array.isArray(result.data) ? result.data : []);
+                if (periodeEl) { let txt='Periode: '+(res && res.periode ? res.periode : '-'); if(res && res.volumeQuarter) txt+=' · Volume: '+res.volumeQuarter; periodeEl.textContent=txt; }
+                renderPencapaianSales(Array.isArray(res && res.data) ? res.data : []);
             }).withFailureHandler(function(err) {
                 pencapaianLoading = false;
                 if (loading) loading.classList.add('hidden');
                 if (container) container.innerHTML = '<div class="bg-white border border-red-200 rounded-2xl p-6 text-center text-xs text-red-500">Gagal memuat pencapaian: ' + escapeHtml(err && err.message ? err.message : 'Terjadi kesalahan.') + '</div>';
-            }).getPencapaianSales(isAdminLogin ? '' : currentUser, currentUsernameInput, selectedPeriod);
+            }).getPencapaianSales(isAdminLogin ? selectedSales : currentUser, currentUsernameInput, selectedPeriod);
         }
 
         function formatPricelistDate(value) {
@@ -5448,71 +5332,59 @@ startAutoRefresh();
         }
 
 
-        // Auto refresh aman: tetap aktif, tetapi tidak berjalan saat pengguna sedang
-        // mengetik, membuka dropdown, memilih checklist, atau mengedit data.
+        // Auto refresh setiap 5 detik untuk SEMUA tab kecuali tab Input.
+        // Refresh hanya dilakukan pada tab yang sedang aktif agar ringan dan tidak
+        // mengambil data dari semua tab sekaligus. Modal/detail tetap tidak diganggu.
         let autoRefreshTimer = null;
-        let lastUserInteractionAt = Date.now();
-        const AUTO_REFRESH_INTERVAL = 10000; // 10 detik
-        const AUTO_REFRESH_IDLE_DELAY = 4000; // tunggu 4 detik setelah interaksi terakhir
-
-        function markUserInteraction() {
-            lastUserInteractionAt = Date.now();
-        }
-
-        function getVisibleTabKey() {
-            const map = {
-                input:'tabInput', riwayat:'tabRiwayat', pencapaian:'tabPencapaian',
-                monitoring:'tabMonitoring', outletkontrak:'tabOutletKontrak',
-                outletbws:'tabOutletBWS', tambahcustomer:'tabTambahCustomer',
-                pricelist:'tabPricelist', pesananoutlet:'tabPesananOutlet'
-            };
-            for (const key in map) {
-                const el = document.getElementById(map[key]);
-                if (el && !el.classList.contains('hidden')) return key;
-            }
-            return '';
-        }
-
-        function isUserBusy() {
-            if (Date.now() - lastUserInteractionAt < AUTO_REFRESH_IDLE_DELAY) return true;
-            if (document.hidden) return true;
-            if (document.querySelector('.select2-container--open')) return true;
-            if (document.querySelector('[role="dialog"]:not([style*="display: none"]), .modal:not(.hidden)')) return true;
-
-            const active = document.activeElement;
-            if (active && /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(active.tagName)) return true;
-            return false;
-        }
-
         function autoRefreshActiveTab() {
-            if (isUserBusy()) return;
+            const mainPage = document.getElementById('mainPage');
+            if (!mainPage || mainPage.classList.contains('hidden')) return;
 
-            const tab = getVisibleTabKey();
-            try {
-                // Gunakan silentRefresh agar data diperbarui tanpa mengganti isi tabel
-                // menjadi "Memuat..." dan tanpa menutup dropdown atau menghapus input.
-                if (tab === 'riwayat') loadRiwayat(true, true);
-                else if (tab === 'pencapaian') loadPencapaianSales(true, true);
-                else if (tab === 'monitoring') loadMonitoring(true, true);
-                else if (tab === 'outletkontrak') loadOutletKontrak(true, true);
-                else if (tab === 'outletbws') loadOutletBWSAdmin(true, true);
-                else if (tab === 'pricelist') loadPricelist(true, true);
-                else if (tab === 'pesananoutlet') loadPesananOutlet(true, true);
-                // Tab input/tambah customer tidak dipaksa reload agar isian form aman.
-            } catch (e) {
-                console.warn('Auto refresh:', e);
+            const modal = document.getElementById('customModal');
+            if (modal && modal.style.display === 'flex') return;
+
+            const activeTabs = [
+                'tabRiwayat',
+                'tabPencapaian',
+                'tabMonitoring',
+                'tabOutletKontrak',
+                'tabOutletBWS',
+                'tabTambahCustomer',
+                'tabPricelist',
+                'tabPesananOutlet'
+            ];
+
+            const activeTab = activeTabs.find(function(id) {
+                const el = document.getElementById(id);
+                return el && !el.classList.contains('hidden');
+            });
+
+            // TAB INPUT sengaja tidak dimasukkan ke daftar di atas.
+            // Semua tab lainnya diperbarui secara silent: halaman tidak reload, kontrol/filter dipertahankan, dan tidak menampilkan loading ulang.
+            if (activeTab === 'tabRiwayat') {
+                loadRiwayat(true, true);
+            } else if (activeTab === 'tabPencapaian') {
+                loadPencapaianSales(true, true);
+            } else if (activeTab === 'tabMonitoring') {
+                loadMonitoring(true, true);
+            } else if (activeTab === 'tabOutletKontrak') {
+                loadOutletKontrak(true, true);
+            } else if (activeTab === 'tabOutletBWS') {
+                loadOutletBWSAdmin(true, true);
+            } else if (activeTab === 'tabTambahCustomer') {
+                loadTambahCustomer(true, true);
+            } else if (activeTab === 'tabPricelist') {
+                loadPricelist(true, true);
+            } else if (activeTab === 'tabPesananOutlet') {
+                loadPesananOutlet(true, true);
             }
         }
 
         function startAutoRefresh() {
             if (autoRefreshTimer) clearInterval(autoRefreshTimer);
-            autoRefreshTimer = setInterval(autoRefreshActiveTab, AUTO_REFRESH_INTERVAL);
+            // Jalankan setiap 5 detik.
+            autoRefreshTimer = setInterval(autoRefreshActiveTab, 5000);
         }
-
-        // Semua interaksi pengguna menunda refresh berikutnya.
-        ['pointerdown','keydown','input','change','focusin','click','touchstart'].forEach(function(evt) {
-            document.addEventListener(evt, markUserInteraction, true);
-        });
 
         function switchTab(tab) {
             const isAdminLogin = String(currentUsernameInput || '').trim().toLowerCase() === 'admin';
@@ -5657,7 +5529,7 @@ if(tab==='riwayat')loadRiwayat();
             showModal("Konfirmasi", "Keluar aplikasi?", true, function(isOk) {
                 if (isOk) {
                     clearAuthState();
-                    currentUser = ""; currentUsernameInput = ""; shoppingCart = []; globalRiwayatData = []; rawMonitoringDataObject = {}; globalOutletKontrakData = []; pencapaianCache = {}; pencapaianAdminAllCache = {}; pencapaianRenderedData = {}; globalPricelistData = [];
+                    currentUser = ""; currentUsernameInput = ""; shoppingCart = []; globalRiwayatData = []; rawMonitoringDataObject = {}; globalOutletKontrakData = []; pencapaianCache = {}; globalPricelistData = [];
                     document.getElementById('mainPage').classList.add('hidden');
                     document.getElementById('mainHeader').classList.add('hidden');
                     document.getElementById('leftNav').classList.add('hidden');
@@ -5714,14 +5586,13 @@ if(tab==='riwayat')loadRiwayat();
             return arr;
         }
 
-        function loadTambahCustomerFormMaster(callback, forceReload) {
+        function loadTambahCustomerFormMaster(callback) {
             callback = typeof callback === 'function' ? callback : function(){};
-            forceReload = !!forceReload;
             if (tambahCustomerFormMasterLoading) {
-                setTimeout(function() { loadTambahCustomerFormMaster(callback, forceReload); }, 120);
+                setTimeout(function() { loadTambahCustomerFormMaster(callback); }, 120);
                 return;
             }
-            if (!forceReload && globalTambahCustomerFormMaster.headers.length &&
+            if (globalTambahCustomerFormMaster.headers.length &&
                 String(globalTambahCustomerFormMaster.salesName || '').trim().toUpperCase() === String(currentUser || '').trim().toUpperCase()) {
                 callback();
                 return;
@@ -6085,17 +5956,14 @@ if(tab==='riwayat')loadRiwayat();
                             <div class="text-[8px] text-slate-400 mt-1">Otomatis menggunakan Unique ID.</div>
                         </div>
 
-                        ${idxDsr >= 0 && (isEdit || globalTambahCustomerFormMaster.isAdmin) ? `
+                        ${idxDsr >= 0 && (globalTambahCustomerFormMaster.isAdmin || isEdit) ? `
                         <div>
                             <label class="block text-[9px] font-extrabold uppercase tracking-wider text-slate-500 mb-1">DSR</label>
-                            ${isEdit && globalTambahCustomerFormMaster.isAdmin ? `
+                            ${globalTambahCustomerFormMaster.isAdmin ? `
                             <select id="tambahCustomerField_${idxDsr}" class="w-full min-h-[40px] border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
                                 ${_renderCustomerSelectOptions(globalTambahCustomerFormMaster.dsrs, currentDsr, 'Pilih DSR')}
-                            </select>` : isEdit ? `
-                            <input id="tambahCustomerField_${idxDsr}" type="text" value="${_customerEscape(currentDsr)}" readonly class="w-full min-h-[40px] border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-600 bg-slate-100 focus:outline-none" />` : `
-                            <select id="tambahCustomerField_${idxDsr}" class="w-full min-h-[40px] border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                                ${_renderCustomerSelectOptions(globalTambahCustomerFormMaster.dsrs, currentDsr, 'Pilih DSR')}
-                            </select>`}
+                            </select>` : `
+                            <input id="tambahCustomerField_${idxDsr}" type="text" value="${_customerEscape(currentDsr)}" readonly class="w-full min-h-[40px] border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-600 bg-slate-100 focus:outline-none" />`}
                         </div>` : ''}
 
                         <div>
@@ -6149,29 +6017,11 @@ if(tab==='riwayat')loadRiwayat();
             // Pastikan header yang dipakai form selalu berasal dari data OUTLET terbaru.
             globalTambahCustomerFormMaster.headers = (globalTambahCustomerData.headers || []).slice();
 
-            // EDIT dibuka dari data yang sudah ada di tabel agar instan.
-            // Jika master belum selesai dimuat, bentuk pilihan sementara dari data OUTLET
-            // yang sudah ada di layar; master lengkap tetap dimuat di belakang layar.
-            if (!(globalTambahCustomerFormMaster.headers && globalTambahCustomerFormMaster.headers.length)) {
-                const headers = globalTambahCustomerData.headers || [];
-                const idxDay = _customerFieldIndexClient(headers, ['DAY VISIT']);
-                const idxChannel = _customerFieldIndexClient(headers, ['CHANNEL', 'CHANNEL OUTLET']);
-                const idxDsr = _customerFieldIndexClient(headers, ['DSR', 'SALES', 'NAMA SALES']);
-                const uniq = function(idx){
-                    const seen={}; const out=[];
-                    (globalTambahCustomerData.rows||[]).forEach(function(r){ const v=String((r.values||[])[idx]||'').trim(); const k=v.toUpperCase(); if(idx>=0&&v&&!seen[k]){seen[k]=1;out.push(v);} });
-                    return out;
-                };
-                globalTambahCustomerFormMaster = {
-                    headers: headers.slice(), dayVisits: idxDay>=0?uniq(idxDay):[], channels: idxChannel>=0?uniq(idxChannel):[],
-                    dsrs: idxDsr>=0?uniq(idxDsr):[], today:'', salesName:String(currentUser||''),
-                    isAdmin:String(currentUsernameInput||'').toLowerCase()==='admin', newCustCode:''
-                };
+            // Saat EDIT, selalu pastikan master terbaru dari sheet OUTLET sudah dimuat.
+            // Ini menjaga DAY VISIT, CHANNEL, dan DSR selalu menampilkan seluruh data terbaru.
+            loadTambahCustomerFormMaster(function() {
                 openTambahCustomerForm(rowNumber, row.values || []);
-                loadTambahCustomerFormMaster(function(){}, false);
-            } else {
-                openTambahCustomerForm(rowNumber, row.values || []);
-            }
+            });
         }
 
         function saveTambahCustomerForm() {
@@ -6216,7 +6066,7 @@ if(tab==='riwayat')loadRiwayat();
                     tambahCustomerLoaded = false;
                     globalTambahCustomerFormMaster = { headers: [], dayVisits: [], channels: [], dsrs: [], today: '', salesName: '', isAdmin: false, newCustCode: '' };
                     showModal('Berhasil', res.message || 'Data customer berhasil disimpan.');
-                    setTimeout(function(){ loadTambahCustomer(true, true); }, 50);
+                    loadTambahCustomer(true, true);
                 } else {
                     showModal('Gagal', res && res.message ? res.message : 'Data customer gagal disimpan.');
                 }
