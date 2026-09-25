@@ -5534,7 +5534,7 @@ if(tab==='riwayat')loadRiwayat();
 
         /* ================= TAMBAH CUSTOMER - CRUD OUTLET ================= */
         let globalTambahCustomerData = { headers: [], rows: [] };
-        let globalTambahCustomerFormMaster = { headers: [], dayVisits: [], channels: [], dsrs: [], today: '', salesName: '', isAdmin: false, newCustCode: '' };
+        let globalTambahCustomerFormMaster = { headers: [], dayVisits: [], channels: [], outlets: [], dsrs: [], today: '', salesName: '', isAdmin: false, newCustCode: '' };
         let tambahCustomerLoading = false;
         let tambahCustomerLoaded = false;
         let tambahCustomerFormMasterLoading = false;
@@ -5598,6 +5598,7 @@ if(tab==='riwayat')loadRiwayat();
                     headers: Array.isArray(res.headers) ? res.headers : [],
                     dayVisits: Array.isArray(res.dayVisits) ? res.dayVisits : [],
                     channels: Array.isArray(res.channels) ? res.channels : [],
+                    outlets: Array.isArray(res.outlets) ? res.outlets : [],
                     dsrs: Array.isArray(res.dsrs) ? res.dsrs : [],
                     today: String(res.today || ''),
                     salesName: String(res.salesName || ''),
@@ -5937,7 +5938,9 @@ if(tab==='riwayat')loadRiwayat();
 
                         <div>
                             <label class="block text-[9px] font-extrabold uppercase tracking-wider text-slate-500 mb-1">OUTLET</label>
-                            <input id="tambahCustomerField_${idxOutlet}" type="text" value="${_customerEscape(currentOutlet.toUpperCase())}" oninput="this.value=this.value.toUpperCase()" class="w-full min-h-[40px] border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white uppercase focus:outline-none focus:ring-2 focus:ring-emerald-500" autocomplete="organization" />
+                            <select id="tambahCustomerField_${idxOutlet}" class="w-full min-h-[40px] border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white uppercase focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                ${_renderCustomerSelectOptions(_customerEnsureOption(globalTambahCustomerFormMaster.outlets, currentOutlet), currentOutlet, 'Pilih Outlet')}
+                            </select>
                         </div>
 
                         <div>
