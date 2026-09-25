@@ -602,7 +602,8 @@ button{touch-action:manipulation}
 #cartList{max-height:340px;overflow:auto}
 #listRiwayat>div{border-color:var(--ui-border)!important;border-radius:16px!important}
 #tabMonitoring .overflow-x-auto,#tabOutletKontrak .overflow-x-auto,#tabPricelist .overflow-x-auto{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
-#tabMonitoring table,#tabOutletKontrak table,#tabPricelist table{min-width:760px}
+#tabMonitoring table{min-width:980px}
+#tabOutletKontrak table,#tabPricelist table{min-width:760px}
 .modern-modal-overlay{padding:12px!important}
 .modern-modal-card{width:min(700px,100%)!important;max-height:min(88vh,800px)!important;border-radius:20px!important;overflow:hidden}
 .bws-detail-modal-card{width:min(860px,100%)!important;max-height:min(90vh,860px)!important}
@@ -1825,8 +1826,10 @@ html,body{height:100%;}
                             <table class="w-full text-left border-collapse text-[11px]" style="min-width: 820px;">
                                 <thead>
                                     <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
-                                        <th class="p-2.5 font-bold" style="width: 20%;">Nama Outlet</th>
-                                        <th class="p-2.5 font-bold text-right" style="width: 13%;">Target Quartal</th>
+                                        <th class="p-2.5 font-bold" style="width: 10%;">DSR</th>
+                                        <th class="p-2.5 font-bold" style="width: 18%;">Nama Outlet</th>
+                                        <th class="p-2.5 font-bold" style="width: 12%;">CUST.CODE</th>
+                                        <th class="p-2.5 font-bold text-right" style="width: 11%;">Target Quartal</th>
                                         <th class="p-2.5 font-bold text-right" style="width: 13%;">Actual</th>
                                         <th class="p-2.5 font-bold text-right" style="width: 12%;">Gap</th>
                                         <th class="p-2.5 font-bold text-right" style="width: 12%;">Ach.</th>
@@ -1837,7 +1840,7 @@ html,body{height:100%;}
                                 </thead>
                                 <tbody id="listMonitoringTableBody">
                                     <tr>
-                                        <td colspan="8" class="text-slate-400 text-center py-6">Memuat data monitoring...</td>
+                                        <td colspan="10" class="text-slate-400 text-center py-6">Memuat data monitoring...</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -2988,7 +2991,7 @@ startAutoRefresh();
             if (monitoringLoading) return;
             monitoringLoading = true;
             let container = document.getElementById('listMonitoringTableBody');
-            if (container && !silentRefresh) container.innerHTML = '<tr><td colspan="8" class="text-slate-400 text-center py-6">Memuat...</td></tr>';
+            if (container && !silentRefresh) container.innerHTML = '<tr><td colspan="10" class="text-slate-400 text-center py-6">Memuat...</td></tr>';
             google.script.run.withSuccessHandler(function(dataObj) {
                 monitoringLoading = false;
                 rawMonitoringDataObject = dataObj || {};
@@ -3002,7 +3005,7 @@ startAutoRefresh();
                 renderMonitoringList();
             }).withFailureHandler(function(err) {
                 monitoringLoading = false;
-                if (container) container.innerHTML = '<tr><td colspan="8" class="text-red-500 text-center py-6 text-xs">Gagal memuat monitoring: ' + escapeHtml(err && err.message ? err.message : 'Terjadi kesalahan.') + '</td></tr>';
+                if (container) container.innerHTML = '<tr><td colspan="10" class="text-red-500 text-center py-6 text-xs">Gagal memuat monitoring: ' + escapeHtml(err && err.message ? err.message : 'Terjadi kesalahan.') + '</td></tr>';
             }).getMonitoringOutletData(currentUser, currentUsernameInput);
         }
 
@@ -3025,7 +3028,7 @@ startAutoRefresh();
             let countBadge = document.getElementById('monitoringCount');
 
             if (!selectedQuarter || !rawMonitoringDataObject[selectedQuarter]) {
-                container.innerHTML = `<tr><td colspan="8" class="text-slate-400 text-center py-8 bg-white">Belum ada data untuk kuartal ini.</td></tr>`;
+                container.innerHTML = `<tr><td colspan="10" class="text-slate-400 text-center py-8 bg-white">Belum ada data untuk kuartal ini.</td></tr>`;
                 countBadge.textContent = "0 outlet";
                 return;
             }
@@ -3061,7 +3064,7 @@ startAutoRefresh();
             updateQuarterMonthHeaderLabels(selectedQuarter);
 
             if (filtered.length === 0) {
-                container.innerHTML = `<tr><td colspan="8" class="text-slate-400 text-center py-8 bg-white">Outlet tidak ditemukan.</td></tr>`;
+                container.innerHTML = `<tr><td colspan="10" class="text-slate-400 text-center py-8 bg-white">Outlet tidak ditemukan.</td></tr>`;
                 return;
             }
 
@@ -3075,6 +3078,8 @@ startAutoRefresh();
 
                 let dataString = encodeURIComponent(JSON.stringify({
                     outlet: item.outlet,
+                    dsr: item.dsr || '',
+                    custCode: item.custCode || '',
                     quarter: selectedQuarter,
                     total: actual,
                     targetQuarter: target,
@@ -3090,7 +3095,9 @@ startAutoRefresh();
                 let achClass = achievement >= 100 ? 'text-emerald-700' : (achievement >= 80 ? 'text-amber-600' : 'text-red-600');
                 html += `
                     <tr class="${rowBg} border-b border-slate-100 hover:bg-emerald-50/60 cursor-pointer transition" onclick="tampilkanDetailMonitoring('${dataString}')">
+                        <td class="p-2.5 font-semibold text-slate-700">${escapeHtml(item.dsr || '-')}</td>
                         <td class="p-2.5 font-semibold text-slate-800">${escapeHtml(item.outlet || '')}</td>
+                        <td class="p-2.5 font-semibold text-slate-700">${escapeHtml(item.custCode || '-')}</td>
                         <td class="p-2.5 text-right font-bold text-slate-700">${target.toFixed(1)} dus</td>
                         <td class="p-2.5 text-right font-bold text-emerald-700">${actual.toFixed(1)} dus</td>
                         <td class="p-2.5 text-right font-semibold ${actual - target >= 0 ? 'text-emerald-700' : 'text-red-600'}">${(actual - target).toFixed(1)} dus</td>
@@ -3184,7 +3191,9 @@ startAutoRefresh();
                                 <table class="modal-detail-table">
                                     <thead>
                                         <tr>
-                                            <th style="width:70px; text-align:center;">No</th>
+                                            <th style="width:55px; text-align:center;">No</th>
+                                            <th style="text-align:left;">DSR</th>
+                                            <th style="text-align:left;">CUST.CODE</th>
                                             <th style="text-align:left;">Produk</th>
                                         </tr>
                                     </thead>
@@ -3205,7 +3214,7 @@ startAutoRefresh();
 
                             produkHtml += `
                                 <tr class="monitor-date-group-row">
-                                    <td colspan="2" class="monitor-date-group-cell">
+                                    <td colspan="4" class="monitor-date-group-cell">
                                         <div class="monitor-date-group-label">
                                             <span class="monitor-date-group-icon">📅</span>
                                             <span>${escapeHtml(dateLabel)}</span>
@@ -3220,6 +3229,8 @@ startAutoRefresh();
                                 produkHtml += `
                                     <tr>
                                         <td class="p-2.5 text-center text-slate-400 font-bold">${nomor++}</td>
+                                        <td class="p-2.5 text-slate-700 font-medium">${escapeHtml(String(p.dsr || '').trim() || '-')}</td>
+                                        <td class="p-2.5 text-slate-700 font-medium">${escapeHtml(String(p.custCode || '').trim() || '-')}</td>
                                         <td class="modal-product-name">${escapeHtml(produkValue)}</td>
                                     </tr>
                                 `;
