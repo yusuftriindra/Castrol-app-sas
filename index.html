@@ -1780,7 +1780,7 @@ html,body{height:100%;}
                         </div>
                         <div class="flex items-center gap-2">
                             <label for="pencapaianPeriodSelect" class="text-[9px] font-bold text-slate-500">Periode</label>
-                            <select id="pencapaianSalesFilter" onchange="loadPencapaianSales(true, false)" class="hidden bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[10px] text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <select id="pencapaianSalesFilter" onchange="loadPencapaianSales()" class="hidden bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[10px] text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500">
                                 <option value="">Semua Sales</option>
                             </select>
                             <select id="pencapaianPeriodSelect" onchange="loadPencapaianSales()" class="bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[10px] text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500">
@@ -2102,7 +2102,7 @@ html,body{height:100%;}
             // Peringatan koneksi/Apps Script tidak ditampilkan ke pengguna.
             // Sistem tetap menjalankan callback failure agar proses internal tidak macet.
             const _modalTitle = String(title == null ? '' : title);
-            const _modalMessage = String(message == null ? '' : message).replace(/<br\s*\/?>/gi, '\n');
+            const _modalMessage = String(message == null ? '' : message);
             const _connectionWarning = /apps\s*script|koneksi\s*gagal|tidak\s*dapat\s*(mengakses|terhubung)|bridge\s+google/i.test(_modalTitle + ' ' + _modalMessage);
             if (_connectionWarning && !isConfirm) {
                 console.warn('Peringatan koneksi disembunyikan:', _modalTitle, _modalMessage);
@@ -2111,7 +2111,7 @@ html,body{height:100%;}
             clearDetailModalNoFooter();
             document.getElementById('modalTitle').textContent = title;
             document.getElementById('modalSubtitle').textContent = '';
-            document.getElementById('modalBody').textContent = _modalMessage;
+            document.getElementById('modalBody').textContent = message;
             document.getElementById('customModal').style.display = 'flex';
             
             let cancelBtn = document.getElementById('modalCancelBtn');
@@ -2573,10 +2573,7 @@ startAutoRefresh();
                 items: shoppingCart
             };
 
-            const cartSummary = shoppingCart.map(function(item, i) {
-                return (i + 1) + '. ' + String(item.produk || '-') + ' · ' + Number(item.qty || 0) + ' ' + String(item.satuan || 'Pcs');
-            }).join(' | ');
-            showModal("Konfirmasi Order", "Periksa pesanan. Outlet: " + String(outlet) + " | KERANJANG: " + cartSummary + " | Lanjutkan kirim order?", true, function(isOk) {
+            showModal("Konfirmasi Order", "Kirim order sekarang?", true, function(isOk) {
                 if (isOk) {
                     isSubmitting = true;
                     let btnKirim = document.getElementById('btnKirimOrder');
@@ -2904,7 +2901,7 @@ startAutoRefresh();
 
             showModal(
                 'Konfirmasi Bulk Status',
-                `Akan diproses ${changes.length} transaksi.  APPROVE: ${approve}  DECLINE: ${decline}.  Lanjutkan?`,
+                `Akan diproses ${changes.length} transaksi.<br><br>APPROVE: ${approve}<br>DECLINE: ${decline}<br><br>Lanjutkan?`,
                 true,
                 function(isOk) {
                     if (!isOk) return;
@@ -2929,7 +2926,7 @@ startAutoRefresh();
                                 showModal('Berhasil', `${success} transaksi berhasil diperbarui.`);
                             } else {
                                 showModal('Selesai dengan Catatan',
-                                    `Berhasil: ${success}\nGagal: ${failed}`);
+                                    `Berhasil: ${success}<br>Gagal: ${failed}`);
                             }
 
                             loadRiwayat();
@@ -3446,20 +3443,24 @@ startAutoRefresh();
                     }
                     editOrderItems=res.order.products||[];
 
-                    // Tampilkan form edit segera dari data order yang sudah ditemukan.
-                    // Master produk lengkap dimuat menyusul agar klik EDIT tidak menunggu request kedua.
-                    renderEditOrderForm(res.order);
-                    if(!(Array.isArray(produkDataList) && produkDataList.length>0)){
-                        google.script.run
-                            .withSuccessHandler(function(list){
-                                produkDataList=Array.isArray(list)?list:[];
-                                if(document.getElementById('customModal').style.display !== 'none') renderEditOrderProducts();
-                            })
-                            .withFailureHandler(function(err){
-                                console.warn('Master produk edit gagal dimuat:', err);
-                            })
-                            .getListProduk();
+                    // V6: pastikan master PRODUK tersedia sebelum membuat <select> edit.
+                    // Pada Admin, produk tidak dimuat saat login demi performa, sehingga
+                    // produkDataList bisa kosong dan semua produk akan dianggap tidak valid.
+                    if(Array.isArray(produkDataList) && produkDataList.length>0){
+                        renderEditOrderForm(res.order);
+                        return;
                     }
+
+                    google.script.run
+                        .withSuccessHandler(function(list){
+                            produkDataList=Array.isArray(list)?list:[];
+                            renderEditOrderForm(res.order);
+                        })
+                        .withFailureHandler(function(err){
+                            document.getElementById('modalOkBtn').textContent='OK';
+                            document.getElementById('modalBody').innerHTML='<div class="text-center text-xs text-red-500 py-8">Gagal memuat master produk: '+escapeHtml(err&&err.message?err.message:'Terjadi kesalahan.')+'</div>';
+                        })
+                        .getListProduk();
                 })
                 .withFailureHandler(function(err){
                     document.getElementById('modalOkBtn').textContent='OK';
@@ -4465,10 +4466,6 @@ startAutoRefresh();
             const card = modal ? modal.querySelector('.modern-modal-card') : null;
             if (card) card.classList.add('bws-detail-modal-card');
 
-            const detailCacheKey = String(sales || '').trim().toUpperCase() + '|' + String(currentUsernameInput || '').trim().toLowerCase() + '|' + String(selectedPeriod || '') + '|' + String(category || '').toLowerCase();
-            window.__pencapaianDetailCache = window.__pencapaianDetailCache || {};
-            const cachedDetail = window.__pencapaianDetailCache[detailCacheKey];
-
             const body = document.getElementById('modalBody');
             if (body) {
                 body.innerHTML = `
@@ -4478,7 +4475,7 @@ startAutoRefresh();
                             <div class="text-[9px] text-slate-400">${escapeHtml(title)}</div>
                         </div>
                         <div id="pencapaianDetailBody" class="modal-table-wrap p-2">
-                            <div class="text-center text-xs text-slate-400 py-10">${cachedDetail ? 'Menampilkan detail...' : 'Memuat detail transaksi...'}</div>
+                            <div class="text-center text-xs text-slate-400 py-10">Memuat detail transaksi...</div>
                         </div>
                     </div>`;
             }
@@ -4487,7 +4484,6 @@ startAutoRefresh();
                 const detailBody = document.getElementById('pencapaianDetailBody');
                 if (!detailBody) return;
 
-                if (res && res.success) window.__pencapaianDetailCache[detailCacheKey] = res;
                 if (!res || !res.success) {
                     detailBody.innerHTML = '<div class="text-center text-xs text-red-500 py-10">' +
                         escapeHtml((res && res.message) || 'Detail tidak tersedia.') + '</div>';
@@ -5534,7 +5530,7 @@ if(tab==='riwayat')loadRiwayat();
 
         /* ================= TAMBAH CUSTOMER - CRUD OUTLET ================= */
         let globalTambahCustomerData = { headers: [], rows: [] };
-        let globalTambahCustomerFormMaster = { headers: [], dayVisits: [], channels: [], outlets: [], dsrs: [], today: '', salesName: '', isAdmin: false, newCustCode: '' };
+        let globalTambahCustomerFormMaster = { headers: [], dayVisits: [], channels: [], dsrs: [], today: '', salesName: '', isAdmin: false, newCustCode: '' };
         let tambahCustomerLoading = false;
         let tambahCustomerLoaded = false;
         let tambahCustomerFormMasterLoading = false;
@@ -5594,39 +5590,13 @@ if(tab==='riwayat')loadRiwayat();
                     showModal('Gagal', res && res.message ? res.message : 'Master form customer gagal dimuat.');
                     return;
                 }
-                // Master form SELALU dibentuk dari data sheet OUTLET yang baru dimuat.
-                const outletRows = Array.isArray(globalTambahCustomerData.rows) ? globalTambahCustomerData.rows : [];
-                const outletHeaders = Array.isArray(globalTambahCustomerData.headers) ? globalTambahCustomerData.headers : (Array.isArray(res.headers) ? res.headers : []);
-                const idxDay = _customerFieldIndexClient(outletHeaders, ['DAY VISIT', 'DAYVISIT', 'HARI KUNJUNGAN', 'HARI VISIT']);
-                const idxChannelMaster = _customerFieldIndexClient(outletHeaders, ['CHANNEL', 'CHANNEL OUTLET', 'CHANNEL OUTLET CUSTOMER']);
-                const idxDsrMaster = _customerFieldIndexClient(outletHeaders, ['DSR', 'SALES', 'NAMA SALES']);
-                const addUnique = function(target, seen, value) {
-                    const v = String(value == null ? '' : value).trim();
-                    const k = v.toUpperCase();
-                    if (v && !seen[k]) { seen[k] = true; target.push(v); }
-                };
-                const dayVisits = [], channels = [], dsrs = [], seenDay = {}, seenChannel = {}, seenDsr = {};
-                outletRows.forEach(function(row) {
-                    const vals = Array.isArray(row.values) ? row.values : [];
-                    if (idxDay >= 0) addUnique(dayVisits, seenDay, vals[idxDay]);
-                    if (idxChannelMaster >= 0) addUnique(channels, seenChannel, vals[idxChannelMaster]);
-                    if (idxDsrMaster >= 0) addUnique(dsrs, seenDsr, vals[idxDsrMaster]);
-                });
-                if (!res.isAdmin) {
-                    const loginSales = String(currentUser || '').trim().toUpperCase();
-                    for (let i = dsrs.length - 1; i >= 0; i--) {
-                        if (String(dsrs[i]).trim().toUpperCase() !== loginSales) dsrs.splice(i, 1);
-                    }
-                }
-                dayVisits.sort(); channels.sort(); dsrs.sort();
                 globalTambahCustomerFormMaster = {
-                    headers: outletHeaders,
-                    dayVisits: dayVisits.length ? dayVisits : (Array.isArray(res.dayVisits) ? res.dayVisits : []),
-                    channels: channels.length ? channels : (Array.isArray(res.channels) ? res.channels : []),
-                    outlets: [],
-                    dsrs: dsrs.length ? dsrs : (Array.isArray(res.dsrs) ? res.dsrs : []),
+                    headers: Array.isArray(res.headers) ? res.headers : [],
+                    dayVisits: Array.isArray(res.dayVisits) ? res.dayVisits : [],
+                    channels: Array.isArray(res.channels) ? res.channels : [],
+                    dsrs: Array.isArray(res.dsrs) ? res.dsrs : [],
                     today: String(res.today || ''),
-                    salesName: String(res.salesName || currentUser || ''),
+                    salesName: String(res.salesName || ''),
                     isAdmin: !!res.isAdmin,
                     newCustCode: String(res.newCustCode || '')
                 };
@@ -5936,8 +5906,8 @@ if(tab==='riwayat')loadRiwayat();
 
             const currentDay = idxDayVisit >= 0 ? String(values[idxDayVisit] || '') : '';
             const currentOutlet = idxOutlet >= 0 ? String(values[idxOutlet] || '') : '';
-            const currentCust = idxCust >= 0 ? String(values[idxCust] || '') : '';
             const currentDsr = idxDsr >= 0 ? String(values[idxDsr] || '') : '';
+            const currentCust = idxCust >= 0 ? String(values[idxCust] || '') : '';
             const currentChannel = idxChannel >= 0 ? String(values[idxChannel] || '') : '';
             const currentDate = idxTanggalInput >= 0 ? String(values[idxTanggalInput] || '') : '';
             const currentPhone = idxPhone >= 0 ? String(values[idxPhone] || '') : '';
@@ -5963,7 +5933,7 @@ if(tab==='riwayat')loadRiwayat();
 
                         <div>
                             <label class="block text-[9px] font-extrabold uppercase tracking-wider text-slate-500 mb-1">OUTLET</label>
-                            <input id="tambahCustomerField_${idxOutlet}" type="text" value="${_customerEscape(currentOutlet.toUpperCase())}" oninput="this.value=this.value.toUpperCase()" placeholder="Ketik nama outlet" class="w-full min-h-[40px] border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white uppercase focus:outline-none focus:ring-2 focus:ring-emerald-500" autocomplete="organization" />
+                            <input id="tambahCustomerField_${idxOutlet}" type="text" value="${_customerEscape(currentOutlet.toUpperCase())}" oninput="this.value=this.value.toUpperCase()" class="w-full min-h-[40px] border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white uppercase focus:outline-none focus:ring-2 focus:ring-emerald-500" autocomplete="organization" />
                         </div>
 
                         <div>
@@ -5976,7 +5946,7 @@ if(tab==='riwayat')loadRiwayat();
                         <div>
                             <label class="block text-[9px] font-extrabold uppercase tracking-wider text-slate-500 mb-1">DSR</label>
                             <select id="tambahCustomerField_${idxDsr}" class="w-full min-h-[40px] border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                                ${_renderCustomerSelectOptions(_customerEnsureOption(globalTambahCustomerFormMaster.dsrs, currentDsr), currentDsr, 'Pilih DSR')}
+                                ${_renderCustomerSelectOptions(globalTambahCustomerFormMaster.dsrs, currentDsr, 'Pilih DSR')}
                             </select>
                         </div>` : ''}
 
@@ -6059,9 +6029,9 @@ if(tab==='riwayat')loadRiwayat();
 
             const idxDayVisit = _customerFieldIndexClient(headers, ['DAY VISIT']);
             const idxOutlet = _customerFieldIndexClient(headers, ['OUTLET', 'NAMA OUTLET']);
+            const idxDsr = _customerFieldIndexClient(headers, ['DSR', 'SALES', 'NAMA SALES']);
             const idxCust = _customerFieldIndexClient(headers, ['CUST.CODE', 'CUST CODE', 'CUSTCODE', 'CUSTOMER CODE']);
             const idxChannel = _customerFieldIndexClient(headers, ['CHANNEL', 'CHANNEL OUTLET']);
-            const idxDsr = _customerFieldIndexClient(headers, ['DSR', 'SALES', 'NAMA SALES']);
             const idxTanggalInput = _customerFieldIndexClient(headers, ['TANGGAL INPUT OUTLET', 'TANGGAL INPUT', 'DATE INPUT OUTLET', 'DATE INPUT']);
             const idxPhone = _customerFieldIndexClient(headers, ['NOMOR HANDPHONE', 'NO HANDPHONE', 'NO. HANDPHONE', 'NO HP', 'NO. HP', 'HANDPHONE', 'PHONE', 'TELEPON', 'TELP']);
             const idxMaps = _customerFieldIndexClient(headers, ['MAPS', 'GOOGLE MAPS', 'LOCATION', 'LOKASI', 'KOORDINAT']);
@@ -6074,7 +6044,7 @@ if(tab==='riwayat')loadRiwayat();
             });
 
             if (idxOutlet >= 0) values[idxOutlet] = String(values[idxOutlet] || '').trim().toUpperCase();
-            if (idxCust >= 0 && rowNumber < 2 && !String(values[idxCust] || '').trim()) values[idxCust] = globalTambahCustomerFormMaster.newCustCode || '';
+            if (idxCust >= 0 && rowNumber < 2) values[idxCust] = '';
 
             const btn = document.getElementById('modalOkBtn');
             if (btn) {
@@ -6240,28 +6210,5 @@ if(tab==='riwayat')loadRiwayat();
     top:58px!important;
     z-index:900!important;
   }
-}
-</style>
-<style id="pencapaian-sales-professional-fix">
-#tabPencapaian #pencapaianSalesList>div{border-radius:18px!important;border-color:#dbe7e0!important;background:linear-gradient(180deg,#ffffff 0%,#f8fbf9 100%)!important;box-shadow:0 6px 20px rgba(15,23,42,.06)!important}
-#tabPencapaian #pencapaianSalesList>div>div:first-child{padding:10px 12px!important;border-bottom:1px solid #e7eee9!important}
-#tabPencapaian #pencapaianSalesList .cursor-pointer{border-radius:15px!important;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease!important}
-#tabPencapaian #pencapaianSalesList .cursor-pointer:hover{transform:translateY(-1px)!important;box-shadow:0 8px 18px rgba(15,23,42,.07)!important}
-#tabPencapaian #pencapaianSalesList .cursor-pointer:focus-visible{outline:2px solid #10b981!important;outline-offset:2px}
-</style>
-
-<style id="mobile-outlet-kontrak-touch-scroll-fix">
-@media (max-width:767px){
-  #tabOutletKontrak .bg-white.border.rounded-xl.shadow-sm>div{touch-action:pan-x pan-y!important;overflow-x:auto!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior:auto!important;scrollbar-gutter:stable!important;max-height:var(--table-max-height)!important;position:relative!important}
-  #tabOutletKontrak .bg-white.border.rounded-xl.shadow-sm>div table{touch-action:pan-x pan-y!important}
-}
-</style>
-
-<style id="mobile-kontrak-scroll-fix-v2">
-@media (max-width:767px){
- #tabOutletKontrak{overflow:visible!important;min-height:0!important;}
- #tabOutletKontrak .bg-white.border.rounded-xl.shadow-sm{overflow:visible!important;}
- #tabOutletKontrak .bg-white.border.rounded-xl.shadow-sm > div{overflow-x:auto!important;overflow-y:visible!important;max-height:none!important;height:auto!important;-webkit-overflow-scrolling:touch!important;touch-action:pan-x pan-y!important;}
- #tabOutletKontrak table{min-width:900px;}
 }
 </style>
