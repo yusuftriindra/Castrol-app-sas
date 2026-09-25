@@ -5594,14 +5594,39 @@ if(tab==='riwayat')loadRiwayat();
                     showModal('Gagal', res && res.message ? res.message : 'Master form customer gagal dimuat.');
                     return;
                 }
+                // Master form SELALU dibentuk dari data sheet OUTLET yang baru dimuat.
+                const outletRows = Array.isArray(globalTambahCustomerData.rows) ? globalTambahCustomerData.rows : [];
+                const outletHeaders = Array.isArray(globalTambahCustomerData.headers) ? globalTambahCustomerData.headers : (Array.isArray(res.headers) ? res.headers : []);
+                const idxDay = _customerFieldIndexClient(outletHeaders, ['DAY VISIT', 'DAYVISIT', 'HARI KUNJUNGAN', 'HARI VISIT']);
+                const idxChannelMaster = _customerFieldIndexClient(outletHeaders, ['CHANNEL', 'CHANNEL OUTLET', 'CHANNEL OUTLET CUSTOMER']);
+                const idxDsrMaster = _customerFieldIndexClient(outletHeaders, ['DSR', 'SALES', 'NAMA SALES']);
+                const addUnique = function(target, seen, value) {
+                    const v = String(value == null ? '' : value).trim();
+                    const k = v.toUpperCase();
+                    if (v && !seen[k]) { seen[k] = true; target.push(v); }
+                };
+                const dayVisits = [], channels = [], dsrs = [], seenDay = {}, seenChannel = {}, seenDsr = {};
+                outletRows.forEach(function(row) {
+                    const vals = Array.isArray(row.values) ? row.values : [];
+                    if (idxDay >= 0) addUnique(dayVisits, seenDay, vals[idxDay]);
+                    if (idxChannelMaster >= 0) addUnique(channels, seenChannel, vals[idxChannelMaster]);
+                    if (idxDsrMaster >= 0) addUnique(dsrs, seenDsr, vals[idxDsrMaster]);
+                });
+                if (!res.isAdmin) {
+                    const loginSales = String(currentUser || '').trim().toUpperCase();
+                    for (let i = dsrs.length - 1; i >= 0; i--) {
+                        if (String(dsrs[i]).trim().toUpperCase() !== loginSales) dsrs.splice(i, 1);
+                    }
+                }
+                dayVisits.sort(); channels.sort(); dsrs.sort();
                 globalTambahCustomerFormMaster = {
-                    headers: Array.isArray(res.headers) ? res.headers : [],
-                    dayVisits: Array.isArray(res.dayVisits) ? res.dayVisits : [],
-                    channels: Array.isArray(res.channels) ? res.channels : [],
-                    outlets: Array.isArray(res.outlets) ? res.outlets : [],
-                    dsrs: Array.isArray(res.dsrs) ? res.dsrs : [],
+                    headers: outletHeaders,
+                    dayVisits: dayVisits.length ? dayVisits : (Array.isArray(res.dayVisits) ? res.dayVisits : []),
+                    channels: channels.length ? channels : (Array.isArray(res.channels) ? res.channels : []),
+                    outlets: [],
+                    dsrs: dsrs.length ? dsrs : (Array.isArray(res.dsrs) ? res.dsrs : []),
                     today: String(res.today || ''),
-                    salesName: String(res.salesName || ''),
+                    salesName: String(res.salesName || currentUser || ''),
                     isAdmin: !!res.isAdmin,
                     newCustCode: String(res.newCustCode || '')
                 };
@@ -5938,9 +5963,7 @@ if(tab==='riwayat')loadRiwayat();
 
                         <div>
                             <label class="block text-[9px] font-extrabold uppercase tracking-wider text-slate-500 mb-1">OUTLET</label>
-                            <select id="tambahCustomerField_${idxOutlet}" class="w-full min-h-[40px] border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white uppercase focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                                ${_renderCustomerSelectOptions(_customerEnsureOption(globalTambahCustomerFormMaster.outlets, currentOutlet), currentOutlet, 'Pilih Outlet')}
-                            </select>
+                            <input id="tambahCustomerField_${idxOutlet}" type="text" value="${_customerEscape(currentOutlet.toUpperCase())}" oninput="this.value=this.value.toUpperCase()" placeholder="Ketik nama outlet" class="w-full min-h-[40px] border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white uppercase focus:outline-none focus:ring-2 focus:ring-emerald-500" autocomplete="organization" />
                         </div>
 
                         <div>
@@ -6043,7 +6066,7 @@ if(tab==='riwayat')loadRiwayat();
             const idxPhone = _customerFieldIndexClient(headers, ['NOMOR HANDPHONE', 'NO HANDPHONE', 'NO. HANDPHONE', 'NO HP', 'NO. HP', 'HANDPHONE', 'PHONE', 'TELEPON', 'TELP']);
             const idxMaps = _customerFieldIndexClient(headers, ['MAPS', 'GOOGLE MAPS', 'LOCATION', 'LOKASI', 'KOORDINAT']);
 
-            [idxDayVisit, idxOutlet, idxCust, idxChannel, idxDsr, idxTanggalInput, idxPhone, idxMaps].forEach(function(idx) {
+            [idxDayVisit, idxOutlet, idxDsr, idxCust, idxChannel, idxTanggalInput, idxPhone, idxMaps].forEach(function(idx) {
                 if (idx >= 0) {
                     const el = document.getElementById('tambahCustomerField_' + idx);
                     if (el) values[idx] = el.value;
@@ -6051,7 +6074,7 @@ if(tab==='riwayat')loadRiwayat();
             });
 
             if (idxOutlet >= 0) values[idxOutlet] = String(values[idxOutlet] || '').trim().toUpperCase();
-            if (idxCust >= 0 && rowNumber < 2) values[idxCust] = '';
+            if (idxCust >= 0 && rowNumber < 2 && !String(values[idxCust] || '').trim()) values[idxCust] = globalTambahCustomerFormMaster.newCustCode || '';
 
             const btn = document.getElementById('modalOkBtn');
             if (btn) {
