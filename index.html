@@ -9,6 +9,24 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <style>
+/* Peringatan perubahan ORDERS ditampilkan sebagai kolom khusus di dalam tabel Pesanan Outlet. */
+#pesananOutletTable th:first-child,
+#pesananOutletTable td:first-child{
+  min-width:115px;
+}
+#pesananOutletTable .pesanan-order-change-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  padding:4px 7px;
+  border-radius:7px;
+  font-size:8px;
+  font-weight:800;
+  line-height:1.1;
+  white-space:nowrap;
+}
+
         .select2-container .select2-selection--single {
             height: 38px !important;
             padding: 4px 8px !important;
@@ -560,7 +578,7 @@
 #tabPricelist table{min-width:0!important;width:100%;table-layout:fixed}
 #tabPricelist table th:first-child,#tabPricelist table td:first-child{width:68%}
 #tabPricelist table th:last-child,#tabPricelist table td:last-child{width:32%}
-@media(max-width:640px){#tabPricelist table{font-size:11px!important}#tabPricelist table th,#tabPricelist table td{padding:9px 7px!important}#tabPesananOutlet table{min-width:760px}}
+@media(max-width:640px){#tabPricelist table{font-size:11px!important}#tabPricelist table th,#tabPricelist table td{padding:9px 7px!important}#tabPesananOutlet table{min-width:875px}}
 </style>
 
 <style>
@@ -4933,12 +4951,15 @@ startAutoRefresh();
                     const rowId=idIdx>=0?String(row[idIdx]==null?'':row[idIdx]).trim():'';
                     const change=globalPesananOutletOrdersChangesById && rowId ? globalPesananOutletOrdersChangesById[rowId] : null;
                     const changeLabel=change ? (change.type==='DITAMBAH'?'DITAMBAH':(change.type==='DIHAPUS'?'DIHAPUS':'DIUBAH')) : '';
-                    const changeBadge=change ? '<span class="inline-flex items-center gap-1 ml-1 px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200 text-[8px] font-extrabold whitespace-nowrap" title="Ada '+changeLabel.toLowerCase()+' pada sheet ORDERS untuk ID INPUT '+escapeHtml(rowId)+'">⚠ '+changeLabel+'</span>' : '';
+                    const changeBadge=change ? '<span class="pesanan-order-change-badge bg-amber-50 text-amber-700 border border-amber-200" title="Ada '+changeLabel.toLowerCase()+' pada sheet ORDERS untuk ID INPUT '+escapeHtml(rowId)+'">⚠ '+changeLabel+'</span>' : '';
                     const rowClass=change ? 'border-b border-amber-200 bg-amber-50/30 hover:bg-amber-50/60' : 'border-b border-slate-200 hover:bg-emerald-50/50';
                     return '<tr onclick="lihatDetailPesananOutlet('+rowIndex+')" class="'+rowClass+' cursor-pointer transition" title="Klik untuk melihat detail order">'+
                         globalPesananOutletDisplayCols.map(function(c){
+                            if(c.warning){
+                                return '<td class="p-2.5 align-top whitespace-nowrap text-center">'+(changeBadge || '<span class="text-slate-300">—</span>')+'</td>';
+                            }
                             const value=escapeHtml(c.idx>=0 && row[c.idx]!=null?row[c.idx]:'');
-                            return '<td class="p-2.5 align-top '+(c.wrap?'whitespace-normal min-w-[180px] max-w-[320px] break-words':'whitespace-nowrap')+'">'+value+(c.label==='OUTLET'?changeBadge:'')+'</td>';
+                            return '<td class="p-2.5 align-top '+(c.wrap?'whitespace-normal min-w-[180px] max-w-[320px] break-words':'whitespace-nowrap')+'">'+value+'</td>';
                         }).join('')+
                         '</tr>';
                 }).join('');
@@ -4977,6 +4998,7 @@ startAutoRefresh();
             const idxStatus=findTableIdx(['STATUS APPROVE']);
             const idxNote=findTableIdx(['NOTE ORDER','NOTE','CATATAN']);
             const displayCols=[
+                {label:'PERINGATAN',idx:-1,warning:true},
                 {label:'OUTLET',idx:idxOutlet},
                 {label:'DATE',idx:idxDate},
                 {label:'DSR',idx:idxDsr},
@@ -4987,9 +5009,9 @@ startAutoRefresh();
             globalPesananOutletDisplayCols=displayCols;
             head.innerHTML='<tr class="bg-slate-100 text-slate-700 border-b border-slate-200">'+displayCols.map(function(c){return '<th class="p-2.5 font-bold whitespace-nowrap">'+c.label+'</th>';}).join('')+'</tr>';
             const changeLegend=document.getElementById('pesananOutletChangeLegend');
-            if(changeLegend){changeLegend.innerHTML='<span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-50 text-amber-700 border border-amber-200 text-[9px] font-extrabold">⚠ ORDERS BERUBAH</span><span class="text-[9px] text-slate-400">Ada penambahan, perubahan, atau penghapusan pada sheet ORDERS sesuai ID INPUT.</span>';}
+            if(changeLegend) changeLegend.innerHTML='';
             populatePesananOutletStatusFilter();
-            if(!rows.length){body.innerHTML='<tr><td colspan="6" class="text-slate-400 text-center py-6">Belum ada data Pesanan dari Outlet anda.</td></tr>';const countEl=document.getElementById('pesananOutletFilterCount');if(countEl)countEl.textContent='0 pesanan';return;}
+            if(!rows.length){body.innerHTML='<tr><td colspan="'+globalPesananOutletDisplayCols.length+'" class="text-slate-400 text-center py-6">Belum ada data Pesanan dari Outlet anda.</td></tr>';const countEl=document.getElementById('pesananOutletFilterCount');if(countEl)countEl.textContent='0 pesanan';return;}
             filterPesananOutlet();
         }
 
