@@ -5261,6 +5261,12 @@ startAutoRefresh();
                 '<div class="text-[9px] text-slate-400">Sesuaikan Cashbacknya Dengan pencapaian Outlet. Ojok Ngawur !!</div>';
             modal.style.display='flex';
             modalCallback=function(isOk){
+                // Cegah tombol Lanjut Respon dipanggil dua kali pada order yang sama.
+                // Pengaman utama tetap berada di backend; ini hanya mencegah double-click
+                // sebelum request pertama selesai.
+                if(isOk && sourceBtn && sourceBtn.dataset && sourceBtn.dataset.responSubmitting==='1'){
+                    return;
+                }
                 if(!isOk){
                     // Kembalikan tampilan detail order.
                     modalCallback=null;
@@ -5283,6 +5289,7 @@ startAutoRefresh();
                         return;
                     }
                 }
+                if(sourceBtn && sourceBtn.dataset) sourceBtn.dataset.responSubmitting='1';
                 if(sourceBtn){sourceBtn.disabled=true;sourceBtn.innerHTML='⏳ Memproses...';}
                 showLoading(true);
                 google.script.run.withSuccessHandler(function(saveRes){
@@ -5293,12 +5300,12 @@ startAutoRefresh();
                         try{sessionStorage.removeItem('pesananOutletCache');}catch(e){}
                         loadPesananOutlet(true);
                     }else{
-                        if(sourceBtn){sourceBtn.disabled=false;sourceBtn.innerHTML='↩ Respon';}
+                        if(sourceBtn){if(sourceBtn.dataset)delete sourceBtn.dataset.responSubmitting;sourceBtn.disabled=false;sourceBtn.innerHTML='↩ Respon';}
                         showModal('Gagal',saveRes&&saveRes.message?saveRes.message:'Gagal memproses respon order.');
                     }
                 }).withFailureHandler(function(err){
                     showLoading(false);
-                    if(sourceBtn){sourceBtn.disabled=false;sourceBtn.innerHTML='↩ Respon';}
+                    if(sourceBtn){if(sourceBtn.dataset)delete sourceBtn.dataset.responSubmitting;sourceBtn.disabled=false;sourceBtn.innerHTML='↩ Respon';}
                     showModal('Error Sistem',err&&err.message?err.message:'Gagal memproses respon order.');
                 }).responPesananOutlet(headers,row,dh,dr,'',cashback,discountNum);
             };
