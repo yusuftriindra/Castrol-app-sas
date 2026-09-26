@@ -1999,6 +1999,7 @@ html,body{height:100%;}
                             </div>
                         </div>
                         <div id="pesananOutletFilterCount" class="mt-2 text-[9px] text-slate-400 text-right"></div>
+                        <div id="pesananOutletChangeLegend" class="mt-2 flex flex-wrap items-center justify-end gap-2 px-1"></div>
                     </div>
 
                     <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden"><div id="pesananOutletTableWrap" class="overflow-x-auto"><table id="pesananOutletTable" class="w-full text-left border-collapse text-[10px]"><thead id="pesananOutletTableHead"></thead><tbody id="pesananOutletTableBody"><tr><td class="text-slate-400 text-center py-6">Klik menu Pesanan Outlet untuk memuat data.</td></tr></tbody></table></div></div>
@@ -4863,6 +4864,7 @@ startAutoRefresh();
         let globalPesananOutletRows = [];
         let globalPesananOutletOrdersHeaders = [];
         let globalPesananOutletDetailRowsById = {};
+        let globalPesananOutletOrdersChangesById = {};
         let globalPesananOutletDisplayCols = [];
 
         function normalizePesananOutletDate(value) {
@@ -4924,8 +4926,20 @@ startAutoRefresh();
             }else{
                 body.innerHTML=filtered.map(function(item){
                     const row=item.row,rowIndex=item.rowIndex;
-                    return '<tr onclick="lihatDetailPesananOutlet('+rowIndex+')" class="border-b border-slate-200 hover:bg-emerald-50/50 cursor-pointer transition" title="Klik untuk melihat detail order">'+
-                        globalPesananOutletDisplayCols.map(function(c){return '<td class="p-2.5 align-top '+(c.wrap?'whitespace-normal min-w-[180px] max-w-[320px] break-words':'whitespace-nowrap')+'">'+escapeHtml(c.idx>=0 && row[c.idx]!=null?row[c.idx]:'')+'</td>';}).join('')+
+                    const idIdx=globalPesananOutletHeaders.findIndex(function(h){
+                        const n=String(h==null?'':h).trim().toUpperCase().replace(/[.\/_-]+/g,' ').replace(/\s+/g,' ');
+                        return n==='ID INPUT' || n==='INPUT ID' || n==='NO INPUT';
+                    });
+                    const rowId=idIdx>=0?String(row[idIdx]==null?'':row[idIdx]).trim():'';
+                    const change=globalPesananOutletOrdersChangesById && rowId ? globalPesananOutletOrdersChangesById[rowId] : null;
+                    const changeLabel=change ? (change.type==='DITAMBAH'?'DITAMBAH':(change.type==='DIHAPUS'?'DIHAPUS':'DIUBAH')) : '';
+                    const changeBadge=change ? '<span class="inline-flex items-center gap-1 ml-1 px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200 text-[8px] font-extrabold whitespace-nowrap" title="Ada '+changeLabel.toLowerCase()+' pada sheet ORDERS untuk ID INPUT '+escapeHtml(rowId)+'">⚠ '+changeLabel+'</span>' : '';
+                    const rowClass=change ? 'border-b border-amber-200 bg-amber-50/30 hover:bg-amber-50/60' : 'border-b border-slate-200 hover:bg-emerald-50/50';
+                    return '<tr onclick="lihatDetailPesananOutlet('+rowIndex+')" class="'+rowClass+' cursor-pointer transition" title="Klik untuk melihat detail order">'+
+                        globalPesananOutletDisplayCols.map(function(c){
+                            const value=escapeHtml(c.idx>=0 && row[c.idx]!=null?row[c.idx]:'');
+                            return '<td class="p-2.5 align-top '+(c.wrap?'whitespace-normal min-w-[180px] max-w-[320px] break-words':'whitespace-nowrap')+'">'+value+(c.label==='OUTLET'?changeBadge:'')+'</td>';
+                        }).join('')+
                         '</tr>';
                 }).join('');
             }
@@ -4958,6 +4972,7 @@ startAutoRefresh();
             globalPesananOutletRows=rows;
             globalPesananOutletOrdersHeaders=Array.isArray(res.ordersHeaders)?res.ordersHeaders:[];
             globalPesananOutletDetailRowsById=(res&&res.detailRowsById&&typeof res.detailRowsById==='object')?res.detailRowsById:{};
+            globalPesananOutletOrdersChangesById=(res&&res.ordersChangesById&&typeof res.ordersChangesById==='object')?res.ordersChangesById:{};
             const idxPayment=findTableIdx(['PAYMENT','PEMBAYARAN']);
             const idxStatus=findTableIdx(['STATUS APPROVE']);
             const idxNote=findTableIdx(['NOTE ORDER','NOTE','CATATAN']);
@@ -4971,6 +4986,8 @@ startAutoRefresh();
             ];
             globalPesananOutletDisplayCols=displayCols;
             head.innerHTML='<tr class="bg-slate-100 text-slate-700 border-b border-slate-200">'+displayCols.map(function(c){return '<th class="p-2.5 font-bold whitespace-nowrap">'+c.label+'</th>';}).join('')+'</tr>';
+            const changeLegend=document.getElementById('pesananOutletChangeLegend');
+            if(changeLegend){changeLegend.innerHTML='<span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-50 text-amber-700 border border-amber-200 text-[9px] font-extrabold">⚠ ORDERS BERUBAH</span><span class="text-[9px] text-slate-400">Ada penambahan, perubahan, atau penghapusan pada sheet ORDERS sesuai ID INPUT.</span>';}
             populatePesananOutletStatusFilter();
             if(!rows.length){body.innerHTML='<tr><td colspan="6" class="text-slate-400 text-center py-6">Belum ada data Pesanan dari Outlet anda.</td></tr>';const countEl=document.getElementById('pesananOutletFilterCount');if(countEl)countEl.textContent='0 pesanan';return;}
             filterPesananOutlet();
@@ -5037,6 +5054,16 @@ startAutoRefresh();
             // "Memuat item order..." dan tanpa request tambahan.
             const idInputIdx=findRowIdx(['ID INPUT','INPUT ID','NO INPUT']);
             const detailId=idInputIdx>=0?String(row[idInputIdx]==null?'':row[idInputIdx]).trim():'';
+            if(detailId && globalPesananOutletOrdersChangesById && globalPesananOutletOrdersChangesById[detailId]){
+                google.script.run.withSuccessHandler(function(markRes){
+                    if(markRes && markRes.success){
+                        delete globalPesananOutletOrdersChangesById[detailId];
+                        filterPesananOutlet();
+                    }
+                }).withFailureHandler(function(err){
+                    console.warn('Status perubahan ORDERS belum ditandai sebagai sudah dilihat:',err);
+                }).markPesananOutletOrderSeen(detailId,currentUser||'',currentUsernameInput||'');
+            }
             const dh=globalPesananOutletOrdersHeaders||[];
             const dr=Array.isArray(globalPesananOutletDetailRowsById[detailId])?globalPesananOutletDetailRowsById[detailId]:[];
             const nilaiOrderIdx=(function(){
