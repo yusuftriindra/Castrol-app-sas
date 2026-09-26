@@ -2155,6 +2155,7 @@ html,body{height:100%;}
         let rawMonitoringDataObject = {};
         let editingOrderId = "";
         let editOrderItems = [];
+        let editingOrderData = null;
         let globalOutletKontrakData = [];
         let riwayatLoading = false;
         let riwayatPage = 1;
@@ -3433,55 +3434,83 @@ startAutoRefresh();
         function editRiwayat(idInput){
             editingOrderId=String(idInput||'').trim();
             if(!editingOrderId||editingOrderId==='-')return;
+            const cached=(globalRiwayatData||[]).find(function(item){return String(item.id||'').trim()===editingOrderId;});
+            if(!cached)return;
+            editingOrderData=cached;
             document.getElementById('modalTitle').textContent='EDIT ORDER';
             document.getElementById('modalSubtitle').textContent='ID INPUT: '+editingOrderId;
-            document.getElementById('modalBody').innerHTML='<div class="text-center text-xs text-slate-500 py-8">Memuat data order...</div>';
             document.getElementById('modalCancelBtn').style.display='inline-block';
             document.getElementById('modalOkBtn').textContent='Simpan Perubahan';
             document.getElementById('customModal').style.display='flex';
             modalCallback=function(ok){if(ok)simpanEditOrder();};
-
-            google.script.run
-                .withSuccessHandler(function(res){
-                    if(!res||!res.success){
-                        document.getElementById('modalOkBtn').textContent='OK';
-                        showModal('Gagal',res&&res.message?res.message:'Order tidak dapat dimuat.');
-                        return;
-                    }
-                    editOrderItems=res.order.products||[];
-
-                    // V6: pastikan master PRODUK tersedia sebelum membuat <select> edit.
-                    // Pada Admin, produk tidak dimuat saat login demi performa, sehingga
-                    // produkDataList bisa kosong dan semua produk akan dianggap tidak valid.
-                    if(Array.isArray(produkDataList) && produkDataList.length>0){
-                        renderEditOrderForm(res.order);
-                        return;
-                    }
-
-                    google.script.run
-                        .withSuccessHandler(function(list){
-                            produkDataList=Array.isArray(list)?list:[];
-                            renderEditOrderForm(res.order);
-                        })
-                        .withFailureHandler(function(err){
-                            document.getElementById('modalOkBtn').textContent='OK';
-                            document.getElementById('modalBody').innerHTML='<div class="text-center text-xs text-red-500 py-8">Gagal memuat master produk: '+escapeHtml(err&&err.message?err.message:'Terjadi kesalahan.')+'</div>';
-                        })
-                        .getListProduk();
-                })
-                .withFailureHandler(function(err){
-                    document.getElementById('modalOkBtn').textContent='OK';
-                    showModal('Gagal',err&&err.message?err.message:'Gagal memuat order.');
-                })
-                .getEditableOrderById(editingOrderId,currentUser,currentUsernameInput);
+            editOrderItems=(Array.isArray(cached.products)?cached.products:[]).map(function(raw){
+                var text=String(raw==null?'':raw).trim();
+                var m=text.match(/^(.*?)(?:\s+-\s*)([0-9]+(?:[.,][0-9]+)?)\s*(PCS|Pcs|DUS|Dus|UNIT|Unit)$/i);
+                if(m)return {produk:String(m[1]||'').trim(),qty:Number(String(m[2]).replace(',','.'))||1,satuan:String(m[3]||'Pcs').trim()};
+                return {produk:text,qty:1,satuan:'Pcs'};
+            }).filter(function(x){return x.produk;});
+            renderEditOrderForm(cached);
         }
         function getEditOutletOptions(selected){let html='<option value="">-- Pilih Outlet --</option>',seen={};(outletDataList||[]).forEach(function(o){let n=String(o.outlet||'').trim();if(n&&!seen[n]){seen[n]=1;html+='<option value="'+escapeHtml(n)+'" '+(n===String(selected||'')?'selected':'')+'>'+escapeHtml(n)+'</option>';}});if(selected&&!seen[String(selected)])html='<option value="'+escapeHtml(selected)+'" selected>'+escapeHtml(selected)+'</option>'+html.slice(html.indexOf('</option>')+9);return html;}
         function getEditProductOptions(selected,selectedKode){let html='<option value="">-- Pilih Produk --</option>';let selectedText=String(selected||'').trim();let selectedCode=String(selectedKode||'').trim();let found=false;(produkDataList||[]).forEach(function(p){let n=String(p.nama||'').trim();if(!n)return;let kode=String(p.kode||'').trim();let isSelected=(selectedText&&n===selectedText)||(selectedCode&&kode===selectedCode);if(isSelected)found=true;html+='<option value="'+escapeHtml(n)+'" '+(isSelected?'selected':'')+'>'+escapeHtml(n)+' ('+Number(p.liter||0)+'L | Rp '+Number(p.harga||0).toLocaleString('id-ID')+')</option>';});if(selectedText&&!found){html+='<option value="'+escapeHtml(selectedText)+'" selected>'+escapeHtml(selectedText)+' (Produk saat ini)</option>';}return html;}
         function renderEditOrderProducts(){let b=document.getElementById('editProducts');if(!b)return;if(!editOrderItems.length){b.innerHTML='<div class="text-xs text-slate-400 text-center py-3">Belum ada produk.</div>';return;}b.innerHTML=editOrderItems.map(function(it,i){return '<div class="border border-slate-200 rounded-lg p-2 mb-2 bg-slate-50"><div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center"><select id="editProd'+i+'" class="sm:col-span-7 w-full border rounded p-2 bg-white text-xs">'+getEditProductOptions(it.produk,it.kode)+'</select><input id="editQty'+i+'" type="number" min="1" value="'+Number(it.qty||1)+'" class="sm:col-span-2 w-full border rounded p-2 text-xs"><select id="editUnit'+i+'" class="sm:col-span-2 w-full border rounded p-2 bg-white text-xs"><option value="Pcs" '+(String(it.satuan).toUpperCase()==='PCS'?'selected':'')+'>Pcs</option><option value="Dus" '+(String(it.satuan).toUpperCase()==='DUS'?'selected':'')+'>Dus</option></select><button type="button" onclick="removeEditProduct('+i+')" class="sm:col-span-1 text-red-600 bg-red-50 border border-red-200 rounded p-2">✕</button></div></div>';}).join('');}
-        function addEditProduct(){editOrderItems.push({produk:'',qty:1,satuan:'Pcs'});renderEditOrderProducts();}
+        function addEditProduct(){
+            if(Array.isArray(produkDataList)&&produkDataList.length){editOrderItems.push({produk:'',qty:1,satuan:'Pcs'});renderEditOrderProducts();return;}
+            google.script.run.withSuccessHandler(function(list){
+                produkDataList=Array.isArray(list)?list:[];
+                editOrderItems.push({produk:'',qty:1,satuan:'Pcs'});
+                renderEditOrderProducts();
+            }).withFailureHandler(function(){
+                showModal('Gagal','Master produk tidak dapat dimuat.');
+            }).getListProduk();
+        }
         function removeEditProduct(i){editOrderItems.splice(i,1);renderEditOrderProducts();}
-        function renderEditOrderForm(o){let cb=document.getElementById('cashbackSelect'),opts='<option value="">-- Pilih Cashback --</option>';if(cb)Array.from(cb.options).forEach(function(x){if(x.value)opts+='<option value="'+escapeHtml(x.value)+'" '+(x.value===String(o.cashback||'')?'selected':'')+'>'+escapeHtml(x.textContent)+'</option>';});document.getElementById('modalBody').innerHTML='<div class="space-y-3 text-xs"><div class="grid grid-cols-1 sm:grid-cols-2 gap-2"><label class="font-semibold">Outlet<select id="editOutlet" class="w-full border rounded p-2 bg-white mt-1">'+getEditOutletOptions(o.outlet)+'</select></label><label class="font-semibold">Tanggal<input id="editTanggal" type="date" value="'+escapeHtml(o.tanggal||'')+'" class="w-full border rounded p-2 mt-1"></label><label class="font-semibold">Payment<input id="editPayment" value="'+escapeHtml(o.payment||'')+'" class="w-full border rounded p-2 mt-1"></label><label class="font-semibold">Disc<input id="editDisc" value="'+escapeHtml(o.disc||'')+'" class="w-full border rounded p-2 mt-1"></label><label class="font-semibold">Cust.Code<input id="editCustCode" value="'+escapeHtml(o.custCode||'')+'" class="w-full border rounded p-2 mt-1"></label><label class="font-semibold">Channel<input id="editChannel" value="'+escapeHtml(o.channel||'')+'" class="w-full border rounded p-2 mt-1"></label><label class="font-semibold sm:col-span-2">Cashback<select id="editCashback" class="w-full border rounded p-2 bg-white mt-1">'+opts+'</select></label><label class="font-semibold sm:col-span-2">Note Order<textarea id="editNote" rows="2" class="w-full border rounded p-2 mt-1">'+escapeHtml(o.note||'')+'</textarea></label></div><div class="border-t pt-3"><div class="flex justify-between items-center mb-2"><b>Produk</b><button type="button" onclick="addEditProduct()" class="bg-emerald-600 text-white rounded px-3 py-1.5 text-[10px] font-bold">+ Tambah Produk</button></div><div id="editProducts"></div></div></div>';renderEditOrderProducts();}
-        function simpanEditOrder(){if(!editingOrderId)return;let items=[];for(let i=0;i<editOrderItems.length;i++){let p=document.getElementById('editProd'+i),q=document.getElementById('editQty'+i),u=document.getElementById('editUnit'+i);if(!p||!p.value||!q||Number(q.value)<=0){showModal('Peringatan','Produk dan Qty harus diisi dengan benar.');return;}var originalName=editOrderItems[i]&&editOrderItems[i].produk?String(editOrderItems[i].produk).trim():'';var originalCode=editOrderItems[i]&&editOrderItems[i].kode?String(editOrderItems[i].kode).trim():'';var selectedObj=(produkDataList||[]).find(function(x){return String(x.nama||'').trim()===String(p.value||'').trim();})||{};var selectedCode=String(selectedObj.kode||'').trim();var codeToSend=selectedCode||originalCode;items.push({produk:p.value,kode:codeToSend,originalProduk:originalName,originalKode:originalCode,qty:Number(q.value),satuan:u?u.value:'Pcs',harga:Number(selectedObj.harga)||0,liter:Number(selectedObj.liter)||1,pack:Number(selectedObj.pack)||1});}if(!items.length){showModal('Peringatan','Minimal harus ada 1 produk.');return;}showLoading(true);document.getElementById('customModal').style.display='none';let payload={outlet:document.getElementById('editOutlet').value,tanggal:document.getElementById('editTanggal').value,payment:document.getElementById('editPayment').value,disc:document.getElementById('editDisc').value,custCode:document.getElementById('editCustCode').value,channel:document.getElementById('editChannel').value,note:document.getElementById('editNote').value,cashback:document.getElementById('editCashback').value,items:items};google.script.run.withSuccessHandler(function(res){showLoading(false);showModal(res&&res.success?'Berhasil':'Gagal',res&&res.message?res.message:'Tidak ada respons.');if(res&&res.success){editingOrderId='';editOrderItems=[];loadRiwayat(true, true);}}).withFailureHandler(function(err){showLoading(false);showModal('Gagal',err&&err.message?err.message:'Gagal menyimpan perubahan.');}).updateOrderById(editingOrderId,payload,currentUser,currentUsernameInput);}
+        function renderEditOrderForm(o){
+            var discValue = o && o.disc != null ? String(o.disc) : '0%';
+            if(!/%$/.test(discValue.trim()) && discValue.trim() !== '') discValue += '%';
+            var cashbackValue = o && o.cashback != null ? String(o.cashback).trim() : '';
+            var cashbackOptions = '<option value="">-- Pilih Cashback --</option>';
+            var sourceCashback = document.getElementById('cashbackSelect');
+            if(sourceCashback && sourceCashback.options && sourceCashback.options.length){
+                cashbackOptions = Array.from(sourceCashback.options).map(function(opt){
+                    var val=String(opt.value||'');
+                    var text=String(opt.textContent||opt.text||val);
+                    return '<option value="'+escapeHtml(val)+'" '+(val===cashbackValue?'selected':'')+'>'+escapeHtml(text)+'</option>';
+                }).join('');
+            }
+            if(cashbackValue && cashbackOptions.indexOf('value="'+escapeHtml(cashbackValue)+'"')===-1){
+                cashbackOptions += '<option value="'+escapeHtml(cashbackValue)+'" selected>'+escapeHtml(cashbackValue)+'</option>';
+            }
+            document.getElementById('modalBody').innerHTML='<div class="space-y-3 text-xs">'+
+                '<div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">'+
+                    '<div><label class="block text-[10px] font-bold text-slate-600 mb-1">Disc</label><input type="text" id="editDisc" value="'+escapeHtml(discValue)+'" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 bg-white text-xs"></div>'+
+                    '<div><label class="block text-[10px] font-bold text-slate-600 mb-1">Cashback</label><select id="editCashback" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 bg-white text-xs">'+cashbackOptions+'</select></div>'+
+                '</div>'+
+                '<div class="border-t pt-3"><div class="flex justify-between items-center mb-2"><b>Produk</b><button type="button" onclick="addEditProduct()" class="bg-emerald-600 text-white rounded px-3 py-1.5 text-[10px] font-bold">+ Tambah Produk</button></div><div id="editProducts"></div></div></div>';
+            renderEditOrderProducts();
+        }
+        function simpanEditOrder(){
+            if(!editingOrderId||!editingOrderData)return;
+            let items=[];
+            for(let i=0;i<editOrderItems.length;i++){
+                let p=document.getElementById('editProd'+i),q=document.getElementById('editQty'+i),u=document.getElementById('editUnit'+i);
+                if(!p||!p.value||!q||Number(q.value)<=0){showModal('Peringatan','Produk dan Qty harus diisi dengan benar.');return;}
+                var originalName=editOrderItems[i]&&editOrderItems[i].produk?String(editOrderItems[i].produk).trim():'';
+                var originalCode=editOrderItems[i]&&editOrderItems[i].kode?String(editOrderItems[i].kode).trim():'';
+                var selectedObj=(produkDataList||[]).find(function(x){return String(x.nama||'').trim()===String(p.value||'').trim();})||{};
+                var selectedCode=String(selectedObj.kode||'').trim();
+                var codeToSend=selectedCode||originalCode;
+                items.push({produk:p.value,kode:codeToSend,originalProduk:originalName,originalKode:originalCode,qty:Number(q.value),satuan:u?u.value:'Pcs',harga:Number(selectedObj.harga)||0,liter:Number(selectedObj.liter)||1,pack:Number(selectedObj.pack)||1});
+            }
+            if(!items.length){showModal('Peringatan','Minimal harus ada 1 produk.');return;}
+            showLoading(true);
+            document.getElementById('customModal').style.display='none';
+            var o=editingOrderData;
+            var editDisc=document.getElementById('editDisc');
+            var editCashback=document.getElementById('editCashback');
+            let payload={outlet:o.outlet||'',tanggal:o.tanggal&&o.tanggal!=='-'?o.tanggal:'',payment:o.payment||'',disc:editDisc?editDisc.value:(o.disc||0),custCode:o.custCode||'',channel:o.channel||'',note:o.note||'',cashback:editCashback?editCashback.value:(o.cashback||''),items:items};
+            google.script.run.withSuccessHandler(function(res){showLoading(false);showModal(res&&res.success?'Berhasil':'Gagal',res&&res.message?res.message:'Tidak ada respons.');if(res&&res.success){editingOrderId='';editingOrderData=null;editOrderItems=[];loadRiwayat(true, true);}}).withFailureHandler(function(err){showLoading(false);showModal('Gagal',err&&err.message?err.message:'Gagal menyimpan perubahan.');}).updateOrderById(editingOrderId,payload,currentUser,currentUsernameInput);
+        }
 
         function updateSelectedRiwayatUI() {
             const count = Object.keys(selectedRiwayatIds).length;
