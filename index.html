@@ -3466,8 +3466,15 @@ startAutoRefresh();
         }
         function removeEditProduct(i){editOrderItems.splice(i,1);renderEditOrderProducts();}
         function renderEditOrderForm(o){
-            var discValue = o && o.disc != null ? String(o.disc) : '0%';
-            if(!/%$/.test(discValue.trim()) && discValue.trim() !== '') discValue += '%';
+            var discValue = o && o.disc != null ? String(o.disc).trim() : '0%';
+            // Nilai DISC dari sheet tersimpan sebagai desimal persen (2% = 0.02).
+            // Saat membuka Edit, tampilkan kembali sebagai angka persen yang diketik user.
+            if (discValue !== '' && !/%$/.test(discValue)) {
+                var discNum = Number(discValue.replace(',', '.'));
+                if (!isNaN(discNum) && Math.abs(discNum) <= 1) discNum = discNum * 100;
+                if (!isNaN(discNum)) discValue = String(discNum);
+                discValue += '%';
+            }
             var cashbackValue = o && o.cashback != null ? String(o.cashback).trim() : '';
             var cashbackOptions = '<option value="">-- Pilih Cashback --</option>';
             var sourceCashback = document.getElementById('cashbackSelect');
@@ -3508,7 +3515,8 @@ startAutoRefresh();
             var o=editingOrderData;
             var editDisc=document.getElementById('editDisc');
             var editCashback=document.getElementById('editCashback');
-            let payload={outlet:o.outlet||'',tanggal:o.tanggal&&o.tanggal!=='-'?o.tanggal:'',payment:o.payment||'',disc:editDisc?editDisc.value:(o.disc||0),custCode:o.custCode||'',channel:o.channel||'',note:o.note||'',cashback:editCashback?editCashback.value:(o.cashback||''),items:items};
+            // Hanya Disc, Cashback, dan Produk yang diedit. Kolom lain dipertahankan backend.
+            let payload={disc:editDisc?editDisc.value:(o.disc||0),cashback:editCashback?editCashback.value:(o.cashback||''),items:items};
             google.script.run.withSuccessHandler(function(res){showLoading(false);showModal(res&&res.success?'Berhasil':'Gagal',res&&res.message?res.message:'Tidak ada respons.');if(res&&res.success){editingOrderId='';editingOrderData=null;editOrderItems=[];loadRiwayat(true, true);}}).withFailureHandler(function(err){showLoading(false);showModal('Gagal',err&&err.message?err.message:'Gagal menyimpan perubahan.');}).updateOrderById(editingOrderId,payload,currentUser,currentUsernameInput);
         }
 
