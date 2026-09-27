@@ -2924,10 +2924,7 @@ startAutoRefresh();
 
             showModal(
     'Konfirmasi Status',
-    'Akan diproses ${changes.length} transaksi.'
-    'APPROVE : ${approve}'
-    'DECLINE : ${decline}'
-    'Lanjutkan?',
+    'Akan diproses ${changes.length} transaksi. APPROVE : ${approve} | DECLINE : ${decline}, Lanjutkan?',
                 true,
                 function(isOk) {
                     if (!isOk) return;
