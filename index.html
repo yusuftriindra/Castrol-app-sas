@@ -2188,6 +2188,7 @@ html,body{height:100%;}
         let monitoringLoading = false;
         let kontrakLoading = false;
         let pencapaianLoading = false;
+        let pencapaianRequestSeq = 0;
         let pencapaianCache = {};
         let globalOutletBWSData = { headers: [], rows: [] };
         let outletBWSLoading = false;
@@ -4720,7 +4721,10 @@ startAutoRefresh();
                 renderPencapaianSales(res.data || []);
                 return;
             }
-            if (pencapaianLoading) return;
+            // Setiap perubahan filter boleh langsung membuat request baru.
+            // Request lama tidak boleh menghalangi filter baru dan hasil lama
+            // akan diabaikan jika sudah ada request yang lebih baru.
+            const requestId = ++pencapaianRequestSeq;
             pencapaianLoading = true;
             // Saat auto refresh (silentRefresh=true), jangan tampilkan loading
             // atau mengosongkan tampilan yang sedang dilihat user. Data baru
@@ -4728,6 +4732,7 @@ startAutoRefresh();
             if (loading && !silentRefresh) loading.classList.remove('hidden');
             if (container && !silentRefresh) container.innerHTML = '';
             google.script.run.withSuccessHandler(function(res) {
+                if (requestId !== pencapaianRequestSeq) return;
                 pencapaianLoading = false;
                 pencapaianCache[cacheKey] = res || {};
                 const periods = Array.isArray(res && res.periods) ? res.periods : [];
@@ -4740,6 +4745,7 @@ startAutoRefresh();
                 if (periodeEl) { let txt='Periode: '+(res && res.periode ? res.periode : '-'); if(res && res.volumeQuarter) txt+=' · Volume: '+res.volumeQuarter; periodeEl.textContent=txt; }
                 renderPencapaianSales(Array.isArray(res && res.data) ? res.data : []);
             }).withFailureHandler(function(err) {
+                if (requestId !== pencapaianRequestSeq) return;
                 pencapaianLoading = false;
                 if (loading) loading.classList.add('hidden');
                 if (container) container.innerHTML = '<div class="bg-white border border-red-200 rounded-2xl p-6 text-center text-xs text-red-500">Gagal memuat pencapaian: ' + escapeHtml(err && err.message ? err.message : 'Terjadi kesalahan.') + '</div>';
