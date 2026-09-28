@@ -2257,6 +2257,7 @@ html,body{height:100%;}
                 else loadPencapaianSalesFilter();
                 loadRiwayat(true, true);
                 if (!isAdminLogin) loadInputMasterData();
+                preloadAppDataInBackground();
                 if (isAdminLogin) switchTab('riwayat');
                 return true;
             } catch (e) {
@@ -2372,6 +2373,7 @@ startAutoRefresh();
                     else loadPencapaianSalesFilter();
                     loadRiwayat(true, true);
                     if (!isAdminLogin) loadInputMasterData();
+                    preloadAppDataInBackground();
                     if (isAdminLogin) switchTab('riwayat');
                 } else {
                     showModal("Login Gagal", res.message);
@@ -2574,6 +2576,20 @@ startAutoRefresh();
             const p=document.getElementById('addItemProduk'); if(p){p.value='';refreshSelect2('#addItemProduk');}
         }
 
+        function buildOrderWhatsAppUrl(payload) {
+            const outlet = String(payload && payload.outlet || '').trim();
+            const items = Array.isArray(payload && payload.items) ? payload.items : [];
+            const note = String(payload && payload.note || '').trim();
+            let message = '*' + outlet + '*\n' + (items.length
+                ? items.map(function(item) {
+                    return '- ' + String(item.produk || '').trim() + ' - ' + String(item.qty || 0) + ' ' + String(item.satuan || 'Pcs').trim();
+                }).join('\n')
+                : '-');
+            if (note) message += '\n\n*Note :* ' + note;
+            return 'https://api.whatsapp.com/send?text=' + encodeURIComponent(message);
+        }
+
+        function kirimSemuaOrder() {
         function kirimSemuaOrder() {
             if (isSubmitting) return;
 
@@ -2608,6 +2624,14 @@ startAutoRefresh();
                         btnKirim.disabled = true;
                         btnKirim.classList.add('opacity-50', 'cursor-not-allowed');
                     }
+                    // Buka WhatsApp langsung dari aksi klik user agar browser tidak memblokir tab baru.
+                    // Pesan memakai data yang sama dengan order yang sedang dikirim.
+                    try {
+                        window.open(buildOrderWhatsAppUrl(payload), '_blank', 'noopener,noreferrer');
+                    } catch (waErr) {
+                        console.warn('WhatsApp tidak dapat dibuka:', waErr);
+                    }
+
                     showLoading(true);
 
                     google.script.run
@@ -2621,7 +2645,6 @@ startAutoRefresh();
 
                             if (res.success) {
                                 resetFormOrderSetelahKirim();
-                                showModal("Berhasil", res.message);
                             } else {
                                 showModal("Gagal", res.message);
                             }
@@ -3141,7 +3164,7 @@ startAutoRefresh();
             let initialMsg = `Rincian transaksi outlet akan ditampilkan di sini.`;
 
             document.getElementById('modalTitle').textContent = "DETAIL MONITORING OUTLET";
-            document.getElementById('modalSubtitle').textContent = data.outlet || '';
+            document.getElementById('modalSubtitle').textContent = (data.outlet || '') + (data.custCode ? ' • CUST.CODE ' + data.custCode : '');
             const initialTarget = Number(data.targetQuarter || 0);
             const initialActual = Number(data.total || 0);
             const initialGap = initialActual - initialTarget;
@@ -3287,7 +3310,7 @@ startAutoRefresh();
                         </p>
                     `;
                 })
-                .getProdukDibeliOutletQuarter(data.outlet, data.quarter);
+                .getProdukDibeliOutletQuarter(data.outlet, data.quarter, data.custCode || '');
         }
 
         function updateQuarterMonthHeaderLabels(quarterKey) {
@@ -5474,6 +5497,32 @@ startAutoRefresh();
             autoRefreshTimer = setInterval(autoRefreshActiveTab, 5000);
         }
 
+        let appBackgroundPreloadStarted = false;
+        function preloadAppDataInBackground() {
+            if (appBackgroundPreloadStarted) return;
+            appBackgroundPreloadStarted = true;
+
+            // Semua data utama dipanaskan setelah login. Tidak memakai overlay/loading modal.
+            // Saat user pindah tab, data sudah berada di cache client dan langsung dirender.
+            const run = function(fn, delay) { setTimeout(function(){ try { fn(); } catch(e) { console.warn('Background preload:', e); } }, delay || 0); };
+            const isAdmin = String(currentUsernameInput || '').trim().toLowerCase() === 'admin';
+
+            run(function(){ loadRiwayat(false, true); }, 0);
+            run(function(){ loadMonitoring(false, true); }, 80);
+            run(function(){ loadOutletKontrak(false, true); }, 160);
+            run(function(){ loadPricelist(false, true); }, 240);
+            run(function(){ loadTambahCustomer(false, true); }, 320);
+            run(function(){ loadPesananOutlet(false, true); }, 400);
+            run(function(){ loadPencapaianSalesFilter(); }, 480);
+            run(function(){ loadPencapaianSales(false, true); }, 560);
+
+            if (isAdmin) {
+                run(function(){ loadOutletBWSAdmin(false, true); }, 640);
+            } else {
+                run(function(){ loadInputMasterData(); }, 640);
+            }
+        }
+
         function switchTab(tab) {
             const isAdminLogin = String(currentUsernameInput || '').trim().toLowerCase() === 'admin';
             if (isAdminLogin && tab === 'input') { applyRoleVisibility(); return; }
@@ -5663,6 +5712,13 @@ if(tab==='riwayat')loadRiwayat();
             return -1;
         }
 
+        // DSR Customer selalu bersumber dari kolom D sheet OUTLET.
+        // Jika header DSR tidak terbaca, tetap gunakan kolom D (index 3).
+        function _customerDsrFieldIndexClient(headers) {
+            const idx = _customerFieldIndexClient(headers, ['DSR', 'SALES', 'NAMA SALES']);
+            return idx >= 0 ? idx : 3;
+        }
+
         function _customerEscape(v) {
             return escapeHtml(v == null ? '' : String(v));
         }
@@ -5750,7 +5806,7 @@ if(tab==='riwayat')loadRiwayat();
             if (!head || !body) return;
 
             const idxOutlet = _customerFieldIndexClient(headers, ['OUTLET', 'NAMA OUTLET']);
-            const idxDsr = _customerFieldIndexClient(headers, ['DSR', 'SALES', 'NAMA SALES']);
+            const idxDsr = _customerDsrFieldIndexClient(headers);
             const idxDayVisit = _customerFieldIndexClient(headers, ['DAY VISIT']);
             const idxChannel = _customerFieldIndexClient(headers, ['CHANNEL', 'CHANNEL OUTLET']);
 
@@ -5810,7 +5866,7 @@ if(tab==='riwayat')loadRiwayat();
             if (!modal || !body || !okBtn || !cancelBtn) return;
 
             const idxOutlet = _customerFieldIndexClient(headers, ['OUTLET', 'NAMA OUTLET']);
-            const idxDsr = _customerFieldIndexClient(headers, ['DSR', 'SALES', 'NAMA SALES']);
+            const idxDsr = _customerDsrFieldIndexClient(headers);
             const idxDayVisit = _customerFieldIndexClient(headers, ['DAY VISIT']);
             const idxCust = _customerFieldIndexClient(headers, ['CUST.CODE', 'CUST CODE', 'CUSTCODE', 'CUSTOMER CODE']);
             const idxChannel = _customerFieldIndexClient(headers, ['CHANNEL', 'CHANNEL OUTLET']);
@@ -5985,7 +6041,7 @@ if(tab==='riwayat')loadRiwayat();
 
             const idxDayVisit = _customerFieldIndexClient(headers, ['DAY VISIT']);
             const idxOutlet = _customerFieldIndexClient(headers, ['OUTLET', 'NAMA OUTLET']);
-            const idxDsr = _customerFieldIndexClient(headers, ['DSR', 'SALES', 'NAMA SALES']);
+            const idxDsr = _customerDsrFieldIndexClient(headers);
             const idxCust = _customerFieldIndexClient(headers, ['CUST.CODE', 'CUST CODE', 'CUSTCODE', 'CUSTOMER CODE']);
             const idxChannel = _customerFieldIndexClient(headers, ['CHANNEL', 'CHANNEL OUTLET']);
             const idxTanggalInput = _customerFieldIndexClient(headers, ['TANGGAL INPUT OUTLET', 'TANGGAL INPUT', 'DATE INPUT OUTLET', 'DATE INPUT']);
@@ -6121,7 +6177,7 @@ if(tab==='riwayat')loadRiwayat();
 
             const idxDayVisit = _customerFieldIndexClient(headers, ['DAY VISIT']);
             const idxOutlet = _customerFieldIndexClient(headers, ['OUTLET', 'NAMA OUTLET']);
-            const idxDsr = _customerFieldIndexClient(headers, ['DSR', 'SALES', 'NAMA SALES']);
+            const idxDsr = _customerDsrFieldIndexClient(headers);
             const idxCust = _customerFieldIndexClient(headers, ['CUST.CODE', 'CUST CODE', 'CUSTCODE', 'CUSTOMER CODE']);
             const idxChannel = _customerFieldIndexClient(headers, ['CHANNEL', 'CHANNEL OUTLET']);
             const idxTanggalInput = _customerFieldIndexClient(headers, ['TANGGAL INPUT OUTLET', 'TANGGAL INPUT', 'DATE INPUT OUTLET', 'DATE INPUT']);
@@ -6302,5 +6358,22 @@ if(tab==='riwayat')loadRiwayat();
     top:58px!important;
     z-index:900!important;
   }
+}
+</style>
+<style id="contract-table-no-lock-final">
+/* TAB KONTRAK: jangan kunci tinggi/scroll vertikal container tabel. */
+#tabOutletKontrak,
+#tabOutletKontrak .bg-white.border.rounded-xl.shadow-sm,
+#tabOutletKontrak .bg-white.border.rounded-xl.shadow-sm > div {
+    max-height: none !important;
+    height: auto !important;
+    overflow-y: visible !important;
+}
+#tabOutletKontrak .bg-white.border.rounded-xl.shadow-sm > div {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+}
+#tabOutletKontrak table {
+    margin-bottom: 36px !important;
 }
 </style>
