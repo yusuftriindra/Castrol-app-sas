@@ -1419,6 +1419,24 @@ html,body{height:100%;}
   }
 }
 </style>
+<style id="castrol-performance-v2">
+html{scroll-behavior:auto!important}
+.sidebar-item,.sidebar-toggle,.header-action-btn,.account-header-btn,.modern-modal-card,#mainPage .tab-content{transition-duration:.08s!important}
+#mainPage .tab-content,.modern-modal-card{animation:none!important}
+.app-sidebar{transition-duration:.08s!important}
+#tabMonitoring .bg-white.border.rounded-xl.shadow-sm>div,
+#tabOutletKontrak .bg-white.border.rounded-xl.shadow-sm>div,
+#tabOutletBWS .bg-white.border.rounded-xl.shadow-sm>div,
+#tabPricelist .bg-white.border.rounded-xl.shadow-sm>div,
+.riwayat-table-wrap{overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;touch-action:pan-x pan-y!important}
+@media(max-width:767px){
+#tabMonitoring .bg-white.border.rounded-xl.shadow-sm>div,
+#tabOutletKontrak .bg-white.border.rounded-xl.shadow-sm>div,
+#tabOutletBWS .bg-white.border.rounded-xl.shadow-sm>div{max-height:calc(100dvh - 230px)!important;overflow:auto!important;touch-action:pan-x pan-y!important}
+#leftNav.app-sidebar{transition:transform .08s ease,opacity .06s ease!important}
+}
+#loadingOverlay{pointer-events:none!important;user-select:none!important}
+</style>
 </head>
 <body class="bg-slate-50 font-sans">
 
@@ -1730,7 +1748,7 @@ html,body{height:100%;}
                             <h2 class="text-base font-bold text-slate-800">Riwayat Transaksi</h2>
                             <span id="riwayatCount" class="text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">0 transaksi</span>
                         </div>
-                        <button type="button" onclick="refreshRiwayat()" id="btnRefreshRiwayat"
+                        <button type="button" onclick="refreshWithIndicator(refreshRiwayat)" id="btnRefreshRiwayat"
                             class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-extrabold shadow-sm transition">
                             ↻ REFRESH
                         </button>
@@ -1808,7 +1826,7 @@ html,body{height:100%;}
                             <select id="pencapaianPeriodSelect" onchange="loadPencapaianSales()" class="bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[10px] text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500">
                                 <option value="">Memuat...</option>
                             </select>
-                            <button type="button" onclick="loadPencapaianSales(true)" class="text-[10px] font-bold text-emerald-700 hover:text-emerald-800 px-2.5 py-1.5 rounded-lg border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 transition">↻ Refresh</button>
+                            <button type="button" onclick="refreshWithIndicator(function(){ return loadPencapaianSales(true, false); })" class="text-[10px] font-bold text-emerald-700 hover:text-emerald-800 px-2.5 py-1.5 rounded-lg border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 transition">↻ Refresh</button>
                         </div>
                     </div>
                     <div id="pencapaianLoading" class="bg-white border border-slate-200 rounded-2xl p-6 text-center shadow-sm">
@@ -1925,7 +1943,7 @@ html,body{height:100%;}
                         </div>
                         <div class="flex items-center gap-2">
                             <span id="outletBWSCount" class="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">0 outlet</span>
-                            <button type="button" onclick="loadOutletBWSAdmin(true)" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 py-2 px-3 rounded-xl text-[10px] font-extrabold shadow-sm">↻ Refresh</button>
+                            <button type="button" onclick="refreshWithIndicator(function(){ return loadOutletBWSAdmin(true, false); })" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 py-2 px-3 rounded-xl text-[10px] font-extrabold shadow-sm">↻ Refresh</button>
                             <button type="button" id="btnTambahOutletBWS" onclick="openOutletBWSForm(-1)" class="bg-emerald-700 hover:bg-emerald-800 text-white py-2 px-3 rounded-xl text-[10px] font-extrabold shadow-sm">＋ Tambah Outlet</button>
                         </div>
                     </div>
@@ -1966,7 +1984,7 @@ html,body{height:100%;}
                                 <input type="text" id="searchTambahCustomer" oninput="filterTambahCustomer()" placeholder="Cari customer, outlet, sales, kode..."
                                        class="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm transition">
                             </div>
-                            <button type="button" onclick="loadTambahCustomer(true)" class="px-3 py-2.5 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-[10px] font-bold">↻ Refresh</button>
+                            <button type="button" onclick="refreshWithIndicator(function(){ return loadTambahCustomer(true, false); })" class="px-3 py-2.5 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-[10px] font-bold">↻ Refresh</button>
                         </div>
                     </div>
 
@@ -1988,7 +2006,7 @@ html,body{height:100%;}
                 <div id="tabPesananOutlet" class="tab-content hidden space-y-3">
                     <div class="flex justify-between items-center border-b border-slate-200 pb-2 gap-2">
                         <div><h2 class="text-base font-bold text-slate-800">Pesanan Outlet</h2><p class="text-[10px] text-slate-400 mt-0.5">Tolong di konfirmasikan lagi ke Outlet yang bersangkutan.</p></div>
-                        <button type="button" onclick="loadPesananOutlet(true)" class="px-3 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-[10px] font-bold">↻ Refresh</button>
+                        <button type="button" onclick="refreshWithIndicator(function(){ return loadPesananOutlet(true, false); })" class="px-3 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-[10px] font-bold">↻ Refresh</button>
                     </div>
 
                     <!-- FILTER PESANAN OUTLET -->
@@ -2040,7 +2058,7 @@ html,body{height:100%;}
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
                                 <div><label for="filterPricelistSegment" class="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Segment Produk</label><select id="filterPricelistSegment" onchange="filterPricelist()" class="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-xs"><option value="">Semua Segment</option></select></div>
                                 <div><label for="filterPricelistUpdate" class="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Update Pricelist</label><select id="filterPricelistUpdate" onchange="filterPricelist()" class="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-xs"><option value="">Semua Update Pricelist</option></select></div>
-                                <div class="flex items-end"><button type="button" onclick="loadPricelist(true)" class="w-full px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold">↻ Refresh</button></div>
+                                <div class="flex items-end"><button type="button" onclick="refreshWithIndicator(function(){ return loadPricelist(true, false); })" class="w-full px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold">↻ Refresh</button></div>
                                 <div class="flex items-end"><button type="button" onclick="exportPricelistPDF()" class="w-full px-3 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold">📄 Export PDF</button></div>
                             </div>
 
@@ -2096,7 +2114,23 @@ html,body{height:100%;}
         }
 
         function showLoading(show) {
-            document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
+            const el = document.getElementById('loadingOverlay');
+            if (!el) return;
+            el.style.display = show ? 'flex' : 'none';
+            el.setAttribute('aria-hidden', show ? 'false' : 'true');
+        }
+
+        function refreshWithIndicator(loader) {
+            showLoading(true);
+            const safety = setTimeout(function(){ showLoading(false); }, 15000);
+            try {
+                const result = loader();
+                return result;
+            } catch (e) {
+                clearTimeout(safety);
+                showLoading(false);
+                throw e;
+            }
         }
 
         function setDetailModalNoFooter() {
@@ -2190,6 +2224,7 @@ html,body{height:100%;}
         let pencapaianLoading = false;
         let pencapaianRequestSeq = 0;
         let pencapaianCache = {};
+        let pencapaianDetailCache = {};
         let globalOutletBWSData = { headers: [], rows: [] };
         let outletBWSLoading = false;
         let outletBWSFormMaster = { sales: [], outletMap: {} };
@@ -2631,31 +2666,25 @@ startAutoRefresh();
                         console.warn('WhatsApp tidak dapat dibuka:', waErr);
                     }
 
+                    // Reset segera setelah OK; penyimpanan tetap berjalan di background.
+                    resetFormOrderSetelahKirim();
+                    isSubmitting = false;
+                    if(btnKirim) {
+                        btnKirim.disabled = false;
+                        btnKirim.classList.remove('opacity-50', 'cursor-not-allowed');
+                    }
                     showLoading(true);
 
                     google.script.run
                         .withSuccessHandler(function(res) {
                             showLoading(false);
-                            isSubmitting = false;
-                            if(btnKirim) {
-                                btnKirim.disabled = false;
-                                btnKirim.classList.remove('opacity-50', 'cursor-not-allowed');
-                            }
-
-                            if (res.success) {
-                                resetFormOrderSetelahKirim();
-                            } else {
-                                showModal("Gagal", res.message);
+                            if (!res || !res.success) {
+                                showModal("Gagal", res && res.message ? res.message : "Order gagal disimpan.");
                             }
                         })
                         .withFailureHandler(function(err) {
                             showLoading(false);
-                            isSubmitting = false;
-                            if(btnKirim) {
-                                btnKirim.disabled = false;
-                                btnKirim.classList.remove('opacity-50', 'cursor-not-allowed');
-                            }
-                            showModal("Error Sistem", err.message);
+                            showModal("Error Sistem", err && err.message ? err.message : "Order gagal disimpan.");
                         })
                         .simpanMultiOrder(payload);
                 }
@@ -2664,7 +2693,8 @@ startAutoRefresh();
 
         function loadRiwayat(forceReload, silentRefresh) {
             if (forceReload && !silentRefresh) riwayatPage = 1;
-            if (!forceReload && globalRiwayatData && globalRiwayatData.length) {
+            const hasCached = Array.isArray(globalRiwayatData) && globalRiwayatData.length > 0;
+            if (!forceReload && hasCached) {
                 if (currentUsernameInput && currentUsernameInput.toLowerCase() === 'admin') { populateRiwayatDsrFilter(); populateRiwayatStatusFilter(); }
                 populateRiwayatYearFilter(globalRiwayatData);
                 filterRiwayat();
@@ -2673,15 +2703,21 @@ startAutoRefresh();
             if (riwayatLoading) return;
             riwayatLoading = true;
             let container = document.getElementById('listRiwayat');
-            if (container && !silentRefresh) container.innerHTML = '<p class="text-slate-400 text-center py-6">Memuat...</p>';
+            if (forceReload && hasCached) filterRiwayat();
+            if (!silentRefresh) {
+                if (!hasCached && container) container.innerHTML = '<p class="text-slate-400 text-center py-6">Memuat...</p>';
+                showLoading(true);
+            }
             google.script.run.withSuccessHandler(function(data) {
                 riwayatLoading = false;
+                if (!silentRefresh) showLoading(false);
                 globalRiwayatData = Array.isArray(data) ? data : [];
                 if (currentUsernameInput && currentUsernameInput.toLowerCase() === 'admin') { populateRiwayatDsrFilter(); populateRiwayatStatusFilter(); }
                 populateRiwayatYearFilter(globalRiwayatData);
                 filterRiwayat();
             }).withFailureHandler(function(err) {
                 riwayatLoading = false;
+                if (!silentRefresh) showLoading(false);
                 if (container) container.innerHTML = '<div class="text-red-500 text-center py-6 text-xs">Gagal memuat riwayat: ' + escapeHtml(err && err.message ? err.message : 'Terjadi kesalahan.') + '</div>';
                 document.getElementById('riwayatCount').textContent = '0 transaksi';
             }).getRiwayatOrder(currentUser, currentUsernameInput);
@@ -3033,13 +3069,19 @@ startAutoRefresh();
         }
 
         function loadMonitoring(forceReload, silentRefresh) {
-            if (!forceReload && Object.keys(rawMonitoringDataObject || {}).length) { renderMonitoringList(); return; }
+            const hasCached = Object.keys(rawMonitoringDataObject || {}).length > 0;
+            if (!forceReload && hasCached) { renderMonitoringList(); return; }
             if (monitoringLoading) return;
             monitoringLoading = true;
             let container = document.getElementById('listMonitoringTableBody');
-            if (container && !silentRefresh) container.innerHTML = '<tr><td colspan="10" class="text-slate-400 text-center py-6">Memuat...</td></tr>';
+            if (forceReload && hasCached) renderMonitoringList();
+            if (!silentRefresh) {
+                if (!hasCached && container) container.innerHTML = '<tr><td colspan="10" class="text-slate-400 text-center py-6">Memuat...</td></tr>';
+                showLoading(true);
+            }
             google.script.run.withSuccessHandler(function(dataObj) {
                 monitoringLoading = false;
+                if (!silentRefresh) showLoading(false);
                 rawMonitoringDataObject = dataObj || {};
                 let quarters = Object.keys(rawMonitoringDataObject).sort().reverse();
                 let selectQ = document.getElementById('filterQuarterSelect');
@@ -3051,6 +3093,7 @@ startAutoRefresh();
                 renderMonitoringList();
             }).withFailureHandler(function(err) {
                 monitoringLoading = false;
+                if (!silentRefresh) showLoading(false);
                 if (container) container.innerHTML = '<tr><td colspan="10" class="text-red-500 text-center py-6 text-xs">Gagal memuat monitoring: ' + escapeHtml(err && err.message ? err.message : 'Terjadi kesalahan.') + '</td></tr>';
             }).getMonitoringOutletData(currentUser, currentUsernameInput);
         }
@@ -3617,7 +3660,7 @@ startAutoRefresh();
         function refreshRiwayat() {
             selectedRiwayatIds = {};
             riwayatPage = 1;
-            loadRiwayat(true, true);
+            loadRiwayat(true, false);
         }
 
         function hapusRiwayatTerpilih() {
@@ -3712,20 +3755,27 @@ startAutoRefresh();
         function loadOutletBWSAdmin(forceReload, silentRefresh) {
             const tbody = document.getElementById('listOutletBWSTableBody');
             if (!tbody) return;
+            const hasCached = !!(globalOutletBWSData && globalOutletBWSData.headers && globalOutletBWSData.headers.length);
+            if (!forceReload && hasCached) { filterOutletBWSAdmin(); return; }
             if (outletBWSLoading) return;
             outletBWSLoading = true;
-            if (!silentRefresh) tbody.innerHTML = '<tr><td colspan="20" class="text-slate-400 text-center py-8">Mengambil data DATA OUTLET BWS...</td></tr>';
+            if (forceReload && hasCached) filterOutletBWSAdmin();
+            if (!silentRefresh) {
+                if (!hasCached) tbody.innerHTML = '<tr><td colspan="20" class="text-slate-400 text-center py-8">Mengambil data DATA OUTLET BWS...</td></tr>';
+                showLoading(true);
+            }
             google.script.run.withSuccessHandler(function(res) {
                 outletBWSLoading = false;
+                if (!silentRefresh) showLoading(false);
                 if (!res || !res.success) {
                     tbody.innerHTML = '<tr><td colspan="20" class="text-red-500 text-center py-8">' + escapeHtml(res && res.message ? res.message : 'Gagal memuat data.') + '</td></tr>';
                     return;
                 }
                 globalOutletBWSData = { headers: res.headers || [], rows: res.rows || [] };
-                outletBWSFormMaster = { sales: [], outletMap: {} };
                 filterOutletBWSAdmin();
             }).withFailureHandler(function(err) {
                 outletBWSLoading = false;
+                if (!silentRefresh) showLoading(false);
                 tbody.innerHTML = '<tr><td colspan="20" class="text-red-500 text-center py-8">' + escapeHtml(err && err.message ? err.message : 'Terjadi kesalahan server.') + '</td></tr>';
             }).getDataOutletBWSAdmin(currentUsernameInput, currentUser);
         }
@@ -4200,18 +4250,25 @@ startAutoRefresh();
             const tbody = document.getElementById('listOutletKontrakTableBody');
             const yearBadge = document.getElementById('outletKontrakYear');
             if (!tbody) return;
-            if (!forceReload && globalOutletKontrakData && globalOutletKontrakData.length) { renderOutletKontrakTable(globalOutletKontrakData); return; }
+            const hasCached = Array.isArray(globalOutletKontrakData) && globalOutletKontrakData.length > 0;
+            if (!forceReload && hasCached) { renderOutletKontrakTable(globalOutletKontrakData); return; }
             if (kontrakLoading) return;
             kontrakLoading = true;
-            if (!silentRefresh) tbody.innerHTML = '<tr><td colspan="7" class="text-slate-400 text-center py-6">Mengambil data...</td></tr>';
+            if (forceReload && hasCached) renderOutletKontrakTable(globalOutletKontrakData);
+            if (!silentRefresh) {
+                if (!hasCached) tbody.innerHTML = '<tr><td colspan="7" class="text-slate-400 text-center py-6">Mengambil data...</td></tr>';
+                showLoading(true);
+            }
             google.script.run.withSuccessHandler(function(res) {
                 kontrakLoading = false;
+                if (!silentRefresh) showLoading(false);
                 if (!res || !res.success) { tbody.innerHTML = `<tr><td colspan="7" class="text-red-500 text-center py-6">${(res && res.error) || 'Gagal memuat data.'}</td></tr>`; return; }
                 globalOutletKontrakData = res.data || [];
                 if (yearBadge) yearBadge.textContent = 'Tahun ' + (res.year || new Date().getFullYear());
                 filterOutletKontrak();
             }).withFailureHandler(function(err) {
                 kontrakLoading = false;
+                if (!silentRefresh) showLoading(false);
                 tbody.innerHTML = `<tr><td colspan="7" class="text-red-500 text-center py-6">${escapeHtml(err && err.message ? err.message : 'Terjadi kesalahan.')}</td></tr>`;
             }).getOutletKontrakData_BWS(currentUser || 'Admin', currentUsernameInput || 'admin');
         }
@@ -4533,15 +4590,14 @@ startAutoRefresh();
             const periodSelect = document.getElementById('pencapaianPeriodSelect');
             const selectedPeriod = periodSelect && periodSelect.value ? periodSelect.value : '';
             const titleMap = {
-                value: 'Value',
-                volume: 'Volume',
-                active: 'Active Outlet',
-                product: 'Produk Fokus',
-                powerbrand: 'Power Brand'
+                value: 'Value', volume: 'Volume', active: 'Active Outlet',
+                product: 'Produk Fokus', powerbrand: 'Power Brand'
             };
             const title = titleMap[String(category || '').toLowerCase()] || category;
+            const cacheKey = String(currentUsernameInput || '').toLowerCase() + '|' +
+                String(sales || '').toUpperCase() + '|' + String(selectedPeriod || '') + '|' +
+                String(category || '').toLowerCase();
 
-            // Gunakan modal standar aplikasi agar konsisten dengan tab lain.
             showModal('Detail ' + title, 'Memuat detail transaksi...', false, null);
             document.getElementById('modalSubtitle').textContent =
                 String(sales || '-') + ' · ' + String(selectedPeriod || '-');
@@ -4563,115 +4619,101 @@ startAutoRefresh();
                             <div class="text-[9px] font-extrabold uppercase tracking-wider text-slate-500">Transaksi Outlet</div>
                             <div class="text-[9px] text-slate-400">${escapeHtml(title)}</div>
                         </div>
+                        <div class="px-3 py-2 border-b border-slate-200 bg-white flex items-center gap-2">
+                            <label class="text-[9px] font-extrabold uppercase tracking-wider text-slate-500 whitespace-nowrap">Filter Bulan</label>
+                            <select id="pencapaianDetailMonthFilter" class="flex-1 min-h-[36px] border border-slate-200 rounded-lg px-2.5 text-[10px] text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="">Semua Bulan</option>
+                            </select>
+                        </div>
                         <div id="pencapaianDetailBody" class="modal-table-wrap p-2">
                             <div class="text-center text-xs text-slate-400 py-10">Memuat detail transaksi...</div>
                         </div>
                     </div>`;
             }
 
-            google.script.run.withSuccessHandler(function(res) {
+            const monthLabel = function(monthKey) {
+                const m = String(monthKey || '').match(/^(\d{4})-(\d{2})$/);
+                if (!m) return String(monthKey || '-');
+                const names = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+                return (names[Number(m[2]) - 1] || m[2]) + ' ' + m[1];
+            };
+
+            function renderDetailRows(rows) {
                 const detailBody = document.getElementById('pencapaianDetailBody');
+                const monthFilter = document.getElementById('pencapaianDetailMonthFilter');
                 if (!detailBody) return;
 
-                if (!res || !res.success) {
-                    detailBody.innerHTML = '<div class="text-center text-xs text-red-500 py-10">' +
-                        escapeHtml((res && res.message) || 'Detail tidak tersedia.') + '</div>';
-                    return;
+                const selectedMonth = monthFilter ? String(monthFilter.value || '') : '';
+                const filteredRows = selectedMonth
+                    ? rows.filter(function(r){ return String(r.month || '') === selectedMonth; })
+                    : rows;
+
+                const monthKeys = [];
+                rows.forEach(function(r) {
+                    const key = String(r.month || '');
+                    if (key && monthKeys.indexOf(key) === -1) monthKeys.push(key);
+                });
+                monthKeys.sort();
+
+                if (monthFilter) {
+                    const keep = selectedMonth;
+                    monthFilter.innerHTML = '<option value="">Semua Bulan</option>' +
+                        monthKeys.map(function(k) {
+                            return '<option value="' + escapeHtml(k) + '">' + escapeHtml(monthLabel(k)) + '</option>';
+                        }).join('');
+                    if (monthKeys.indexOf(keep) !== -1) monthFilter.value = keep;
                 }
 
-                const rows = Array.isArray(res.data) ? res.data : [];
-                if (!rows.length) {
-                    detailBody.innerHTML = '<div class="text-center text-xs text-slate-400 py-10">' +
-                        'Tidak ada transaksi outlet untuk kategori ini.</div>';
+                if (!filteredRows.length) {
+                    detailBody.innerHTML = '<div class="text-center text-xs text-slate-400 py-10">Tidak ada transaksi pada bulan yang dipilih.</div>';
                     return;
                 }
 
                 const valueText = function(value) {
                     return 'Rp ' + Number(value || 0).toLocaleString('id-ID');
                 };
-                const volumeText = function(value) {
-                    return Number(value || 0).toLocaleString('id-ID') + ' L';
-                };
-
-                // Kelompokkan card berdasarkan BULAN agar detail lebih mudah dibaca.
-                const monthLabel = function(monthKey) {
-                    const m = String(monthKey || '').match(/^(\d{4})-(\d{2})$/);
-                    if (!m) return String(monthKey || '-');
-                    const names = [
-                        'Januari','Februari','Maret','April','Mei','Juni',
-                        'Juli','Agustus','September','Oktober','November','Desember'
-                    ];
-                    const idx = Number(m[2]) - 1;
-                    return (names[idx] || m[2]) + ' ' + m[1];
-                };
-
                 const grouped = {};
-                rows.forEach(function(r) {
+                filteredRows.forEach(function(r) {
                     const key = String(r.month || '-');
                     if (!grouped[key]) grouped[key] = [];
                     grouped[key].push(r);
                 });
 
-                const monthKeys = Object.keys(grouped).sort(function(a, b) {
-                    return String(a).localeCompare(String(b));
-                });
-
-                const monthSections = monthKeys.map(function(monthKey) {
+                const monthSections = Object.keys(grouped).sort().map(function(monthKey) {
                     const monthRows = grouped[monthKey] || [];
-
-                    const cards = monthRows.map(function(r, index) {
+                    const cards = monthRows.map(function(r) {
                         const products = Array.isArray(r.products)
                             ? r.products.filter(function(p) { return p && String(p.name || '').trim() !== ''; })
                             : [];
-
                         const productText = products.length
                             ? products.map(function(p) {
                                 const qty = Number(p.volume || 0);
                                 return escapeHtml(p.name) + (qty ? ' · ' + qty.toLocaleString('id-ID') + ' L' : '');
                             }).join('<br>')
                             : '-';
-
                         return `
                             <article class="riwayat-card" style="cursor:default">
                                 <div class="riwayat-card-top">
                                     <div class="min-w-0">
-                                        <div class="flex flex-wrap items-center gap-2">
-                                            <span class="riwayat-card-number">#${index + 1}</span>
-                                        </div>
-                                        <div class="riwayat-card-outlet mt-1">${escapeHtml(r.outlet || '-')}</div>
+                                        <div class="riwayat-card-label">OUTLET</div>
+                                        <div class="riwayat-card-outlet">${escapeHtml(r.outlet || '-')}</div>
                                     </div>
-                                    <span class="inline-flex items-center px-2.5 py-1.5 rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700 text-[9px] font-extrabold shrink-0">
-                                        DETAIL
-                                    </span>
+                                    <span class="riwayat-card-number">${Number(r.transactions || 0).toLocaleString('id-ID')} transaksi</span>
                                 </div>
-
                                 <div class="riwayat-card-products">
                                     <div class="riwayat-card-label">PRODUK</div>
                                     <div class="riwayat-card-product-text">${productText}</div>
                                 </div>
-
                                 <div class="riwayat-card-summary">
-                                    <div class="riwayat-card-stat">
-                                        <span class="riwayat-card-label">TRANSAKSI</span>
-                                        <strong>${Number(r.transactions || 0).toLocaleString('id-ID')}</strong>
-                                    </div>
-                                    <div class="riwayat-card-stat">
-                                        <span class="riwayat-card-label">VOLUME</span>
-                                        <strong>${volumeText(r.volume)}</strong>
-                                    </div>
-                                    <div class="riwayat-card-stat" style="grid-column:1 / -1">
-                                        <span class="riwayat-card-label">NILAI</span>
-                                        <strong>${valueText(r.value)}</strong>
-                                    </div>
+                                    <div class="riwayat-card-stat"><span class="riwayat-card-label">VOLUME</span><strong>${Number(r.volume || 0).toLocaleString('id-ID')} L</strong></div>
+                                    <div class="riwayat-card-stat"><span class="riwayat-card-label">NILAI</span><strong>${valueText(r.value)}</strong></div>
                                 </div>
-
                                 <div class="riwayat-card-footer">
                                     <span class="text-[9px] text-slate-400 font-medium">${escapeHtml(title)} · ${escapeHtml(selectedPeriod || '-')}</span>
                                     <span class="text-[9px] text-emerald-700 font-extrabold">OUTLET</span>
                                 </div>
                             </article>`;
                     }).join('');
-
                     return `
                         <section class="mb-4 last:mb-0">
                             <div class="flex items-center justify-between gap-2 px-1 mb-2">
@@ -4687,19 +4729,33 @@ startAutoRefresh();
                             <div class="riwayat-cards-grid">${cards}</div>
                         </section>`;
                 }).join('');
+                detailBody.innerHTML = '<div class="riwayat-cards-wrap">' + monthSections + '</div>';
+            }
 
-                detailBody.innerHTML = `
-                    <div class="riwayat-cards-wrap">
-                        ${monthSections}
-                    </div>`;
-            }).withFailureHandler(function(err) {
-                const detailBody = document.getElementById('pencapaianDetailBody');
-                if (detailBody) {
-                    detailBody.innerHTML = '<div class="text-center text-xs text-red-500 py-10">' +
-                        'Gagal memuat detail: ' +
+            function requestDetail() {
+                const cached = pencapaianDetailCache[cacheKey];
+                if (cached && cached.success) renderDetailRows(Array.isArray(cached.data) ? cached.data : []);
+
+                google.script.run.withSuccessHandler(function(res) {
+                    pencapaianDetailCache[cacheKey] = res || {};
+                    renderDetailRows(Array.isArray(res && res.data) ? res.data : []);
+                }).withFailureHandler(function(err) {
+                    if (cached && cached.success) return;
+                    const detailBody = document.getElementById('pencapaianDetailBody');
+                    if (detailBody) detailBody.innerHTML =
+                        '<div class="text-center text-xs text-red-500 py-10">Gagal memuat detail: ' +
                         escapeHtml(err && err.message ? err.message : 'Terjadi kesalahan.') + '</div>';
-                }
-            }).getPencapaianSalesDetail(sales, currentUsernameInput, selectedPeriod, category);
+                }).getPencapaianSalesDetail(sales, currentUsernameInput, selectedPeriod, category);
+            }
+
+            const monthFilter = document.getElementById('pencapaianDetailMonthFilter');
+            if (monthFilter) {
+                monthFilter.onchange = function() {
+                    const cached = pencapaianDetailCache[cacheKey];
+                    if (cached && cached.success) renderDetailRows(Array.isArray(cached.data) ? cached.data : []);
+                };
+            }
+            requestDetail();
         }
 
         function loadPencapaianSalesFilter() {
@@ -4748,14 +4804,23 @@ startAutoRefresh();
             // akan diabaikan jika sudah ada request yang lebih baru.
             const requestId = ++pencapaianRequestSeq;
             pencapaianLoading = true;
-            // Saat auto refresh (silentRefresh=true), jangan tampilkan loading
-            // atau mengosongkan tampilan yang sedang dilihat user. Data baru
-            // langsung menggantikan data lama setelah server selesai.
-            if (loading && !silentRefresh) loading.classList.remove('hidden');
-            if (container && !silentRefresh) container.innerHTML = '';
+            const hadCache = !!pencapaianCache[cacheKey];
+            if (hadCache) {
+                const cachedRes = pencapaianCache[cacheKey];
+                if (periodSelect && cachedRes.periods && cachedRes.periods.length) {
+                    periodSelect.innerHTML = cachedRes.periods.map(function(p){return '<option value="'+escapeHtml(p.value)+'">'+escapeHtml(p.label)+'</option>';}).join('');
+                    periodSelect.value = cachedRes.selectedPeriod || selectedPeriod || cachedRes.periods[0].value;
+                }
+                renderPencapaianSales(cachedRes.data || []);
+            }
+            if (!silentRefresh) {
+                if (loading) loading.classList.add('hidden');
+                showLoading(true);
+            }
             google.script.run.withSuccessHandler(function(res) {
                 if (requestId !== pencapaianRequestSeq) return;
                 pencapaianLoading = false;
+                if (!silentRefresh) showLoading(false);
                 pencapaianCache[cacheKey] = res || {};
                 const periods = Array.isArray(res && res.periods) ? res.periods : [];
                 if (periodSelect && periods.length) {
@@ -4769,8 +4834,9 @@ startAutoRefresh();
             }).withFailureHandler(function(err) {
                 if (requestId !== pencapaianRequestSeq) return;
                 pencapaianLoading = false;
+                if (!silentRefresh) showLoading(false);
                 if (loading) loading.classList.add('hidden');
-                if (container) container.innerHTML = '<div class="bg-white border border-red-200 rounded-2xl p-6 text-center text-xs text-red-500">Gagal memuat pencapaian: ' + escapeHtml(err && err.message ? err.message : 'Terjadi kesalahan.') + '</div>';
+                if (!hadCache && container) container.innerHTML = '<div class="bg-white border border-red-200 rounded-2xl p-6 text-center text-xs text-red-500">Gagal memuat pencapaian: ' + escapeHtml(err && err.message ? err.message : 'Terjadi kesalahan.') + '</div>';
             }).getPencapaianSales(isAdminLogin ? selectedSales : currentUser, currentUsernameInput, selectedPeriod);
         }
 
@@ -4797,10 +4863,16 @@ startAutoRefresh();
                 return;
             }
 
-            if (!silentRefresh) tbody.innerHTML = '<tr><td colspan="2" class="text-slate-400 text-center py-6">Memuat pricelist...</td></tr>';
+            const hasCached = Array.isArray(globalPricelistData) && globalPricelistData.length > 0;
+            if (forceRefresh && hasCached) filterPricelist();
+            if (!silentRefresh) {
+                if (!hasCached) tbody.innerHTML = '<tr><td colspan="2" class="text-slate-400 text-center py-6">Memuat pricelist...</td></tr>';
+                showLoading(true);
+            }
 
             google.script.run
                 .withSuccessHandler(function(res) {
+                    if (!silentRefresh) showLoading(false);
                     if (!res || !res.success) {
                         tbody.innerHTML = '<tr><td colspan="3" class="text-red-500 text-center py-6">' + escapeHtml((res && res.error) || 'Gagal memuat pricelist.') + '</td></tr>';
                         return;
@@ -4811,7 +4883,8 @@ startAutoRefresh();
                     filterPricelist();
                 })
                 .withFailureHandler(function(err) {
-                    tbody.innerHTML = '<tr><td colspan="3" class="text-red-500 text-center py-6">' + escapeHtml(err && err.message ? err.message : 'Gagal memuat pricelist.') + '</td></tr>';
+                    if (!silentRefresh) showLoading(false);
+                    if (!hasCached) tbody.innerHTML = '<tr><td colspan="3" class="text-red-500 text-center py-6">' + escapeHtml(err && err.message ? err.message : 'Gagal memuat pricelist.') + '</td></tr>';
                 })
                 .getPricelistData(!!forceRefresh);
         }
@@ -4893,9 +4966,15 @@ startAutoRefresh();
 
         function loadPesananOutlet(forceRefresh, silentRefresh) {
             const body=document.getElementById('pesananOutletTableBody'), head=document.getElementById('pesananOutletTableHead'); if(!body||!head)return;
-            if(!forceRefresh){try{const c=sessionStorage.getItem('pesananOutletCache');if(c){renderPesananOutlet(JSON.parse(c));return;}}catch(e){}}
-            if (!silentRefresh) body.innerHTML='<tr><td colspan="20" class="text-slate-400 text-center py-6">Memuat Pesanan Outlet...</td></tr>';
+            let hasCached = false;
+            if(!forceRefresh){try{const c=sessionStorage.getItem('pesananOutletCache');if(c){renderPesananOutlet(JSON.parse(c));hasCached=true;return;}}catch(e){}}
+            if(forceRefresh){try{const c=sessionStorage.getItem('pesananOutletCache');if(c){renderPesananOutlet(JSON.parse(c));hasCached=true;}}catch(e){}}
+            if (!silentRefresh) {
+                if (!hasCached) body.innerHTML='<tr><td colspan="20" class="text-slate-400 text-center py-6">Memuat Pesanan Outlet...</td></tr>';
+                showLoading(true);
+            }
             google.script.run.withSuccessHandler(function(res){
+                if (!silentRefresh) showLoading(false);
                 if(!res||!res.success){
                     console.warn('Pesanan Outlet tidak berhasil dimuat:', res);
                     return;
@@ -4903,6 +4982,7 @@ startAutoRefresh();
                 try{sessionStorage.setItem('pesananOutletCache',JSON.stringify(res));}catch(e){}
                 renderPesananOutlet(res);
             }).withFailureHandler(function(err){
+                if (!silentRefresh) showLoading(false);
                 console.warn('Pesanan Outlet gagal dimuat:', err);
                 // Jangan tampilkan pesan error server ke halaman.
                 // Tampilan yang sudah ada dibiarkan tetap seperti semula.
@@ -5517,6 +5597,7 @@ startAutoRefresh();
 
             if (isAdmin) {
                 run(function(){ loadOutletBWSAdmin(false, true); }, 640);
+                run(function(){ loadOutletBWSFormMaster(); }, 760);
             } else {
                 run(function(){ loadInputMasterData(); }, 640);
             }
@@ -5548,14 +5629,14 @@ startAutoRefresh();
                 }
             });
             setSidebarState(true);
-if(tab==='riwayat')loadRiwayat();
-            if(tab==='pencapaian')loadPencapaianSales();
-            if(tab==='monitoring')loadMonitoring();
-            if(tab==='outletkontrak')loadOutletKontrak();
-            if(tab==='outletbws')loadOutletBWSAdmin(false);
-            if(tab==='tambahcustomer')loadTambahCustomer(false);
-            if(tab==='pricelist')loadPricelist(false);
-            if(tab==='pesananoutlet')loadPesananOutlet(false);
+if(tab==='riwayat')loadRiwayat(false, true);
+            if(tab==='pencapaian')loadPencapaianSales(false, true);
+            if(tab==='monitoring')loadMonitoring(false, true);
+            if(tab==='outletkontrak')loadOutletKontrak(false, true);
+            if(tab==='outletbws')loadOutletBWSAdmin(false, true);
+            if(tab==='tambahcustomer')loadTambahCustomer(false, true);
+            if(tab==='pricelist')loadPricelist(false, true);
+            if(tab==='pesananoutlet')loadPesananOutlet(false, true);
         }
 
         function setSidebarState(collapsed) {
@@ -5665,7 +5746,7 @@ if(tab==='riwayat')loadRiwayat();
             showModal("Konfirmasi", "Keluar aplikasi?", true, function(isOk) {
                 if (isOk) {
                     clearAuthState();
-                    currentUser = ""; currentUsernameInput = ""; shoppingCart = []; globalRiwayatData = []; rawMonitoringDataObject = {}; globalOutletKontrakData = []; pencapaianCache = {}; globalPricelistData = [];
+                    currentUser = ""; currentUsernameInput = ""; shoppingCart = []; globalRiwayatData = []; rawMonitoringDataObject = {}; globalOutletKontrakData = []; pencapaianCache = {}; pencapaianDetailCache = {}; globalPricelistData = [];
                     document.getElementById('mainPage').classList.add('hidden');
                     document.getElementById('mainHeader').classList.add('hidden');
                     document.getElementById('leftNav').classList.add('hidden');
@@ -5773,10 +5854,16 @@ if(tab==='riwayat')loadRiwayat();
             }
             tambahCustomerLoading = true;
             const body = document.getElementById('tambahCustomerBody');
-            if (body && !silentRefresh) body.innerHTML = '<tr><td colspan="30" class="text-slate-400 text-center py-8">Memuat data customer...</td></tr>';
+            const hasCached = !!(globalTambahCustomerData && globalTambahCustomerData.headers && globalTambahCustomerData.headers.length);
+            if (forceReload && hasCached) filterTambahCustomer();
+            if (!silentRefresh) {
+                if (!hasCached && body) body.innerHTML = '<tr><td colspan="30" class="text-slate-400 text-center py-8">Memuat data customer...</td></tr>';
+                showLoading(true);
+            }
 
             google.script.run.withSuccessHandler(function(res) {
                 tambahCustomerLoading = false;
+                if (!silentRefresh) showLoading(false);
                 if (!res || !res.success) {
                     if (body) body.innerHTML = '<tr><td colspan="30" class="text-red-500 text-center py-8">' + _customerEscape(res && res.message ? res.message : 'Gagal memuat data customer.') + '</td></tr>';
                     return;
@@ -5791,6 +5878,7 @@ if(tab==='riwayat')loadRiwayat();
                 loadTambahCustomerFormMaster();
             }).withFailureHandler(function(err) {
                 tambahCustomerLoading = false;
+                if (!silentRefresh) showLoading(false);
                 if (body) body.innerHTML = '<tr><td colspan="30" class="text-red-500 text-center py-8">Gagal memuat data customer: ' + _customerEscape(err && err.message ? err.message : 'Terjadi kesalahan.') + '</td></tr>';
             }).getOutletCustomerData(currentUsernameInput, currentUser);
         }
@@ -6199,21 +6287,24 @@ if(tab==='riwayat')loadRiwayat();
                 btn.classList.add('opacity-50', 'cursor-not-allowed');
             }
 
+            closeModal();
+            showLoading(true);
             google.script.run.withSuccessHandler(function(res) {
+                showLoading(false);
                 if (btn) {
                     btn.disabled = false;
                     btn.classList.remove('opacity-50', 'cursor-not-allowed');
                 }
                 if (res && res.success) {
-                    closeModal();
                     tambahCustomerLoaded = false;
-                    globalTambahCustomerFormMaster = { headers: [], dayVisits: [], channels: [], dsrs: [], today: '', salesName: '', isAdmin: false, newCustCode: '' };
+                    if (res.nextCustCode) globalTambahCustomerFormMaster.newCustCode = String(res.nextCustCode);
                     showModal('Berhasil', res.message || 'Data customer berhasil disimpan.');
                     loadTambahCustomer(true, true);
                 } else {
                     showModal('Gagal', res && res.message ? res.message : 'Data customer gagal disimpan.');
                 }
             }).withFailureHandler(function(err) {
+                showLoading(false);
                 if (btn) {
                     btn.disabled = false;
                     btn.classList.remove('opacity-50', 'cursor-not-allowed');
