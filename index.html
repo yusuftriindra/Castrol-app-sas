@@ -2133,6 +2133,27 @@ html{scroll-behavior:auto!important}
             }
         }
 
+        // Cache browser untuk membuat tab utama langsung tampil saat dibuka kembali.
+        function appLocalCacheSet(key, value) {
+            try { localStorage.setItem('CASTROL_FAST_' + key, JSON.stringify({t:Date.now(),v:value})); } catch(e) {}
+        }
+        function appLocalCacheGet(key) {
+            try {
+                const raw = localStorage.getItem('CASTROL_FAST_' + key);
+                if (!raw) return null;
+                const obj = JSON.parse(raw);
+                return obj && obj.v != null ? obj.v : null;
+            } catch(e) { return null; }
+        }
+        function restoreFastTabCaches() {
+            const mon = appLocalCacheGet('MONITORING_' + String(currentUsernameInput||'').toUpperCase());
+            if (mon && typeof mon === 'object') rawMonitoringDataObject = mon;
+            const kontrak = appLocalCacheGet('KONTRAK_' + String(currentUsernameInput||'').toUpperCase());
+            if (Array.isArray(kontrak)) globalOutletKontrakData = kontrak;
+            const penc = appLocalCacheGet('PENCAPAIAN_' + String(currentUsernameInput||'').toUpperCase());
+            if (penc && typeof penc === 'object') Object.assign(pencapaianCache, penc);
+        }
+
         function setDetailModalNoFooter() {
             const modal = document.getElementById('customModal');
             if (!modal) return;
@@ -3083,6 +3104,7 @@ startAutoRefresh();
                 monitoringLoading = false;
                 if (!silentRefresh) showLoading(false);
                 rawMonitoringDataObject = dataObj || {};
+                appLocalCacheSet('MONITORING_' + String(currentUsernameInput||'').toUpperCase(), rawMonitoringDataObject);
                 let quarters = Object.keys(rawMonitoringDataObject).sort().reverse();
                 let selectQ = document.getElementById('filterQuarterSelect');
                 const previousQuarter = selectQ ? String(selectQ.value || '').trim() : '';
@@ -4264,6 +4286,7 @@ startAutoRefresh();
                 if (!silentRefresh) showLoading(false);
                 if (!res || !res.success) { tbody.innerHTML = `<tr><td colspan="7" class="text-red-500 text-center py-6">${(res && res.error) || 'Gagal memuat data.'}</td></tr>`; return; }
                 globalOutletKontrakData = res.data || [];
+                appLocalCacheSet('KONTRAK_' + String(currentUsernameInput||'').toUpperCase(), globalOutletKontrakData);
                 if (yearBadge) yearBadge.textContent = 'Tahun ' + (res.year || new Date().getFullYear());
                 filterOutletKontrak();
             }).withFailureHandler(function(err) {
@@ -4780,6 +4803,20 @@ startAutoRefresh();
             }).getListSalesOptions();
         }
 
+        function prefetchPencapaianDetailData(sales, period) {
+            if (!sales || !period) return;
+            const cats = ['value','volume','active','product','powerbrand'];
+            cats.forEach(function(category, index) {
+                const key = String(currentUsernameInput||'').toLowerCase()+'|'+String(sales||'').toUpperCase()+'|'+String(period||'')+'|'+category;
+                if (pencapaianDetailCache[key]) return;
+                setTimeout(function(){
+                    google.script.run.withSuccessHandler(function(res){
+                        pencapaianDetailCache[key] = res || {};
+                    }).withFailureHandler(function(){}).getPencapaianSalesDetail(sales, currentUsernameInput, period, category);
+                }, index * 80);
+            });
+        }
+
         function loadPencapaianSales(forceReloadPeriods, silentRefresh) {
             const loading = document.getElementById('pencapaianLoading');
             const container = document.getElementById('pencapaianSalesList');
@@ -4797,6 +4834,7 @@ startAutoRefresh();
                     periodSelect.value = res.selectedPeriod || selectedPeriod || res.periods[0].value;
                 }
                 renderPencapaianSales(res.data || []);
+                prefetchPencapaianDetailData(isAdminLogin ? selectedSales : currentUser, res.selectedPeriod || selectedPeriod);
                 return;
             }
             // Setiap perubahan filter boleh langsung membuat request baru.
@@ -4822,6 +4860,7 @@ startAutoRefresh();
                 pencapaianLoading = false;
                 if (!silentRefresh) showLoading(false);
                 pencapaianCache[cacheKey] = res || {};
+                try { appLocalCacheSet('PENCAPAIAN_' + String(currentUsernameInput||'').toUpperCase(), pencapaianCache); } catch(e) {}
                 const periods = Array.isArray(res && res.periods) ? res.periods : [];
                 if (periodSelect && periods.length) {
                     const currentValue = selectedPeriod || (res && res.selectedPeriod ? res.selectedPeriod : '');
@@ -4831,6 +4870,7 @@ startAutoRefresh();
                 const periodeEl = document.getElementById('pencapaianPeriode');
                 if (periodeEl) { let txt='Periode: '+(res && res.periode ? res.periode : '-'); if(res && res.volumeQuarter) txt+=' · Volume: '+res.volumeQuarter; periodeEl.textContent=txt; }
                 renderPencapaianSales(Array.isArray(res && res.data) ? res.data : []);
+                prefetchPencapaianDetailData(isAdminLogin ? selectedSales : currentUser, res && res.selectedPeriod ? res.selectedPeriod : selectedPeriod);
             }).withFailureHandler(function(err) {
                 if (requestId !== pencapaianRequestSeq) return;
                 pencapaianLoading = false;
@@ -5580,6 +5620,7 @@ startAutoRefresh();
         function preloadAppDataInBackground() {
             if (appBackgroundPreloadStarted) return;
             appBackgroundPreloadStarted = true;
+            restoreFastTabCaches();
 
             // Semua data utama dipanaskan setelah login. Tidak memakai overlay/loading modal.
             // Saat user pindah tab, data sudah berada di cache client dan langsung dirender.
@@ -6465,5 +6506,25 @@ if(tab==='riwayat')loadRiwayat(false, true);
 }
 #tabOutletKontrak table {
     margin-bottom: 36px !important;
+}
+</style>
+<style id="contract-table-scroll-final-v2">
+#tabOutletKontrak .bg-white.border.rounded-xl.shadow-sm > div {
+  max-height: calc(100dvh - 250px) !important;
+  height: calc(100dvh - 250px) !important;
+  min-height: 180px !important;
+  overflow-y: auto !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior: contain;
+  touch-action: pan-x pan-y;
+  scrollbar-gutter: stable;
+}
+#tabOutletKontrak table { min-width: 760px; }
+@media (max-width:767px){
+  #tabOutletKontrak .bg-white.border.rounded-xl.shadow-sm > div {
+    max-height: calc(100dvh - 220px) !important;
+    height: calc(100dvh - 220px) !important;
+  }
 }
 </style>
