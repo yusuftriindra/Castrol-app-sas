@@ -5787,7 +5787,7 @@ if(tab==='riwayat')loadRiwayat(false, true);
             showModal("Konfirmasi", "Keluar aplikasi?", true, function(isOk) {
                 if (isOk) {
                     clearAuthState();
-                    currentUser = ""; currentUsernameInput = ""; shoppingCart = []; globalRiwayatData = []; rawMonitoringDataObject = {}; globalOutletKontrakData = []; pencapaianCache = {}; pencapaianDetailCache = {}; globalPricelistData = [];
+                    currentUser = ""; currentUsernameInput = ""; shoppingCart = []; globalRiwayatData = []; rawMonitoringDataObject = {}; globalOutletKontrakData = []; pencapaianCache = {}; pencapaianDetailCache = {}; globalPricelistData = []; globalTambahCustomerData = { headers: [], rows: [] }; globalTambahCustomerFormMaster = { headers: [], dayVisits: [], channels: [], dsrs: [], today: '', salesName: '', isAdmin: false, newCustCode: '' }; tambahCustomerLoaded = false;
                     document.getElementById('mainPage').classList.add('hidden');
                     document.getElementById('mainHeader').classList.add('hidden');
                     document.getElementById('leftNav').classList.add('hidden');
@@ -5857,8 +5857,10 @@ if(tab==='riwayat')loadRiwayat(false, true);
                 setTimeout(function() { loadTambahCustomerFormMaster(callback); }, 120);
                 return;
             }
+            const expectedAdmin = String(currentUsernameInput || '').trim().toLowerCase() === 'admin';
             if (globalTambahCustomerFormMaster.headers.length &&
-                String(globalTambahCustomerFormMaster.salesName || '').trim().toUpperCase() === String(currentUser || '').trim().toUpperCase()) {
+                String(globalTambahCustomerFormMaster.salesName || '').trim().toUpperCase() === String(currentUser || '').trim().toUpperCase() &&
+                !!globalTambahCustomerFormMaster.isAdmin === expectedAdmin) {
                 callback();
                 return;
             }
@@ -6200,8 +6202,9 @@ if(tab==='riwayat')loadRiwayat(false, true);
             const currentMaps = idxMaps >= 0 ? String(values[idxMaps] || '') : '';
             const today = globalTambahCustomerFormMaster.today || new Date().toISOString().slice(0, 10);
             const custCode = isEdit ? currentCust : (globalTambahCustomerFormMaster.newCustCode || '');
+            const isAdminCustomerForm = String(currentUsernameInput || '').trim().toLowerCase() === 'admin';
 
-            if (idxDayVisit < 0 || idxOutlet < 0 || idxCust < 0 || idxChannel < 0 || idxTanggalInput < 0 || idxPhone < 0 || idxMaps < 0 || (globalTambahCustomerFormMaster.isAdmin && idxDsr < 0)) {
+            if (idxDayVisit < 0 || idxOutlet < 0 || idxCust < 0 || idxChannel < 0 || idxTanggalInput < 0 || idxPhone < 0 || idxMaps < 0 || (isAdminCustomerForm && idxDsr < 0)) {
                 showModal('Gagal', 'Ada kolom wajib form yang tidak ditemukan pada sheet OUTLET. Pastikan header DAY VISIT, OUTLET, CUST.CODE, CHANNEL, TANGGAL INPUT OUTLET, NOMOR HANDPHONE, dan MAPS tersedia.');
                 return;
             }
@@ -6228,10 +6231,10 @@ if(tab==='riwayat')loadRiwayat(false, true);
                             <div class="text-[8px] text-slate-400 mt-1">Otomatis menggunakan Unique ID.</div>
                         </div>
 
-                        ${idxDsr >= 0 && (globalTambahCustomerFormMaster.isAdmin || isEdit) ? `
+                        ${idxDsr >= 0 && (isAdminCustomerForm || isEdit) ? `
                         <div>
                             <label class="block text-[9px] font-extrabold uppercase tracking-wider text-slate-500 mb-1">DSR</label>
-                            ${globalTambahCustomerFormMaster.isAdmin ? `
+                            ${isAdminCustomerForm ? `
                             <select id="tambahCustomerField_${idxDsr}" class="w-full min-h-[40px] border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
                                 ${_renderCustomerSelectOptions(globalTambahCustomerFormMaster.dsrs, currentDsr, 'Pilih DSR')}
                             </select>` : `
