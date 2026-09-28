@@ -5922,7 +5922,9 @@ if(tab==='riwayat')loadRiwayat(false, true);
                     rows: Array.isArray(res.rows) ? res.rows : []
                 };
                 tambahCustomerLoaded = true;
-                renderTambahCustomerTable(globalTambahCustomerData.rows);
+                // Saat auto refresh berjalan, pertahankan pencarian/filter yang sedang aktif.
+                // Jangan render seluruh data karena itu akan menghapus hasil filter yang sedang diketik.
+                filterTambahCustomer();
                 globalTambahCustomerFormMaster.headers = globalTambahCustomerData.headers.slice();
                 loadTambahCustomerFormMaster();
             }).withFailureHandler(function(err) {
