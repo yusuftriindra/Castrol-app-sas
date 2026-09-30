@@ -196,6 +196,39 @@
             box-shadow: inset 3px 0 0 #059669, 0 6px 16px rgba(5,150,105,.08);
         }
 
+        .sidebar-bottom {
+            margin-top: auto;
+            padding-top: 8px;
+            border-top: 1px solid #e2e8f0;
+        }
+        .sidebar-user-item {
+            width: 100%;
+            min-height: 62px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            color: #475569;
+            font-size: 10px;
+            font-weight: 700;
+            text-align: center;
+            overflow: hidden;
+        }
+        .sidebar-user-item .sidebar-user-text {
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            padding: 0 2px;
+        }
+        .sidebar-account-item, .sidebar-item-danger {
+            min-height: 58px;
+        }
+        .sidebar-item-danger { color:#dc2626; }
+        .sidebar-item-danger:hover { color:#b91c1c; background:#fef2f2; border-color:#fecaca; }
+
         .sidebar-icon {
             width: 28px;
             height: 28px;
@@ -1443,6 +1476,36 @@ html{scroll-behavior:auto!important}
 }
 #loadingOverlay{pointer-events:none!important;user-select:none!important}
 </style>
+
+
+<style id="pengumuman-minimal-css">
+#announcementPage.pengumuman-page{position:fixed;inset:0;z-index:9998;overflow:auto;background:radial-gradient(circle at 15% 10%,rgba(16,185,129,.13),transparent 35%),radial-gradient(circle at 85% 85%,rgba(132,204,22,.10),transparent 35%),#f6faf8;padding:28px;box-sizing:border-box}
+.pengumuman-shell{width:min(1120px,100%);min-height:calc(100dvh - 56px);margin:auto;display:flex;align-items:center;justify-content:center}
+.pengumuman-panel{width:100%;background:rgba(255,255,255,.94);border:1px solid rgba(16,185,129,.16);border-radius:32px;box-shadow:0 28px 80px rgba(15,23,42,.14);overflow:hidden;backdrop-filter:blur(12px)}
+.pengumuman-hero{padding:34px 28px 26px;text-align:center;background:linear-gradient(135deg,#ecfdf5,#fff 55%,#f7fee7);border-bottom:1px solid #e2e8f0}
+.pengumuman-pill{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border:1px solid #bbf7d0;border-radius:999px;background:#fff;color:#047857;font-size:11px;font-weight:900;letter-spacing:.08em}
+.pengumuman-dot{width:9px;height:9px;border-radius:50%;background:#10b981;box-shadow:0 0 0 5px #d1fae5}
+#announcementContent{padding:26px}
+.pengumuman-card{overflow:hidden;border:1px solid #e2e8f0;border-radius:24px;background:#fff;box-shadow:0 14px 38px rgba(15,23,42,.08);margin-bottom:20px}
+.pengumuman-carousel{display:flex;flex-direction:row;gap:18px;overflow-x:auto;overflow-y:hidden;padding:4px 4px 14px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;touch-action:pan-x;overscroll-behavior-x:contain;scrollbar-width:none}
+.pengumuman-carousel::-webkit-scrollbar{display:none}
+.pengumuman-carousel .pengumuman-card{flex:0 0 min(86%,760px);margin-bottom:0;scroll-snap-align:center;scroll-snap-stop:always}
+.pengumuman-carousel .pengumuman-card img{max-height:62vh;min-height:220px;object-fit:contain}
+@media(max-width:767px){.pengumuman-carousel{gap:12px;padding-left:2px;padding-right:2px}.pengumuman-carousel .pengumuman-card{flex-basis:88%}.pengumuman-carousel .pengumuman-card img{min-height:180px;max-height:55vh}}
+.pengumuman-card:last-child{margin-bottom:0}
+.pengumuman-card img{display:block;width:100%;max-height:62vh;object-fit:contain;background:#f8fafc}
+.pengumuman-caption{padding:18px 22px 22px;text-align:center;color:#334155;font-size:14px;line-height:1.75;font-weight:700;white-space:pre-wrap}
+.pengumuman-main-header-marquee{display:block;flex:1;min-width:0;max-width:none;margin:0 8px;overflow:hidden;white-space:nowrap;border:none;border-radius:0;background:transparent;padding:7px 0;box-shadow:none}
+.pengumuman-marquee-track{display:flex;width:max-content;animation:pengumumanMarqueeRTL 16s linear infinite;will-change:transform}
+.pengumuman-marquee-text{flex:0 0 auto;display:block;padding:0 6vw;font-size:16px;font-weight:800;color:#e8f7ef;letter-spacing:.01em;white-space:nowrap}
+@keyframes pengumumanMarqueeRTL{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
+.pengumuman-footer{padding:20px 26px 26px;text-align:center;border-top:1px solid #eef2f7;background:#f8fafc}
+.pengumuman-main-btn{border:0;border-radius:15px;padding:13px 28px;background:#008a4c;color:#fff;font-weight:900;box-shadow:0 10px 24px rgba(0,138,76,.22);cursor:pointer}
+.pengumuman-main-btn:hover{background:#00733f}
+#tabPengumumanAdmin .pengumuman-thumb{width:72px;height:48px;object-fit:cover;border-radius:10px;border:1px solid #e2e8f0;background:#f8fafc}
+@media(max-width:767px){#announcementPage.pengumuman-page{padding:12px}.pengumuman-shell{min-height:calc(100dvh - 24px)}.pengumuman-panel{border-radius:22px}.pengumuman-hero{padding:26px 18px 22px}#announcementContent{padding:16px}.pengumuman-footer{padding:16px}.pengumuman-main-header-marquee{max-width:42vw;margin:0 7px}.pengumuman-marquee-text{padding:0 14vw;font-size:11px}}
+</style>
+
 </head>
 <body class="bg-slate-50 font-sans">
 
@@ -1490,7 +1553,24 @@ html{scroll-behavior:auto!important}
     </div>
 </div>
 
-    <div id="app" class="app-shell min-h-screen bg-slate-50 flex flex-col">
+    
+
+<!-- PENGUMUMAN AKTIF: hanya muncul setelah login berhasil -->
+<div id="announcementPage" class="pengumuman-page hidden" aria-hidden="true">
+  <div class="pengumuman-shell">
+    <section class="pengumuman-panel">
+      <div class="pengumuman-hero">
+        <div class="pengumuman-pill"><span class="pengumuman-dot"></span>CASTROL • PT SUKSES ADI SURYA</div>
+      </div>
+      <div id="announcementContent"></div>
+      <div class="pengumuman-footer">
+        <button type="button" class="pengumuman-main-btn" onclick="closeAnnouncementPage()">Ke Menu Utama</button>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div id="app" class="app-shell min-h-screen bg-slate-50 flex flex-col">
         
         <header id="mainHeader" class="bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-950 text-white px-4 py-3.5 flex justify-between items-center shadow-lg border-b border-emerald-500/20 hidden">
             <div class="flex items-center space-x-2.5 min-w-0">
@@ -1501,16 +1581,9 @@ html{scroll-behavior:auto!important}
                 </button>
                 <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
                 <h1 class="font-bold text-sm tracking-wide text-slate-100 truncate">Castrol</h1>
+                <div id="announcementHeaderMarquee" class="pengumuman-main-header-marquee hidden" aria-label="Pengumuman berjalan"></div>
             </div>
-            <div class="flex items-center space-x-1.5 sm:space-x-2">
-                <span id="userBadge" class="text-xs bg-slate-800/80 backdrop-blur-md text-emerald-300 border border-emerald-500/30 px-2.5 py-1 rounded-full font-medium shadow-inner hidden"></span>
-                <button type="button" onclick="openEditAccount()" id="headerAccountBtn" class="header-action-btn" title="Edit Account" aria-label="Edit Account">
-                    <span class="header-action-icon">⚙️</span><span class="header-action-text">Account</span>
-                </button>
-                <button type="button" onclick="logout()" id="headerLogoutBtn" class="header-action-btn header-action-danger" title="Logout" aria-label="Logout">
-                    <span class="header-action-icon">↪️</span><span class="header-action-text">Logout</span>
-                </button>
-            </div>
+            <div class="flex-1"></div>
         </header>
 
         <!-- Navigasi Menu Sidebar Kiri -->
@@ -1569,6 +1642,31 @@ html{scroll-behavior:auto!important}
                     <span class="sidebar-text">Pesanan Outlet</span>
                 </button>
 
+
+                <button type="button" onclick="switchTab('pengumumanadmin')" id="navPengumumanAdmin"
+                        class="sidebar-item hidden" title="Buat Pengumuman" aria-label="Buat Pengumuman">
+                    <span class="sidebar-icon">📣</span>
+                    <span class="sidebar-text">Buat Pengumuman</span>
+                </button>
+
+                <div class="sidebar-spacer"></div>
+
+                <div class="sidebar-bottom">
+                    <div class="sidebar-user-item" title="Nama login" aria-label="Nama login">
+                        <span class="sidebar-icon">👤</span>
+                        <span id="userBadge" class="sidebar-text sidebar-user-text hidden"></span>
+                    </div>
+                    <button type="button" onclick="openEditAccount()" id="headerAccountBtn"
+                            class="sidebar-item sidebar-account-item" title="Account" aria-label="Account">
+                        <span class="sidebar-icon">⚙️</span>
+                        <span class="sidebar-text">Account</span>
+                    </button>
+                    <button type="button" onclick="logout()" id="headerLogoutBtn"
+                            class="sidebar-item sidebar-item-danger" title="Logout" aria-label="Logout">
+                        <span class="sidebar-icon">↪️</span>
+                        <span class="sidebar-text">Logout</span>
+                    </button>
+                </div>
 
             </div>
         </nav>
@@ -2050,6 +2148,55 @@ html{scroll-behavior:auto!important}
                     <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden"><div id="pesananOutletTableWrap" class="overflow-x-auto"><table id="pesananOutletTable" class="w-full text-left border-collapse text-[10px]"><thead id="pesananOutletTableHead"></thead><tbody id="pesananOutletTableBody"><tr><td class="text-slate-400 text-center py-6">Klik menu Pesanan Outlet untuk memuat data.</td></tr></tbody></table></div></div>
                 </div>
 
+
+
+                <!-- TAB ADMIN: BUAT PENGUMUMAN -->
+                <div id="tabPengumumanAdmin" class="tab-content hidden space-y-3">
+                    <div class="flex items-center justify-between gap-3 border-b border-slate-200 pb-3">
+                        <div>
+                            <h2 class="text-base font-bold text-slate-800">Buat Pengumuman</h2>
+                            <p class="text-[10px] text-slate-400 mt-0.5">Tambah, edit, dan hapus data dari sheet PENGUMUMAN.</p>
+                        </div>
+                        <button type="button" onclick="openPengumumanForm()" class="px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-[10px] font-extrabold shadow-sm">＋ Tambah Pengumuman</button>
+                    </div>
+                    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-[10px]">
+                                <thead><tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
+                                    <th class="p-3 font-bold">No</th><th class="p-3 font-bold">Gambar</th><th class="p-3 font-bold">Keterangan</th><th class="p-3 font-bold">Mulai</th><th class="p-3 font-bold">Selesai</th><th class="p-3 font-bold text-center">Aksi</th>
+                                </tr></thead>
+                                <tbody id="pengumumanAdminTableBody"><tr><td colspan="6" class="text-slate-400 text-center py-8">Klik menu Buat Pengumuman untuk memuat data.</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div id="pengumumanAdminCount" class="text-[10px] text-slate-400 text-right">0 pengumuman</div>
+                    <div id="pengumumanFormBox" class="hidden bg-white border border-slate-200 rounded-2xl shadow-sm p-4">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-3">
+                            <div><div class="text-[9px] font-extrabold uppercase tracking-wider text-emerald-600">FORM PENGUMUMAN</div><h3 id="pengumumanFormTitle" class="text-sm font-extrabold text-slate-800">Tambah Pengumuman</h3></div>
+                            <button type="button" onclick="closePengumumanForm()" class="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-500 text-[10px] font-bold">Tutup</button>
+                        </div>
+                        <input type="hidden" id="pengumumanRowNumber" value="">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="sm:col-span-2">
+  <label class="block text-[10px] font-bold text-slate-600 mb-1">Gambar Pengumuman <span class="font-normal text-slate-400">(opsional)</span></label>
+  <input id="pengumumanImage" type="hidden" value="">
+  <div class="flex flex-wrap gap-2">
+    <button type="button" onclick="document.getElementById('pengumumanGalleryInput').click()" class="px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 text-[10px] font-extrabold">🖼️ Pilih dari Galeri</button>
+    <button type="button" onclick="document.getElementById('pengumumanCameraInput').click()" class="px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 text-[10px] font-extrabold">📷 Kamera</button>
+    <input id="pengumumanGalleryInput" type="file" accept="image/*" class="hidden" onchange="handlePengumumanImageFile(this)">
+    <input id="pengumumanCameraInput" type="file" accept="image/*" capture="environment" class="hidden" onchange="handlePengumumanImageFile(this)">
+  </div>
+  <div id="pengumumanImageStatus" class="mt-2 text-[9px] text-slate-400">Belum ada gambar dipilih.</div>
+  <img id="pengumumanImagePreview" class="hidden mt-2 max-h-40 rounded-xl border border-slate-200 object-contain" alt="Preview gambar pengumuman">
+</div>
+                            <div class="sm:col-span-2"><label class="block text-[10px] font-bold text-slate-600 mb-1">Keterangan</label><textarea id="pengumumanText" rows="4" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-xs" placeholder="Tulis keterangan pengumuman..."></textarea></div>
+                            <div><label class="block text-[10px] font-bold text-slate-600 mb-1">Mulai</label><input id="pengumumanStart" type="date" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-xs"></div>
+                            <div><label class="block text-[10px] font-bold text-slate-600 mb-1">Selesai</label><input id="pengumumanEnd" type="date" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-xs"></div>
+                        </div>
+                        <div class="flex justify-end gap-2 mt-4 pt-3 border-t border-slate-100"><button type="button" onclick="closePengumumanForm()" class="px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-600 text-[10px] font-bold">Batal</button><button type="button" onclick="savePengumumanForm()" class="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-[10px] font-extrabold">Simpan Pengumuman</button></div>
+                    </div>
+                </div>
+
                 <!-- PRICELIST -->
                 <div id="tabPricelist" class="tab-content hidden space-y-3">
                     <div class="flex justify-between items-center border-b border-slate-200 pb-2">
@@ -2289,6 +2436,10 @@ html{scroll-behavior:auto!important}
             if (tabOutletBWS) tabOutletBWS.classList.toggle('hidden', !isAdminLogin);
             const btnTambahOutletBWS = document.getElementById('btnTambahOutletBWS');
             if (btnTambahOutletBWS) btnTambahOutletBWS.classList.toggle('hidden', !isAdminLogin);
+            const navPengumumanAdmin = document.getElementById('navPengumumanAdmin');
+            const tabPengumumanAdmin = document.getElementById('tabPengumumanAdmin');
+            if (navPengumumanAdmin) navPengumumanAdmin.classList.toggle('hidden', !isAdminLogin);
+            if (tabPengumumanAdmin) tabPengumumanAdmin.classList.toggle('hidden', !isAdminLogin);
         }
 
         function restoreAuthState() {
@@ -2310,7 +2461,7 @@ html{scroll-behavior:auto!important}
 
                 const isAdminLogin = currentUsernameInput.toLowerCase() === 'admin';
                 applyRoleVisibility();
-                document.getElementById('userBadge').textContent = isAdminLogin ? "Role: Admin" : ("Sales: " + currentUser);
+                document.getElementById('userBadge').textContent = isAdminLogin ? "Admin" : currentUser;
                 document.getElementById('userBadge').classList.remove('hidden');
                 const adminTools = document.getElementById('riwayatAdminTools');
                 if (adminTools) adminTools.classList.toggle('hidden', !isAdminLogin);
@@ -2321,6 +2472,7 @@ html{scroll-behavior:auto!important}
                 if (!isAdminLogin) loadInputMasterData();
                 preloadAppDataInBackground();
                 if (isAdminLogin) switchTab('riwayat');
+                checkActivePengumuman();
                 return true;
             } catch (e) {
                 console.warn("Sesi lokal tidak valid:", e);
@@ -2424,9 +2576,11 @@ startAutoRefresh();
                     document.getElementById('mainHeader').classList.remove('hidden');
                     document.getElementById('leftNav').classList.remove('hidden');
                     setSidebarState(false);
+                    // Cek pengumuman segera setelah login berhasil, sebelum request data lain.
+                    checkActivePengumuman();
                     const isAdminLogin = currentUsernameInput.toLowerCase() === 'admin';
                     applyRoleVisibility();
-                    document.getElementById('userBadge').textContent = isAdminLogin ? "Role: Admin" : ("Sales: " + currentUser);
+                    document.getElementById('userBadge').textContent = isAdminLogin ? "Admin" : currentUser;
                     document.getElementById('userBadge').classList.remove('hidden');
                     const adminTools = document.getElementById('riwayatAdminTools');
                     if (adminTools) adminTools.classList.toggle('hidden', !isAdminLogin);
@@ -5653,8 +5807,9 @@ startAutoRefresh();
         function switchTab(tab) {
             const isAdminLogin = String(currentUsernameInput || '').trim().toLowerCase() === 'admin';
             if (isAdminLogin && tab === 'input') { applyRoleVisibility(); return; }
-            const tabMap = {input:'tabInput',riwayat:'tabRiwayat',pencapaian:'tabPencapaian',monitoring:'tabMonitoring',outletkontrak:'tabOutletKontrak',outletbws:'tabOutletBWS',tambahcustomer:'tabTambahCustomer',pricelist:'tabPricelist',pesananoutlet:'tabPesananOutlet'};
-            const navMap = {input:'navInput',riwayat:'navRiwayat',pencapaian:'navPencapaian',monitoring:'navMonitoring',outletkontrak:'navOutletKontrak',outletbws:'navOutletBWS',tambahcustomer:'navTambahCustomer',pricelist:'navPricelist',pesananoutlet:'navPesananOutlet'};
+            if (tab === 'pengumumanadmin' && !isAdminLogin) { applyRoleVisibility(); return; }
+            const tabMap = {input:'tabInput',riwayat:'tabRiwayat',pencapaian:'tabPencapaian',monitoring:'tabMonitoring',outletkontrak:'tabOutletKontrak',outletbws:'tabOutletBWS',tambahcustomer:'tabTambahCustomer',pricelist:'tabPricelist',pesananoutlet:'tabPesananOutlet',pengumumanadmin:'tabPengumumanAdmin'};
+            const navMap = {input:'navInput',riwayat:'navRiwayat',pencapaian:'navPencapaian',monitoring:'navMonitoring',outletkontrak:'navOutletKontrak',outletbws:'navOutletBWS',tambahcustomer:'navTambahCustomer',pricelist:'navPricelist',pesananoutlet:'navPesananOutlet',pengumumanadmin:'navPengumumanAdmin'};
             Object.keys(tabMap).forEach(function(key){
                 const el=document.getElementById(tabMap[key]);
                 if(!el) return;
@@ -5684,6 +5839,7 @@ if(tab==='riwayat')loadRiwayat(false, true);
             if(tab==='tambahcustomer')loadTambahCustomer(false, true);
             if(tab==='pricelist')loadPricelist(false, true);
             if(tab==='pesananoutlet')loadPesananOutlet(false, true);
+            if(tab==='pengumumanadmin')loadPengumumanAdmin();
         }
 
         function setSidebarState(collapsed) {
@@ -5775,7 +5931,7 @@ if(tab==='riwayat')loadRiwayat(false, true);
                     if (res && res.success) {
                         currentUsernameInput = res.username || newUsername.toLowerCase();
                         localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({username: currentUsernameInput, sales: currentUser}));
-                        document.getElementById('userBadge').textContent = (currentUsernameInput.toLowerCase() === 'admin') ? 'Role: Admin' : ('Sales: ' + currentUser);
+                        document.getElementById('userBadge').textContent = (currentUsernameInput.toLowerCase() === 'admin') ? 'Admin' : currentUser;
                         loadOutletForSales(currentUser, currentUsernameInput);
                         loadRiwayat();
                         showModal('Berhasil', res.message || 'Account berhasil diperbarui.');
@@ -5794,6 +5950,8 @@ if(tab==='riwayat')loadRiwayat(false, true);
                 if (isOk) {
                     clearAuthState();
                     currentUser = ""; currentUsernameInput = ""; shoppingCart = []; globalRiwayatData = []; rawMonitoringDataObject = {}; globalOutletKontrakData = []; pencapaianCache = {}; pencapaianDetailCache = {}; globalPricelistData = []; globalTambahCustomerData = { headers: [], rows: [] }; globalTambahCustomerFormMaster = { headers: [], dayVisits: [], channels: [], dsrs: [], today: '', salesName: '', isAdmin: false, newCustCode: '' }; tambahCustomerLoaded = false;
+                    announcementDismissedThisSession = false;
+                    closeAnnouncementPage(true);
                     document.getElementById('mainPage').classList.add('hidden');
                     document.getElementById('mainHeader').classList.add('hidden');
                     document.getElementById('leftNav').classList.add('hidden');
@@ -6398,6 +6556,280 @@ if(tab==='riwayat')loadRiwayat(false, true);
         }
 
 </script>
+
+
+<script id="pengumuman-minimal-js">
+/* ================= PENGUMUMAN - ADD-ON MINIMAL ================= */
+var pengumumanAdminData = [];
+var announcementDismissedThisSession = false;
+
+function isAdminPengumuman() {
+    return String(typeof currentUsernameInput !== 'undefined' ? currentUsernameInput : '').trim().toLowerCase() === 'admin';
+}
+
+function renderAnnouncementPage(data) {
+    var box = document.getElementById('announcementContent');
+    var headerMarquee = document.getElementById('announcementHeaderMarquee');
+    if (!box) return;
+
+    var list = Array.isArray(data) ? data : [];
+    var imageItems = list.filter(function(item) {
+        return item && String(item.gambar || '').trim() !== '';
+    });
+    var textItems = list.filter(function(item) {
+        return item && String(item.gambar || '').trim() === '' && String(item.keterangan || '').trim() !== '';
+    });
+
+    /* Hanya pengumuman yang benar-benar mempunyai gambar yang ditampilkan sebagai kartu. */
+    box.innerHTML = imageItems.length ? ('<div class="pengumuman-carousel" aria-label="Pengumuman bergambar">' + imageItems.map(function(item) {
+        var imageUrl = String(item.gambar || '').trim();
+        var text = escapeHtml(item.keterangan || '');
+        return '<div class="pengumuman-card"><img src="' + escapeHtml(imageUrl) + '" alt="Pengumuman">' +
+               (text ? '<div class="pengumuman-caption">' + text + '</div>' : '') +
+               '</div>';
+    }).join('') + '</div>') : '';
+
+    /* Pengumuman tanpa gambar masuk ke HEADER dan berjalan dari kanan ke kiri. */
+    if (headerMarquee) {
+        if (textItems.length) {
+            var messages = textItems.map(function(item) {
+                return escapeHtml(String(item.keterangan || '').trim());
+            }).filter(Boolean);
+            var combined = messages.join(' &nbsp;&nbsp; • &nbsp;&nbsp; ');
+            var repeated = combined + ' &nbsp;&nbsp; • &nbsp;&nbsp; ' + combined;
+            headerMarquee.innerHTML =
+                '<div class="pengumuman-marquee-track">' +
+                '<span class="pengumuman-marquee-text">' + repeated + '</span>' +
+                '<span class="pengumuman-marquee-text" aria-hidden="true">' + repeated + '</span>' +
+                '</div>';
+            headerMarquee.classList.remove('hidden');
+        } else {
+            headerMarquee.innerHTML = '';
+            headerMarquee.classList.add('hidden');
+        }
+    }
+}
+
+function showAnnouncementPage(data) {
+    if (announcementDismissedThisSession) return;
+    if (!Array.isArray(data) || !data.length) return;
+    renderAnnouncementPage(data);
+    var page = document.getElementById('announcementPage');
+    var app = document.getElementById('app');
+    if (page) { page.classList.remove('hidden'); page.setAttribute('aria-hidden','false'); }
+    if (app) app.classList.add('hidden');
+}
+
+function closeAnnouncementPage(fromLogout) {
+    if (!fromLogout) announcementDismissedThisSession = true;
+    var page = document.getElementById('announcementPage');
+    var app = document.getElementById('app');
+    if (page) { page.classList.add('hidden'); page.setAttribute('aria-hidden','true'); }
+    if (app && document.getElementById('mainPage') && !document.getElementById('mainPage').classList.contains('hidden')) app.classList.remove('hidden');
+}
+
+function checkActivePengumuman() {
+    if (announcementDismissedThisSession) return;
+    google.script.run.withSuccessHandler(function(res) {
+        var data = res && res.success ? res.data : [];
+        showAnnouncementPage(Array.isArray(data) ? data : []);
+    }).withFailureHandler(function(err) {
+        console.warn('Gagal memuat pengumuman:', err && err.message ? err.message : err);
+    }).getPengumumanAktif();
+}
+
+function loadPengumumanAdmin() {
+    if (!isAdminPengumuman()) return;
+    var body = document.getElementById('pengumumanAdminTableBody');
+    if (body) body.innerHTML = '<tr><td colspan="6" class="text-slate-400 text-center py-8">Memuat data PENGUMUMAN...</td></tr>';
+    google.script.run.withSuccessHandler(function(res) {
+        if (!res || !res.success) {
+            if (body) body.innerHTML = '<tr><td colspan="6" class="text-red-500 text-center py-8">' + escapeHtml(res && res.message ? res.message : 'Gagal memuat data.') + '</td></tr>';
+            return;
+        }
+        pengumumanAdminData = Array.isArray(res.data) ? res.data : [];
+        renderPengumumanAdminTable();
+    }).withFailureHandler(function(err) {
+        if (body) body.innerHTML = '<tr><td colspan="6" class="text-red-500 text-center py-8">' + escapeHtml(err && err.message ? err.message : 'Terjadi kesalahan.') + '</td></tr>';
+    }).getPengumumanAdmin(currentUsernameInput);
+}
+
+function renderPengumumanAdminTable() {
+    var body = document.getElementById('pengumumanAdminTableBody');
+    var count = document.getElementById('pengumumanAdminCount');
+    if (count) count.textContent = pengumumanAdminData.length + ' pengumuman';
+    if (!body) return;
+    if (!pengumumanAdminData.length) {
+        body.innerHTML = '<tr><td colspan="6" class="text-slate-400 text-center py-10">Belum ada data di sheet PENGUMUMAN.</td></tr>';
+        return;
+    }
+    body.innerHTML = pengumumanAdminData.map(function(item, i) {
+        var img = item.gambar ? '<img class="pengumuman-thumb" src="' + escapeHtml(item.gambar) + '" alt="Gambar">' : '<span class="text-slate-400">-</span>';
+        return '<tr class="border-b border-slate-100 hover:bg-slate-50">' +
+            '<td class="p-3 text-slate-500">' + (i + 1) + '</td>' +
+            '<td class="p-3">' + img + '</td>' +
+            '<td class="p-3 text-slate-700 font-semibold max-w-[420px] whitespace-pre-wrap">' + escapeHtml(item.keterangan || '-') + '</td>' +
+            '<td class="p-3 text-slate-600">' + escapeHtml(item.mulai || '-') + '</td>' +
+            '<td class="p-3 text-slate-600">' + escapeHtml(item.selesai || '-') + '</td>' +
+            '<td class="p-3"><div class="flex justify-center gap-1.5"><button type="button" onclick="editPengumuman(' + Number(item.rowNumber) + ')" class="px-2.5 py-1.5 rounded-lg bg-blue-50 text-blue-700 text-[9px] font-extrabold">Edit</button><button type="button" onclick="deletePengumuman(' + Number(item.rowNumber) + ')" class="px-2.5 py-1.5 rounded-lg bg-red-50 text-red-700 text-[9px] font-extrabold">Hapus</button></div></td>' +
+            '</tr>';
+    }).join('');
+}
+
+function handlePengumumanImageFile(input) {
+    var file = input && input.files && input.files[0];
+    if (!file) return;
+    if (!String(file.type || '').startsWith('image/')) {
+        showModal('Gagal', 'File yang dipilih harus berupa gambar.');
+        input.value = '';
+        return;
+    }
+    var status = document.getElementById('pengumumanImageStatus');
+    var preview = document.getElementById('pengumumanImagePreview');
+    if (status) status.textContent = 'Mengunggah gambar...';
+    if (preview) {
+        preview.src = URL.createObjectURL(file);
+        preview.classList.remove('hidden');
+    }
+    // Kompres gambar di browser supaya bisa disimpan langsung di Sheet tanpa DriveApp.
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        var sourceUrl = String(e.target.result || '');
+        var img = new Image();
+        img.onload = function() {
+            try {
+                // Standar upload: pertahankan kualitas visual setinggi mungkin dengan
+                // ukuran maksimum Full HD (1920x1080), tanpa memperbesar gambar kecil.
+                var srcW = img.naturalWidth || img.width;
+                var srcH = img.naturalHeight || img.height;
+                var maxW = 1920;
+                var maxH = 1080;
+                var scale = Math.min(1, maxW / srcW, maxH / srcH);
+                var w = Math.max(1, Math.round(srcW * scale));
+                var h = Math.max(1, Math.round(srcH * scale));
+                var canvas = document.createElement('canvas');
+                var ctx = canvas.getContext('2d', {alpha:false});
+                canvas.width = w;
+                canvas.height = h;
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+                ctx.drawImage(img, 0, 0, w, h);
+
+                // Gunakan WebP bila browser mendukung karena lebih efisien daripada JPEG,
+                // sehingga resolusi Full HD dapat dipertahankan dengan kualitas lebih baik.
+                var outputMime = 'image/webp';
+                var quality = 0.92;
+                var dataUrl = canvas.toDataURL(outputMime, quality);
+                if (dataUrl.indexOf('data:image/webp') !== 0) {
+                    outputMime = 'image/jpeg';
+                    dataUrl = canvas.toDataURL(outputMime, quality);
+                }
+
+                // Tidak ada lagi batas ukuran file di sisi browser.
+                // Resolusi tetap mengikuti standar Full HD maksimum, tetapi kualitas
+                // tidak diturunkan hanya karena hasil encode lebih besar.
+
+                var comma = dataUrl.indexOf(',');
+                if (comma < 0) throw new Error('Gagal memproses gambar.');
+                var base64 = dataUrl.substring(comma + 1);
+                showLoading(true);
+                google.script.run.withSuccessHandler(function(res) {
+                    showLoading(false);
+                    if (res && res.success && res.url) {
+                        document.getElementById('pengumumanImage').value = res.url;
+                        if (status) status.textContent = 'Gambar berhasil dipilih.';
+                    } else {
+                        if (status) status.textContent = 'Gagal mengunggah gambar.';
+                        showModal('Gagal', res && res.message ? res.message : 'Gagal mengunggah gambar.');
+                    }
+                }).withFailureHandler(function(err) {
+                    showLoading(false);
+                    if (status) status.textContent = 'Gagal mengunggah gambar.';
+                    showModal('Error Sistem', err && err.message ? err.message : 'Gagal mengunggah gambar.');
+                }).uploadPengumumanImage(currentUsernameInput, base64, outputMime, file.name);
+            } catch (err) {
+                showLoading(false);
+                if (status) status.textContent = 'Gagal memproses gambar.';
+                showModal('Gagal', err && err.message ? err.message : 'Gambar tidak dapat diproses.');
+            }
+        };
+        img.onerror = function() {
+            showModal('Gagal', 'Gambar tidak dapat dibaca.');
+            if (status) status.textContent = 'Gagal membaca gambar.';
+        };
+        img.src = sourceUrl;
+    };
+    reader.onerror = function() {
+        showModal('Gagal', 'Gambar tidak dapat dibaca.');
+        if (status) status.textContent = 'Gagal membaca gambar.';
+    };
+    reader.readAsDataURL(file);
+}
+
+function openPengumumanForm(item) {
+    if (!isAdminPengumuman()) return;
+    var box = document.getElementById('pengumumanFormBox');
+    if (!box) return;
+    document.getElementById('pengumumanFormTitle').textContent = item ? 'Edit Pengumuman' : 'Tambah Pengumuman';
+    document.getElementById('pengumumanRowNumber').value = item ? Number(item.rowNumber) : '';
+    document.getElementById('pengumumanImage').value = item ? (item.gambar || '') : '';
+    document.getElementById('pengumumanText').value = item ? (item.keterangan || '') : '';
+    document.getElementById('pengumumanStart').value = item ? (item.mulai || '') : '';
+    document.getElementById('pengumumanEnd').value = item ? (item.selesai || '') : '';
+    box.classList.remove('hidden');
+    box.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function closePengumumanForm() {
+    var box = document.getElementById('pengumumanFormBox');
+    if (box) box.classList.add('hidden');
+}
+
+function editPengumuman(row) {
+    var item = pengumumanAdminData.find(function(x){ return Number(x.rowNumber) === Number(row); });
+    if (item) openPengumumanForm(item);
+}
+
+function savePengumumanForm() {
+    if (!isAdminPengumuman()) return;
+    var payload = {
+        gambar: String(document.getElementById('pengumumanImage').value || '').trim(),
+        keterangan: String(document.getElementById('pengumumanText').value || '').trim(),
+        mulai: String(document.getElementById('pengumumanStart').value || '').trim(),
+        selesai: String(document.getElementById('pengumumanEnd').value || '').trim()
+    };
+    if (!payload.keterangan) { showModal('Gagal','Keterangan pengumuman wajib diisi.'); return; }
+    if (!payload.mulai || !payload.selesai) { showModal('Gagal','Tanggal mulai dan selesai wajib diisi.'); return; }
+    if (payload.mulai > payload.selesai) { showModal('Gagal','Tanggal mulai tidak boleh lebih besar dari tanggal selesai.'); return; }
+    var row = Number(document.getElementById('pengumumanRowNumber').value || 0);
+    showLoading(true);
+    google.script.run.withSuccessHandler(function(res){
+        showLoading(false);
+        if (res && res.success) { closePengumumanForm(); loadPengumumanAdmin(); showModal('Berhasil', res.message || 'Pengumuman berhasil disimpan.'); }
+        else showModal('Gagal', res && res.message ? res.message : 'Pengumuman gagal disimpan.');
+    }).withFailureHandler(function(err){
+        showLoading(false);
+        showModal('Error Sistem', err && err.message ? err.message : 'Terjadi kesalahan.');
+    }).savePengumumanAdmin(currentUsernameInput, row, payload);
+}
+
+function deletePengumuman(row) {
+    if (!isAdminPengumuman()) return;
+    showModal('Konfirmasi','Hapus pengumuman ini?',true,function(ok){
+        if (!ok) return;
+        showLoading(true);
+        google.script.run.withSuccessHandler(function(res){
+            showLoading(false);
+            if (res && res.success) { loadPengumumanAdmin(); showModal('Berhasil', res.message || 'Pengumuman berhasil dihapus.'); }
+            else showModal('Gagal', res && res.message ? res.message : 'Pengumuman gagal dihapus.');
+        }).withFailureHandler(function(err){
+            showLoading(false);
+            showModal('Error Sistem', err && err.message ? err.message : 'Terjadi kesalahan.');
+        }).deletePengumumanAdmin(currentUsernameInput, Number(row));
+    });
+}
+</script>
+
 </body>
 </html>
 <style id="mobile-monitoring-pricelist-bottom-fix">
