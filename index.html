@@ -3683,7 +3683,7 @@ startAutoRefresh();
                         <div class="text-[9px] text-red-500 mt-2">Gagal memuat history: ${escapeHtml(err && err.message ? err.message : 'Terjadi kesalahan.')}</div>
                     `;
                 })
-                .getMonitoringOutletHistory('', data.custCode || '', '');
+                .getMonitoringOutletHistory(data.custCode || '');
         }
 
         function renderMonitoringHistoryChart(history) {
