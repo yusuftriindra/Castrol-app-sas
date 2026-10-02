@@ -663,7 +663,8 @@ button{touch-action:manipulation}
 #tabOutletKontrak table,#tabPricelist table{min-width:760px}
 .modern-modal-overlay{padding:12px!important}
 .modern-modal-card{width:min(700px,100%)!important;max-height:min(88vh,800px)!important;border-radius:20px!important;overflow:hidden}
-.bws-detail-modal-card{width:min(860px,100%)!important;max-height:min(90vh,860px)!important}
+.bws-detail-modal-card{width:min(1280px,calc(100vw - 80px))!important;max-width:1280px!important;max-height:min(90vh,860px)!important}
+@media (min-width:768px){.bws-detail-modal-card{width:min(1280px,calc(100vw - 80px))!important;max-width:1280px!important}}
 .bws-detail-modal-card .modern-modal-footer{display:none!important}
 #customModal.detail-modal-active .modern-modal-footer{display:none!important}
 #customModal .modern-modal-card.detail-no-footer .modern-modal-footer{display:none!important}
@@ -1506,6 +1507,64 @@ html{scroll-behavior:auto!important}
 @media(max-width:767px){#announcementPage.pengumuman-page{padding:12px}.pengumuman-shell{min-height:calc(100dvh - 24px)}.pengumuman-panel{border-radius:22px}.pengumuman-hero{padding:26px 18px 22px}#announcementContent{padding:16px}.pengumuman-footer{padding:16px}.pengumuman-main-header-marquee{max-width:42vw;margin:0 7px}.pengumuman-marquee-text{padding:0 14vw;font-size:11px}}
 </style>
 
+
+<style id="monitoring-detail-simple-stats">
+/* DETAIL MONITORING: 1 kotak untuk Target, Actual, Gap, Ach. */
+#customModal .modal-detail-summary{
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:0!important;
+    margin-bottom:11px!important;
+    padding:0!important;
+    border:1px solid #dfe8e2!important;
+    border-radius:14px!important;
+    background:#fff!important;
+    overflow:hidden!important;
+    box-shadow:0 6px 18px rgba(13,54,30,.04)!important;
+}
+#customModal .modal-detail-summary .modal-stat-card{
+    min-width:0!important;
+    padding:11px 13px!important;
+    border:0!important;
+    border-right:1px solid #e2e8f0!important;
+    border-radius:0!important;
+    background:#fff!important;
+}
+#customModal .modal-detail-summary .modal-stat-card:last-child{border-right:0!important}
+#customModal .modal-detail-summary .modal-stat-label{
+    font-size:9px!important;
+    font-weight:800!important;
+    color:#94a3b8!important;
+    letter-spacing:.05em!important;
+}
+#customModal .modal-detail-summary .modal-stat-value{
+    margin-top:4px!important;
+    font-size:13px!important;
+    line-height:1.25!important;
+    font-weight:800!important;
+    color:#0f172a!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+}
+#customModal .modal-detail-summary .modal-stat-value.is-main{color:#047857!important}
+
+@media(max-width:767px){
+    #customModal .modal-detail-summary{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+    #customModal .modal-detail-summary .modal-stat-card:nth-child(2){border-right:0!important}
+    #customModal .modal-detail-summary .modal-stat-card:nth-child(-n+2){border-bottom:1px solid #e2e8f0!important}
+    #customModal .modal-detail-summary .modal-stat-card:nth-child(3){border-right:1px solid #e2e8f0!important}
+}
+@media(max-width:430px){
+    #customModal .modal-detail-summary{grid-template-columns:1fr!important}
+    #customModal .modal-detail-summary .modal-stat-card{
+        border-right:0!important;
+        border-bottom:1px solid #e2e8f0!important;
+    }
+    #customModal .modal-detail-summary .modal-stat-card:last-child{border-bottom:0!important}
+}
+</style>
+
 </head>
 <body class="bg-slate-50 font-sans">
 
@@ -2308,7 +2367,7 @@ html{scroll-behavior:auto!important}
             } catch(e) { return null; }
         }
         function restoreFastTabCaches() {
-            const mon = appLocalCacheGet('MONITORING_' + String(currentUsernameInput||'').toUpperCase());
+            const mon = appLocalCacheGet('MONITORING_V8_' + String(currentUsernameInput||'').toUpperCase());
             if (mon && typeof mon === 'object') rawMonitoringDataObject = mon;
             const kontrak = appLocalCacheGet('KONTRAK_' + String(currentUsernameInput||'').toUpperCase());
             if (Array.isArray(kontrak)) globalOutletKontrakData = kontrak;
@@ -3262,10 +3321,40 @@ startAutoRefresh();
 
         function loadMonitoring(forceReload, silentRefresh) {
             const hasCached = Object.keys(rawMonitoringDataObject || {}).length > 0;
-            if (!forceReload && hasCached) { renderMonitoringList(); return; }
+            let container = document.getElementById('listMonitoringTableBody');
+
+            // Jika data sudah ada di browser, tampilkan SEKETIKA.
+            // Server tetap diperbarui di belakang layar tanpa mengganggu tampilan.
+            if (!forceReload && hasCached) {
+                renderMonitoringList();
+                if (monitoringLoading) return;
+                monitoringLoading = true;
+                google.script.run.withSuccessHandler(function(dataObj) {
+                    monitoringLoading = false;
+                    rawMonitoringDataObject = dataObj || {};
+                    appLocalCacheSet('MONITORING_V8_' + String(currentUsernameInput||'').toUpperCase(), rawMonitoringDataObject);
+                    let quarters = Object.keys(rawMonitoringDataObject).sort(function(a,b){
+                        function quarterKey(v){
+                            const m=String(v||'').match(/Q\s*([1-4])\s*(\d{4})/i);
+                            return m ? Number(m[2])*10+Number(m[1]) : -1;
+                        }
+                        return quarterKey(b)-quarterKey(a) || String(b).localeCompare(String(a));
+                    });
+                    let selectQ = document.getElementById('filterQuarterSelect');
+                    const previousQuarter = selectQ ? String(selectQ.value || '').trim() : '';
+                    if (selectQ) selectQ.innerHTML = '';
+                    quarters.forEach(function(q){ let opt=document.createElement('option'); opt.value=q; opt.textContent=q; selectQ.appendChild(opt); });
+                    if (selectQ && quarters.length) selectQ.value = quarters.indexOf(previousQuarter) !== -1 ? previousQuarter : quarters[0];
+                    renderMonitoringList();
+                }).withFailureHandler(function(err) {
+                    monitoringLoading = false;
+                    console.warn('Refresh Monitoring gagal:', err && err.message ? err.message : err);
+                }).getMonitoringOutletData(currentUser, currentUsernameInput);
+                return;
+            }
+
             if (monitoringLoading) return;
             monitoringLoading = true;
-            let container = document.getElementById('listMonitoringTableBody');
             if (forceReload && hasCached) renderMonitoringList();
             if (!silentRefresh) {
                 if (!hasCached && container) container.innerHTML = '<tr><td colspan="10" class="text-slate-400 text-center py-6">Memuat...</td></tr>';
@@ -3275,7 +3364,7 @@ startAutoRefresh();
                 monitoringLoading = false;
                 if (!silentRefresh) showLoading(false);
                 rawMonitoringDataObject = dataObj || {};
-                appLocalCacheSet('MONITORING_' + String(currentUsernameInput||'').toUpperCase(), rawMonitoringDataObject);
+                appLocalCacheSet('MONITORING_V8_' + String(currentUsernameInput||'').toUpperCase(), rawMonitoringDataObject);
                 let quarters = Object.keys(rawMonitoringDataObject).sort(function(a,b){
                     function quarterKey(v){
                         const m=String(v||'').match(/Q\s*([1-4])\s*(\d{4})/i);
@@ -3285,9 +3374,9 @@ startAutoRefresh();
                 });
                 let selectQ = document.getElementById('filterQuarterSelect');
                 const previousQuarter = selectQ ? String(selectQ.value || '').trim() : '';
-                if (selectQ) selectQ.innerHTML = "";
+                if (selectQ) selectQ.innerHTML = '';
                 if (quarters.length === 0) { if(selectQ) selectQ.innerHTML = '<option value="">Tidak ada data</option>'; renderMonitoringList(); return; }
-                quarters.forEach(q => { let opt=document.createElement('option'); opt.value=q; opt.textContent=q; selectQ.appendChild(opt); });
+                quarters.forEach(function(q){ let opt=document.createElement('option'); opt.value=q; opt.textContent=q; selectQ.appendChild(opt); });
                 if (selectQ) selectQ.value = quarters.indexOf(previousQuarter) !== -1 ? previousQuarter : quarters[0];
                 renderMonitoringList();
             }).withFailureHandler(function(err) {
@@ -3447,6 +3536,10 @@ startAutoRefresh();
                         <div class="modal-stat-value">${initialTarget > 0 ? initialAch.toFixed(1) + '%' : '-'}</div>
                     </div>
                 </div>
+                <div id="monitoringDetailHistoryChart" class="mt-3 rounded-xl border border-slate-200 bg-white p-3">
+                    <div class="text-[10px] font-extrabold text-slate-700">History Pengambilan</div>
+                    <div class="text-[9px] text-slate-400 mt-1">Memuat...</div>
+                </div>
                 <div id="monitoringDetailProducts" class="text-xs text-slate-400 text-center py-6">${initialMsg}</div>
             `;
             const monitoringModal = document.getElementById('customModal');
@@ -3455,6 +3548,9 @@ startAutoRefresh();
             monitoringModal.style.display = 'flex';
             document.getElementById('modalCancelBtn').style.display = 'none';
             document.getElementById('modalOkBtn').style.display = 'none';
+
+            // Jalankan History langsung setelah modal tampil, tanpa menunggu Transaksi.
+            loadMonitoringHistoryChart(data);
 
             google.script.run
                 .withSuccessHandler(function(produkList) {
@@ -3532,43 +3628,265 @@ startAutoRefresh();
                         `;
                     }
 
-                    const detailTarget = Number(data.targetQuarter || 0);
-                    const detailActual = Number(data.total || 0);
-                    const detailGap = detailActual - detailTarget;
-                    const detailAch = detailTarget > 0 ? (detailActual / detailTarget) * 100 : 0;
-
-                    let finalMsgHtml = `
-                        <div class="modal-detail-summary">
-                            <div class="modal-stat-card">
-                                <div class="modal-stat-label">Target</div>
-                                <div class="modal-stat-value">${detailTarget.toFixed(1)} dus</div>
-                            </div>
-                            <div class="modal-stat-card">
-                                <div class="modal-stat-label">Actual</div>
-                                <div class="modal-stat-value is-main">${detailActual.toFixed(1)} dus</div>
-                            </div>
-                            <div class="modal-stat-card">
-                                <div class="modal-stat-label">Gap</div>
-                                <div class="modal-stat-value">${detailGap.toFixed(1)} dus</div>
-                            </div>
-                            <div class="modal-stat-card">
-                                <div class="modal-stat-label">Ach.</div>
-                                <div class="modal-stat-value">${detailTarget > 0 ? detailAch.toFixed(1) + '%' : '-'}</div>
-                            </div>
-                        </div>
-                        ${produkHtml}
-                    `;
-
-                    document.getElementById('modalBody').innerHTML = finalMsgHtml;
+                    // Data Target / Actual / Gap / Ach tetap menggunakan perhitungan yang sama.
+                    // Hanya area Transaksi yang diperbarui agar History tidak perlu menunggu transaksi selesai.
+                    const productsTarget = document.getElementById('monitoringDetailProducts');
+                    if (productsTarget) {
+                        productsTarget.innerHTML = produkHtml;
+                    }
+                    const monitoringBodyEl = document.getElementById('modalBody');
+                    if (monitoringBodyEl) monitoringBodyEl.scrollTop = 0;
                 })
                 .withFailureHandler(function(err) {
-                    document.getElementById('modalBody').innerHTML = `
-                        <p class="text-red-500 text-xs py-4 text-center">
-                            Gagal memuat detail: ${err && err.message ? err.message : 'Terjadi kesalahan.'}
-                        </p>
-                    `;
+                    const productsTarget = document.getElementById('monitoringDetailProducts');
+                    if (productsTarget) {
+                        productsTarget.innerHTML = `
+                            <p class="text-red-500 text-xs py-4 text-center">
+                                Gagal memuat transaksi: ${err && err.message ? err.message : 'Terjadi kesalahan.'}
+                            </p>
+                        `;
+                    }
                 })
                 .getProdukDibeliOutletQuarter(data.outlet, data.quarter, data.custCode || '');
+        }
+
+
+        function loadMonitoringHistoryChart(data) {
+            const target = document.getElementById('monitoringDetailHistoryChart');
+            if (!target) return;
+            const custKey = String(data && data.custCode || '').trim().toUpperCase().replace(/\s+/g, ' ');
+            const cacheKey = 'MONITORING_HISTORY_' + custKey;
+            const cached = appLocalCacheGet(cacheKey);
+
+            if (Array.isArray(cached)) {
+                renderMonitoringHistoryChart(cached);
+            } else {
+                target.innerHTML = `
+                    <div class="text-[10px] font-extrabold text-slate-700">History Pengambilan</div>
+                    <div class="text-[9px] text-slate-400 mt-1">Memuat history dari sheet DAMEN...</div>
+                `;
+            }
+
+            google.script.run
+                .withSuccessHandler(function(history) {
+                    const result = Array.isArray(history) ? history : [];
+                    appLocalCacheSet(cacheKey, result);
+                    renderMonitoringHistoryChart(result);
+                })
+                .withFailureHandler(function(err) {
+                    // Jika cache sudah tampil, jangan mengganti tampilan dengan pesan error.
+                    if (Array.isArray(cached)) return;
+                    const el = document.getElementById('monitoringDetailHistoryChart');
+                    if (!el) return;
+                    el.innerHTML = `
+                        <div class="text-[10px] font-extrabold text-slate-700">History Pengambilan</div>
+                        <div class="text-[9px] text-red-500 mt-2">Gagal memuat history: ${escapeHtml(err && err.message ? err.message : 'Terjadi kesalahan.')}</div>
+                    `;
+                })
+                .getMonitoringOutletHistory(data.custCode || '');
+        }
+
+        function renderMonitoringHistoryChart(history) {
+            const target = document.getElementById('monitoringDetailHistoryChart');
+            if (!target) return;
+
+            if (!history.length) {
+                target.innerHTML = `
+                    <div class="text-[11px] font-extrabold text-slate-700">History Pengambilan</div>
+                    <div class="text-[9px] text-slate-400 mt-2">Belum ada history pengambilan pada sheet DAMEN.</div>
+                `;
+                return;
+            }
+
+            // Chart tetap per bulan dan seluruh periode. Dibuat lebih ringkas secara vertikal
+            // agar grafik tetap jelas di dalam Detail tanpa perlu terlalu banyak scroll.
+            const width = Math.max(980, history.length * 82);
+            const height = 285;
+            const padLeft = 56;
+            const padRight = 24;
+            const padTop = 22;
+            const padBottom = 48;
+            const chartW = width - padLeft - padRight;
+            const chartH = height - padTop - padBottom;
+
+            const values = history.map(function(p) { return Number(p.volume) || 0; });
+            const maxValue = Math.max.apply(null, values);
+            const safeMax = maxValue > 0 ? maxValue : 1;
+
+            const stepX = history.length === 1 ? 0 : chartW / (history.length - 1);
+            const points = history.map(function(item, i) {
+                const value = Number(item.volume) || 0;
+                const x = history.length === 1 ? padLeft + chartW / 2 : padLeft + stepX * i;
+                const y = padTop + chartH - (value / safeMax) * chartH;
+                return { x:x, y:y, item:item };
+            });
+
+            // Kurva smooth dengan cubic Bezier, tetap mengikuti semua titik bulanan.
+            function smoothPath_(pts) {
+                if (pts.length === 1) return 'M ' + pts[0].x.toFixed(1) + ' ' + pts[0].y.toFixed(1);
+                let d = 'M ' + pts[0].x.toFixed(1) + ' ' + pts[0].y.toFixed(1);
+                for (let i = 0; i < pts.length - 1; i++) {
+                    const p0 = pts[i - 1] || pts[i];
+                    const p1 = pts[i];
+                    const p2 = pts[i + 1];
+                    const p3 = pts[i + 2] || p2;
+                    const tension = 0.18;
+                    const cp1x = p1.x + (p2.x - p0.x) * tension;
+                    const cp1y = p1.y + (p2.y - p0.y) * tension;
+                    const cp2x = p2.x - (p3.x - p1.x) * tension;
+                    const cp2y = p2.y - (p3.y - p1.y) * tension;
+                    d += ' C ' + cp1x.toFixed(1) + ' ' + cp1y.toFixed(1) +
+                         ', ' + cp2x.toFixed(1) + ' ' + cp2y.toFixed(1) +
+                         ', ' + p2.x.toFixed(1) + ' ' + p2.y.toFixed(1);
+                }
+                return d;
+            }
+
+            const linePath = smoothPath_(points);
+
+            // Area lembut di bawah kurva agar tampilan lebih modern.
+            const areaPath = linePath +
+                ' L ' + points[points.length - 1].x.toFixed(1) + ' ' + (padTop + chartH).toFixed(1) +
+                ' L ' + points[0].x.toFixed(1) + ' ' + (padTop + chartH).toFixed(1) + ' Z';
+
+            let grid = '';
+            for (let i = 0; i <= 4; i++) {
+                const y = padTop + chartH - (chartH * i / 4);
+                const value = safeMax * i / 4;
+                grid += `<line x1="${padLeft}" y1="${y.toFixed(1)}" x2="${(width-padRight).toFixed(1)}" y2="${y.toFixed(1)}" stroke="#e8eef2" stroke-width="1"/>`;
+                grid += `<text x="${padLeft-9}" y="${(y+3.5).toFixed(1)}" text-anchor="end" font-size="9" fill="#94a3b8">${value.toLocaleString('id-ID',{maximumFractionDigits:0})}</text>`;
+            }
+
+            let labels = '';
+            history.forEach(function(item, i) {
+                const pt = points[i];
+                const label = String(item.label || '').trim();
+                const parts = label.split(/\s+/);
+                const month = parts.length > 0 ? parts[0] : label;
+                const year = parts.length > 1 ? parts.slice(1).join(' ') : '';
+                labels += `
+                    <text x="${pt.x.toFixed(1)}" y="${height-25}" text-anchor="middle" font-size="9.5" font-weight="600" fill="#64748b">
+                        ${escapeHtml(month)}
+                    </text>
+                    <text x="${pt.x.toFixed(1)}" y="${height-10}" text-anchor="middle" font-size="8.5" fill="#94a3b8">
+                        ${escapeHtml(year)}
+                    </text>
+                `;
+            });
+
+            let dots = '';
+            points.forEach(function(pt, i) {
+                const vol = Number(pt.item.volume) || 0;
+                const tx = Number(pt.item.transactions || 0);
+                const label = escapeHtml(pt.item.label || '');
+                dots += `
+                    <g class="monitor-history-point" tabindex="0"
+                       data-index="${i}"
+                       data-label="${label}"
+                       data-volume="${vol.toLocaleString('id-ID',{maximumFractionDigits:1})}"
+                       data-transactions="${tx.toLocaleString('id-ID')}">
+                        <circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="8" fill="transparent"></circle>
+                        <circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="4.8" fill="#059669" stroke="#ffffff" stroke-width="2.5"></circle>
+                    </g>
+                `;
+            });
+
+            target.innerHTML = `
+                <div class="flex items-center justify-between gap-2">
+                    <div class="text-[11px] font-extrabold text-slate-700">History Pengambilan</div>
+                    <div class="text-[9px] font-bold text-emerald-700 whitespace-nowrap">${history.length} bulan</div>
+                </div>
+
+                <div class="mt-2 w-full overflow-x-auto overflow-y-hidden rounded-xl border border-slate-100 bg-slate-50/50" style="-webkit-overflow-scrolling:touch;scrollbar-width:thin;">
+                    <div style="min-width:${width}px;position:relative;">
+                        <svg id="monitoringHistorySvg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img" aria-label="Chart history pengambilan per bulan" style="display:block;max-width:none;overflow:visible;">
+                            <defs>
+                                <linearGradient id="monitorHistoryAreaGradient" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#10b981" stop-opacity="0.18"></stop>
+                                    <stop offset="100%" stop-color="#10b981" stop-opacity="0.015"></stop>
+                                </linearGradient>
+                                <filter id="monitorHistoryShadow" x="-20%" y="-20%" width="140%" height="160%">
+                                    <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#059669" flood-opacity="0.18"></feDropShadow>
+                                </filter>
+                            </defs>
+                            ${grid}
+                            <path d="${areaPath}" fill="url(#monitorHistoryAreaGradient)" stroke="none"></path>
+                            <path d="${linePath}" fill="none" stroke="#059669" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#monitorHistoryShadow)"></path>
+                            ${dots}
+                            ${labels}
+                        </svg>
+                        <div id="monitorHistoryTooltip" style="display:none;position:absolute;z-index:10;min-width:150px;pointer-events:none;padding:9px 11px;border-radius:12px;background:rgba(15,23,42,.96);box-shadow:0 8px 22px rgba(15,23,42,.18);color:#fff;font-size:10px;line-height:1.45;transform:translate(-50%,-112%);">
+                            <div id="monitorHistoryTooltipLabel" style="font-weight:800;font-size:10px;"></div>
+                            <div style="margin-top:3px;color:#d1fae5;">Volume: <strong id="monitorHistoryTooltipVolume"></strong> dus</div>
+                            <div style="color:#e2e8f0;">Transaksi: <strong id="monitorHistoryTooltipTransactions"></strong> kali</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-1.5 text-[9px] text-slate-400">Volume pengambilan (dus) per bulan • Geser kiri/kanan untuk melihat bulan lainnya</div>
+            `;
+
+            const svg = document.getElementById('monitoringHistorySvg');
+            const tooltip = document.getElementById('monitorHistoryTooltip');
+            const tooltipLabel = document.getElementById('monitorHistoryTooltipLabel');
+            const tooltipVolume = document.getElementById('monitorHistoryTooltipVolume');
+            const tooltipTransactions = document.getElementById('monitorHistoryTooltipTransactions');
+            if (!svg || !tooltip) return;
+
+            function showHistoryTooltip_(group) {
+                const idx = Number(group.getAttribute('data-index') || 0);
+                const pt = points[idx];
+                if (!pt) return;
+                tooltipLabel.textContent = group.getAttribute('data-label') || '';
+                tooltipVolume.textContent = group.getAttribute('data-volume') || '0';
+                tooltipTransactions.textContent = group.getAttribute('data-transactions') || '0';
+                // Tooltip tidak boleh tertutup di bagian atas chart.
+                // Jika titik terlalu dekat dengan atas, tooltip ditaruh di bawah titik.
+                const tooltipWidth = 150;
+                const safeX = Math.max(tooltipWidth / 2 + 8, Math.min(width - tooltipWidth / 2 - 8, pt.x));
+                if (pt.y < 92) {
+                    tooltip.style.left = safeX + 'px';
+                    tooltip.style.top = (pt.y + 14) + 'px';
+                    tooltip.style.transform = 'translate(-50%, 0)';
+                } else {
+                    tooltip.style.left = safeX + 'px';
+                    tooltip.style.top = pt.y + 'px';
+                    tooltip.style.transform = 'translate(-50%, -112%)';
+                }
+                tooltip.style.display = 'block';
+                points.forEach(function(p, n) {
+                    const g = svg.querySelector('.monitor-history-point[data-index="' + n + '"] circle:last-child');
+                    if (g) g.setAttribute('r', n === idx ? '6.5' : '4.8');
+                });
+            }
+
+            function hideHistoryTooltip_() {
+                tooltip.style.display = 'none';
+                svg.querySelectorAll('.monitor-history-point circle:last-child').forEach(function(c) {
+                    c.setAttribute('r', '4.8');
+                });
+            }
+
+            svg.querySelectorAll('.monitor-history-point').forEach(function(group) {
+                group.addEventListener('mouseenter', function() { showHistoryTooltip_(group); });
+                group.addEventListener('mouseleave', hideHistoryTooltip_);
+                group.addEventListener('focus', function() { showHistoryTooltip_(group); });
+                group.addEventListener('blur', hideHistoryTooltip_);
+                group.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const wasVisible = tooltip.style.display === 'block';
+                    const currentLabel = tooltipLabel.textContent;
+                    showHistoryTooltip_(group);
+                    if (wasVisible && currentLabel === (group.getAttribute('data-label') || '')) {
+                        setTimeout(hideHistoryTooltip_, 1800);
+                    }
+                });
+                group.addEventListener('touchstart', function() {
+                    showHistoryTooltip_(group);
+                    setTimeout(function(){
+                        if (tooltip.style.display === 'block') hideHistoryTooltip_();
+                    }, 2600);
+                }, {passive:true});
+            });
         }
 
         function updateQuarterMonthHeaderLabels(quarterKey) {
@@ -7067,6 +7385,15 @@ function deletePengumuman(row) {
   #tabOutletKontrak .bg-white.border.rounded-xl.shadow-sm > div {
     max-height: calc(100dvh - 220px) !important;
     height: calc(100dvh - 220px) !important;
+  }
+}
+</style>
+<style id="monitoring-detail-extra-wide">
+/* Detail Monitoring: lebih lebar pada layar desktop, tetap tidak full screen */
+@media (min-width: 768px) {
+  #customModal .bws-detail-modal-card {
+    width: min(1500px, calc(100vw - 48px)) !important;
+    max-width: 1500px !important;
   }
 }
 </style>
