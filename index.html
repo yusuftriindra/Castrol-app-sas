@@ -3512,7 +3512,6 @@ startAutoRefresh();
                 </div>
                 <div id="monitoringDetailProducts" class="text-xs text-slate-400 text-center py-6">${initialMsg}</div>
             `;
-
             const monitoringModal = document.getElementById('customModal');
             const monitoringCard = monitoringModal ? monitoringModal.querySelector('.modern-modal-card') : null;
             if (monitoringCard) monitoringCard.classList.add('bws-detail-modal-card');
@@ -3520,18 +3519,11 @@ startAutoRefresh();
             document.getElementById('modalCancelBtn').style.display = 'none';
             document.getElementById('modalOkBtn').style.display = 'none';
 
-            /*
-             * HISTORY + TRANSAKSI DIMULAI BERSAMAAN.
-             * Keduanya memiliki target area masing-masing sehingga hasil salah
-             * satu tidak perlu menunggu hasil yang lain.
-             */
+            // Jalankan History langsung setelah modal tampil, tanpa menunggu Transaksi.
             loadMonitoringHistoryChart(data);
 
             google.script.run
                 .withSuccessHandler(function(produkList) {
-                    const productsTarget = document.getElementById('monitoringDetailProducts');
-                    if (!productsTarget) return;
-
                     let produkHtml = "";
                     if (!produkList || produkList.length === 0) {
                         produkHtml = `<p class="text-slate-400 text-xs py-2 italic">Tidak ada transaksi pada periode ini.</p>`;
@@ -3606,21 +3598,24 @@ startAutoRefresh();
                         `;
                     }
 
-                    /*
-                     * Hanya area TRANSAKSI yang diperbarui.
-                     * KPI dan History tidak disentuh.
-                     */
-                    productsTarget.innerHTML = produkHtml;
+                    // Data Target / Actual / Gap / Ach tetap menggunakan perhitungan yang sama.
+                    // Hanya area Transaksi yang diperbarui agar History tidak perlu menunggu transaksi selesai.
+                    const productsTarget = document.getElementById('monitoringDetailProducts');
+                    if (productsTarget) {
+                        productsTarget.innerHTML = produkHtml;
+                    }
+                    const monitoringBodyEl = document.getElementById('modalBody');
+                    if (monitoringBodyEl) monitoringBodyEl.scrollTop = 0;
                 })
                 .withFailureHandler(function(err) {
                     const productsTarget = document.getElementById('monitoringDetailProducts');
-                    if (!productsTarget) return;
-
-                    productsTarget.innerHTML = `
-                        <p class="text-red-500 text-xs py-4 text-center">
-                            Gagal memuat transaksi: ${err && err.message ? err.message : 'Terjadi kesalahan.'}
-                        </p>
-                    `;
+                    if (productsTarget) {
+                        productsTarget.innerHTML = `
+                            <p class="text-red-500 text-xs py-4 text-center">
+                                Gagal memuat transaksi: ${err && err.message ? err.message : 'Terjadi kesalahan.'}
+                            </p>
+                        `;
+                    }
                 })
                 .getProdukDibeliOutletQuarter(data.outlet, data.quarter, data.custCode || '');
         }
@@ -3629,7 +3624,6 @@ startAutoRefresh();
         function loadMonitoringHistoryChart(data) {
             const target = document.getElementById('monitoringDetailHistoryChart');
             if (!target) return;
-
             target.innerHTML = `
                 <div class="text-[10px] font-extrabold text-slate-700">History Pengambilan</div>
                 <div class="text-[9px] text-slate-400 mt-1">Memuat history dari sheet DAMEN...</div>
@@ -3647,32 +3641,7 @@ startAutoRefresh();
                         <div class="text-[9px] text-red-500 mt-2">Gagal memuat history: ${escapeHtml(err && err.message ? err.message : 'Terjadi kesalahan.')}</div>
                     `;
                 })
-                .getMonitoringOutletHistory('', data.custCode || '', '');
-        }
-
-
-
-        function loadMonitoringHistoryChart(data) {
-            const target = document.getElementById('monitoringDetailHistoryChart');
-            if (!target) return;
-            target.innerHTML = `
-                <div class="text-[10px] font-extrabold text-slate-700">History Pengambilan</div>
-                <div class="text-[9px] text-slate-400 mt-1">Memuat history dari sheet DAMEN...</div>
-            `;
-
-            google.script.run
-                .withSuccessHandler(function(history) {
-                    renderMonitoringHistoryChart(Array.isArray(history) ? history : []);
-                })
-                .withFailureHandler(function(err) {
-                    const el = document.getElementById('monitoringDetailHistoryChart');
-                    if (!el) return;
-                    el.innerHTML = `
-                        <div class="text-[10px] font-extrabold text-slate-700">History Pengambilan</div>
-                        <div class="text-[9px] text-red-500 mt-2">Gagal memuat history: ${escapeHtml(err && err.message ? err.message : 'Terjadi kesalahan.')}</div>
-                    `;
-                })
-                .getMonitoringOutletHistory('', data.custCode || '', '');
+                .getMonitoringOutletHistory(data.custCode || '');
         }
 
         function renderMonitoringHistoryChart(history) {
