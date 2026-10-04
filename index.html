@@ -756,6 +756,203 @@ button{touch-action:manipulation}
 @media(max-width:480px){.header-action-btn{width:34px;padding:6px}.header-action-text{display:none}.header-action-icon{font-size:15px}.user-badge{display:none!important}}
 </style>
 
+<style id="notification-ui">
+/* ===== NOTIFIKASI ===== */
+.notification-header-wrap{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  flex:0 0 auto;
+  z-index:1100;
+}
+.notification-bell-btn{
+  position:relative;
+  width:38px;
+  height:38px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:11px;
+  background:rgba(255,255,255,.09);
+  color:#fff;
+  cursor:pointer;
+  transition:.18s ease;
+}
+.notification-bell-btn:hover{
+  background:rgba(255,255,255,.16);
+  transform:translateY(-1px);
+}
+.notification-bell-btn svg{width:19px;height:19px}
+.notification-badge{
+  position:absolute;
+  top:-5px;
+  right:-5px;
+  min-width:18px;
+  height:18px;
+  padding:0 5px;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  background:#e31837;
+  color:#fff;
+  border:2px solid #062f1c;
+  font-size:8px;
+  font-weight:900;
+  line-height:1;
+  box-shadow:0 3px 8px rgba(227,24,55,.28);
+}
+.notification-panel{
+  position:absolute;
+  top:47px;
+  right:0;
+  width:min(390px,calc(100vw - 24px));
+  max-height:min(70vh,520px);
+  display:none;
+  flex-direction:column;
+  overflow:hidden;
+  background:#fff;
+  color:#0f172a;
+  border:1px solid #dce8df;
+  border-radius:16px;
+  box-shadow:0 20px 55px rgba(2,32,18,.24);
+}
+.notification-panel.is-open{display:flex}
+.notification-panel-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:12px 13px;
+  border-bottom:1px solid #e7eee9;
+  background:linear-gradient(135deg,#fff,#f4faf6);
+}
+.notification-panel-title{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:12px;
+  font-weight:850;
+}
+.notification-panel-count{
+  min-width:20px;
+  height:20px;
+  padding:0 6px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  background:#eaf8ef;
+  color:#007a3d;
+  font-size:9px;
+  font-weight:900;
+}
+.notification-mark-all{
+  border:0;
+  background:transparent;
+  color:#007a3d;
+  font-size:9px;
+  font-weight:800;
+  cursor:pointer;
+  padding:4px 5px;
+}
+.notification-list{
+  overflow-y:auto;
+  padding:6px;
+  scrollbar-width:thin;
+}
+.notification-item{
+  position:relative;
+  display:block;
+  width:100%;
+  padding:10px 10px 10px 12px;
+  margin:0;
+  border:0;
+  border-bottom:1px solid #eef3ef;
+  background:#fff;
+  text-align:left;
+  cursor:pointer;
+  transition:.15s ease;
+}
+.notification-item:last-child{border-bottom:0}
+.notification-item:hover{background:#f5fbf7}
+.notification-item.unread{background:#f0faf3}
+.notification-item.unread:before{
+  content:"";
+  position:absolute;
+  left:4px;
+  top:14px;
+  width:5px;
+  height:5px;
+  border-radius:50%;
+  background:#e31837;
+}
+.notification-item-title{
+  color:#0f172a;
+  font-size:10px;
+  font-weight:850;
+  line-height:1.35;
+  padding-left:3px;
+}
+.notification-item-message{
+  margin-top:3px;
+  color:#64748b;
+  font-size:9px;
+  line-height:1.5;
+  padding-left:3px;
+  word-break:break-word;
+}
+.notification-item-meta{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-top:5px;
+  color:#94a3b8;
+  font-size:8px;
+  font-weight:700;
+  padding-left:3px;
+}
+.notification-type-chip{
+  display:inline-flex;
+  align-items:center;
+  padding:2px 5px;
+  border-radius:999px;
+  background:#f1f5f9;
+  color:#64748b;
+  font-size:7px;
+  font-weight:850;
+}
+.notification-empty{
+  padding:30px 14px;
+  text-align:center;
+  color:#94a3b8;
+  font-size:10px;
+  font-weight:700;
+}
+.notification-loading{
+  padding:22px 14px;
+  text-align:center;
+  color:#64748b;
+  font-size:10px;
+  font-weight:700;
+}
+@media(max-width:480px){
+  .notification-panel{
+    position:fixed;
+    top:64px;
+    right:10px;
+    width:calc(100vw - 20px);
+    max-height:70vh;
+  }
+}
+@media(max-width:767px){
+  .notification-bell-btn{width:34px;height:34px}
+  .notification-badge{border-color:#062f1c}
+}
+</style>
+
 <style id="castrol-modern-polish">
 :root{
   --castrol-green:#007a3d;
@@ -1496,17 +1693,68 @@ html{scroll-behavior:auto!important}
 .pengumuman-card:last-child{margin-bottom:0}
 .pengumuman-card img{display:block;width:100%;max-height:62vh;object-fit:contain;background:#f8fafc}
 .pengumuman-caption{padding:18px 22px 22px;text-align:center;color:#334155;font-size:14px;line-height:1.75;font-weight:700;white-space:pre-wrap}
-.pengumuman-main-header-marquee{display:block;flex:1;min-width:0;max-width:none;margin:0 8px;overflow:hidden;white-space:nowrap;border:none;border-radius:0;background:transparent;padding:7px 0;box-shadow:none}
-.pengumuman-marquee-track{display:flex;width:max-content;animation:pengumumanMarqueeRTL 16s linear infinite;will-change:transform}
-.pengumuman-marquee-text{flex:0 0 auto;display:block;padding:0 6vw;font-size:16px;font-weight:800;color:#e8f7ef;letter-spacing:.01em;white-space:nowrap}
+.pengumuman-main-header-marquee{display:block;flex:1 1 0%;min-width:0;width:0;max-width:none;margin:0 5px;overflow:hidden;white-space:nowrap;border:none;border-radius:0;background:transparent;padding:7px 0;box-shadow:none}
+.pengumuman-marquee-track{display:flex;width:max-content;animation:pengumumanMarqueeRTL 70s linear infinite;will-change:transform}
+.pengumuman-marquee-text{flex:0 0 auto;display:block;padding:0 24px;font-size:16px;font-weight:800;color:#e8f7ef;letter-spacing:.01em;white-space:nowrap}
 @keyframes pengumumanMarqueeRTL{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
 .pengumuman-footer{padding:20px 26px 26px;text-align:center;border-top:1px solid #eef2f7;background:#f8fafc}
 .pengumuman-main-btn{border:0;border-radius:15px;padding:13px 28px;background:#008a4c;color:#fff;font-weight:900;box-shadow:0 10px 24px rgba(0,138,76,.22);cursor:pointer}
 .pengumuman-main-btn:hover{background:#00733f}
 #tabPengumumanAdmin .pengumuman-thumb{width:72px;height:48px;object-fit:cover;border-radius:10px;border:1px solid #e2e8f0;background:#f8fafc}
-@media(max-width:767px){#announcementPage.pengumuman-page{padding:12px}.pengumuman-shell{min-height:calc(100dvh - 24px)}.pengumuman-panel{border-radius:22px}.pengumuman-hero{padding:26px 18px 22px}#announcementContent{padding:16px}.pengumuman-footer{padding:16px}.pengumuman-main-header-marquee{max-width:42vw;margin:0 7px}.pengumuman-marquee-text{padding:0 14vw;font-size:11px}}
+@media(max-width:767px){#announcementPage.pengumuman-page{padding:12px}.pengumuman-shell{min-height:calc(100dvh - 24px)}.pengumuman-panel{border-radius:22px}.pengumuman-hero{padding:26px 18px 22px}#announcementContent{padding:16px}.pengumuman-footer{padding:16px}.pengumuman-main-header-marquee{flex:1 1 0%;width:0;max-width:none;min-width:0;margin:0 4px}.pengumuman-marquee-track{animation-duration:78s}.pengumuman-marquee-text{padding:0 18px;font-size:11px}}
 </style>
 
+<style id="monitoring-detail-mobile-list">
+/* DETAIL MONITORING MOBILE: satu kotak, 4 baris, titik dua sejajar. */
+@media (max-width:767px){
+  #customModal .modal-detail-summary{
+    display:block!important;
+    margin-bottom:11px!important;
+    padding:6px 12px!important;
+    border:1px solid #dfe8e2!important;
+    border-radius:14px!important;
+    background:#fff!important;
+    overflow:hidden!important;
+  }
+  #customModal .modal-detail-summary .modal-stat-card{
+    display:grid!important;
+    grid-template-columns:68px 14px minmax(0,1fr)!important;
+    align-items:center!important;
+    min-width:0!important;
+    padding:9px 0!important;
+    border:0!important;
+    border-bottom:1px solid #eef2f0!important;
+    border-radius:0!important;
+    background:#fff!important;
+  }
+  #customModal .modal-detail-summary .modal-stat-card:last-child{border-bottom:0!important}
+  #customModal .modal-detail-summary .modal-stat-label{
+    grid-column:1!important;
+    margin:0!important;
+    font-size:10px!important;
+    font-weight:800!important;
+    color:#64748b!important;
+    letter-spacing:0!important;
+    text-transform:none!important;
+    white-space:nowrap!important;
+  }
+  #customModal .modal-detail-summary .modal-stat-label::after{
+    content:":"!important;
+    margin-left:0!important;
+  }
+  #customModal .modal-detail-summary .modal-stat-value{
+    grid-column:3!important;
+    margin:0!important;
+    font-size:12px!important;
+    line-height:1.25!important;
+    font-weight:800!important;
+    text-align:left!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+}
+</style>
 
 <style id="monitoring-detail-simple-stats">
 /* DETAIL MONITORING: 1 kotak untuk Target, Actual, Gap, Ach. */
@@ -1550,9 +1798,43 @@ html{scroll-behavior:auto!important}
 #customModal .modal-detail-summary .modal-stat-value.is-main{color:#047857!important}
 
 @media(max-width:767px){
-    #customModal .modal-detail-summary{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-    #customModal .modal-detail-summary .modal-stat-card:nth-child(2){border-right:0!important}
-    #customModal .modal-detail-summary .modal-stat-card:nth-child(-n+2){border-bottom:1px solid #e2e8f0!important}
+    #customModal .modal-detail-summary{
+        grid-template-columns:repeat(2,minmax(0,1fr))!important;
+        grid-template-areas:"target gap" "actual ach"!important;
+    }
+    #customModal .modal-detail-summary .modal-stat-card{
+        display:flex!important;
+        align-items:center!important;
+        gap:4px!important;
+        padding:9px 10px!important;
+        border-right:1px solid #e2e8f0!important;
+        border-bottom:1px solid #e2e8f0!important;
+    }
+    #customModal .modal-detail-summary .modal-stat-card:nth-child(1){grid-area:target!important}
+    #customModal .modal-detail-summary .modal-stat-card:nth-child(2){grid-area:actual!important}
+    #customModal .modal-detail-summary .modal-stat-card:nth-child(3){grid-area:gap!important}
+    #customModal .modal-detail-summary .modal-stat-card:nth-child(4){grid-area:ach!important}
+    #customModal .modal-detail-summary .modal-stat-card:nth-child(2),
+    #customModal .modal-detail-summary .modal-stat-card:nth-child(4){border-right:0!important}
+    #customModal .modal-detail-summary .modal-stat-card:nth-child(3),
+    #customModal .modal-detail-summary .modal-stat-card:nth-child(4){border-bottom:0!important}
+    #customModal .modal-detail-summary .modal-stat-label{
+        flex:0 0 52px!important;
+        margin:0!important;
+        font-size:10px!important;
+        line-height:1.2!important;
+        letter-spacing:0!important;
+        color:#64748b!important;
+    }
+    #customModal .modal-detail-summary .modal-stat-label::after{content:" :";}
+    #customModal .modal-detail-summary .modal-stat-value{
+        flex:1 1 auto!important;
+        min-width:0!important;
+        margin:0!important;
+        font-size:12px!important;
+        line-height:1.2!important;
+        text-align:left!important;
+    }
     #customModal .modal-detail-summary .modal-stat-card:nth-child(3){border-right:1px solid #e2e8f0!important}
 }
 @media(max-width:430px){
@@ -1632,7 +1914,7 @@ html{scroll-behavior:auto!important}
 <div id="app" class="app-shell min-h-screen bg-slate-50 flex flex-col">
         
         <header id="mainHeader" class="bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-950 text-white px-4 py-3.5 flex justify-between items-center shadow-lg border-b border-emerald-500/20 hidden">
-            <div class="flex items-center space-x-2.5 min-w-0">
+            <div class="flex items-center space-x-2.5 shrink-0">
                 <button type="button" id="sidebarToggle" onclick="toggleSidebar()" class="sidebar-toggle" title="Tutup menu" aria-label="Tutup menu" aria-expanded="true">
                     <svg id="sidebarToggleIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
@@ -1640,9 +1922,30 @@ html{scroll-behavior:auto!important}
                 </button>
                 <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
                 <h1 class="font-bold text-sm tracking-wide text-slate-100 truncate">Castrol</h1>
-                <div id="announcementHeaderMarquee" class="pengumuman-main-header-marquee hidden" aria-label="Pengumuman berjalan"></div>
             </div>
-            <div class="flex-1"></div>
+            <div id="announcementHeaderMarquee" class="pengumuman-main-header-marquee hidden" aria-label="Pengumuman berjalan"></div>
+            <div class="notification-header-wrap" id="notificationHeaderWrap">
+                <button type="button" id="notificationBellBtn" class="notification-bell-btn"
+                        onclick="toggleNotificationPanel()" title="Notifikasi" aria-label="Notifikasi" aria-expanded="false">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 1-5.714 0M18 8.25a6 6 0 0 0-12 0c0 7-3 7-3 9.75h18C21 15.25 18 15.25 18 8.25ZM13.73 21a2 2 0 0 1-3.46 0" />
+                    </svg>
+                    <span id="notificationBadge" class="notification-badge">0</span>
+                </button>
+                <div id="notificationPanel" class="notification-panel" aria-hidden="true">
+                    <div class="notification-panel-head">
+                        <div class="notification-panel-title">
+                            <span>🔔</span>
+                            <span>Notifikasi</span>
+                            <span id="notificationPanelCount" class="notification-panel-count">0</span>
+                        </div>
+                        <button type="button" class="notification-mark-all" onclick="markAllNotificationsRead()">Tandai semua dibaca</button>
+                    </div>
+                    <div id="notificationList" class="notification-list">
+                        <div class="notification-loading">Memuat notifikasi...</div>
+                    </div>
+                </div>
+            </div>
         </header>
 
         <!-- Navigasi Menu Sidebar Kiri -->
@@ -2473,6 +2776,9 @@ html{scroll-behavior:auto!important}
         let outletBWSFormMasterLoading = false;
 
         const AUTH_STORAGE_KEY = "salesAppAuthState";
+        let notificationData = [];
+        let notificationUnreadCount = 0;
+        let notificationLoading = false;
 
         function saveAuthState() {
             try {
@@ -2533,6 +2839,7 @@ html{scroll-behavior:auto!important}
                 applyRoleVisibility();
                 document.getElementById('userBadge').textContent = isAdminLogin ? "Admin" : currentUser;
                 document.getElementById('userBadge').classList.remove('hidden');
+                loadNotifications(true);
                 const adminTools = document.getElementById('riwayatAdminTools');
                 if (adminTools) adminTools.classList.toggle('hidden', !isAdminLogin);
 
@@ -2652,6 +2959,7 @@ startAutoRefresh();
                     applyRoleVisibility();
                     document.getElementById('userBadge').textContent = isAdminLogin ? "Admin" : currentUser;
                     document.getElementById('userBadge').classList.remove('hidden');
+                    loadNotifications(true);
                     const adminTools = document.getElementById('riwayatAdminTools');
                     if (adminTools) adminTools.classList.toggle('hidden', !isAdminLogin);
                     saveAuthState();
@@ -3417,6 +3725,10 @@ startAutoRefresh();
             let outletMap = rawMonitoringDataObject[selectedQuarter];
             let dataArray = Object.values(outletMap);
 
+            // Tampilkan semua DSR yang tersedia pada data Monitoring.
+            // Jika outlet sama tetapi DSR/CUST.CODE berbeda, masing-masing tetap menjadi baris terpisah.
+            // Tidak mengubah perhitungan Target/Actual/Gap/Ach maupun Detail Monitoring.
+
             if (salesSelect) {
                 const previousSales = selectedSales;
                 const salesValues = [...new Set(dataArray.map(function(item){ return String(item && item.dsr || '').trim(); }).filter(Boolean))].sort(function(a,b){ return a.localeCompare(b,'id'); });
@@ -3818,7 +4130,7 @@ startAutoRefresh();
                         <div id="monitorHistoryTooltip" style="display:none;position:absolute;z-index:10;min-width:150px;pointer-events:none;padding:9px 11px;border-radius:12px;background:rgba(15,23,42,.96);box-shadow:0 8px 22px rgba(15,23,42,.18);color:#fff;font-size:10px;line-height:1.45;transform:translate(-50%,-112%);">
                             <div id="monitorHistoryTooltipLabel" style="font-weight:800;font-size:10px;"></div>
                             <div style="margin-top:3px;color:#d1fae5;">Volume: <strong id="monitorHistoryTooltipVolume"></strong> dus</div>
-                            <div style="color:#e2e8f0;">Transaksi: <strong id="monitorHistoryTooltipTransactions"></strong> kali</div>
+                            <div style="color:#e2e8f0;">Produk: <strong id="monitorHistoryTooltipTransactions"></strong> SKU</div>
                         </div>
                     </div>
                 </div>
@@ -6187,10 +6499,164 @@ startAutoRefresh();
             }
         }
 
+        function formatNotificationTime(value) {
+            if (!value) return '';
+            try {
+                const d = new Date(value);
+                if (isNaN(d.getTime())) return String(value);
+                return d.toLocaleString('id-ID', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            } catch (e) {
+                return String(value);
+            }
+        }
+
+        function notificationTypeLabel(type) {
+            const t = String(type || '').toUpperCase();
+            if (t === 'PENGUMUMAN') return 'Pengumuman';
+            if (t === 'STATUS') return 'Status';
+            if (t === 'TRANSAKSI') return 'Transaksi';
+            return t || 'Notifikasi';
+        }
+
+        function renderNotifications() {
+            const list = document.getElementById('notificationList');
+            const badge = document.getElementById('notificationBadge');
+            const panelCount = document.getElementById('notificationPanelCount');
+            if (!list) return;
+
+            const unread = Number(notificationUnreadCount || 0);
+            if (badge) {
+                badge.textContent = unread > 99 ? '99+' : String(unread);
+                badge.style.display = unread > 0 ? 'inline-flex' : 'none';
+            }
+            if (panelCount) panelCount.textContent = unread > 99 ? '99+' : String(unread);
+
+            if (!notificationData.length) {
+                list.innerHTML = '<div class="notification-empty">Belum ada notifikasi.</div>';
+                return;
+            }
+
+            list.innerHTML = notificationData.map(function(n) {
+                const id = escapeHtml(String(n.id || ''));
+                const title = escapeHtml(String(n.judul || 'Notifikasi'));
+                const message = escapeHtml(String(n.pesan || ''));
+                const time = escapeHtml(formatNotificationTime(n.waktu));
+                const type = escapeHtml(notificationTypeLabel(n.tipe));
+                const unreadClass = n.unread ? ' unread' : '';
+                return '<button type="button" class="notification-item' + unreadClass + '" data-notif-id="' + id + '" onclick="openNotificationItem(this.dataset.notifId)">' +
+                    '<div class="notification-item-title">' + title + '</div>' +
+                    '<div class="notification-item-message">' + message + '</div>' +
+                    '<div class="notification-item-meta"><span class="notification-type-chip">' + type + '</span><span>' + time + '</span></div>' +
+                    '</button>';
+            }).join('');
+        }
+
+        function loadNotifications(silent) {
+            if (!currentUsernameInput && !currentUser) return;
+            if (notificationLoading) return;
+            notificationLoading = true;
+
+            google.script.run
+                .withSuccessHandler(function(res) {
+                    notificationLoading = false;
+                    if (!res || !res.success) return;
+
+                    notificationData = Array.isArray(res.data) ? res.data : [];
+                    notificationUnreadCount = Number(res.unreadCount || 0);
+                    renderNotifications();
+                })
+                .withFailureHandler(function(err) {
+                    notificationLoading = false;
+                    console.warn('Gagal memuat notifikasi:', err && err.message ? err.message : err);
+                    if (!silent) {
+                        const list = document.getElementById('notificationList');
+                        if (list) list.innerHTML = '<div class="notification-empty">Notifikasi belum dapat dimuat.</div>';
+                    }
+                })
+                .getNotifikasi(currentUser || '', currentUsernameInput || '');
+        }
+
+        function toggleNotificationPanel() {
+            const panel = document.getElementById('notificationPanel');
+            const btn = document.getElementById('notificationBellBtn');
+            if (!panel) return;
+
+            const willOpen = !panel.classList.contains('is-open');
+            panel.classList.toggle('is-open', willOpen);
+            panel.setAttribute('aria-hidden', willOpen ? 'false' : 'true');
+            if (btn) btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+
+            if (willOpen) loadNotifications(false);
+        }
+
+        function closeNotificationPanel() {
+            const panel = document.getElementById('notificationPanel');
+            const btn = document.getElementById('notificationBellBtn');
+            if (!panel) return;
+            panel.classList.remove('is-open');
+            panel.setAttribute('aria-hidden', 'true');
+            if (btn) btn.setAttribute('aria-expanded', 'false');
+        }
+
+        function openNotificationItem(notificationId) {
+            const id = String(notificationId || '').trim();
+            if (!id) return;
+
+            const item = notificationData.find(function(n) {
+                return String(n.id || '') === id;
+            });
+
+            if (item && item.unread) {
+                google.script.run
+                    .withSuccessHandler(function() {
+                        notificationData.forEach(function(n) {
+                            if (String(n.id || '') === id) n.unread = false;
+                        });
+                        notificationUnreadCount = Math.max(0, Number(notificationUnreadCount || 0) - 1);
+                        renderNotifications();
+                    })
+                    .withFailureHandler(function(err) {
+                        console.warn('Gagal menandai notifikasi:', err && err.message ? err.message : err);
+                    })
+                    .markNotifikasiDibaca([id], currentUser || '', currentUsernameInput || '');
+            }
+        }
+
+        function markAllNotificationsRead() {
+            if (!notificationUnreadCount) return;
+
+            google.script.run
+                .withSuccessHandler(function(res) {
+                    if (res && res.success) {
+                        notificationData.forEach(function(n) { n.unread = false; });
+                        notificationUnreadCount = 0;
+                        renderNotifications();
+                    }
+                })
+                .withFailureHandler(function(err) {
+                    console.warn('Gagal menandai semua notifikasi:', err && err.message ? err.message : err);
+                })
+                .markAllNotifikasiDibaca(currentUser || '', currentUsernameInput || '');
+        }
+
+        document.addEventListener('click', function(e) {
+            const wrap = document.getElementById('notificationHeaderWrap');
+            if (wrap && !wrap.contains(e.target)) closeNotificationPanel();
+        });
+
         function startAutoRefresh() {
             if (autoRefreshTimer) clearInterval(autoRefreshTimer);
             // Jalankan setiap 5 detik.
-            autoRefreshTimer = setInterval(autoRefreshActiveTab, 5000);
+            autoRefreshTimer = setInterval(function() {
+                autoRefreshActiveTab();
+                loadNotifications(true);
+            }, 5000);
         }
 
         let appBackgroundPreloadStarted = false;
