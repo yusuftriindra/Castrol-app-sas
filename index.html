@@ -2146,6 +2146,12 @@ html{scroll-behavior:auto!important}
                                 <select id="inputOutlet" onchange="onOutletChange()" required class="w-full border border-slate-200 rounded-xl px-3 py-2.5 bg-white text-xs searchable-select">
                                     <option value="">-- Pilih Outlet --</option>
                                 </select>
+                                <div id="filterInputSalesWrap" class="hidden mt-2">
+                                    <label for="filterInputSales" class="block text-[10px] font-bold text-slate-600 mb-1">Sales</label>
+                                    <select id="filterInputSales" onchange="onInputSalesFilterChange()" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 bg-white text-xs searchable-select">
+                                        <option value="">-- Pilih Sales --</option>
+                                    </select>
+                                </div>
                                 <div class="grid grid-cols-2 gap-2 mt-2">
                                     <div class="bg-white border border-slate-200 rounded-xl p-2.5"><div class="text-[8px] uppercase tracking-wider font-bold text-slate-400">Cust. Code</div><input type="text" id="inputCustCode" readonly class="w-full mt-1 bg-transparent text-xs font-bold text-slate-700 outline-none"></div>
                                     <div class="bg-white border border-slate-200 rounded-xl p-2.5"><div class="text-[8px] uppercase tracking-wider font-bold text-slate-400">Channel</div><input type="text" id="inputChannel" readonly class="w-full mt-1 bg-transparent text-xs font-bold text-slate-700 outline-none"></div>
@@ -2828,8 +2834,10 @@ html{scroll-behavior:auto!important}
             const tabInput = document.getElementById('tabInput');
             const navOutletBWS = document.getElementById('navOutletBWS');
             const tabOutletBWS = document.getElementById('tabOutletBWS');
-            if (navInput) navInput.classList.toggle('hidden', isAdminLogin);
-            if (tabInput) tabInput.classList.toggle('hidden', isAdminLogin);
+            if (navInput) navInput.classList.toggle('hidden', false);
+            if (tabInput) tabInput.classList.toggle('hidden', false);
+            const filterInputSales = document.getElementById('filterInputSales');
+            if (filterInputSales) filterInputSales.classList.toggle('hidden', !isAdminLogin);
             if (navOutletBWS) navOutletBWS.classList.toggle('hidden', !isAdminLogin);
             if (tabOutletBWS) tabOutletBWS.classList.toggle('hidden', !isAdminLogin);
             const btnTambahOutletBWS = document.getElementById('btnTambahOutletBWS');
@@ -2867,10 +2875,10 @@ html{scroll-behavior:auto!important}
                 const adminTools = document.getElementById('riwayatAdminTools');
                 if (adminTools) adminTools.classList.toggle('hidden', !isAdminLogin);
 
-                if (!isAdminLogin) loadOutletForSales(currentUser, currentUsernameInput);
-                else loadPencapaianSalesFilter();
+                loadOutletForSales(currentUser, currentUsernameInput);
+                if (isAdminLogin) loadPencapaianSalesFilter();
                 loadRiwayat(true, true);
-                if (!isAdminLogin) loadInputMasterData();
+                loadInputMasterData();
                 preloadAppDataInBackground();
                 if (isAdminLogin) switchTab('riwayat');
                 checkActivePengumuman();
@@ -3040,10 +3048,10 @@ startAutoRefresh();
                     const adminTools = document.getElementById('riwayatAdminTools');
                     if (adminTools) adminTools.classList.toggle('hidden', !isAdminLogin);
                     saveAuthState();
-                    if (!isAdminLogin) loadOutletForSales(currentUser, currentUsernameInput);
-                    else loadPencapaianSalesFilter();
+                    loadOutletForSales(currentUser, currentUsernameInput);
+                    if (isAdminLogin) loadPencapaianSalesFilter();
                     loadRiwayat(true, true);
-                    if (!isAdminLogin) loadInputMasterData();
+                    loadInputMasterData();
                     preloadAppDataInBackground();
                     if (isAdminLogin) switchTab('riwayat');
                 } else {
@@ -3055,13 +3063,25 @@ startAutoRefresh();
         function loadOutletForSales(sales, usernameInput) {
             if (usernameInput && usernameInput.toLowerCase() === 'admin') {
                 google.script.run.withSuccessHandler(function(outlets) {
-                    outletDataList = outlets || [];
-                    let select = $('#inputOutlet');
-                    select.empty().append('<option value="">-- Pilih Outlet (Semua) --</option>');
-                    outlets.forEach(o => {
-                        select.append(new Option(o.outlet, o.outlet));
-                    });
-                    refreshSelect2('#inputOutlet');
+                    const allOutlets = outlets || [];
+                    window._inputAllOutlets = allOutlets.slice();
+                    outletDataList = allOutlets.slice();
+                    const salesSelect = $('#filterInputSales');
+                    if (salesSelect && salesSelect.length) {
+                        const currentSales = String(salesSelect.val() || '').trim();
+                        const salesMap = {};
+                        allOutlets.forEach(function(o) {
+                            const salesName = String(o.sales || '').trim();
+                            if (salesName) salesMap[salesName.toUpperCase()] = salesName;
+                        });
+                        salesSelect.empty().append('<option value="">-- Pilih Sales --</option>');
+                        Object.keys(salesMap).sort().forEach(function(key) {
+                            salesSelect.append(new Option(salesMap[key], salesMap[key]));
+                        });
+                        if (currentSales && salesMap[currentSales.toUpperCase()]) salesSelect.val(salesMap[currentSales.toUpperCase()]);
+                        refreshSelect2('#filterInputSales');
+                    }
+                    renderInputOutletOptions();
                 }).getAllOutlets();
             } else {
                 google.script.run.withSuccessHandler(function(outlets) {
@@ -3074,6 +3094,36 @@ startAutoRefresh();
                     refreshSelect2('#inputOutlet');
                 }).getOutletsBySales(sales);
             }
+        }
+
+        function renderInputOutletOptions() {
+            const select = $('#inputOutlet');
+            if (!select || !select.length) return;
+            const selectedOutlet = String(select.val() || '');
+            const isAdmin = String(currentUsernameInput || '').trim().toLowerCase() === 'admin';
+            const selectedSales = isAdmin ? String($('#filterInputSales').val() || '').trim().toUpperCase() : '';
+            const source = Array.isArray(window._inputAllOutlets) ? window._inputAllOutlets : outletDataList;
+            const filtered = isAdmin && selectedSales
+                ? source.filter(function(o) { return String(o.sales || '').trim().toUpperCase() === selectedSales; })
+                : source;
+
+            outletDataList = filtered.slice();
+            select.empty().append('<option value="">-- Pilih Outlet --</option>');
+            filtered.forEach(function(o) {
+                select.append(new Option(o.outlet, o.outlet));
+            });
+            if (selectedOutlet && filtered.some(function(o) { return String(o.outlet) === selectedOutlet; })) select.val(selectedOutlet);
+            else {
+                select.val('');
+                $('#inputCustCode').val('');
+                $('#inputChannel').val('');
+            }
+            refreshSelect2('#inputOutlet');
+        }
+
+        function onInputSalesFilterChange() {
+            if (String(currentUsernameInput || '').trim().toLowerCase() !== 'admin') return;
+            renderInputOutletOptions();
         }
 
         function updateInputWizardIndicator(step) {
@@ -3096,6 +3146,10 @@ startAutoRefresh();
         function lanjutKeTambahProduk() {
             const outlet = $('#inputOutlet').val();
             const tanggal = document.getElementById('inputTanggal').value;
+            if (String(currentUsernameInput || '').trim().toLowerCase() === 'admin' && !String($('#filterInputSales').val() || '').trim()) {
+                showModal('Peringatan', 'Pilih Sales terlebih dahulu.');
+                return;
+            }
             if (!outlet) { showModal('Peringatan', 'Pilih Outlet terlebih dahulu.'); return; }
             if (!tanggal) { showModal('Peringatan', 'Pilih tanggal order terlebih dahulu.'); return; }
             document.getElementById('inputStep1').classList.add('hidden');
@@ -3275,7 +3329,7 @@ startAutoRefresh();
             }
 
             let payload = {
-                sales: currentUser,
+                sales: (String(currentUsernameInput || '').trim().toLowerCase() === 'admin' ? String($('#filterInputSales').val() || '').trim() : currentUser),
                 outlet: outlet,
                 custCode: document.getElementById('inputCustCode').value,
                 channel: document.getElementById('inputChannel').value,
@@ -6795,6 +6849,7 @@ startAutoRefresh();
             if (isAdmin) {
                 run(function(){ loadOutletBWSAdmin(false, true); }, 640);
                 run(function(){ loadOutletBWSFormMaster(); }, 760);
+                run(function(){ loadInputMasterData(); }, 840);
             } else {
                 run(function(){ loadInputMasterData(); }, 640);
             }
@@ -6802,7 +6857,6 @@ startAutoRefresh();
 
         function switchTab(tab) {
             const isAdminLogin = String(currentUsernameInput || '').trim().toLowerCase() === 'admin';
-            if (isAdminLogin && tab === 'input') { applyRoleVisibility(); return; }
             if (tab === 'pengumumanadmin' && !isAdminLogin) { applyRoleVisibility(); return; }
             const tabMap = {input:'tabInput',riwayat:'tabRiwayat',pencapaian:'tabPencapaian',monitoring:'tabMonitoring',outletkontrak:'tabOutletKontrak',outletbws:'tabOutletBWS',tambahcustomer:'tabTambahCustomer',pricelist:'tabPricelist',pesananoutlet:'tabPesananOutlet',pengumumanadmin:'tabPengumumanAdmin'};
             const navMap = {input:'navInput',riwayat:'navRiwayat',pencapaian:'navPencapaian',monitoring:'navMonitoring',outletkontrak:'navOutletKontrak',outletbws:'navOutletBWS',tambahcustomer:'navTambahCustomer',pricelist:'navPricelist',pesananoutlet:'navPesananOutlet',pengumumanadmin:'navPengumumanAdmin'};
