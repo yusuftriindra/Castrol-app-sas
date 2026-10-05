@@ -630,14 +630,7 @@
 .break-words{overflow-wrap:anywhere}
 </style>
 
-<style id="admin-input-visibility">
-/* ADMIN: menu dan halaman Input Order harus selalu tersembunyi */
-body.admin-mode #navInput,
-body.admin-mode #tabInput {
-    display: none !important;
-    visibility: hidden !important;
-}
-</style>
+
 
 <style id="modern-safe-responsive">
 :root{--ui-bg:#f5f7fa;--ui-card:#fff;--ui-border:#e2e8f0;--ui-text:#0f172a;--ui-muted:#64748b;--ui-green:#047857}
@@ -2836,8 +2829,8 @@ html{scroll-behavior:auto!important}
             const tabOutletBWS = document.getElementById('tabOutletBWS');
             if (navInput) navInput.classList.toggle('hidden', false);
             if (tabInput) tabInput.classList.toggle('hidden', false);
-            const filterInputSales = document.getElementById('filterInputSales');
-            if (filterInputSales) filterInputSales.classList.toggle('hidden', !isAdminLogin);
+            const filterInputSalesWrap = document.getElementById('filterInputSalesWrap');
+            if (filterInputSalesWrap) filterInputSalesWrap.classList.toggle('hidden', !isAdminLogin);
             if (navOutletBWS) navOutletBWS.classList.toggle('hidden', !isAdminLogin);
             if (tabOutletBWS) tabOutletBWS.classList.toggle('hidden', !isAdminLogin);
             const btnTambahOutletBWS = document.getElementById('btnTambahOutletBWS');
