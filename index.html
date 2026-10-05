@@ -2197,7 +2197,15 @@ html{scroll-behavior:auto!important}
                             </div>
 
                             <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2">
-                                <div><label class="block text-[10px] font-bold text-slate-600 mb-1">Produk</label><select id="addItemProduk" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 bg-white text-xs searchable-select"><option value="">-- Pilih Produk --</option></select></div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-600 mb-1">Produk</label>
+                                    <div class="flex gap-1.5 mb-2">
+                                        <button type="button" id="btnFilterProdukAll" onclick="setProdukFilter('ALL')" class="flex-1 px-3 py-2 rounded-lg bg-emerald-700 text-white text-[10px] font-extrabold transition">SEMUA</button>
+                                        <button type="button" id="btnFilterProdukMCO" onclick="setProdukFilter('MCO')" class="flex-1 px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-600 text-[10px] font-extrabold transition">MCO</button>
+                                        <button type="button" id="btnFilterProdukPCO" onclick="setProdukFilter('PCO')" class="flex-1 px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-600 text-[10px] font-extrabold transition">PCO</button>
+                                    </div>
+                                    <select id="addItemProduk" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 bg-white text-xs searchable-select"><option value="">-- Pilih Produk --</option></select>
+                                </div>
                                 <div class="grid grid-cols-2 gap-2">
                                     <div><label class="block text-[10px] font-bold text-slate-600 mb-1">Qty</label><input type="number" id="addItemQty" min="1" value="1" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 bg-white text-xs"></div>
                                     <div><label class="block text-[10px] font-bold text-slate-600 mb-1">Satuan</label><div class="flex rounded-xl border border-slate-200 bg-white overflow-hidden h-[38px]"><button type="button" id="btnSatuanPcs" onclick="setSatuanInput('Pcs')" class="flex-1 bg-emerald-700 text-white font-bold text-xs transition">Pcs</button><button type="button" id="btnSatuanDus" onclick="setSatuanInput('Dus')" class="flex-1 bg-transparent text-slate-700 font-bold text-xs transition">Dus</button></div><input type="hidden" id="addItemSatuan" value="Pcs"></div>
@@ -2898,6 +2906,64 @@ startAutoRefresh();
 
         let inputMasterLoading = false;
         let inputMasterLoaded = false;
+        let produkFilterType = 'ALL';
+
+        function setProdukFilter(type) {
+            produkFilterType = String(type || 'ALL').toUpperCase();
+            renderProdukDropdown();
+        }
+
+        function updateProdukFilterButtons() {
+            const buttons = {
+                ALL: document.getElementById('btnFilterProdukAll'),
+                MCO: document.getElementById('btnFilterProdukMCO'),
+                PCO: document.getElementById('btnFilterProdukPCO')
+            };
+            Object.keys(buttons).forEach(function(key) {
+                const btn = buttons[key];
+                if (!btn) return;
+                if (produkFilterType === key) {
+                    btn.className = 'flex-1 px-3 py-2 rounded-lg bg-emerald-700 text-white text-[10px] font-extrabold transition';
+                } else {
+                    btn.className = 'flex-1 px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-600 text-[10px] font-extrabold transition';
+                }
+            });
+        }
+
+        function renderProdukDropdown() {
+            const select = $('#addItemProduk');
+            if (!select || !select.length) return;
+
+            const previous = String(select.val() || '');
+            select.empty().append('<option value="">-- Pilih Produk --</option>');
+
+            const filtered = (produkDataList || []).filter(function(p) {
+                const type = String(p.typeProduk == null ? '' : p.typeProduk)
+                    .replace(/\u00A0/g, ' ')
+                    .trim()
+                    .toUpperCase()
+                    .replace(/\s+/g, '');
+                if (produkFilterType === 'MCO') return type === 'MCO-4T' || type === 'MCO-2T';
+                if (produkFilterType === 'PCO') return type === 'PCO';
+                return true;
+            });
+
+            filtered.forEach(function(p) {
+                select.append(new Option(
+                    p.nama + ' (' + p.liter + 'L | Rp ' + Number(p.harga).toLocaleString() + ')',
+                    p.nama
+                ));
+            });
+
+            if (previous && filtered.some(function(p) { return String(p.nama) === previous; })) {
+                select.val(previous);
+            } else {
+                select.val('');
+            }
+            refreshSelect2('#addItemProduk');
+            updateProdukFilterButtons();
+        }
+
         function loadInputMasterData() {
             if (inputMasterLoaded || inputMasterLoading) return;
             inputMasterLoading = true;
@@ -2905,12 +2971,7 @@ startAutoRefresh();
             function finish(){ done++; if(done>=2){ inputMasterLoading=false; inputMasterLoaded=true; showLoading(false); } }
             google.script.run.withSuccessHandler(function(data) {
                 produkDataList = data || [];
-                let select = $('#addItemProduk');
-                if (select && select.length) {
-                    select.empty().append('<option value="">-- Pilih Produk --</option>');
-                    produkDataList.forEach(p => select.append(new Option(p.nama + " (" + p.liter + "L | Rp " + Number(p.harga).toLocaleString() + ")", p.nama)));
-                    refreshSelect2('#addItemProduk');
-                }
+                renderProdukDropdown();
                 finish();
             }).withFailureHandler(function(err){
                 inputMasterLoading=false;
@@ -3183,7 +3244,8 @@ startAutoRefresh();
             onOutletChange();
             const s1=document.getElementById('inputStep1'),s2=document.getElementById('inputStep2');
             if(s1)s1.classList.remove('hidden'); if(s2)s2.classList.add('hidden');
-            const p=document.getElementById('addItemProduk'); if(p){p.value='';refreshSelect2('#addItemProduk');}
+            produkFilterType = 'ALL';
+            const p=document.getElementById('addItemProduk'); if(p){p.value='';renderProdukDropdown();}
         }
 
         function buildOrderWhatsAppUrl(payload) {
@@ -6648,12 +6710,15 @@ startAutoRefresh();
         function markAllNotificationsRead() {
             if (!notificationUnreadCount) return;
 
+            // Langsung ubah tampilan lokal agar angka lencana hilang tanpa menunggu server.
+            notificationData.forEach(function(n) { n.unread = false; });
+            notificationUnreadCount = 0;
+            renderNotifications();
+
             google.script.run
                 .withSuccessHandler(function(res) {
-                    if (res && res.success) {
-                        notificationData.forEach(function(n) { n.unread = false; });
-                        notificationUnreadCount = 0;
-                        renderNotifications();
+                    if (!res || !res.success) {
+                        console.warn('Gagal menandai semua notifikasi:', res && res.message ? res.message : res);
                     }
                 })
                 .withFailureHandler(function(err) {
@@ -6664,19 +6729,30 @@ startAutoRefresh();
 
         function clearAllNotifications() {
             if (!notificationData.length) return;
-            if (!confirm('Bersihkan semua notifikasi yang tampil?')) return;
+
+            // Langsung kosongkan tampilan agar aksi terasa realtime.
+            // Penghapusan tampilan permanen diselesaikan oleh backend.
+            var previousData = notificationData.slice();
+            var previousUnread = Number(notificationUnreadCount || 0);
+            notificationData = [];
+            notificationUnreadCount = 0;
+            renderNotifications();
 
             google.script.run
                 .withSuccessHandler(function(res) {
-                    if (res && res.success) {
-                        notificationData = [];
-                        notificationUnreadCount = 0;
+                    if (!res || !res.success) {
+                        // Kembalikan tampilan jika server gagal menghapus.
+                        notificationData = previousData;
+                        notificationUnreadCount = previousUnread;
                         renderNotifications();
-                    } else {
                         console.warn('Gagal membersihkan notifikasi:', res && res.message ? res.message : res);
                     }
                 })
                 .withFailureHandler(function(err) {
+                    // Kembalikan tampilan jika komunikasi ke server gagal.
+                    notificationData = previousData;
+                    notificationUnreadCount = previousUnread;
+                    renderNotifications();
                     console.warn('Gagal membersihkan notifikasi:', err && err.message ? err.message : err);
                 })
                 .clearNotifikasi(currentUser || '', currentUsernameInput || '');
