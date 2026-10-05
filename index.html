@@ -803,6 +803,13 @@ button{touch-action:manipulation}
   line-height:1;
   box-shadow:0 3px 8px rgba(227,24,55,.28);
 }
+.notification-badge.has-unread{
+  animation:notificationBadgePulse 1.4s ease-in-out infinite;
+}
+@keyframes notificationBadgePulse{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.12)}
+}
 .notification-panel{
   position:absolute;
   top:47px;
@@ -852,6 +859,15 @@ button{touch-action:manipulation}
   border:0;
   background:transparent;
   color:#007a3d;
+  font-size:9px;
+  font-weight:800;
+  cursor:pointer;
+  padding:4px 5px;
+}
+.notification-clear-all{
+  border:0;
+  background:transparent;
+  color:#dc2626;
   font-size:9px;
   font-weight:800;
   cursor:pointer;
@@ -1939,7 +1955,7 @@ html{scroll-behavior:auto!important}
                             <span>Notifikasi</span>
                             <span id="notificationPanelCount" class="notification-panel-count">0</span>
                         </div>
-                        <button type="button" class="notification-mark-all" onclick="markAllNotificationsRead()">Tandai semua dibaca</button>
+                        <div class="flex items-center gap-2"><button type="button" class="notification-mark-all" onclick="markAllNotificationsRead()">Tandai semua dibaca</button><button type="button" class="notification-clear-all" onclick="clearAllNotifications()">Bersihkan notifikasi</button></div>
                     </div>
                     <div id="notificationList" class="notification-list">
                         <div class="notification-loading">Memuat notifikasi...</div>
@@ -5558,7 +5574,7 @@ startAutoRefresh();
                                         <div class="riwayat-card-label">OUTLET</div>
                                         <div class="riwayat-card-outlet">${escapeHtml(r.outlet || '-')}</div>
                                     </div>
-                                    <span class="riwayat-card-number">${Number(r.transactions || 0).toLocaleString('id-ID')} SKU</span>
+                                    <span class="riwayat-card-number">${Number(r.transactions || 0).toLocaleString('id-ID')} transaksi</span>
                                 </div>
                                 <div class="riwayat-card-products">
                                     <div class="riwayat-card-label">PRODUK</div>
@@ -6534,6 +6550,7 @@ startAutoRefresh();
             if (badge) {
                 badge.textContent = unread > 99 ? '99+' : String(unread);
                 badge.style.display = unread > 0 ? 'inline-flex' : 'none';
+                badge.classList.toggle('has-unread', unread > 0);
             }
             if (panelCount) panelCount.textContent = unread > 99 ? '99+' : String(unread);
 
@@ -6568,7 +6585,7 @@ startAutoRefresh();
                     if (!res || !res.success) return;
 
                     notificationData = Array.isArray(res.data) ? res.data : [];
-                    notificationUnreadCount = Number(res.unreadCount || 0);
+                    notificationUnreadCount = Number(res.unreadCount != null ? res.unreadCount : (res.unread || 0));
                     renderNotifications();
                 })
                 .withFailureHandler(function(err) {
@@ -6643,6 +6660,26 @@ startAutoRefresh();
                     console.warn('Gagal menandai semua notifikasi:', err && err.message ? err.message : err);
                 })
                 .markAllNotifikasiDibaca(currentUser || '', currentUsernameInput || '');
+        }
+
+        function clearAllNotifications() {
+            if (!notificationData.length) return;
+            if (!confirm('Bersihkan semua notifikasi yang tampil?')) return;
+
+            google.script.run
+                .withSuccessHandler(function(res) {
+                    if (res && res.success) {
+                        notificationData = [];
+                        notificationUnreadCount = 0;
+                        renderNotifications();
+                    } else {
+                        console.warn('Gagal membersihkan notifikasi:', res && res.message ? res.message : res);
+                    }
+                })
+                .withFailureHandler(function(err) {
+                    console.warn('Gagal membersihkan notifikasi:', err && err.message ? err.message : err);
+                })
+                .clearNotifikasi(currentUser || '', currentUsernameInput || '');
         }
 
         document.addEventListener('click', function(e) {
