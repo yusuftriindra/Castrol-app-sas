@@ -2974,6 +2974,12 @@ body{background:
 
 
 
+<style id="background-refresh-processing-final">
+/* Semua proses memakai refresh icon di header; overlay "Memproses..." tidak ditampilkan. */
+#loadingOverlay{display:none!important;pointer-events:none!important;visibility:hidden!important;opacity:0!important;}
+#globalRefreshBtn.is-refreshing svg,#globalRefreshIcon.is-refreshing{animation:castrolRefreshSpin .8s linear infinite!important;transform-origin:50% 50%;}
+@keyframes castrolRefreshSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+</style>
 </head>
 <body class="bg-slate-50 font-sans">
 
@@ -3788,6 +3794,9 @@ body{background:
     <script>
         let modalCallback = null;
         let isSubmitting = false;
+        // Menahan hanya payload order yang IDENTIK selama request masih berjalan.
+        // Order berbeda tetap boleh diinput tanpa menunggu request sebelumnya selesai.
+        const orderSubmitInFlightKeys = new Set();
         let currentSatuanInput = "Pcs";
         let globalPricelistData = [];
 
@@ -3812,11 +3821,21 @@ body{background:
             }
         }
 
+        /* BACKGROUND ACTIVITY INDICATOR
+           Tidak lagi memakai overlay "Memproses...". Semua proses berjalan di belakang
+           layar dan indikatornya hanya memakai icon refresh di header. */
         function showLoading(show) {
             const el = document.getElementById('loadingOverlay');
-            if (!el) return;
-            el.style.display = show ? 'flex' : 'none';
-            el.setAttribute('aria-hidden', show ? 'false' : 'true');
+            if (el) {
+                el.style.display = 'none';
+                el.setAttribute('aria-hidden', 'true');
+            }
+            // Jangan mengambil alih spinner manual/global refresh yang sedang berjalan.
+            if (show) {
+                setGlobalRefreshState(true);
+            } else if (!globalRefreshRunning) {
+                setGlobalRefreshState(false);
+            }
         }
 
         let globalRefreshRunning = false;
@@ -3957,6 +3976,12 @@ body{background:
             const _modalTitle = String(title == null ? '' : title);
             const _modalMessage = String(message == null ? '' : message);
             const _connectionWarning = /apps\s*script|koneksi\s*gagal|tidak\s*dapat\s*(mengakses|terhubung)|bridge\s+google/i.test(_modalTitle + ' ' + _modalMessage);
+            const _successNotice = /\bberhasil\b|\bsuccess\b/i.test(_modalTitle.trim()) ||
+                (/\bberhasil\b/i.test(_modalMessage) && !/\bgagal\b|\berror\b/i.test(_modalMessage));
+            if (_successNotice && !isConfirm) {
+                console.info('Notifikasi berhasil disembunyikan:', _modalMessage);
+                return;
+            }
             if (_connectionWarning && !isConfirm) {
                 console.warn('Peringatan koneksi disembunyikan:', _modalTitle, _modalMessage);
                 return;
@@ -4031,6 +4056,9 @@ body{background:
         let notificationData = [];
         let notificationUnreadCount = 0;
         let notificationLoading = false;
+        let notificationMutationInFlight = false;
+        let notificationReloadQueued = false;
+        let notificationMutationTimer = null;
         let pricelistLoading = false;
         let pesananOutletLoading = false;
 
@@ -4544,8 +4572,6 @@ startAutoRefresh();
         }
 
         function kirimSemuaOrder() {
-            if (isSubmitting) return;
-
             let outlet = $('#inputOutlet').val();
             if (!outlet) {
                 showModal("Peringatan", "Pilih outlet terlebih dahulu!");
@@ -4569,44 +4595,63 @@ startAutoRefresh();
                 items: shoppingCart
             };
 
+            // Fingerprint order dibuat dari isi order, bukan dari waktu klik.
+            // Klik berulang dengan data yang sama selama request berjalan akan diabaikan.
+            const orderKey = JSON.stringify({
+                sales: payload.sales, outlet: payload.outlet, custCode: payload.custCode,
+                channel: payload.channel, tanggal: payload.tanggal, payment: payload.payment,
+                disc: payload.disc, note: payload.note, cashback: payload.cashback, items: payload.items
+            });
+            if (orderSubmitInFlightKeys.has(orderKey)) {
+                console.warn('Order identik masih dalam proses; duplikasi diabaikan.');
+                return;
+            }
+
             showModal("Konfirmasi Order", "Kirim order sekarang?", true, function(isOk) {
-                if (isOk) {
-                    isSubmitting = true;
-                    let btnKirim = document.getElementById('btnKirimOrder');
-                    if(btnKirim) {
-                        btnKirim.disabled = true;
-                        btnKirim.classList.add('opacity-50', 'cursor-not-allowed');
-                    }
-                    // Buka WhatsApp langsung dari aksi klik user agar browser tidak memblokir tab baru.
-                    // Pesan memakai data yang sama dengan order yang sedang dikirim.
-                    try {
-                        window.open(buildOrderWhatsAppUrl(payload), '_blank', 'noopener,noreferrer');
-                    } catch (waErr) {
-                        console.warn('WhatsApp tidak dapat dibuka:', waErr);
-                    }
+                if (!isOk) return;
 
-                    // Reset segera setelah OK; penyimpanan tetap berjalan di background.
-                    resetFormOrderSetelahKirim();
-                    isSubmitting = false;
-                    if(btnKirim) {
-                        btnKirim.disabled = false;
-                        btnKirim.classList.remove('opacity-50', 'cursor-not-allowed');
-                    }
-                    showLoading(true);
+                // Cek ulang setelah user menekan OK karena modal dapat dibiarkan terbuka.
+                if (orderSubmitInFlightKeys.has(orderKey)) return;
+                orderSubmitInFlightKeys.add(orderKey);
+                isSubmitting = true;
 
-                    google.script.run
-                        .withSuccessHandler(function(res) {
-                            showLoading(false);
-                            if (!res || !res.success) {
-                                showModal("Gagal", res && res.message ? res.message : "Order gagal disimpan.");
-                            }
-                        })
-                        .withFailureHandler(function(err) {
-                            showLoading(false);
-                            showModal("Error Sistem", err && err.message ? err.message : "Order gagal disimpan.");
-                        })
-                        .simpanMultiOrder(payload);
+                let btnKirim = document.getElementById('btnKirimOrder');
+                if(btnKirim) {
+                    btnKirim.disabled = true;
+                    btnKirim.classList.add('opacity-50', 'cursor-not-allowed');
                 }
+
+                // Buka WhatsApp langsung dari aksi klik user agar browser tidak memblokir tab baru.
+                try {
+                    window.open(buildOrderWhatsAppUrl(payload), '_blank', 'noopener,noreferrer');
+                } catch (waErr) {
+                    console.warn('WhatsApp tidak dapat dibuka:', waErr);
+                }
+
+                // Reset FORM sekarang agar user dapat membuat order berikutnya.
+                // Request penyimpanan sebelumnya tetap berjalan di background.
+                resetFormOrderSetelahKirim();
+                isSubmitting = false;
+                if(btnKirim) {
+                    btnKirim.disabled = false;
+                    btnKirim.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+                showLoading(true);
+
+                google.script.run
+                    .withSuccessHandler(function(res) {
+                        orderSubmitInFlightKeys.delete(orderKey);
+                        if (!orderSubmitInFlightKeys.size) showLoading(false);
+                        if (!res || !res.success) {
+                            showModal("Gagal", res && res.message ? res.message : "Order gagal disimpan.");
+                        }
+                    })
+                    .withFailureHandler(function(err) {
+                        orderSubmitInFlightKeys.delete(orderKey);
+                        if (!orderSubmitInFlightKeys.size) showLoading(false);
+                        showModal("Error Sistem", err && err.message ? err.message : "Order gagal disimpan.");
+                    })
+                    .simpanMultiOrder(payload);
             });
         }
 
@@ -8067,8 +8112,23 @@ startAutoRefresh();
             }).join('');
         }
 
+        function reloadNotificationsAfterMutation() {
+            if (notificationMutationTimer) clearTimeout(notificationMutationTimer);
+            // Beri waktu backend menyelesaikan write, lalu baca ulang dua kali agar
+            // auto-refresh tidak dapat mengembalikan snapshot lama.
+            notificationMutationTimer = setTimeout(function() {
+                notificationMutationTimer = null;
+                loadNotifications(true);
+                setTimeout(function() { loadNotifications(true); }, 1200);
+            }, 350);
+        }
+
         function loadNotifications(silent) {
             if (!currentUsernameInput && !currentUser) return;
+            if (notificationMutationInFlight) {
+                notificationReloadQueued = true;
+                return;
+            }
             if (notificationLoading) return;
             notificationLoading = true;
 
@@ -8076,7 +8136,11 @@ startAutoRefresh();
                 .withSuccessHandler(function(res) {
                     notificationLoading = false;
                     if (!res || !res.success) return;
-
+                    // Jangan pernah menimpa state optimistis ketika aksi pengguna masih berjalan.
+                    if (notificationMutationInFlight) {
+                        notificationReloadQueued = true;
+                        return;
+                    }
                     notificationData = Array.isArray(res.data) ? res.data : [];
                     notificationUnreadCount = Number(res.unreadCount != null ? res.unreadCount : (res.unread || 0));
                     renderNotifications();
@@ -8114,34 +8178,44 @@ startAutoRefresh();
             if (btn) btn.setAttribute('aria-expanded', 'false');
         }
 
+        function finishNotificationMutation() {
+            notificationMutationInFlight = false;
+            const queued = notificationReloadQueued;
+            notificationReloadQueued = false;
+            if (queued) reloadNotificationsAfterMutation();
+            else reloadNotificationsAfterMutation();
+        }
+
         function openNotificationItem(notificationId) {
             const id = String(notificationId || '').trim();
-            if (!id) return;
+            if (!id || notificationMutationInFlight) return;
 
             const item = notificationData.find(function(n) {
                 return String(n.id || '') === id;
             });
 
             if (item && item.unread) {
+                notificationMutationInFlight = true;
+                item.unread = false;
+                notificationUnreadCount = Math.max(0, Number(notificationUnreadCount || 0) - 1);
+                renderNotifications();
+
                 google.script.run
                     .withSuccessHandler(function() {
-                        notificationData.forEach(function(n) {
-                            if (String(n.id || '') === id) n.unread = false;
-                        });
-                        notificationUnreadCount = Math.max(0, Number(notificationUnreadCount || 0) - 1);
-                        renderNotifications();
+                        finishNotificationMutation();
                     })
                     .withFailureHandler(function(err) {
                         console.warn('Gagal menandai notifikasi:', err && err.message ? err.message : err);
+                        finishNotificationMutation();
                     })
                     .markNotifikasiDibaca([id], currentUser || '', currentUsernameInput || '');
             }
         }
 
         function markAllNotificationsRead() {
-            if (!notificationUnreadCount) return;
+            if (notificationMutationInFlight || !notificationUnreadCount) return;
 
-            // Langsung ubah tampilan lokal agar angka lencana hilang tanpa menunggu server.
+            notificationMutationInFlight = true;
             notificationData.forEach(function(n) { n.unread = false; });
             notificationUnreadCount = 0;
             renderNotifications();
@@ -8151,20 +8225,19 @@ startAutoRefresh();
                     if (!res || !res.success) {
                         console.warn('Gagal menandai semua notifikasi:', res && res.message ? res.message : res);
                     }
+                    finishNotificationMutation();
                 })
                 .withFailureHandler(function(err) {
                     console.warn('Gagal menandai semua notifikasi:', err && err.message ? err.message : err);
+                    finishNotificationMutation();
                 })
                 .markAllNotifikasiDibaca(currentUser || '', currentUsernameInput || '');
         }
 
         function clearAllNotifications() {
-            if (!notificationData.length) return;
+            if (notificationMutationInFlight || !notificationData.length) return;
 
-            // Langsung kosongkan tampilan agar aksi terasa realtime.
-            // Penghapusan tampilan permanen diselesaikan oleh backend.
-            var previousData = notificationData.slice();
-            var previousUnread = Number(notificationUnreadCount || 0);
+            notificationMutationInFlight = true;
             notificationData = [];
             notificationUnreadCount = 0;
             renderNotifications();
@@ -8172,19 +8245,13 @@ startAutoRefresh();
             google.script.run
                 .withSuccessHandler(function(res) {
                     if (!res || !res.success) {
-                        // Kembalikan tampilan jika server gagal menghapus.
-                        notificationData = previousData;
-                        notificationUnreadCount = previousUnread;
-                        renderNotifications();
                         console.warn('Gagal membersihkan notifikasi:', res && res.message ? res.message : res);
                     }
+                    finishNotificationMutation();
                 })
                 .withFailureHandler(function(err) {
-                    // Kembalikan tampilan jika komunikasi ke server gagal.
-                    notificationData = previousData;
-                    notificationUnreadCount = previousUnread;
-                    renderNotifications();
                     console.warn('Gagal membersihkan notifikasi:', err && err.message ? err.message : err);
+                    finishNotificationMutation();
                 })
                 .clearNotifikasi(currentUser || '', currentUsernameInput || '');
         }
