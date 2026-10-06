@@ -1856,6 +1856,796 @@ html{scroll-behavior:auto!important}
 }
 </style>
 
+
+<style id="castrol-ui-modern-final">
+/* =========================================================
+   CASTROL UI MODERN FINAL
+   Visual layer only — tidak mengubah fungsi / ID / JavaScript.
+   Desktop + tablet + mobile responsive.
+   ========================================================= */
+:root{
+  --m-green:#007a3d;
+  --m-green-2:#00a651;
+  --m-green-3:#eaf7f0;
+  --m-red:#e31837;
+  --m-ink:#12221a;
+  --m-muted:#6b7a71;
+  --m-line:#dfe8e2;
+  --m-bg:#f4f8f5;
+  --m-card:#ffffff;
+  --m-radius:16px;
+  --m-shadow:0 8px 26px rgba(18,50,31,.065);
+  --m-shadow-hover:0 14px 34px rgba(18,50,31,.10);
+}
+
+html,body{background:var(--m-bg)!important;color:var(--m-ink)}
+body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif!important}
+
+/* ---------- APP / HEADER ---------- */
+#app.app-shell{max-width:1600px!important;background:transparent!important}
+#mainHeader{
+  min-height:68px!important;
+  padding:11px 20px!important;
+  background:linear-gradient(120deg,#042517 0%,#005d30 48%,#007a3d 100%)!important;
+  border-bottom:1px solid rgba(183,212,51,.25)!important;
+  box-shadow:0 10px 32px rgba(3,48,26,.18)!important;
+  backdrop-filter:blur(14px);
+}
+#mainHeader:after{height:2px!important;opacity:.9!important}
+#mainHeader h1{font-size:14px!important;font-weight:850!important;letter-spacing:.025em!important}
+#mainHeader .sidebar-toggle{width:40px!important;height:40px!important;border-radius:12px!important}
+#mainHeader .notification-bell-btn{width:40px!important;height:40px!important;border-radius:12px!important}
+#mainHeader .account-header-btn,.header-action-btn{
+  min-height:38px!important;border-radius:11px!important;
+  background:rgba(255,255,255,.08)!important;
+  border-color:rgba(255,255,255,.14)!important;
+}
+#mainHeader .account-header-btn:hover,.header-action-btn:hover{background:rgba(255,255,255,.15)!important}
+
+/* ---------- SIDEBAR ---------- */
+#leftNav.app-sidebar{
+  width:228px!important;
+  padding:14px 12px!important;
+  background:rgba(255,255,255,.96)!important;
+  border-right:1px solid var(--m-line)!important;
+  box-shadow:8px 0 30px rgba(18,50,31,.055)!important;
+  backdrop-filter:blur(18px);
+}
+#leftNav .sidebar-inner{gap:6px!important}
+#leftNav .sidebar-label{
+  margin:5px 8px 9px!important;text-align:left!important;
+  font-size:9px!important;letter-spacing:.14em!important;color:#94a39a!important;
+}
+#leftNav .sidebar-icon{display:flex!important;width:30px!important;height:30px!important;font-size:15px!important;flex:0 0 30px!important}
+#leftNav .sidebar-item,#leftNav .sidebar-user-item{
+  min-height:46px!important;height:46px!important;
+  flex-direction:row!important;justify-content:flex-start!important;gap:10px!important;
+  padding:0 11px!important;border-radius:12px!important;
+  font-size:11px!important;font-weight:750!important;
+}
+#leftNav .sidebar-item:hover{transform:translateX(2px)!important}
+#leftNav .sidebar-item-active{
+  background:linear-gradient(90deg,#e8f7ee,#f4fbf7)!important;
+  border-color:#c8e7d3!important;
+  box-shadow:inset 3px 0 0 var(--m-green-2),0 6px 16px rgba(0,122,61,.06)!important;
+}
+#leftNav .sidebar-bottom{padding-top:10px!important;margin-top:10px!important}
+
+/* Content offset for desktop sidebar; mobile remains overlay. */
+#app:not(.sidebar-closed) #leftNav.app-sidebar + div{margin-left:228px!important;transition:margin-left .22s ease!important}
+#app.sidebar-closed #leftNav.app-sidebar + div{margin-left:0!important}
+
+/* ---------- MAIN CONTENT ---------- */
+#app>.p-4.flex-1.overflow-y-auto{padding:24px 28px!important;background:transparent!important}
+#mainPage{max-width:1280px!important}
+.tab-content{animation:none!important}
+
+/* Section headers */
+#tabInput>h2,#tabRiwayat>div:first-child,#tabMonitoring>div:first-child,
+#tabOutletKontrak>div:first-child,#tabOutletBWS>div:first-child,
+#tabTambahCustomer>div:first-child,#tabPricelist>div:first-child,
+#tabPesananOutlet>div:first-child{
+  min-height:58px;
+  padding:0 2px 13px!important;
+  margin-bottom:14px!important;
+  border-bottom:1px solid var(--m-line)!important;
+}
+#mainPage h2{letter-spacing:-.01em}
+
+/* Cards / panels */
+#mainPage .bg-white.border,
+#mainPage .bg-slate-50.border,
+#mainPage .bg-emerald-50\/40{
+  border-color:var(--m-line)!important;
+  border-radius:var(--m-radius)!important;
+  box-shadow:var(--m-shadow)!important;
+}
+#mainPage .bg-white.border:hover{box-shadow:var(--m-shadow-hover)!important}
+
+/* Inputs */
+#mainPage input,#mainPage select,#mainPage textarea,
+#searchRiwayatInput,#searchMonitoringInput,#searchOutletKontrakInput,
+#filterQuarterSelect,#filterPricelistUpdate{
+  min-height:42px!important;
+  border:1px solid #d5e0d9!important;
+  border-radius:11px!important;
+  background:#fff!important;
+  color:#17251d!important;
+  box-shadow:0 1px 2px rgba(18,50,31,.025)!important;
+}
+#mainPage input:focus,#mainPage select:focus,#mainPage textarea:focus,
+#searchRiwayatInput:focus,#searchMonitoringInput:focus,#searchOutletKontrakInput:focus,
+#filterQuarterSelect:focus,#filterPricelistUpdate:focus{
+  border-color:#49a96e!important;
+  box-shadow:0 0 0 4px rgba(0,166,81,.09)!important;
+  outline:none!important;
+}
+
+/* Buttons */
+#mainPage button{border-radius:10px}
+#btnKirimOrder{
+  min-height:48px!important;border-radius:12px!important;
+  background:linear-gradient(135deg,#e31837,#c81531)!important;
+  box-shadow:0 9px 20px rgba(227,24,55,.16)!important;
+}
+#btnKirimOrder:hover{transform:translateY(-1px)!important}
+#mainPage button.bg-emerald-700,#mainPage button.bg-emerald-800{box-shadow:0 6px 15px rgba(0,122,61,.11)}
+
+/* Cart / order items */
+#cartList>div{
+  border:1px solid #e1ebe4!important;border-radius:13px!important;
+  box-shadow:0 4px 13px rgba(18,50,31,.045)!important;
+}
+
+/* ---------- TABLES ---------- */
+#tabMonitoring table,#tabOutletKontrak table,#tabOutletBWS table,#tabPricelist table,.riwayat-table{
+  border-collapse:separate!important;border-spacing:0!important;
+}
+#tabMonitoring table thead th,#tabOutletKontrak table thead th,#tabOutletBWS table thead th,
+#tabPricelist table thead th,.riwayat-table thead th{
+  padding:11px 12px!important;
+  background:#edf5ef!important;color:#315d45!important;
+  font-size:10px!important;font-weight:850!important;
+  letter-spacing:.025em!important;
+  border-bottom:1px solid #d8e5dc!important;
+}
+#tabMonitoring table tbody td,#tabOutletKontrak table tbody td,#tabOutletBWS table tbody td,
+#tabPricelist table tbody td,.riwayat-table tbody td{padding:10px 12px!important}
+#tabMonitoring table tbody tr,#tabOutletKontrak table tbody tr,#tabOutletBWS table tbody tr,#tabPricelist table tbody tr,.riwayat-table tbody tr{transition:background .14s ease!important}
+#tabMonitoring table tbody tr:hover,#tabOutletKontrak table tbody tr:hover,#tabOutletBWS table tbody tr:hover,#tabPricelist table tbody tr:hover,.riwayat-table tbody tr:hover{background:#f3faf6!important}
+
+/* ---------- HISTORY CARDS ---------- */
+.riwayat-card{
+  border-color:var(--m-line)!important;border-radius:17px!important;
+  box-shadow:var(--m-shadow)!important;
+}
+.riwayat-card:hover{box-shadow:var(--m-shadow-hover)!important;transform:translateY(-2px)!important}
+.riwayat-card-number{background:#edf6f0!important;color:#397054!important}
+
+/* ---------- MODALS ---------- */
+.modern-modal-overlay{background:rgba(2,28,16,.62)!important;backdrop-filter:blur(10px)!important}
+.modern-modal-card{
+  border:1px solid #d7e4db!important;border-radius:22px!important;
+  box-shadow:0 30px 90px rgba(1,28,15,.30)!important;
+}
+.modern-modal-header{padding:16px 18px!important}
+.modern-modal-body{padding:16px 18px!important}
+.modern-modal-footer{padding:12px 16px!important}
+.modern-modal-ok{border-radius:11px!important}
+
+/* ---------- SELECT2 ---------- */
+.select2-container .select2-selection--single{
+  height:42px!important;padding:5px 10px!important;border-radius:11px!important;border-color:#d5e0d9!important;
+}
+.select2-container--default .select2-selection--single .select2-selection__arrow{height:40px!important}
+.select2-container--default .select2-selection--single .select2-selection__rendered{line-height:30px!important;font-size:12px!important}
+.select2-dropdown{border-color:#d5e0d9!important;border-radius:11px!important;overflow:hidden}
+
+/* ---------- MOBILE DRAWER ---------- */
+@media(max-width:767px){
+  #mainHeader{min-height:58px!important;padding:8px 11px!important}
+  #mainHeader h1{font-size:12px!important;max-width:135px!important}
+  #mainHeader .sidebar-toggle,#mainHeader .notification-bell-btn{width:36px!important;height:36px!important}
+  #leftNav.app-sidebar{
+    width:min(82vw,280px)!important;max-width:280px!important;
+    top:58px!important;padding:12px!important;
+    border-radius:0 18px 18px 0!important;
+    box-shadow:16px 0 40px rgba(4,35,20,.16)!important;
+  }
+  #leftNav .sidebar-item,#leftNav .sidebar-user-item{min-height:44px!important;height:44px!important;font-size:11px!important}
+  #app:not(.sidebar-closed) #leftNav.app-sidebar + div,#app.sidebar-closed #leftNav.app-sidebar + div{margin-left:0!important}
+  #app>.p-4.flex-1.overflow-y-auto{padding:11px!important}
+  #mainPage{max-width:none!important}
+  #mainPage .bg-white.border,#mainPage .bg-slate-50.border{border-radius:14px!important}
+  #tabInput>h2,#tabRiwayat>div:first-child,#tabMonitoring>div:first-child,#tabOutletKontrak>div:first-child,
+  #tabOutletBWS>div:first-child,#tabTambahCustomer>div:first-child,#tabPricelist>div:first-child,#tabPesananOutlet>div:first-child{
+    min-height:0!important;padding-bottom:10px!important;margin-bottom:10px!important;
+  }
+  #tabInput .grid.grid-cols-3,#tabInput .grid.grid-cols-2{grid-template-columns:1fr!important}
+  #tabInput input,#tabInput select,#tabInput textarea{min-height:44px!important}
+  #btnKirimOrder{width:100%!important;min-height:48px!important}
+  .riwayat-cards-grid{grid-template-columns:1fr!important}
+  .riwayat-card{padding:13px!important}
+  .modern-modal-overlay{padding:10px!important}
+  .modern-modal-card{width:calc(100vw - 20px)!important;max-width:560px!important;max-height:90dvh!important;border-radius:18px!important}
+  .modern-modal-header{padding:13px 14px!important}
+  .modern-modal-body{padding:13px!important}
+}
+
+@media(max-width:430px){
+  #mainHeader{padding:8px!important}
+  #mainHeader h1{max-width:105px!important}
+  #mainHeader .user-badge{display:none!important}
+  #leftNav.app-sidebar{width:min(86vw,270px)!important}
+  #app>.p-4.flex-1.overflow-y-auto{padding:8px!important}
+  #mainPage .text-base{font-size:14px!important}
+  #mainPage .text-sm{font-size:12px!important}
+  #tabMonitoring table,#tabOutletKontrak table,#tabOutletBWS table,#tabPricelist table{font-size:10px!important}
+}
+
+@media(min-width:768px) and (max-width:1100px){
+  #leftNav.app-sidebar{width:200px!important}
+  #app:not(.sidebar-closed) #leftNav.app-sidebar + div{margin-left:200px!important}
+  #app>.p-4.flex-1.overflow-y-auto{padding:20px!important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+</style>
+
+
+<style id="castrol-step2-outlet-one-container">
+/* STEP 2: ringkasan outlet dibuat satu kontainer, mengikuti gaya kartu pada STEP 1 */
+#inputStep2 .step2-outlet-summary{
+  position:relative!important;
+  overflow:hidden!important;
+  padding:18px!important;
+  border:1px solid #d7e7de!important;
+  border-radius:20px!important;
+  background:linear-gradient(180deg,#fbfefd 0%,#f3f9f6 100%)!important;
+  box-shadow:0 6px 20px rgba(0,88,48,.045)!important;
+}
+#inputStep2 .step2-outlet-summary::before{
+  content:''!important;
+  position:absolute!important;
+  inset:0 0 auto 0!important;
+  height:3px!important;
+  background:linear-gradient(90deg,#008a4c,#38b979,#008a4c)!important;
+  opacity:.9!important;
+}
+#inputStep2 .step2-outlet-head{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:12px!important;
+  margin-bottom:9px!important;
+}
+#inputStep2 .step2-outlet-caption{
+  font-size:9px!important;
+  font-weight:900!important;
+  letter-spacing:.10em!important;
+  color:#007d49!important;
+}
+#inputStep2 .step2-outlet-edit{
+  border:0!important;
+  background:transparent!important;
+  color:#008a4c!important;
+  font-size:9px!important;
+  font-weight:800!important;
+  padding:2px 0!important;
+  cursor:pointer!important;
+}
+#inputStep2 .step2-outlet-edit:hover{color:#006b3a!important}
+#inputStep2 .step2-outlet-name{
+  min-height:34px!important;
+  display:flex!important;
+  align-items:center!important;
+  font-size:15px!important;
+  line-height:1.25!important;
+  font-weight:900!important;
+  color:#102a1f!important;
+  letter-spacing:-.015em!important;
+  padding:0 2px!important;
+}
+#inputStep2 .step2-outlet-grid{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:10px!important;
+  margin-top:8px!important;
+  padding-top:4px!important;
+}
+#inputStep2 .step2-outlet-field{
+  position:relative!important;
+  min-height:57px!important;
+  padding:9px 12px 8px!important;
+  border:1px solid #d9e6df!important;
+  border-radius:13px!important;
+  background:rgba(255,255,255,.84)!important;
+  box-shadow:0 3px 12px rgba(15,23,42,.025)!important;
+}
+#inputStep2 .step2-outlet-label{
+  font-size:8px!important;
+  font-weight:900!important;
+  letter-spacing:.10em!important;
+  color:#81918a!important;
+}
+#inputStep2 .step2-outlet-value{
+  margin-top:5px!important;
+  padding-right:58px!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+  font-size:12px!important;
+  line-height:1.25!important;
+  font-weight:900!important;
+  color:#102a1f!important;
+}
+#inputStep2 .step2-outlet-status{
+  position:absolute!important;
+  top:9px!important;
+  right:9px!important;
+  padding:3px 6px!important;
+  border-radius:999px!important;
+  background:#e9f8f1!important;
+  color:#008a4c!important;
+  font-size:6.5px!important;
+  line-height:1!important;
+  font-weight:900!important;
+  letter-spacing:.06em!important;
+}
+#inputStep2 .step2-outlet-meta{
+  display:none!important;
+}
+
+/* Produk tetap menjadi blok berikutnya, tetapi jaraknya lebih menyatu */
+#inputStep2 .step2-outlet-summary + .ui-product-entry{
+  margin-top:0!important;
+  border-radius:18px!important;
+}
+
+@media(max-width:600px){
+  #inputStep2 .step2-outlet-summary{padding:15px!important;border-radius:18px!important}
+  #inputStep2 .step2-outlet-name{font-size:14px!important}
+  #inputStep2 .step2-outlet-grid{gap:8px!important}
+  #inputStep2 .step2-outlet-field{padding:9px 10px 8px!important}
+}
+@media(max-width:380px){
+  #inputStep2 .step2-outlet-grid{grid-template-columns:1fr!important}
+}
+</style>
+
+<style id="castrol-step2-simple-meta">
+/* STEP 2 - customer/channel dibuat sangat sederhana, tanpa kartu/box */
+#inputStep2 .step2-outlet-summary{
+  padding:2px 0 6px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+}
+#inputStep2 .step2-outlet-summary::before{display:none!important}
+#inputStep2 .step2-outlet-head{
+  margin-bottom:5px!important;
+}
+#inputStep2 .step2-outlet-caption{
+  font-size:9px!important;
+  letter-spacing:.08em!important;
+}
+#inputStep2 .step2-outlet-edit{
+  font-size:9px!important;
+}
+#inputStep2 .step2-outlet-name{
+  min-height:0!important;
+  padding:0!important;
+  margin-bottom:8px!important;
+  font-size:14px!important;
+  line-height:1.25!important;
+}
+#inputStep2 .step2-outlet-grid{
+  display:flex!important;
+  align-items:center!important;
+  gap:0!important;
+  margin:0!important;
+  padding:0!important;
+  border-top:1px solid #e4ebe7!important;
+  border-bottom:1px solid #e4ebe7!important;
+}
+#inputStep2 .step2-outlet-field{
+  position:relative!important;
+  flex:1 1 50%!important;
+  min-height:0!important;
+  padding:7px 12px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+#inputStep2 .step2-outlet-field + .step2-outlet-field{
+  border-left:1px solid #e4ebe7!important;
+}
+#inputStep2 .step2-outlet-label{
+  display:inline!important;
+  margin-right:5px!important;
+  font-size:7.5px!important;
+  letter-spacing:.08em!important;
+  color:#8a9992!important;
+}
+#inputStep2 .step2-outlet-value{
+  display:inline!important;
+  margin:0!important;
+  padding:0!important;
+  font-size:11px!important;
+  line-height:1.2!important;
+  font-weight:850!important;
+  color:#102a1f!important;
+}
+#inputStep2 .step2-outlet-status{display:none!important}
+#inputStep2 .step2-outlet-meta{display:none!important}
+#inputStep2 .step2-outlet-summary + .ui-product-entry{margin-top:2px!important}
+
+@media(max-width:600px){
+  #inputStep2 .step2-outlet-summary{padding:2px 0 5px!important}
+  #inputStep2 .step2-outlet-name{font-size:13px!important}
+  #inputStep2 .step2-outlet-field{padding:7px 8px!important}
+  #inputStep2 .step2-outlet-label{font-size:7px!important}
+  #inputStep2 .step2-outlet-value{font-size:10px!important}
+}
+@media(max-width:380px){
+  #inputStep2 .step2-outlet-grid{display:block!important}
+  #inputStep2 .step2-outlet-field + .step2-outlet-field{
+    border-left:0!important;
+    border-top:1px solid #e4ebe7!important;
+  }
+}
+</style>
+
+
+<style id="castrol-info-order-simple-final">
+/* =========================================================
+   INFORMASI ORDER - CUST CODE + CHANNEL SIMPLE
+   Hanya Step 1 (#inputStep1), bukan Tambah Produk / Step 2.
+   ========================================================= */
+#tabInput #inputStep1 > .rounded-xl.bg-slate-50.border.border-slate-200.p-3:first-child > .grid.grid-cols-2.gap-2.mt-2{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:28px!important;
+  margin-top:8px!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+
+#tabInput #inputStep1 > .rounded-xl.bg-slate-50.border.border-slate-200.p-3:first-child > .grid.grid-cols-2.gap-2.mt-2 > div{
+  position:relative!important;
+  min-height:0!important;
+  padding:0 0 7px!important;
+  margin:0!important;
+  border:0!important;
+  border-bottom:1px solid #dbe7e0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  transform:none!important;
+}
+
+#tabInput #inputStep1 > .rounded-xl.bg-slate-50.border.border-slate-200.p-3:first-child > .grid.grid-cols-2.gap-2.mt-2 > div:hover{
+  border-bottom-color:#9acbb2!important;
+  box-shadow:none!important;
+  transform:none!important;
+}
+
+#tabInput #inputStep1 > .rounded-xl.bg-slate-50.border.border-slate-200.p-3:first-child > .grid.grid-cols-2.gap-2.mt-2 > div::after{
+  display:none!important;
+  content:none!important;
+}
+
+#tabInput #inputStep1 > .rounded-xl.bg-slate-50.border.border-slate-200.p-3:first-child > .grid.grid-cols-2.gap-2.mt-2 > div > div:first-child{
+  margin:0!important;
+  font-size:8px!important;
+  line-height:1.1!important;
+  font-weight:900!important;
+  color:#789087!important;
+  letter-spacing:.08em!important;
+  text-transform:uppercase!important;
+}
+
+#tabInput #inputStep1 > .rounded-xl.bg-slate-50.border.border-slate-200.p-3:first-child > .grid.grid-cols-2.gap-2.mt-2 > div input{
+  display:block!important;
+  width:100%!important;
+  min-height:20px!important;
+  margin:3px 0 0!important;
+  padding:0!important;
+  border:0!important;
+  outline:none!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  font-size:12px!important;
+  line-height:1.3!important;
+  font-weight:850!important;
+  color:#102a1f!important;
+}
+
+@media(max-width:600px){
+  #tabInput #inputStep1 > .rounded-xl.bg-slate-50.border.border-slate-200.p-3:first-child > .grid.grid-cols-2.gap-2.mt-2{
+    grid-template-columns:1fr 1fr!important;
+    gap:16px!important;
+  }
+}
+
+@media(max-width:380px){
+  #tabInput #inputStep1 > .rounded-xl.bg-slate-50.border.border-slate-200.p-3:first-child > .grid.grid-cols-2.gap-2.mt-2{
+    gap:10px!important;
+  }
+  #tabInput #inputStep1 > .rounded-xl.bg-slate-50.border.border-slate-200.p-3:first-child > .grid.grid-cols-2.gap-2.mt-2 > div input{
+    font-size:11px!important;
+  }
+}
+</style>
+
+
+<style id="castrol-outlet-label-position-final">
+/* FINAL: Informasi Order — Outlet * harus tepat di atas selector Pilih Outlet.
+   Visual-only. Tidak mengubah HTML/JS/function. */
+#tabInput #inputStep1 > .rounded-xl.bg-slate-50.border.border-slate-200.p-3:first-child > .flex.items-center.gap-2.mb-3{
+  order:1 !important;
+}
+#tabInput #inputStep1 > .rounded-xl.bg-slate-50.border.border-slate-200.p-3:first-child > #filterInputSalesWrap{
+  order:2 !important;
+}
+#tabInput #inputStep1 > .rounded-xl.bg-slate-50.border.border-slate-200.p-3:first-child > label[for="inputOutlet"]{
+  display:block !important;
+  order:3 !important;
+  margin:0 0 5px 0 !important;
+  color:#475569 !important;
+}
+#tabInput #inputStep1 > .rounded-xl.bg-slate-50.border.border-slate-200.p-3:first-child > #inputOutlet{
+  order:4 !important;
+}
+#tabInput #inputStep1 > .rounded-xl.bg-slate-50.border.border-slate-200.p-3:first-child > #inputOutlet + .select2-container{
+  order:4 !important;
+  width:100% !important;
+  margin:0 !important;
+}
+#tabInput #inputStep1 > .rounded-xl.bg-slate-50.border.border-slate-200.p-3:first-child > .grid.grid-cols-2.gap-2.mt-2{
+  order:5 !important;
+  margin-top:10px !important;
+}
+</style>
+
+
+<style id="view-toggle-only">
+.view-toggle-btn{min-height:32px;padding:6px 11px;border:1px solid #dbe5df;border-radius:9px;background:#fff;color:#64748b;font-size:10px;font-weight:800;transition:all .15s ease;}
+.view-toggle-btn:hover{border-color:#9bd8b8;background:#f0fdf4;color:#047857}
+.view-toggle-btn.is-active{border-color:#0f9f6e;background:#ecfdf5;color:#047857;box-shadow:0 2px 8px rgba(15,159,110,.10)}
+#listRiwayat table th,#listRiwayat table td,#pencapaianSalesList table th,#pencapaianSalesList table td{vertical-align:middle}
+@media(max-width:640px){.view-toggle-btn{min-height:30px;padding:5px 9px;font-size:9px}}
+</style>
+<style id="pencapaian-detail-no-actions">
+/* Hanya Detail pada Pencapaian Sales: tanpa tombol OK/Batal */
+#customModal .modern-modal-card.pencapaian-detail-modal-card .modern-modal-footer{display:none !important;}
+</style>
+
+<style id="global-refresh-ui">
+.header-refresh-wrap{display:flex;align-items:center;gap:7px;margin-left:2px;white-space:nowrap;}
+.global-refresh-btn{width:34px;height:34px;border-radius:10px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);color:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s ease,border-color .15s ease,transform .15s ease;}
+.global-refresh-btn:hover{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.28);}
+.global-refresh-btn:active{transform:scale(.94);}
+.global-refresh-btn svg{width:18px;height:18px;}
+.global-refresh-btn.is-refreshing svg{animation:globalRefreshSpin .8s linear infinite;}
+.global-last-sync{font-size:9px;font-weight:700;color:rgba(255,255,255,.68);min-width:74px;text-align:left;}
+@keyframes globalRefreshSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@media(max-width:640px){.header-refresh-wrap{gap:4px}.global-refresh-btn{width:32px;height:32px}.global-last-sync{font-size:8px;min-width:64px}.global-refresh-btn svg{width:17px;height:17px;}}
+</style>
+
+<style id="mobile-header-icon-size-only">
+/* Hanya mengecilkan icon header pada mobile; layout/fungsi lain tidak diubah. */
+@media (max-width: 767px){
+  #mainHeader .sidebar-toggle svg{width:16px!important;height:16px!important;}
+  #mainHeader .notification-bell-btn svg{width:16px!important;height:16px!important;}
+  #mainHeader .global-refresh-btn svg{width:15px!important;height:15px!important;}
+}
+</style>
+
+<style id="mobile-header-actions-final">
+/* Header actions: tetap di pojok kanan, mobile hanya icon tanpa label sync. */
+#mainHeader{position:relative;}
+#mainHeader .notification-header-wrap{position:absolute;right:104px;top:50%;transform:translateY(-50%);margin:0;z-index:1100;}
+#mainHeader .header-refresh-wrap{position:absolute;right:16px;top:50%;transform:translateY(-50%);margin:0;z-index:1100;}
+@media (max-width: 767px){
+  #mainHeader .notification-header-wrap{right:56px;}
+  #mainHeader .header-refresh-wrap{right:14px;}
+  #mainHeader .global-last-sync{display:none !important;}
+}
+</style>
+
+<style id="mobile-header-no-title-and-marquee-safe">
+@media (max-width: 767px){
+  /* Mobile: sembunyikan hanya tulisan Castrol, tombol/icon lain tetap. */
+  #mainHeader h1{display:none !important;}
+  /* Sisakan ruang kanan agar marquee tidak tertutup icon notifikasi + refresh. */
+  #mainHeader .pengumuman-main-header-marquee{
+    margin-right:102px !important;
+    padding-right:0 !important;
+    max-width:calc(100% - 102px) !important;
+  }
+}
+</style>
+
+<style id="desktop-header-marquee-safe">
+/* Desktop: teks berjalan tidak boleh masuk ke area tombol notifikasi/refresh.
+   Hanya layout visual; tidak mengubah HTML atau JavaScript. */
+@media (min-width: 768px){
+  #mainHeader{position:relative!important;overflow:hidden!important;}
+  #mainHeader .pengumuman-main-header-marquee{
+    flex:1 1 auto!important;
+    width:auto!important;
+    min-width:0!important;
+    max-width:calc(100% - 132px)!important;
+    margin-left:8px!important;
+    margin-right:132px!important;
+    overflow:hidden!important;
+  }
+  #mainHeader .pengumuman-marquee-track{max-width:none!important;}
+}
+</style>
+
+<style id="final-layout-precision-fix">
+/* =========================================================
+   FINAL LAYOUT PRECISION FIX
+   CSS ONLY — tidak mengubah HTML/JavaScript/function.
+   ========================================================= */
+
+/* 1) DESKTOP HEADER: marquee mendapat area sendiri.
+      Tombol notifikasi + refresh selalu berada di kanan dan
+      tidak pernah tertimpa teks berjalan. */
+@media (min-width:768px){
+  #mainHeader .pengumuman-main-header-marquee{
+    flex:1 1 auto!important;
+    min-width:0!important;
+    width:auto!important;
+    max-width:none!important;
+    margin-left:10px!important;
+    margin-right:118px!important;
+    overflow:hidden!important;
+    box-sizing:border-box!important;
+  }
+  #mainHeader .pengumuman-marquee-track{
+    max-width:none!important;
+    min-width:max-content!important;
+  }
+  #mainHeader .notification-header-wrap{
+    right:60px!important;
+  }
+  #mainHeader .header-refresh-wrap{
+    right:14px!important;
+  }
+}
+
+/* 2) MOBILE NOTIFICATION: panel mengikuti viewport, bukan posisi
+      wrapper, sehingga selalu presisi di layar. */
+@media (max-width:767px){
+  #mainHeader .notification-panel{
+    position:fixed!important;
+    top:66px!important;
+    left:10px!important;
+    right:10px!important;
+    width:auto!important;
+    max-width:none!important;
+    max-height:calc(100dvh - 78px)!important;
+    border-radius:16px!important;
+    z-index:1200!important;
+  }
+}
+
+/* 3) LOGIN DESKTOP: center terhadap viewport/content area ketika
+      login sedang tampil. Tidak mempengaruhi halaman utama setelah login. */
+@media (min-width:768px){
+  #app > .p-4.flex-1.overflow-y-auto:has(#loginPage:not(.hidden)),
+  #app > .p-4.flex-1.overflow-y-auto:has(#registerPage:not(.hidden)){
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    min-height:100dvh!important;
+    box-sizing:border-box!important;
+    padding:28px!important;
+  }
+  #app > .p-4.flex-1.overflow-y-auto:has(#loginPage:not(.hidden)) #loginPage,
+  #app > .p-4.flex-1.overflow-y-auto:has(#registerPage:not(.hidden)) #registerPage{
+    width:min(100%,430px)!important;
+    max-width:430px!important;
+    margin:0!important;
+    flex:0 0 auto!important;
+  }
+}
+</style>
+
+
+<style id="desktop-header-icon-separation-final">
+/* Desktop only: pisahkan icon notifikasi dan refresh secara tegas. CSS-only. */
+@media (min-width: 768px){
+  #mainHeader{position:relative!important;overflow:hidden!important;}
+  #mainHeader .notification-header-wrap{position:absolute!important;top:50%!important;right:62px!important;transform:translateY(-50%)!important;width:40px!important;height:40px!important;margin:0!important;display:flex!important;align-items:center!important;justify-content:center!important;z-index:1102!important;flex:0 0 40px!important;}
+  #mainHeader .notification-bell-btn{width:40px!important;height:40px!important;flex:0 0 40px!important;margin:0!important;}
+  #mainHeader .header-refresh-wrap{position:absolute!important;top:50%!important;right:14px!important;transform:translateY(-50%)!important;width:34px!important;height:34px!important;margin:0!important;padding:0!important;display:flex!important;align-items:center!important;justify-content:center!important;z-index:1103!important;flex:0 0 34px!important;gap:0!important;}
+  #mainHeader .global-refresh-btn{width:34px!important;height:34px!important;min-width:34px!important;flex:0 0 34px!important;margin:0!important;}
+  #mainHeader .global-last-sync{display:none!important;}
+  #mainHeader .pengumuman-main-header-marquee{margin-right:112px!important;max-width:calc(100% - 112px)!important;overflow:hidden!important;}
+}
+</style>
+
+<style id="notification-panel-visibility-final">
+/* Notification panel: tampil di atas seluruh halaman tanpa tertutup header/overflow. */
+#mainHeader .notification-header-wrap{
+  z-index:1300!important;
+}
+#mainHeader .notification-panel{
+  z-index:1301!important;
+}
+@media (min-width:768px){
+  /* Hindari transform pada parent yang membuat fixed panel terikat ke header. */
+  #mainHeader .notification-header-wrap{
+    transform:none!important;
+    margin-top:-20px!important;
+  }
+  #mainHeader .notification-panel{
+    position:fixed!important;
+    top:72px!important;
+    right:72px!important;
+    left:auto!important;
+    width:min(390px,calc(100vw - 24px))!important;
+    max-height:min(70vh,520px)!important;
+    overflow:hidden!important;
+  }
+}
+@media (max-width:767px){
+  #mainHeader .notification-header-wrap{
+    transform:none!important;
+    margin-top:-18px!important;
+  }
+  #mainHeader .notification-panel{
+    position:fixed!important;
+    top:66px!important;
+    left:10px!important;
+    right:10px!important;
+    width:auto!important;
+    max-width:none!important;
+    max-height:calc(100dvh - 78px)!important;
+    overflow:hidden!important;
+  }
+}
+#mainHeader .notification-list{
+  min-height:0!important;
+  max-height:calc(min(70vh,520px) - 70px)!important;
+  overflow-y:auto!important;
+}
+@media (max-width:767px){
+  #mainHeader .notification-list{
+    max-height:calc(100dvh - 148px)!important;
+  }
+}
+</style>
+
+<style id="desktop-notification-click-visibility-fix">
+/* Desktop only: notification panel must not be clipped by the header.
+   CSS-only fix; JavaScript is intentionally untouched. */
+@media (min-width:768px){
+  #mainHeader{overflow:visible!important;}
+  #mainHeader .notification-header-wrap{z-index:1400!important;}
+  #mainHeader .notification-bell-btn{position:relative!important;z-index:1401!important;}
+  #mainHeader .notification-panel{
+    position:fixed!important;
+    top:72px!important;
+    right:72px!important;
+    left:auto!important;
+    z-index:1402!important;
+    visibility:visible!important;
+  }
+}
+</style>
 </head>
 <body class="bg-slate-50 font-sans">
 
@@ -1954,6 +2744,14 @@ html{scroll-behavior:auto!important}
                         <div class="notification-loading">Memuat notifikasi...</div>
                     </div>
                 </div>
+            </div>
+            <div class="header-refresh-wrap" aria-label="Sinkronisasi data">
+                <button type="button" id="globalRefreshBtn" class="global-refresh-btn" onclick="refreshAllPages()" title="Refresh semua halaman" aria-label="Refresh semua halaman">
+                    <svg id="globalRefreshIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M20 11a8.1 8.1 0 0 0-14.9-4M4 5v4h4M4 13a8.1 8.1 0 0 0 14.9 4M20 19v-4h-4" />
+                    </svg>
+                </button>
+                <span id="globalLastSync" class="global-last-sync" title="Sinkronisasi terakhir">Belum sync</span>
             </div>
         </header>
 
@@ -2106,7 +2904,7 @@ html{scroll-behavior:auto!important}
                 <div id="tabInput" class="tab-content space-y-4">
                     <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
                         <div class="px-4 pt-4 pb-3 border-b border-slate-100">
-                            <div class="flex items-center justify-between gap-3">
+                            <div class="flex items-center justify-between gap-3 ui-input-order-title">
                                 <div>
                                     <div class="text-[9px] font-extrabold uppercase tracking-[0.18em] text-emerald-600">INPUT ORDER</div>
                                     <h2 class="text-lg font-extrabold text-slate-800 mt-0.5">Buat Order Baru</h2>
@@ -2131,7 +2929,7 @@ html{scroll-behavior:auto!important}
                         <!-- STEP 1 -->
                         <div id="inputStep1" class="p-4 space-y-3">
                             <div class="rounded-xl bg-slate-50 border border-slate-200 p-3">
-                                <div class="flex items-center gap-2 mb-3">
+                                <div class="flex items-center gap-2 mb-3 ui-outlet-title">
                                     <span class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center">🏪</span>
                                     <div><div class="text-xs font-extrabold text-slate-800">Informasi Outlet</div><div class="text-[9px] text-slate-400">Pilih outlet untuk mengisi data pelanggan otomatis.</div></div>
                                 </div>
@@ -2186,30 +2984,42 @@ html{scroll-behavior:auto!important}
                                 <button type="button" onclick="kembaliKeInfoOrder()" class="rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 px-3 py-2 text-[10px] font-bold transition">← Kembali ke Informasi Order</button>
                             </div>
 
-                            <div class="rounded-xl bg-emerald-50/60 border border-emerald-200 p-3">
-                                <div class="flex items-center justify-between gap-2 mb-2">
-                                    <div class="text-[9px] font-extrabold uppercase tracking-wider text-emerald-700">Outlet Terpilih</div>
-                                    <button type="button" onclick="kembaliKeInfoOrder()" class="text-[9px] font-bold text-emerald-700 hover:text-emerald-900">Edit informasi</button>
+                            <div class="step2-outlet-summary">
+                                <div class="step2-outlet-head">
+                                    <div class="step2-outlet-caption">OUTLET TERPILIH</div>
+                                    <button type="button" onclick="kembaliKeInfoOrder()" class="step2-outlet-edit">Edit informasi</button>
                                 </div>
-                                <div id="inputStep2Outlet" class="text-xs font-extrabold text-slate-800">-</div>
-                                <div id="inputStep2Meta" class="text-[9px] text-slate-500 mt-1">Cust. Code - · Channel -</div>
+                                <div id="inputStep2Outlet" class="step2-outlet-name">-</div>
+                                <div class="step2-outlet-grid">
+                                    <div class="step2-outlet-field">
+                                        <div class="step2-outlet-label">CUST. CODE</div>
+                                        <div id="inputStep2CustCode" class="step2-outlet-value">-</div>
+                                        <span class="step2-outlet-status">TERPILIH</span>
+                                    </div>
+                                    <div class="step2-outlet-field">
+                                        <div class="step2-outlet-label">CHANNEL</div>
+                                        <div id="inputStep2Channel" class="step2-outlet-value">-</div>
+                                        <span class="step2-outlet-status">TERPILIH</span>
+                                    </div>
+                                </div>
+                                <div id="inputStep2Meta" class="step2-outlet-meta">Cust. Code - · Channel -</div>
                             </div>
 
-                            <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2">
+                            <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2 ui-product-entry">
                                 <div>
                                     <label class="block text-[10px] font-bold text-slate-600 mb-1">Produk</label>
-                                    <div class="flex gap-1.5 mb-2">
+                                    <div class="flex gap-1.5 mb-2 ui-product-filters">
                                         <button type="button" id="btnFilterProdukAll" onclick="setProdukFilter('ALL')" class="flex-1 px-3 py-2 rounded-lg bg-emerald-700 text-white text-[10px] font-extrabold transition">SEMUA</button>
                                         <button type="button" id="btnFilterProdukMCO" onclick="setProdukFilter('MCO')" class="flex-1 px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-600 text-[10px] font-extrabold transition">MCO</button>
                                         <button type="button" id="btnFilterProdukPCO" onclick="setProdukFilter('PCO')" class="flex-1 px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-600 text-[10px] font-extrabold transition">PCO</button>
                                     </div>
                                     <select id="addItemProduk" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 bg-white text-xs searchable-select"><option value="">-- Pilih Produk --</option></select>
                                 </div>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <div><label class="block text-[10px] font-bold text-slate-600 mb-1">Qty</label><input type="number" id="addItemQty" min="1" value="1" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 bg-white text-xs"></div>
-                                    <div><label class="block text-[10px] font-bold text-slate-600 mb-1">Satuan</label><div class="flex rounded-xl border border-slate-200 bg-white overflow-hidden h-[38px]"><button type="button" id="btnSatuanPcs" onclick="setSatuanInput('Pcs')" class="flex-1 bg-emerald-700 text-white font-bold text-xs transition">Pcs</button><button type="button" id="btnSatuanDus" onclick="setSatuanInput('Dus')" class="flex-1 bg-transparent text-slate-700 font-bold text-xs transition">Dus</button></div><input type="hidden" id="addItemSatuan" value="Pcs"></div>
+                                <div class="grid grid-cols-2 gap-2 ui-item-controls">
+                                    <div class="ui-qty-control"><label class="block text-[10px] font-bold text-slate-600 mb-1">Qty</label><input type="number" id="addItemQty" min="1" value="1" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 bg-white text-xs"></div>
+                                    <div class="ui-satuan-control"><label class="block text-[10px] font-bold text-slate-600 mb-1">Satuan</label><div class="flex rounded-xl border border-slate-200 bg-white overflow-hidden h-[38px]"><button type="button" id="btnSatuanPcs" onclick="setSatuanInput('Pcs')" class="flex-1 bg-emerald-700 text-white font-bold text-xs transition">Pcs</button><button type="button" id="btnSatuanDus" onclick="setSatuanInput('Dus')" class="flex-1 bg-transparent text-slate-700 font-bold text-xs transition">Dus</button></div><input type="hidden" id="addItemSatuan" value="Pcs"></div>
                                 </div>
-                                <button type="button" onclick="tambahKeKeranjang()" class="w-full rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white py-2.5 font-extrabold text-xs transition">+ Tambah Item</button>
+                                <button type="button" onclick="tambahKeKeranjang()" class="w-full rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white py-2.5 font-extrabold text-xs transition ui-add-item-btn">+ Tambah Item</button>
                             </div>
 
                             <div>
@@ -2237,10 +3047,11 @@ html{scroll-behavior:auto!important}
                             <h2 class="text-base font-bold text-slate-800">Riwayat Transaksi</h2>
                             <span id="riwayatCount" class="text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">0 transaksi</span>
                         </div>
-                        <button type="button" onclick="refreshWithIndicator(refreshRiwayat)" id="btnRefreshRiwayat"
-                            class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-extrabold shadow-sm transition">
-                            ↻ REFRESH
-                        </button>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-1.5 mb-1" role="group" aria-label="Tampilan Riwayat">
+                        <button type="button" id="riwayatViewTableBtn" onclick="setRiwayatView('table')" class="view-toggle-btn">▤ Tabel</button>
+                        <button type="button" id="riwayatViewChartBtn" onclick="setRiwayatView('chart')" class="view-toggle-btn is-active">▥ Chart</button>
                     </div>
 
                     <div id="riwayatFiltersBox" class="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm">
@@ -2315,8 +3126,11 @@ html{scroll-behavior:auto!important}
                             <select id="pencapaianPeriodSelect" onchange="loadPencapaianSales()" class="bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[10px] text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500">
                                 <option value="">Memuat...</option>
                             </select>
-                            <button type="button" onclick="refreshWithIndicator(function(){ return loadPencapaianSales(true, false); })" class="text-[10px] font-bold text-emerald-700 hover:text-emerald-800 px-2.5 py-1.5 rounded-lg border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 transition">↻ Refresh</button>
                         </div>
+                    </div>
+                    <div class="flex items-center justify-end gap-1.5 mb-1" role="group" aria-label="Tampilan Pencapaian Sales">
+                        <button type="button" id="pencapaianViewTableBtn" onclick="setPencapaianView('table')" class="view-toggle-btn">▤ Tabel</button>
+                        <button type="button" id="pencapaianViewChartBtn" onclick="setPencapaianView('chart')" class="view-toggle-btn is-active">▥ Chart</button>
                     </div>
                     <div id="pencapaianLoading" class="bg-white border border-slate-200 rounded-2xl p-6 text-center shadow-sm">
                         <div class="text-sm font-semibold text-slate-600">Memuat pencapaian...</div>
@@ -2441,7 +3255,6 @@ html{scroll-behavior:auto!important}
                         </div>
                         <div class="flex items-center gap-2">
                             <span id="outletBWSCount" class="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">0 outlet</span>
-                            <button type="button" onclick="refreshWithIndicator(function(){ return loadOutletBWSAdmin(true, false); })" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 py-2 px-3 rounded-xl text-[10px] font-extrabold shadow-sm">↻ Refresh</button>
                             <button type="button" id="btnTambahOutletBWS" onclick="openOutletBWSForm(-1)" class="bg-emerald-700 hover:bg-emerald-800 text-white py-2 px-3 rounded-xl text-[10px] font-extrabold shadow-sm">＋ Tambah Outlet</button>
                         </div>
                     </div>
@@ -2482,7 +3295,6 @@ html{scroll-behavior:auto!important}
                                 <input type="text" id="searchTambahCustomer" oninput="filterTambahCustomer()" placeholder="Cari customer, outlet, sales, kode..."
                                        class="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm transition">
                             </div>
-                            <button type="button" onclick="refreshWithIndicator(function(){ return loadTambahCustomer(true, false); })" class="px-3 py-2.5 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-[10px] font-bold">↻ Refresh</button>
                         </div>
                     </div>
 
@@ -2504,7 +3316,6 @@ html{scroll-behavior:auto!important}
                 <div id="tabPesananOutlet" class="tab-content hidden space-y-3">
                     <div class="flex justify-between items-center border-b border-slate-200 pb-2 gap-2">
                         <div><h2 class="text-base font-bold text-slate-800">Pesanan Outlet</h2><p class="text-[10px] text-slate-400 mt-0.5">Tolong di konfirmasikan lagi ke Outlet yang bersangkutan.</p></div>
-                        <button type="button" onclick="refreshWithIndicator(function(){ return loadPesananOutlet(true, false); })" class="px-3 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-[10px] font-bold">↻ Refresh</button>
                     </div>
 
                     <!-- FILTER PESANAN OUTLET -->
@@ -2605,7 +3416,6 @@ html{scroll-behavior:auto!important}
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
                                 <div><label for="filterPricelistSegment" class="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Segment Produk</label><select id="filterPricelistSegment" onchange="filterPricelist()" class="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-xs"><option value="">Semua Segment</option></select></div>
                                 <div><label for="filterPricelistUpdate" class="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Update Pricelist</label><select id="filterPricelistUpdate" onchange="filterPricelist()" class="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-xs"><option value="">Semua Update Pricelist</option></select></div>
-                                <div class="flex items-end"><button type="button" onclick="refreshWithIndicator(function(){ return loadPricelist(true, false); })" class="w-full px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold">↻ Refresh</button></div>
                                 <div class="flex items-end"><button type="button" onclick="exportPricelistPDF()" class="w-full px-3 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold">📄 Export PDF</button></div>
                             </div>
 
@@ -2667,18 +3477,92 @@ html{scroll-behavior:auto!important}
             el.setAttribute('aria-hidden', show ? 'false' : 'true');
         }
 
-        function refreshWithIndicator(loader) {
-            showLoading(true);
-            const safety = setTimeout(function(){ showLoading(false); }, 15000);
-            try {
-                const result = loader();
-                return result;
-            } catch (e) {
-                clearTimeout(safety);
-                showLoading(false);
-                throw e;
+        let globalRefreshRunning = false;
+        let globalRefreshPollTimer = null;
+        let globalLastSyncAt = 0;
+
+        function formatLastSync(value) {
+            if (!value) return 'Belum sync';
+            const diff = Math.max(0, Date.now() - value);
+            const minutes = Math.floor(diff / 60000);
+            if (minutes < 1) return 'Baru saja';
+            if (minutes < 60) return minutes + ' menit lalu';
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return hours + ' jam lalu';
+            return new Date(value).toLocaleString('id-ID',{hour:'2-digit',minute:'2-digit'});
+        }
+
+        function renderLastSync() {
+            const el = document.getElementById('globalLastSync');
+            if (!el) return;
+            el.textContent = globalLastSyncAt ? formatLastSync(globalLastSyncAt) : 'Belum sync';
+            if (globalLastSyncAt) {
+                el.title = 'Last sync: ' + new Date(globalLastSyncAt).toLocaleString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'});
             }
         }
+
+        function setGlobalRefreshState(active) {
+            const btn = document.getElementById('globalRefreshBtn');
+            if (!btn) return;
+            btn.classList.toggle('is-refreshing', !!active);
+            btn.setAttribute('aria-busy', active ? 'true' : 'false');
+        }
+
+        function refreshWithIndicator(loader) {
+            // Kompatibilitas untuk pemanggilan lama: refresh tidak lagi menampilkan overlay.
+            // Tombol global akan berputar saat sinkronisasi berjalan.
+            try { return loader(); } catch (e) { console.warn('Refresh gagal:', e); }
+        }
+
+        function globalRefreshStillLoading() {
+            return !!(riwayatLoading || monitoringLoading || kontrakLoading || pencapaianLoading || outletBWSLoading || inputMasterLoading || tambahCustomerLoading || pricelistLoading || pesananOutletLoading || notificationLoading);
+        }
+
+        function finishGlobalRefreshIfReady(startedAt) {
+            if (!globalRefreshRunning) return;
+            if (globalRefreshStillLoading() && Date.now() - startedAt < 30000) {
+                globalRefreshPollTimer = setTimeout(function(){ finishGlobalRefreshIfReady(startedAt); }, 150);
+                return;
+            }
+            globalRefreshRunning = false;
+            if (globalRefreshPollTimer) { clearTimeout(globalRefreshPollTimer); globalRefreshPollTimer = null; }
+            globalLastSyncAt = Date.now();
+            try { localStorage.setItem('CASTROL_GLOBAL_LAST_SYNC', String(globalLastSyncAt)); } catch(e) {}
+            renderLastSync();
+            setGlobalRefreshState(false);
+        }
+
+        function refreshAllPages() {
+            if (globalRefreshRunning) return;
+            globalRefreshRunning = true;
+            const startedAt = Date.now();
+            setGlobalRefreshState(true);
+
+            // Tidak memakai loading overlay dan tidak menonaktifkan UI. Semua data disegarkan paralel.
+            const run = function(fn) { try { fn(); } catch(e) { console.warn('Global refresh:', e); } };
+            run(function(){ loadRiwayat(true, true); });
+            run(function(){ loadMonitoring(true, true); });
+            run(function(){ loadOutletKontrak(true, true); });
+            run(function(){ loadOutletBWSAdmin(true, true); });
+            run(function(){ loadTambahCustomer(true, true); });
+            run(function(){ loadPricelist(true, true); });
+            run(function(){ loadPesananOutlet(true, true); });
+            run(function(){ loadPencapaianSales(true, true); });
+            run(function(){ loadPencapaianSalesFilter(); });
+            run(function(){ loadInputMasterData(); });
+            run(function(){ loadNotifications(true); });
+
+            finishGlobalRefreshIfReady(startedAt);
+        }
+
+        (function restoreGlobalLastSync(){
+            try {
+                const saved = Number(localStorage.getItem('CASTROL_GLOBAL_LAST_SYNC') || 0);
+                if (saved) globalLastSyncAt = saved;
+            } catch(e) {}
+            renderLastSync();
+            setInterval(renderLastSync, 30000);
+        })();
 
         // Cache browser untuk membuat tab utama langsung tampil saat dibuka kembali.
         function appLocalCacheSet(key, value) {
@@ -2762,7 +3646,7 @@ html{scroll-behavior:auto!important}
             clearDetailModalNoFooter();
             document.getElementById('customModal').style.display = 'none';
             const modalCard = document.getElementById('customModal').querySelector('.modern-modal-card');
-            if (modalCard) modalCard.classList.remove('bws-detail-modal-card');
+            if (modalCard) { modalCard.classList.remove('bws-detail-modal-card'); modalCard.classList.remove('pencapaian-detail-modal-card'); }
             document.getElementById('modalOkBtn').textContent = 'OK';
             if (modalCallback && typeof modalCallback === 'function') {
                 modalCallback(isOk);
@@ -2790,6 +3674,9 @@ html{scroll-behavior:auto!important}
         let monitoringLoading = false;
         let kontrakLoading = false;
         let pencapaianLoading = false;
+        // Preferensi tampilan hanya untuk tab Riwayat dan Pencapaian Sales.
+        let riwayatViewMode = 'chart';
+        let pencapaianViewMode = 'chart';
         let pencapaianRequestSeq = 0;
         let pencapaianCache = {};
         let pencapaianDetailCache = {};
@@ -2802,6 +3689,8 @@ html{scroll-behavior:auto!important}
         let notificationData = [];
         let notificationUnreadCount = 0;
         let notificationLoading = false;
+        let pricelistLoading = false;
+        let pesananOutletLoading = false;
 
         function saveAuthState() {
             try {
@@ -3147,8 +4036,12 @@ startAutoRefresh();
             if (!tanggal) { showModal('Peringatan', 'Pilih tanggal order terlebih dahulu.'); return; }
             document.getElementById('inputStep1').classList.add('hidden');
             document.getElementById('inputStep2').classList.remove('hidden');
+            const custCodeStep2 = document.getElementById('inputCustCode').value || '-';
+            const channelStep2 = document.getElementById('inputChannel').value || '-';
             document.getElementById('inputStep2Outlet').textContent = outlet;
-            document.getElementById('inputStep2Meta').textContent = 'Cust. Code ' + (document.getElementById('inputCustCode').value || '-') + ' · Channel ' + (document.getElementById('inputChannel').value || '-');
+            document.getElementById('inputStep2CustCode').textContent = custCodeStep2;
+            document.getElementById('inputStep2Channel').textContent = channelStep2;
+            document.getElementById('inputStep2Meta').textContent = 'Cust. Code ' + custCodeStep2 + ' · Channel ' + channelStep2;
             updateInputWizardIndicator(2);
             renderCart();
             window.scrollTo({top: 0, behavior: 'smooth'});
@@ -3422,6 +4315,16 @@ startAutoRefresh();
                     </div>`;
                 return;
             }
+
+            if (riwayatViewMode === 'chart') {
+                renderRiwayatCards(data);
+                updateViewToggleButtons('riwayat');
+                return;
+            }
+
+            renderRiwayatTable(data);
+            updateViewToggleButtons('riwayat');
+            return;
 
             const isAdmin = currentUsernameInput &&
                 currentUsernameInput.toLowerCase() === 'admin';
@@ -5531,8 +6434,17 @@ startAutoRefresh();
             if (!container) return;
             if (!Array.isArray(data) || data.length === 0) {
                 container.innerHTML = '<div class="bg-white border border-slate-200 rounded-2xl p-6 text-center text-xs text-slate-400 shadow-sm">Belum ada target untuk periode ini.</div>';
+                updateViewToggleButtons('pencapaian');
                 return;
             }
+
+            if (pencapaianViewMode === 'chart') {
+                renderPencapaianCards(data);
+            } else {
+                renderPencapaianTable(data);
+            }
+            updateViewToggleButtons('pencapaian');
+            return;
 
             container.innerHTML = data.map(function(item) {
                 return `
@@ -5557,6 +6469,130 @@ startAutoRefresh();
                         </div>
                     </div>`;
             }).join('');
+        }
+
+        function updateViewToggleButtons(section) {
+            const modes = section === 'riwayat'
+                ? { table: 'riwayatViewTableBtn', chart: 'riwayatViewChartBtn' }
+                : { table: 'pencapaianViewTableBtn', chart: 'pencapaianViewChartBtn' };
+            const mode = section === 'riwayat' ? riwayatViewMode : pencapaianViewMode;
+            ['table', 'chart'].forEach(function(key) {
+                const btn = document.getElementById(modes[key]);
+                if (btn) btn.classList.toggle('is-active', mode === key);
+            });
+        }
+
+        function setRiwayatView(mode) {
+            riwayatViewMode = mode === 'chart' ? 'chart' : 'table';
+            renderRiwayatList(globalRiwayatData || []);
+        }
+
+        function setPencapaianView(mode) {
+            pencapaianViewMode = mode === 'chart' ? 'chart' : 'table';
+            const periodSelect = document.getElementById('pencapaianPeriodSelect');
+            const selectedPeriod = periodSelect && periodSelect.value ? periodSelect.value : '';
+            const isAdmin = String(currentUsernameInput || '').trim().toLowerCase() === 'admin';
+            const salesFilter = document.getElementById('pencapaianSalesFilter');
+            const selectedSales = isAdmin && salesFilter && salesFilter.value ? salesFilter.value : '';
+            const cacheKey = (currentUsernameInput || 'admin').toLowerCase() + '|' + selectedSales + '|' + selectedPeriod;
+            const cached = pencapaianCache[cacheKey];
+            if (cached && Array.isArray(cached.data)) {
+                renderPencapaianSales(cached.data);
+            } else {
+                loadPencapaianSales(false, true);
+            }
+        }
+
+        function renderRiwayatTable(data) {
+            const container = document.getElementById('listRiwayat');
+            if (!container) return;
+            const isAdmin = String(currentUsernameInput || '').toLowerCase() === 'admin';
+            const totalPages = isAdmin ? Math.max(1, Math.ceil(data.length / RIWAYAT_PAGE_SIZE)) : 1;
+            if (riwayatPage > totalPages) riwayatPage = totalPages;
+            const startIndex = isAdmin ? (riwayatPage - 1) * RIWAYAT_PAGE_SIZE : 0;
+            const rows = isAdmin ? data.slice(startIndex, startIndex + RIWAYAT_PAGE_SIZE) : data;
+
+            const statusBadge = function(status) {
+                const s = String(status || 'PENDING').toUpperCase();
+                const cls = s === 'APPROVE' ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : s === 'DECLINE' ? 'text-red-700 bg-red-50 border-red-200' : 'text-amber-700 bg-amber-50 border-amber-200';
+                return '<span class="inline-flex items-center px-2 py-1 rounded-full border text-[9px] font-extrabold '+cls+'">'+escapeHtml(s)+'</span>';
+            };
+            const body = rows.map(function(item, index) {
+                const products = Array.isArray(item.products) ? item.products.filter(function(p){return String(p || '').trim() !== '';}) : [];
+                const productText = products.length ? products.map(escapeHtml).join('<br>') : '-';
+                const id = escapeHtml(item.id || '');
+                const status = String(item.status || 'PENDING').toUpperCase();
+                const selected = selectedRiwayatIds[String(item.id)] ? 'checked' : '';
+                const action = isAdmin ? '<select onclick="event.stopPropagation()" class="bulk-status-select w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[9px] font-bold bg-white" data-order-id="'+id+'" data-current-status="'+escapeHtml(status)+'"><option value="">'+escapeHtml(status)+'</option><option value="APPROVE">APPROVE</option><option value="DECLINE">DECLINE</option></select>' : statusBadge(status);
+                const number = startIndex + index + 1;
+                return '<tr class="border-b border-slate-100 hover:bg-emerald-50/50">' +
+                    '<td class="px-3 py-2.5"><input type="checkbox" class="riwayat-select-checkbox w-4 h-4 accent-emerald-600 cursor-pointer" data-order-id="'+id+'" '+selected+' onclick="event.stopPropagation()" onchange="toggleRiwayatSelection(this)" title="Pilih transaksi"></td>' +
+                    '<td class="px-3 py-2.5 font-bold text-slate-500">#'+number+'</td>' +
+                    '<td class="px-3 py-2.5 whitespace-nowrap">'+escapeHtml(item.tanggal || '-')+'</td>' +
+                    '<td class="px-3 py-2.5 font-bold text-slate-700">'+escapeHtml(item.outlet || '-')+(isAdmin ? '<div class="text-[9px] text-slate-400 font-normal">DSR: '+escapeHtml(item.dsr || '-')+'</div>' : '')+'</td>' +
+                    '<td class="px-3 py-2.5 text-slate-600">'+productText+'</td>' +
+                    '<td class="px-3 py-2.5 text-right font-semibold">'+escapeHtml(item.volume || '0')+' L</td>' +
+                    '<td class="px-3 py-2.5 text-right font-semibold">Rp '+Number(item.value || 0).toLocaleString('id-ID')+'</td>' +
+                    '<td class="px-3 py-2.5">'+action+'</td>' +
+                    '<td class="px-3 py-2.5 whitespace-nowrap"><div class="flex gap-1"><button type="button" onclick="editRiwayat(\''+id+'\'); return false;" class="riwayat-action riwayat-action-edit">✏️</button><button type="button" onclick="kirimUlangWA(\''+id+'\')" class="riwayat-action riwayat-action-wa">💬</button><button type="button" onclick="hapusRiwayat(\''+id+'\')" class="riwayat-action riwayat-action-delete">🗑️</button></div></td>' +
+                    '</tr>';
+            }).join('');
+
+            const pagination = isAdmin && totalPages > 1 ? '<div class="flex items-center justify-between gap-2 mt-3 px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 text-[10px]"><span class="text-slate-500">Menampilkan '+(startIndex+1)+'-'+Math.min(startIndex+RIWAYAT_PAGE_SIZE,data.length)+' dari '+data.length+' transaksi</span><div class="flex items-center gap-1"><button type="button" onclick="changeRiwayatPage(-1)" class="px-2.5 py-1.5 rounded-lg border bg-white">‹</button><span class="px-2 font-bold">Halaman '+riwayatPage+'/'+totalPages+'</span><button type="button" onclick="changeRiwayatPage(1)" class="px-2.5 py-1.5 rounded-lg border bg-white">›</button></div></div>' : '';
+            const bulkControls = isAdmin ? '<div class="flex flex-wrap items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl mb-3"><button type="button" onclick="toggleSelectAllRiwayatVisible(true)" class="px-3 py-1.5 rounded-md bg-white hover:bg-slate-100 text-slate-600 text-[10px] font-bold border border-slate-200">PILIH SEMUA</button><button type="button" onclick="clearPilihanRiwayat()" class="px-3 py-1.5 rounded-md bg-white hover:bg-slate-100 text-slate-600 text-[10px] font-bold border border-slate-200">RESET PILIHAN</button><button type="button" onclick="doneBulkStatusRiwayat()" class="px-4 py-1.5 rounded-md bg-slate-800 hover:bg-slate-900 text-white text-[10px] font-extrabold shadow-sm">DONE</button><span id="bulkStatusInfo" class="text-[10px] text-slate-500 font-semibold ml-auto">Pilih status pada masing-masing baris lalu klik DONE.</span></div>' : '';
+            container.innerHTML = bulkControls + '<div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden"><div class="overflow-x-auto"><table class="w-full text-left text-[10px] min-w-[980px]"><thead><tr class="bg-slate-50 border-b border-slate-200 text-[9px] uppercase tracking-wide text-slate-500"><th class="px-3 py-2 w-9"><input type="checkbox" id="selectAllRiwayatVisible" class="riwayat-select-all w-4 h-4 accent-emerald-600 cursor-pointer" onchange="toggleSelectAllRiwayatVisible(true)" title="Pilih semua"></th><th class="px-3 py-2">No</th><th class="px-3 py-2">Tanggal</th><th class="px-3 py-2">Outlet</th><th class="px-3 py-2">Produk</th><th class="px-3 py-2 text-right">Volume</th><th class="px-3 py-2 text-right">Nilai</th><th class="px-3 py-2">Status</th><th class="px-3 py-2">Aksi</th></tr></thead><tbody>'+body+'</tbody></table></div></div>'+pagination;
+            updateSelectedRiwayatUI();
+        }
+
+        function renderRiwayatChart(data) {
+            const container = document.getElementById('listRiwayat');
+            if (!container) return;
+            const map = {};
+            data.forEach(function(item) {
+                const raw = String(item.tanggal || '');
+                let key = raw.slice(0,7);
+                if (!/^\d{4}-\d{2}$/.test(key)) {
+                    const d = new Date(raw);
+                    key = isNaN(d.getTime()) ? (raw || 'Lainnya') : d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+                }
+                if (!map[key]) map[key] = {count:0, value:0, volume:0};
+                map[key].count++;
+                map[key].value += Number(item.value || 0);
+                map[key].volume += Number(String(item.volume || 0).replace(/[^0-9.-]/g,'')) || 0;
+            });
+            const items = Object.keys(map).sort().map(function(k){return {key:k, ...map[k]};});
+            const maxValue = Math.max.apply(null, items.map(function(x){return x.value;} ).concat([1]));
+            const maxVolume = Math.max.apply(null, items.map(function(x){return x.volume;} ).concat([1]));
+            const label = function(k){ if(/^\d{4}-\d{2}$/.test(k)){ const d=new Date(k+'-01T00:00:00'); return d.toLocaleDateString('id-ID',{month:'short',year:'numeric'}); } return k; };
+            container.innerHTML = '<div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm"><div class="flex items-center justify-between gap-2 mb-3"><div><div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Ringkasan Riwayat</div><div class="text-[9px] text-slate-400">Volume, nilai, dan jumlah transaksi per bulan</div></div><span class="text-[9px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-2 py-1">'+data.length+' transaksi</span></div>'+items.map(function(x){ return '<div class="mb-4 last:mb-0"><div class="flex justify-between text-[10px] font-bold text-slate-700 mb-1"><span>'+escapeHtml(label(x.key))+'</span><span>'+x.count+' transaksi · Rp '+x.value.toLocaleString('id-ID')+'</span></div><div class="h-2.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-emerald-600 rounded-full" style="width:'+Math.max(3,(x.value/maxValue)*100)+'%"></div></div><div class="mt-1 text-[9px] text-slate-400">Volume '+x.volume.toLocaleString('id-ID')+' L</div></div>'; }).join('')+'</div>';
+        }
+
+        function renderPencapaianTable(data) {
+            const container = document.getElementById('pencapaianSalesList');
+            if (!container) return;
+            const cats = [{key:'value',label:'Value',type:'value'},{key:'volume',label:'Volume',type:'volume'},{key:'active',label:'Active Outlet',type:'active'},{key:'product',label:'Produk Fokus',type:'product'},{key:'powerBrand',label:'Power Brand',type:'powerBrand'}];
+            let rows='';
+            data.forEach(function(item){
+                cats.forEach(function(c, index){
+                    const q=(item.categories&&item.categories[c.key]&&item.categories[c.key].quarter)||{};
+                    const salesCell = index === 0
+                        ? '<td class="px-3 py-2.5 font-bold text-slate-700 align-top border-r border-slate-100" rowspan="'+cats.length+'">'+escapeHtml(item.sales||'-')+'</td>'
+                        : '';
+                    rows += '<tr class="border-b border-slate-100 hover:bg-emerald-50/50 cursor-pointer" onclick="openPencapaianDetail(\''+escapeHtml(categoryKeyForDetail(c.type))+'\', \''+escapeHtml(item.sales||'')+'\')">'+salesCell+'<td class="px-3 py-2.5">'+escapeHtml(c.label)+'</td><td class="px-3 py-2.5 text-right">'+formatPencapaianValue(q.target,c.type)+'</td><td class="px-3 py-2.5 text-right font-bold">'+formatPencapaianValue(q.actual,c.type)+'</td><td class="px-3 py-2.5 text-right font-bold '+(Number(q.gap||0)>=0?'text-emerald-700':'text-red-600')+'">'+formatPencapaianValue(q.gap||0,c.type)+'</td><td class="px-3 py-2.5 text-right font-extrabold">'+formatPercentID(q.percentage||0)+'</td></tr>';
+                });
+            });
+            container.innerHTML='<div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden"><div class="overflow-x-auto"><table class="w-full min-w-[820px] text-[10px]"><thead><tr class="bg-slate-50 border-b border-slate-200 text-[9px] uppercase tracking-wide text-slate-500"><th class="px-3 py-2 text-left">Sales</th><th class="px-3 py-2 text-left">Kategori</th><th class="px-3 py-2 text-right">Target</th><th class="px-3 py-2 text-right">Actual</th><th class="px-3 py-2 text-right">Gap</th><th class="px-3 py-2 text-right">%</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+        }
+
+        function renderPencapaianChart(data) {
+            const container = document.getElementById('pencapaianSalesList');
+            if (!container) return;
+            const cats = [{key:'value',label:'Value'},{key:'volume',label:'Volume'},{key:'active',label:'Active Outlet'},{key:'product',label:'Produk Fokus'},{key:'powerBrand',label:'Power Brand'}];
+            const blocks=data.map(function(item){
+                const bars=cats.map(function(c){ const q=(item.categories&&item.categories[c.key]&&item.categories[c.key].quarter)||{}; const pct=Math.max(0,Math.min(Number(q.percentage||0),100)); return '<div class="mb-2"><div class="flex justify-between text-[9px] font-bold text-slate-600 mb-1"><span>'+c.label+'</span><span>'+formatPercentID(q.percentage||0)+'</span></div><div class="h-2.5 rounded-full bg-slate-100 overflow-hidden"><div class="h-full rounded-full '+(Number(q.percentage||0)>=100?'bg-emerald-600':Number(q.percentage||0)>=80?'bg-amber-500':'bg-red-500')+'" style="width:'+Math.max(2,pct)+'%"></div></div></div>'; }).join('');
+                return '<div class="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm"><div class="flex items-center justify-between mb-3"><div class="text-sm font-extrabold text-slate-800">'+escapeHtml(item.sales||'-')+'</div><span class="text-[9px] text-slate-400">'+escapeHtml(item.periode||'')+'</span></div>'+bars+'</div>';
+            }).join('');
+            container.innerHTML='<div class="grid grid-cols-1 lg:grid-cols-2 gap-3">'+blocks+'</div>';
         }
 
         function categoryKeyForDetail(type) {
@@ -5594,7 +6630,7 @@ startAutoRefresh();
 
             const modal = document.getElementById('customModal');
             const card = modal ? modal.querySelector('.modern-modal-card') : null;
-            if (card) card.classList.add('bws-detail-modal-card');
+            if (card) { card.classList.add('bws-detail-modal-card'); card.classList.add('pencapaian-detail-modal-card'); }
 
             const body = document.getElementById('modalBody');
             if (body) {
@@ -5867,6 +6903,7 @@ startAutoRefresh();
 
             const hasCached = Array.isArray(globalPricelistData) && globalPricelistData.length > 0;
             if (forceRefresh && hasCached) filterPricelist();
+            pricelistLoading = true;
             if (!silentRefresh) {
                 if (!hasCached) tbody.innerHTML = '<tr><td colspan="2" class="text-slate-400 text-center py-6">Memuat pricelist...</td></tr>';
                 showLoading(true);
@@ -5874,6 +6911,7 @@ startAutoRefresh();
 
             google.script.run
                 .withSuccessHandler(function(res) {
+                    pricelistLoading = false;
                     if (!silentRefresh) showLoading(false);
                     if (!res || !res.success) {
                         tbody.innerHTML = '<tr><td colspan="3" class="text-red-500 text-center py-6">' + escapeHtml((res && res.error) || 'Gagal memuat pricelist.') + '</td></tr>';
@@ -5885,6 +6923,7 @@ startAutoRefresh();
                     filterPricelist();
                 })
                 .withFailureHandler(function(err) {
+                    pricelistLoading = false;
                     if (!silentRefresh) showLoading(false);
                     if (!hasCached) tbody.innerHTML = '<tr><td colspan="3" class="text-red-500 text-center py-6">' + escapeHtml(err && err.message ? err.message : 'Gagal memuat pricelist.') + '</td></tr>';
                 })
@@ -5971,11 +7010,13 @@ startAutoRefresh();
             let hasCached = false;
             if(!forceRefresh){try{const c=sessionStorage.getItem('pesananOutletCache');if(c){renderPesananOutlet(JSON.parse(c));hasCached=true;return;}}catch(e){}}
             if(forceRefresh){try{const c=sessionStorage.getItem('pesananOutletCache');if(c){renderPesananOutlet(JSON.parse(c));hasCached=true;}}catch(e){}}
+            pesananOutletLoading = true;
             if (!silentRefresh) {
                 if (!hasCached) body.innerHTML='<tr><td colspan="20" class="text-slate-400 text-center py-6">Memuat Pesanan Outlet...</td></tr>';
                 showLoading(true);
             }
             google.script.run.withSuccessHandler(function(res){
+                pesananOutletLoading = false;
                 if (!silentRefresh) showLoading(false);
                 if(!res||!res.success){
                     console.warn('Pesanan Outlet tidak berhasil dimuat:', res);
@@ -5984,6 +7025,7 @@ startAutoRefresh();
                 try{sessionStorage.setItem('pesananOutletCache',JSON.stringify(res));}catch(e){}
                 renderPesananOutlet(res);
             }).withFailureHandler(function(err){
+                pesananOutletLoading = false;
                 if (!silentRefresh) showLoading(false);
                 console.warn('Pesanan Outlet gagal dimuat:', err);
                 // Jangan tampilkan pesan error server ke halaman.
@@ -7873,6 +8915,1809 @@ function deletePengumuman(row) {
 }
 </script>
 
+
+
+<style id="ui-modern-smooth-v1">
+/* =========================================================
+   UI MODERN SMOOTH V1
+   UI ONLY — tidak mengubah fungsi, perhitungan, ID, atau struktur.
+   ========================================================= */
+
+:root{
+  --ui-primary:#007a3d;
+  --ui-primary-2:#00a651;
+  --ui-primary-dark:#005c2e;
+  --ui-accent:#b7d433;
+  --ui-danger:#e31837;
+  --ui-bg:#f4f7f5;
+  --ui-surface:#ffffff;
+  --ui-surface-soft:#f8fbf9;
+  --ui-line:#e1e9e4;
+  --ui-line-strong:#d3dfd8;
+  --ui-text:#102018;
+  --ui-muted:#718078;
+  --ui-radius-sm:10px;
+  --ui-radius-md:14px;
+  --ui-radius-lg:18px;
+  --ui-radius-xl:22px;
+  --ui-shadow-sm:0 3px 12px rgba(15,45,28,.055);
+  --ui-shadow-md:0 10px 28px rgba(15,45,28,.075);
+  --ui-shadow-lg:0 20px 55px rgba(15,45,28,.12);
+}
+
+/* ---------- GLOBAL ---------- */
+html{scroll-behavior:smooth}
+body{
+  background:
+    radial-gradient(circle at 0% 0%,rgba(0,166,81,.065),transparent 30%),
+    radial-gradient(circle at 100% 0%,rgba(183,212,51,.055),transparent 25%),
+    linear-gradient(180deg,#f7faf8 0%,#f1f5f3 100%) !important;
+  color:var(--ui-text);
+}
+button,input,select,textarea{transition:background-color .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease,opacity .18s ease}
+button{ -webkit-tap-highlight-color:transparent }
+::selection{background:rgba(0,166,81,.16);color:var(--ui-text)}
+
+/* ---------- APP FRAME ---------- */
+#app.app-shell{
+  max-width:1500px!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+#app>.p-4.flex-1.overflow-y-auto{
+  padding:20px 24px!important;
+}
+#mainPage{
+  max-width:1240px!important;
+  margin:0 auto!important;
+}
+.tab-content{
+  animation:uiSmoothIn .24s cubic-bezier(.2,.7,.2,1) both!important;
+}
+@keyframes uiSmoothIn{
+  from{opacity:.65;transform:translateY(6px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* ---------- HEADER ---------- */
+#mainHeader{
+  min-height:64px!important;
+  padding:10px 18px!important;
+  background:
+    linear-gradient(135deg,#052b1a 0%,#006332 48%,#007a3d 100%)!important;
+  border-bottom:1px solid rgba(183,212,51,.24)!important;
+  box-shadow:0 8px 28px rgba(2,43,24,.18)!important;
+}
+#mainHeader:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:linear-gradient(90deg,rgba(255,255,255,.035),transparent 45%,rgba(255,255,255,.025));
+}
+#mainHeader:after{
+  height:2px!important;
+  opacity:.9!important;
+}
+#mainHeader>div:first-child{
+  gap:10px!important;
+}
+#mainHeader h1{
+  font-size:14px!important;
+  font-weight:850!important;
+  letter-spacing:.035em!important;
+}
+#mainHeader .sidebar-toggle{
+  width:40px!important;
+  height:40px!important;
+  border-radius:13px!important;
+  background:rgba(255,255,255,.075)!important;
+  border-color:rgba(255,255,255,.16)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 4px 12px rgba(0,0,0,.08)!important;
+}
+#mainHeader .sidebar-toggle:hover{
+  transform:translateY(-1px);
+  background:rgba(255,255,255,.14)!important;
+}
+
+/* ---------- SIDEBAR ---------- */
+#leftNav.app-sidebar{
+  width:96px!important;
+  top:64px!important;
+  padding:14px 9px!important;
+  background:rgba(255,255,255,.94)!important;
+  border-right:1px solid rgba(213,225,218,.9)!important;
+  box-shadow:12px 0 34px rgba(9,45,26,.075)!important;
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+}
+#leftNav .sidebar-inner{
+  gap:7px!important;
+}
+#leftNav .sidebar-label{
+  font-size:8px!important;
+  letter-spacing:.16em!important;
+  color:#98a79f!important;
+  padding:2px 0 7px!important;
+}
+#leftNav .sidebar-item{
+  min-height:64px!important;
+  padding:7px 4px!important;
+  gap:5px!important;
+  border-radius:15px!important;
+  color:#68776f!important;
+  font-size:9px!important;
+  font-weight:800!important;
+  border:1px solid transparent!important;
+}
+#leftNav .sidebar-item:hover{
+  transform:translateY(-1px)!important;
+  color:var(--ui-primary)!important;
+  background:linear-gradient(180deg,#f2faf5,#ebf7ef)!important;
+  border-color:#d2e9d9!important;
+  box-shadow:0 7px 18px rgba(0,122,61,.065)!important;
+}
+#leftNav .sidebar-item-active{
+  color:var(--ui-primary-dark)!important;
+  background:linear-gradient(180deg,#ebf8f0,#dff3e7)!important;
+  border-color:#c5e3ce!important;
+  box-shadow:inset 3px 0 0 var(--ui-primary-2),0 8px 20px rgba(0,122,61,.09)!important;
+}
+#leftNav .sidebar-icon{
+  width:30px!important;
+  height:30px!important;
+  border-radius:10px!important;
+  font-size:15px!important;
+  background:rgba(255,255,255,.95)!important;
+  border:1px solid #e7eee9!important;
+  box-shadow:0 4px 11px rgba(18,56,35,.065)!important;
+}
+#leftNav .sidebar-item-active .sidebar-icon{
+  border-color:#cce6d4!important;
+  box-shadow:0 5px 13px rgba(0,122,61,.10)!important;
+}
+#leftNav .sidebar-bottom{
+  gap:6px!important;
+  padding-top:9px!important;
+  border-top-color:#e5ece8!important;
+}
+
+/* ---------- LOGIN / REGISTER ---------- */
+#loginPage,#registerPage{
+  width:min(100%,430px)!important;
+  margin:0 auto!important;
+  padding:26px!important;
+  border:1px solid rgba(216,228,220,.9);
+  border-radius:26px!important;
+  background:rgba(255,255,255,.91)!important;
+  box-shadow:0 22px 65px rgba(15,45,28,.09)!important;
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+}
+#loginPage>div:first-child,#registerPage>div:first-child{
+  margin-bottom:22px!important;
+}
+#loginPage .inline-block,#registerPage .inline-block{
+  padding:12px!important;
+  border-radius:17px!important;
+  border-color:#d9ebe0!important;
+  box-shadow:0 10px 24px rgba(0,122,61,.09)!important;
+}
+#loginPage h2,#registerPage h2{
+  margin-top:3px;
+  font-size:22px!important;
+  letter-spacing:-.025em;
+}
+#loginPage label,#registerPage label{
+  color:#526159!important;
+  font-size:10px!important;
+  font-weight:800!important;
+  letter-spacing:.02em;
+}
+#loginPage input,#loginPage select,#registerPage input,#registerPage select{
+  min-height:46px!important;
+  padding:11px 13px!important;
+  border-radius:13px!important;
+  border-color:#d6e1db!important;
+  background:#fbfdfc!important;
+  box-shadow:inset 0 1px 2px rgba(15,40,24,.025)!important;
+}
+#loginPage input:focus,#loginPage select:focus,#registerPage input:focus,#registerPage select:focus{
+  border-color:#39a866!important;
+  background:#fff!important;
+  box-shadow:0 0 0 4px rgba(0,166,81,.09)!important;
+}
+#loginPage form button[type="submit"],#registerPage form button[type="submit"]{
+  min-height:47px!important;
+  border-radius:13px!important;
+  font-weight:850!important;
+  box-shadow:0 10px 22px rgba(0,122,61,.17)!important;
+}
+#loginPage form button[type="submit"]:hover,#registerPage form button[type="submit"]:hover{
+  transform:translateY(-1px);
+}
+
+/* ---------- COMMON CARDS / SECTION HEADERS ---------- */
+#mainPage .bg-white{
+  border-color:var(--ui-line)!important;
+}
+#mainPage .rounded-xl{
+  border-radius:16px!important;
+}
+#tabInput>h2,
+#tabRiwayat>div:first-child,
+#tabMonitoring>div:first-child,
+#tabOutletKontrak>div:first-child,
+#tabOutletBWS>div:first-child,
+#tabTambahCustomer>div:first-child,
+#tabPricelist>div:first-child,
+#tabPesananOutlet>div:first-child{
+  padding-bottom:13px!important;
+  margin-bottom:13px!important;
+  border-bottom-color:var(--ui-line)!important;
+}
+#mainPage .shadow-sm{
+  box-shadow:var(--ui-shadow-sm)!important;
+}
+#mainPage .shadow-md{
+  box-shadow:var(--ui-shadow-md)!important;
+}
+
+/* ---------- INPUTS / SELECTS ---------- */
+#mainPage input,#mainPage select,#mainPage textarea{
+  border-color:#d5e0da!important;
+  border-radius:12px!important;
+  background:#fff!important;
+}
+#mainPage input:focus,#mainPage select:focus,#mainPage textarea:focus{
+  outline:none!important;
+  border-color:#43a96d!important;
+  box-shadow:0 0 0 4px rgba(0,166,81,.08)!important;
+}
+.select2-container .select2-selection--single{
+  min-height:44px!important;
+  height:44px!important;
+  padding:6px 10px!important;
+  border-radius:12px!important;
+  border-color:#d5e0da!important;
+  background:#fff!important;
+  box-shadow:none!important;
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered{
+  line-height:30px!important;
+  font-size:11px!important;
+}
+.select2-dropdown{
+  border-color:#d5e0da!important;
+  border-radius:12px!important;
+  box-shadow:0 15px 35px rgba(15,45,28,.12)!important;
+  overflow:hidden;
+}
+
+/* ---------- BUTTONS ---------- */
+#mainPage button:not(.sidebar-item),
+#customModal button{
+  border-radius:11px;
+}
+#mainPage button:hover,#customModal button:hover{
+  transform:translateY(-1px);
+}
+#btnKirimOrder{
+  min-height:48px!important;
+  border-radius:13px!important;
+  box-shadow:0 10px 24px rgba(227,24,55,.15)!important;
+}
+#btnKirimOrder:hover{
+  filter:brightness(1.035);
+  transform:translateY(-1px);
+}
+
+/* ---------- TABLES ---------- */
+#mainPage table{
+  border-color:var(--ui-line)!important;
+}
+#mainPage table thead th{
+  padding-top:10px!important;
+  padding-bottom:10px!important;
+  background:linear-gradient(180deg,#f0f7f2,#e8f2ec)!important;
+  color:#3d5d4b!important;
+  font-size:9px!important;
+  font-weight:850!important;
+  letter-spacing:.025em;
+}
+#mainPage table tbody td{
+  border-bottom-color:#edf2ee!important;
+}
+#mainPage table tbody tr{
+  transition:background-color .16s ease,transform .16s ease;
+}
+#mainPage table tbody tr:hover{
+  background:#f4faf6!important;
+}
+
+/* ---------- RIWAYAT ---------- */
+.riwayat-card{
+  border-color:var(--ui-line)!important;
+  border-radius:17px!important;
+  box-shadow:var(--ui-shadow-sm)!important;
+}
+.riwayat-card:hover{
+  transform:translateY(-2px)!important;
+  box-shadow:var(--ui-shadow-md)!important;
+  border-color:#cfe0d5!important;
+}
+.riwayat-card-number{
+  background:#f0f6f2!important;
+  color:#607068!important;
+}
+.riwayat-card-stat{
+  background:#f6faf7!important;
+  border:1px solid #edf2ee;
+}
+
+/* ---------- MODAL ---------- */
+.modern-modal-overlay{
+  background:rgba(4,25,15,.54)!important;
+  backdrop-filter:blur(9px)!important;
+  -webkit-backdrop-filter:blur(9px)!important;
+}
+.modern-modal-card{
+  border:1px solid rgba(216,229,220,.95)!important;
+  border-radius:21px!important;
+  box-shadow:0 28px 90px rgba(2,32,18,.25)!important;
+  animation:uiModalIn .22s cubic-bezier(.2,.75,.2,1) both!important;
+}
+@keyframes uiModalIn{
+  from{opacity:0;transform:translateY(10px) scale(.985)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+.modern-modal-header{
+  padding:14px 16px!important;
+  background:linear-gradient(135deg,#fff,#f5faf7)!important;
+  border-bottom-color:#e2ebe5!important;
+}
+.modern-modal-title{
+  font-size:14px!important;
+}
+.modern-modal-body{
+  padding:15px!important;
+}
+.modern-modal-footer{
+  padding:11px 15px!important;
+  background:#f8fbf9!important;
+  border-top-color:#e2ebe5!important;
+}
+.modern-modal-ok{
+  min-height:38px!important;
+  padding:8px 16px!important;
+  border-radius:11px!important;
+  box-shadow:0 8px 18px rgba(0,122,61,.16)!important;
+}
+.modern-modal-cancel{
+  min-height:38px!important;
+  border-radius:11px!important;
+}
+
+/* ---------- NOTIFICATION ---------- */
+.notification-bell-btn{
+  width:40px!important;
+  height:40px!important;
+  border-radius:13px!important;
+  background:rgba(255,255,255,.075)!important;
+  border-color:rgba(255,255,255,.15)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07)!important;
+}
+.notification-panel{
+  border-radius:17px!important;
+  border-color:#dce7e0!important;
+  box-shadow:0 22px 65px rgba(2,32,18,.20)!important;
+}
+.notification-panel-head{
+  padding:13px 14px!important;
+}
+.notification-item{
+  border-radius:11px!important;
+  border-bottom:0!important;
+  margin:2px 0!important;
+}
+.notification-item:hover{background:#f3faf6!important}
+
+/* ---------- ANNOUNCEMENT ---------- */
+#announcementPage.pengumuman-page{
+  padding:18px!important;
+  background:
+    radial-gradient(circle at 10% 0%,rgba(0,166,81,.12),transparent 32%),
+    radial-gradient(circle at 90% 100%,rgba(183,212,51,.10),transparent 32%),
+    linear-gradient(180deg,#f6faf8,#eef5f1)!important;
+}
+.pengumuman-shell{
+  min-height:calc(100dvh - 36px)!important;
+}
+.pengumuman-panel{
+  max-width:1180px;
+  border-radius:26px!important;
+  border-color:#dce8df!important;
+  box-shadow:0 25px 75px rgba(15,45,28,.13)!important;
+}
+.pengumuman-hero{
+  padding:25px 22px 20px!important;
+  background:linear-gradient(135deg,#edf9f1,#fff 56%,#f6fae9)!important;
+}
+.pengumuman-pill{
+  padding:8px 13px!important;
+  border-color:#cce6d3!important;
+  box-shadow:0 5px 14px rgba(0,122,61,.06);
+}
+#announcementContent{padding:20px!important}
+.pengumuman-card{
+  border-radius:20px!important;
+  border-color:#e0e9e3!important;
+  box-shadow:0 12px 34px rgba(15,45,28,.075)!important;
+}
+.pengumuman-carousel{
+  gap:14px!important;
+  padding:2px 2px 12px!important;
+  scroll-behavior:smooth;
+}
+.pengumuman-carousel .pengumuman-card{
+  flex-basis:min(82%,760px)!important;
+}
+.pengumuman-caption{
+  padding:16px 18px 19px!important;
+  font-size:13px!important;
+  line-height:1.7!important;
+}
+.pengumuman-footer{
+  padding:15px 18px 18px!important;
+  background:#f8fbf9!important;
+  border-top-color:#e5ede8!important;
+}
+.pengumuman-main-btn{
+  min-height:44px!important;
+  padding:10px 22px!important;
+  border-radius:12px!important;
+  box-shadow:0 9px 20px rgba(0,138,76,.18)!important;
+}
+
+/* ---------- LOADING ---------- */
+.top-loading{
+  padding:8px 13px!important;
+  border-color:#dce8e0!important;
+  box-shadow:0 8px 22px rgba(15,45,28,.12)!important;
+}
+
+/* ---------- DESKTOP ---------- */
+@media (min-width:768px){
+  #app>.p-4.flex-1.overflow-y-auto{
+    padding:24px 28px!important;
+  }
+  #mainHeader{
+    min-height:66px!important;
+    padding-left:20px!important;
+    padding-right:20px!important;
+  }
+  #leftNav.app-sidebar{
+    top:66px!important;
+  }
+  #mainPage{
+    padding-top:2px;
+  }
+  #loginPage,#registerPage{
+    margin-top:24px!important;
+  }
+}
+
+/* ---------- TABLET ---------- */
+@media (min-width:768px) and (max-width:1100px){
+  #leftNav.app-sidebar{width:90px!important}
+  #app>.p-4.flex-1.overflow-y-auto{padding:18px!important}
+  #mainPage{max-width:1120px!important}
+}
+
+/* ---------- MOBILE ---------- */
+@media (max-width:767px){
+  #mainHeader{
+    min-height:58px!important;
+    padding:8px 10px!important;
+  }
+  #mainHeader h1{
+    max-width:145px!important;
+    font-size:12px!important;
+  }
+  #mainHeader .sidebar-toggle{
+    width:36px!important;
+    height:36px!important;
+    border-radius:11px!important;
+  }
+  #mainHeader .notification-bell-btn{
+    width:35px!important;
+    height:35px!important;
+    border-radius:11px!important;
+  }
+  #leftNav.app-sidebar{
+    top:58px!important;
+    width:76px!important;
+    padding:11px 7px!important;
+    border-radius:0 18px 18px 0;
+    box-shadow:12px 0 32px rgba(9,45,26,.12)!important;
+  }
+  #leftNav .sidebar-item{
+    min-height:58px!important;
+    border-radius:14px!important;
+    font-size:8.5px!important;
+  }
+  #leftNav .sidebar-icon{
+    width:27px!important;
+    height:27px!important;
+    font-size:14px!important;
+  }
+  #app>.p-4.flex-1.overflow-y-auto{
+    padding:9px!important;
+  }
+  #mainPage{
+    max-width:none!important;
+  }
+  #mainPage .rounded-xl{
+    border-radius:14px!important;
+  }
+  #tabInput>h2,
+  #tabRiwayat>div:first-child,
+  #tabMonitoring>div:first-child,
+  #tabOutletKontrak>div:first-child,
+  #tabOutletBWS>div:first-child,
+  #tabTambahCustomer>div:first-child,
+  #tabPricelist>div:first-child,
+  #tabPesananOutlet>div:first-child{
+    margin-bottom:10px!important;
+    padding-bottom:10px!important;
+  }
+  #tabInput input,#tabInput select,#tabInput textarea,
+  #searchRiwayatInput,#searchMonitoringInput,#searchOutletKontrakInput,
+  #filterQuarterSelect,#filterPricelistUpdate{
+    min-height:43px!important;
+  }
+  #loginPage,#registerPage{
+    width:100%!important;
+    max-width:430px!important;
+    padding:21px 17px!important;
+    border-radius:21px!important;
+    box-shadow:0 17px 45px rgba(15,45,28,.085)!important;
+  }
+  #loginPage h2,#registerPage h2{font-size:20px!important}
+  .modern-modal-overlay{padding:10px!important}
+  .modern-modal-card{
+    width:calc(100vw - 20px)!important;
+    max-width:500px!important;
+    border-radius:20px!important;
+  }
+  .modern-modal-header{padding:12px 13px!important}
+  .modern-modal-body{padding:12px!important}
+  .modern-modal-footer{padding:9px 12px!important}
+  #announcementPage.pengumuman-page{padding:8px!important}
+  .pengumuman-shell{min-height:calc(100dvh - 16px)!important}
+  .pengumuman-panel{border-radius:20px!important}
+  .pengumuman-hero{padding:18px 13px 15px!important}
+  #announcementContent{padding:12px!important}
+  .pengumuman-carousel{gap:10px!important}
+  .pengumuman-carousel .pengumuman-card{flex-basis:91%!important}
+  .pengumuman-carousel .pengumuman-card img{
+    min-height:160px!important;
+    max-height:53vh!important;
+  }
+  .pengumuman-caption{font-size:12px!important;padding:13px 14px 16px!important}
+  .pengumuman-footer{padding:12px!important}
+  .pengumuman-main-btn{width:100%!important}
+}
+
+/* ---------- SMALL PHONE ---------- */
+@media (max-width:430px){
+  #mainHeader h1{max-width:105px!important}
+  #mainHeader{gap:6px!important}
+  #leftNav.app-sidebar{
+    width:72px!important;
+    padding-left:6px!important;
+    padding-right:6px!important;
+  }
+  #leftNav .sidebar-item{
+    min-height:56px!important;
+    font-size:8px!important;
+    padding-left:2px!important;
+    padding-right:2px!important;
+  }
+  #leftNav .sidebar-icon{
+    width:25px!important;
+    height:25px!important;
+    font-size:13px!important;
+  }
+  #app>.p-4.flex-1.overflow-y-auto{padding:7px!important}
+  #loginPage,#registerPage{
+    padding:18px 14px!important;
+    border-radius:19px!important;
+  }
+}
+
+/* ---------- REDUCE MOTION ---------- */
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto!important}
+  *,*::before,*::after{
+    animation-duration:.01ms!important;
+    transition-duration:.01ms!important;
+  }
+}
+</style>
+
+
+
+<style id="ui-modern-smooth-v2">
+/* =========================================================
+   UI MODERN V2 — VISUAL ONLY
+   Tidak mengubah HTML, JS, fungsi, perhitungan, atau alur.
+   ========================================================= */
+:root{
+  --ui-green:#008a4c;
+  --ui-green-dark:#006f3d;
+  --ui-ink:#0f172a;
+  --ui-muted:#64748b;
+  --ui-line:#e5e7eb;
+  --ui-soft:#f6faf8;
+  --ui-radius:16px;
+  --ui-shadow:0 8px 24px rgba(15,23,42,.055);
+}
+
+/* ---------- MENU: text only, clean & compact ---------- */
+#leftNav .sidebar-inner{gap:5px!important}
+#leftNav .sidebar-label{
+  margin:2px 8px 7px!important;
+  padding:0!important;
+  font-size:9px!important;
+  font-weight:900!important;
+  letter-spacing:.16em!important;
+  color:#94a3b8!important;
+}
+#leftNav .sidebar-icon{display:none!important}
+#leftNav .sidebar-item,
+#leftNav .sidebar-user-item{
+  min-height:38px!important;
+  height:38px!important;
+  padding:0 13px!important;
+  border:1px solid transparent!important;
+  border-radius:10px!important;
+  gap:0!important;
+  justify-content:flex-start!important;
+  box-shadow:none!important;
+  background:transparent!important;
+  color:#475569!important;
+  font-size:11px!important;
+  font-weight:750!important;
+  letter-spacing:.005em!important;
+  transition:background .16s ease,color .16s ease,border-color .16s ease,transform .16s ease!important;
+}
+#leftNav .sidebar-item:hover{
+  background:#f0f8f4!important;
+  border-color:#dcefe5!important;
+  color:#006f3d!important;
+  transform:translateX(2px)!important;
+}
+#leftNav .sidebar-item-active{
+  background:#eaf7f0!important;
+  border-color:#ccebd9!important;
+  color:#006f3d!important;
+  box-shadow:inset 3px 0 0 #008a4c!important;
+}
+#leftNav .sidebar-item-danger:hover{
+  background:#fff1f2!important;
+  border-color:#ffe4e6!important;
+  color:#be123c!important;
+  transform:translateX(2px)!important;
+}
+#leftNav .sidebar-user-item{
+  cursor:default!important;
+  color:#334155!important;
+  background:#f8fafc!important;
+  border-color:#eef2f7!important;
+  margin-bottom:3px!important;
+}
+#leftNav .sidebar-user-text{
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}
+#leftNav .sidebar-bottom{gap:5px!important}
+
+/* Desktop: menu lebih kecil dan proporsional */
+@media(min-width:768px){
+  #leftNav.app-sidebar{
+    width:184px!important;
+    min-width:184px!important;
+  }
+  #leftNav .sidebar-inner{padding:12px 10px!important}
+  #leftNav .sidebar-item,
+  #leftNav .sidebar-user-item{
+    min-height:36px!important;
+    height:36px!important;
+    padding:0 12px!important;
+    font-size:10.5px!important;
+  }
+  #leftNav .sidebar-label{font-size:8px!important;margin-left:7px!important}
+}
+
+/* Mobile: tetap text-only, mudah disentuh */
+@media(max-width:767px){
+  #leftNav .sidebar-item,
+  #leftNav .sidebar-user-item{
+    min-height:42px!important;
+    height:42px!important;
+    padding:0 14px!important;
+    font-size:11px!important;
+  }
+  #leftNav .sidebar-label{margin-bottom:6px!important}
+}
+
+/* ---------- BUTTONS: desktop compact & tidy ---------- */
+@media(min-width:768px){
+  button:not(.sidebar-item):not(.sidebar-toggle){
+    min-height:34px;
+  }
+  #tabInput button,
+  #tabRiwayat button,
+  #tabMonitoring button,
+  #tabOutletKontrak button,
+  #tabOutletBWS button,
+  #tabPricelist button,
+  #tabTambahCustomer button,
+  #tabPesananOutlet button,
+  #tabPengumumanAdmin button{
+    padding-top:7px!important;
+    padding-bottom:7px!important;
+    padding-left:11px!important;
+    padding-right:11px!important;
+    border-radius:9px!important;
+    font-size:10px!important;
+  }
+  #tabInput .payment-btn{min-height:34px!important}
+}
+
+/* ---------- INPUT / ORDER: lebih premium & tidak memenuhi layar ---------- */
+#tabInput > .bg-white.border.border-slate-200.rounded-2xl.shadow-sm.overflow-hidden{
+  max-width:1040px!important;
+  margin:0 auto!important;
+  border-radius:20px!important;
+  border-color:#e4ebe7!important;
+  box-shadow:0 10px 34px rgba(15,23,42,.055)!important;
+}
+#inputStep1{
+  max-width:900px!important;
+  margin:0 auto!important;
+  padding:18px!important;
+}
+#inputStep1 > .rounded-xl.bg-slate-50.border.border-slate-200.p-3:first-child{
+  background:linear-gradient(180deg,#fbfefd 0%,#f5faf7 100%)!important;
+  border-color:#dcebe2!important;
+  border-radius:18px!important;
+  padding:16px!important;
+  box-shadow:0 6px 20px rgba(0,88,48,.035)!important;
+}
+
+/* Header Informasi Outlet */
+#inputStep1 > .rounded-xl:first-child > .flex.items-center.gap-2.mb-3{
+  padding-bottom:10px!important;
+  margin-bottom:13px!important;
+  border-bottom:1px solid #e6eee9!important;
+}
+#inputStep1 > .rounded-xl:first-child > .flex.items-center.gap-2.mb-3 > span{
+  display:none!important;
+}
+#inputStep1 > .rounded-xl:first-child > .flex.items-center.gap-2.mb-3 > div > div:first-child{
+  font-size:14px!important;
+  letter-spacing:-.01em!important;
+}
+#inputStep1 > .rounded-xl:first-child > .flex.items-center.gap-2.mb-3 > div > div:last-child{
+  font-size:9px!important;
+  color:#7a8b83!important;
+}
+
+/* Outlet selector terasa seperti product picker */
+#inputOutlet + .select2-container,
+#inputOutlet{
+  width:100%!important;
+}
+#inputStep1 #inputOutlet + .select2-container .select2-selection--single{
+  height:46px!important;
+  border:1px solid #d8e5de!important;
+  border-radius:13px!important;
+  background:#fff!important;
+  padding:7px 12px!important;
+  box-shadow:0 4px 14px rgba(15,23,42,.035)!important;
+}
+#inputStep1 #inputOutlet + .select2-container .select2-selection__rendered{
+  line-height:30px!important;
+  font-size:11px!important;
+  font-weight:800!important;
+  color:#1e293b!important;
+}
+#inputStep1 #inputOutlet + .select2-container .select2-selection__arrow{
+  height:44px!important;
+  right:7px!important;
+}
+
+/* CUST.CODE + CHANNEL: kartu ringkas ala product selection */
+#inputStep1 .grid.grid-cols-2.gap-2.mt-2{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:10px!important;
+  margin-top:10px!important;
+}
+#inputStep1 .grid.grid-cols-2.gap-2.mt-2 > div{
+  position:relative!important;
+  min-height:58px!important;
+  padding:10px 12px!important;
+  border:1px solid #dce8e1!important;
+  border-radius:14px!important;
+  background:#fff!important;
+  box-shadow:0 4px 14px rgba(15,23,42,.035)!important;
+  transition:border-color .16s ease,box-shadow .16s ease,transform .16s ease!important;
+}
+#inputStep1 .grid.grid-cols-2.gap-2.mt-2 > div:hover{
+  border-color:#b8dcc8!important;
+  box-shadow:0 7px 18px rgba(0,138,76,.07)!important;
+  transform:translateY(-1px)!important;
+}
+#inputStep1 .grid.grid-cols-2.gap-2.mt-2 > div > div:first-child{
+  font-size:8px!important;
+  font-weight:900!important;
+  color:#7b8b84!important;
+  letter-spacing:.10em!important;
+}
+#inputStep1 .grid.grid-cols-2.gap-2.mt-2 > div::after{
+  content:'TERPILIH';
+  position:absolute!important;
+  top:10px!important;
+  right:11px!important;
+  font-size:7px!important;
+  font-weight:900!important;
+  letter-spacing:.08em!important;
+  color:#00915a!important;
+  background:#eaf8f1!important;
+  border-radius:999px!important;
+  padding:3px 6px!important;
+}
+#inputStep1 .grid.grid-cols-2.gap-2.mt-2 > div input{
+  display:block!important;
+  width:calc(100% - 52px)!important;
+  margin-top:6px!important;
+  min-height:20px!important;
+  font-size:12px!important;
+  font-weight:850!important;
+  color:#102a1f!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+
+/* Di desktop, Informasi Outlet tidak melebar penuh */
+@media(min-width:768px){
+  #inputStep1 > .rounded-xl:first-child{
+    max-width:760px!important;
+    margin:0 auto!important;
+  }
+  #inputStep1 > .rounded-xl:nth-child(2){
+    max-width:760px!important;
+    margin:0 auto!important;
+  }
+  #inputStep1 > button:last-child{
+    max-width:760px!important;
+    margin:2px auto 0!important;
+    display:flex!important;
+  }
+}
+
+/* Mobile: kartu tetap compact dan tidak membuat layar terasa penuh */
+@media(max-width:600px){
+  #inputStep1{padding:12px!important}
+  #inputStep1 > .rounded-xl:first-child{padding:13px!important}
+  #inputStep1 .grid.grid-cols-2.gap-2.mt-2{gap:8px!important}
+  #inputStep1 .grid.grid-cols-2.gap-2.mt-2 > div{min-height:56px!important;padding:9px 10px!important}
+  #inputStep1 .grid.grid-cols-2.gap-2.mt-2 > div::after{font-size:6.5px!important;right:8px!important}
+  #inputStep1 .grid.grid-cols-2.gap-2.mt-2 > div input{font-size:11px!important;width:calc(100% - 45px)!important}
+}
+@media(max-width:380px){
+  #inputStep1 .grid.grid-cols-2.gap-2.mt-2{grid-template-columns:1fr!important}
+}
+
+/* ---------- Detail transaksi lebih ringan ---------- */
+#inputStep1 > .rounded-xl.bg-slate-50.border.border-slate-200.p-3:nth-child(2){
+  border-color:#e5ece8!important;
+  background:#fff!important;
+  border-radius:16px!important;
+}
+#inputStep1 > .rounded-xl.bg-slate-50.border.border-slate-200.p-3:nth-child(2) > .flex.items-center.gap-2.mb-3 > span{
+  display:none!important;
+}
+
+/* Select2 dropdown lebih modern */
+.select2-container--default .select2-selection--single:focus,
+.select2-container--default.select2-container--focus .select2-selection--single{
+  border-color:#8fd0ac!important;
+  box-shadow:0 0 0 3px rgba(0,138,76,.09)!important;
+}
+.select2-dropdown{
+  border-color:#dbe7e0!important;
+  border-radius:13px!important;
+  overflow:hidden!important;
+  box-shadow:0 14px 34px rgba(15,23,42,.12)!important;
+}
+.select2-results__option{padding:9px 11px!important;font-size:11px!important}
+.select2-results__option--highlighted[aria-selected]{background:#008a4c!important}
+
+/* Header/tab spacing desktop */
+@media(min-width:768px){
+  #mainPage{padding-top:2px!important}
+  #mainPage .tab-content{max-width:1180px!important;margin-left:auto!important;margin-right:auto!important}
+}
+</style>
+
+<style id="ui-final-polish-v4">
+/* =========================================================
+   UI ONLY - FINAL POLISH V4
+   Tidak mengubah HTML/JS/function/perhitungan.
+   ========================================================= */
+
+/* 1. MENU: tulisan saja + rata kiri */
+#leftNav .sidebar-icon{
+  display:none!important;
+}
+#leftNav .sidebar-item{
+  justify-content:flex-start!important;
+  text-align:left!important;
+  align-items:center!important;
+  gap:0!important;
+  padding-left:14px!important;
+  padding-right:10px!important;
+  min-height:42px!important;
+  height:42px!important;
+  border-radius:10px!important;
+}
+#leftNav .sidebar-text{
+  display:block!important;
+  width:100%!important;
+  text-align:left!important;
+  font-size:11px!important;
+  font-weight:700!important;
+  letter-spacing:.01em!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+#leftNav .sidebar-label{
+  text-align:left!important;
+  padding-left:14px!important;
+  margin-bottom:6px!important;
+  font-size:9px!important;
+}
+@media(min-width:768px){
+  #leftNav.app-sidebar{
+    width:150px!important;
+    padding:12px 8px!important;
+  }
+  #app:not(.sidebar-closed) #leftNav:not(.hidden) + div{
+    margin-left:150px!important;
+  }
+}
+
+/* 2. INFORMASI OUTLET: CUST.CODE + CHANNEL tepat di bawah judul */
+#tabInput #inputStep1 > .rounded-xl.bg-slate-50.border.border-slate-200.p-3:first-child{
+  display:flex!important;
+  flex-direction:column!important;
+}
+#tabInput #inputStep1 > .rounded-xl.bg-slate-50.border.border-slate-200.p-3:first-child > .flex.items-center.gap-2.mb-3{
+  order:1!important;
+  margin-bottom:8px!important;
+}
+#tabInput #inputStep1 > .rounded-xl.bg-slate-50.border.border-slate-200.p-3:first-child > .grid.grid-cols-2.gap-2.mt-2{
+  order:2!important;
+  margin:0 0 10px 0!important;
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:8px!important;
+}
+#tabInput #inputStep1 > .rounded-xl.bg-slate-50.border.border-slate-200.p-3:first-child > .grid.grid-cols-2.gap-2.mt-2 > div{
+  background:transparent!important;
+  border:0!important;
+  border-bottom:1px solid #e2e8f0!important;
+  border-radius:0!important;
+  padding:5px 2px 7px!important;
+}
+#tabInput #inputStep1 > .rounded-xl.bg-slate-50.border.border-slate-200.p-3:first-child > .grid.grid-cols-2.gap-2.mt-2 > div > div{
+  font-size:8px!important;
+  color:#94a3b8!important;
+  letter-spacing:.08em!important;
+}
+#tabInput #inputStep1 > .rounded-xl.bg-slate-50.border.border-slate-200.p-3:first-child > .grid.grid-cols-2.gap-2.mt-2 input{
+  margin-top:2px!important;
+  font-size:11px!important;
+  font-weight:800!important;
+  color:#0f172a!important;
+}
+#tabInput #inputStep1 > .rounded-xl.bg-slate-50.border.border-slate-200.p-3:first-child > #filterInputSalesWrap{
+  order:3!important;
+}
+#tabInput #inputStep1 > .rounded-xl.bg-slate-50.border.border-slate-200.p-3:first-child > label{
+  order:4!important;
+}
+#tabInput #inputStep1 > .rounded-xl.bg-slate-50.border.border-slate-200.p-3:first-child > #inputOutlet{
+  order:5!important;
+}
+
+/* 3. FILTER PRODUK: SEMUA / MCO / PCO compact */
+#tabInput #btnFilterProdukAll,
+#tabInput #btnFilterProdukMCO,
+#tabInput #btnFilterProdukPCO{
+  flex:0 0 auto!important;
+  width:auto!important;
+  min-width:52px!important;
+  padding:5px 10px!important;
+  min-height:28px!important;
+  height:28px!important;
+  border-radius:8px!important;
+  font-size:9px!important;
+  line-height:1!important;
+}
+#tabInput #btnFilterProdukAll + #btnFilterProdukMCO,
+#tabInput #btnFilterProdukMCO{
+  margin-left:0!important;
+}
+#tabInput #btnFilterProdukAll ~ button{
+  flex:0 0 auto!important;
+}
+
+/* 4. PCS / DUS + TAMBAH ITEM: compact dan satu baris */
+#tabInput #addItemProduk{
+  min-height:38px!important;
+}
+#tabInput .rounded-xl.border.border-slate-200.bg-slate-50.p-3.space-y-2:has(#btnSatuanPcs){
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto auto!important;
+  column-gap:8px!important;
+  row-gap:8px!important;
+}
+#tabInput .rounded-xl.border.border-slate-200.bg-slate-50.p-3.space-y-2:has(#btnSatuanPcs) > div:first-child{
+  grid-column:1 / -1!important;
+  min-width:0!important;
+}
+#tabInput .rounded-xl.border.border-slate-200.bg-slate-50.p-3.space-y-2:has(#btnSatuanPcs) > .grid.grid-cols-2.gap-2{
+  display:contents!important;
+}
+#tabInput .rounded-xl.border.border-slate-200.bg-slate-50.p-3.space-y-2:has(#btnSatuanPcs) > .grid.grid-cols-2.gap-2 > div:first-child{
+  grid-column:1!important;
+}
+#tabInput .rounded-xl.border.border-slate-200.bg-slate-50.p-3.space-y-2:has(#btnSatuanPcs) > .grid.grid-cols-2.gap-2 > div:nth-child(2){
+  grid-column:2!important;
+}
+#tabInput #btnSatuanPcs,
+#tabInput #btnSatuanDus{
+  flex:0 0 auto!important;
+  width:48px!important;
+  min-width:48px!important;
+  height:32px!important;
+  padding:0!important;
+  font-size:10px!important;
+}
+#tabInput #btnSatuanPcs + #btnSatuanDus{
+  width:48px!important;
+}
+#tabInput .rounded-xl.border.border-slate-200.bg-slate-50.p-3.space-y-2:has(#btnSatuanPcs) > button[onclick="tambahKeKeranjang()"]{
+  grid-column:3!important;
+  width:auto!important;
+  min-width:88px!important;
+  height:32px!important;
+  padding:0 11px!important;
+  border-radius:9px!important;
+  font-size:10px!important;
+  white-space:nowrap!important;
+}
+
+@media(max-width:640px){
+  #leftNav .sidebar-item{min-height:40px!important;height:40px!important;padding-left:12px!important}
+  #leftNav .sidebar-text{font-size:10.5px!important}
+  #tabInput #btnFilterProdukAll,
+  #tabInput #btnFilterProdukMCO,
+  #tabInput #btnFilterProdukPCO{min-width:48px!important;padding:5px 8px!important}
+  #tabInput .rounded-xl.border.border-slate-200.bg-slate-50.p-3.space-y-2:has(#btnSatuanPcs){
+    grid-template-columns:minmax(0,1fr) auto auto!important;
+  }
+}
+</style>
+
+<style id="ui-modern-v5-adjustments">
+/* UI ONLY — V5: merapikan ruang tanpa menyentuh logic/function. */
+.ui-input-order-title{display:none!important;}
+.ui-outlet-title{display:none!important;}
+
+/* Setelah judul dihilangkan, isi langsung naik tanpa ruang kosong. */
+#inputStep1 > .rounded-xl.bg-slate-50.border.border-slate-200{padding-top:10px!important;}
+#inputStep1 > .rounded-xl.bg-slate-50.border.border-slate-200 > #filterInputSalesWrap{margin-top:0!important;}
+
+/* Filter produk lebih kecil dan tidak melebar berlebihan. */
+.ui-product-filters{display:flex!important;justify-content:flex-start!important;gap:6px!important;}
+.ui-product-filters button{flex:0 0 auto!important;width:auto!important;min-width:52px!important;padding:6px 11px!important;font-size:9px!important;line-height:1.1!important;border-radius:8px!important;}
+
+/* Qty kecil; PCS/DUS dan Tambah Item satu baris. */
+.ui-product-entry .ui-item-controls{display:flex!important;align-items:flex-end!important;gap:7px!important;}
+.ui-product-entry .ui-qty-control{width:68px!important;flex:0 0 68px!important;}
+.ui-product-entry .ui-qty-control #addItemQty{height:34px!important;min-height:34px!important;padding:6px 8px!important;border-radius:9px!important;text-align:center!important;font-size:11px!important;}
+.ui-product-entry .ui-satuan-control{width:130px!important;flex:0 0 130px!important;}
+.ui-product-entry .ui-satuan-control > div{height:34px!important;border-radius:9px!important;}
+.ui-product-entry .ui-satuan-control button{font-size:10px!important;}
+.ui-product-entry .ui-add-item-btn{width:auto!important;min-width:112px!important;height:34px!important;padding:0 12px!important;border-radius:9px!important;align-self:flex-end!important;font-size:10px!important;white-space:nowrap!important;}
+
+@media(max-width:767px){
+  .ui-product-entry .ui-item-controls{gap:6px!important;}
+  .ui-product-entry .ui-qty-control{width:60px!important;flex-basis:60px!important;}
+  .ui-product-entry .ui-satuan-control{width:112px!important;flex-basis:112px!important;}
+  .ui-product-entry .ui-add-item-btn{min-width:96px!important;padding:0 9px!important;}
+  .ui-product-filters button{min-width:48px!important;padding:6px 9px!important;}
+}
+</style>
+
+<style id="ui-product-layout-v6">
+/* ===== V6: PRODUCT ENTRY LAYOUT ONLY ===== */
+
+/* Hilangkan tombol "Kembali ke Informasi Order" tanpa menyentuh fungsi navigasinya. */
+#inputStep2 > div:first-child > button[onclick="kembaliKeInfoOrder()"]{
+  display:none !important;
+}
+
+/* DESKTOP: Produk | Qty | PCS/DUS | Tambah Item dalam satu baris */
+@media (min-width: 768px){
+  #inputStep2 .ui-product-entry{
+    display:grid !important;
+    grid-template-columns:minmax(280px,1fr) 78px 145px 112px !important;
+    align-items:end !important;
+    gap:10px !important;
+    padding:12px !important;
+  }
+
+  #inputStep2 .ui-product-entry > div:first-child{
+    min-width:0 !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-product-filters{
+    gap:4px !important;
+    margin-bottom:6px !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-product-filters button{
+    flex:0 0 auto !important;
+    padding:5px 9px !important;
+    min-width:48px !important;
+    height:28px !important;
+    font-size:9px !important;
+  }
+
+  #inputStep2 .ui-product-entry > div:first-child > label{
+    margin-bottom:5px !important;
+  }
+
+  #inputStep2 .ui-product-entry #addItemProduk{
+    height:38px !important;
+    padding:7px 10px !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-item-controls{
+    display:contents !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-qty-control,
+  #inputStep2 .ui-product-entry .ui-satuan-control{
+    min-width:0 !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-qty-control label,
+  #inputStep2 .ui-product-entry .ui-satuan-control label{
+    margin-bottom:5px !important;
+  }
+
+  #inputStep2 .ui-product-entry #addItemQty{
+    height:38px !important;
+    padding:7px 8px !important;
+    text-align:center !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-satuan-control > div{
+    height:38px !important;
+    border-radius:10px !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-add-item-btn{
+    width:100% !important;
+    height:38px !important;
+    padding:0 8px !important;
+    white-space:nowrap !important;
+  }
+}
+
+/* MOBILE: Pilih Produk sendiri, lalu Qty | PCS/DUS | Tambah Item satu baris */
+@media (max-width: 767px){
+  #inputStep2 .ui-product-entry{
+    display:grid !important;
+    grid-template-columns:1fr !important;
+    gap:9px !important;
+    padding:10px !important;
+  }
+
+  #inputStep2 .ui-product-entry > div:first-child{
+    min-width:0 !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-product-filters{
+    gap:4px !important;
+    margin-bottom:6px !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-product-filters button{
+    flex:0 0 auto !important;
+    padding:5px 8px !important;
+    min-width:44px !important;
+    height:27px !important;
+    font-size:9px !important;
+  }
+
+  #inputStep2 .ui-product-entry #addItemProduk{
+    height:38px !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-item-controls{
+    display:grid !important;
+    grid-template-columns:58px minmax(105px,1fr) minmax(105px,1fr) !important;
+    align-items:end !important;
+    gap:6px !important;
+    width:100% !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-qty-control,
+  #inputStep2 .ui-product-entry .ui-satuan-control{
+    min-width:0 !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-qty-control label,
+  #inputStep2 .ui-product-entry .ui-satuan-control label{
+    font-size:9px !important;
+    margin-bottom:4px !important;
+  }
+
+  #inputStep2 .ui-product-entry #addItemQty{
+    height:34px !important;
+    padding:5px 4px !important;
+    text-align:center !important;
+    font-size:11px !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-satuan-control > div{
+    height:34px !important;
+    border-radius:9px !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-satuan-control button{
+    font-size:10px !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-add-item-btn{
+    width:100% !important;
+    height:34px !important;
+    padding:0 5px !important;
+    font-size:10px !important;
+    white-space:nowrap !important;
+  }
+}
+</style>
+
+<style id="ui-product-layout-v7">
+/* UI ONLY — V7. Tidak mengubah HTML/JS/function/perhitungan. */
+
+/* 1. Hilangkan tulisan "Outlet *" saja; dropdown Outlet tetap ada. */
+#tabInput #inputStep1 > .rounded-xl.bg-slate-50.border.border-slate-200 > label[for="inputOutlet"]{
+  display:none !important;
+}
+
+/* 2. DESKTOP: Pilih Produk | Qty | PCS/DUS | Tambah Item dalam 1 baris. */
+@media (min-width:768px){
+  #inputStep2 .ui-product-entry{
+    display:grid !important;
+    grid-template-columns:minmax(280px,1fr) 72px 132px 108px !important;
+    align-items:end !important;
+    column-gap:8px !important;
+    row-gap:0 !important;
+  }
+
+  #inputStep2 .ui-product-entry > div:first-child{
+    grid-column:1 !important;
+    grid-row:1 !important;
+    min-width:0 !important;
+  }
+
+  #inputStep2 .ui-product-entry > .ui-item-controls{
+    display:contents !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-qty-control{
+    grid-column:2 !important;
+    grid-row:1 !important;
+    width:auto !important;
+    flex:none !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-satuan-control{
+    grid-column:3 !important;
+    grid-row:1 !important;
+    width:auto !important;
+    flex:none !important;
+  }
+
+  #inputStep2 .ui-product-entry > button.ui-add-item-btn{
+    grid-column:4 !important;
+    grid-row:1 !important;
+    width:100% !important;
+    min-width:0 !important;
+    margin:0 !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-product-filters{
+    margin-bottom:5px !important;
+  }
+
+  #inputStep2 .ui-product-entry #addItemProduk,
+  #inputStep2 .ui-product-entry #addItemQty,
+  #inputStep2 .ui-product-entry .ui-satuan-control > div,
+  #inputStep2 .ui-product-entry .ui-add-item-btn{
+    height:36px !important;
+    min-height:36px !important;
+  }
+}
+
+/* 3. MOBILE: Pilih Produk di atas; Qty + PCS/DUS + Tambah Item di baris bawah. */
+@media (max-width:767px){
+  #inputStep2 .ui-product-entry{
+    display:grid !important;
+    grid-template-columns:1fr !important;
+    gap:8px !important;
+  }
+
+  #inputStep2 .ui-product-entry > div:first-child{
+    grid-column:1 !important;
+    grid-row:1 !important;
+    min-width:0 !important;
+  }
+
+  #inputStep2 .ui-product-entry > .ui-item-controls{
+    display:grid !important;
+    grid-template-columns:58px minmax(0,1fr) minmax(94px,1fr) !important;
+    grid-template-rows:auto !important;
+    align-items:end !important;
+    gap:6px !important;
+    width:100% !important;
+    grid-column:1 !important;
+    grid-row:2 !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-qty-control,
+  #inputStep2 .ui-product-entry .ui-satuan-control{
+    width:auto !important;
+    min-width:0 !important;
+    flex:none !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-qty-control{
+    grid-column:1 !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-satuan-control{
+    grid-column:2 !important;
+  }
+
+  #inputStep2 .ui-product-entry > button.ui-add-item-btn{
+    grid-column:3 !important;
+    grid-row:2 !important;
+    width:100% !important;
+    min-width:0 !important;
+    margin:0 !important;
+    height:34px !important;
+    padding:0 5px !important;
+    white-space:nowrap !important;
+  }
+
+  #inputStep2 .ui-product-entry #addItemProduk,
+  #inputStep2 .ui-product-entry #addItemQty,
+  #inputStep2 .ui-product-entry .ui-satuan-control > div{
+    height:34px !important;
+    min-height:34px !important;
+  }
+}
+</style>
+
+<style id="ui-modern-v9-product-layout">
+/* UI ONLY — V9: menu mobile rata kiri + layout produk desktop lebih compact. */
+
+/* MOBILE: seluruh tulisan menu benar-benar rata kiri. */
+@media (max-width:767px){
+  #leftNav .sidebar-item,
+  #leftNav .sidebar-text{
+    justify-content:flex-start!important;
+    text-align:left!important;
+  }
+  #leftNav .sidebar-item{
+    display:flex!important;
+    align-items:center!important;
+  }
+  #leftNav .sidebar-text{
+    margin-left:0!important;
+  }
+}
+
+/* DESKTOP: Pilih Produk di kiri, lalu Qty + Satuan + Tambah Item
+   langsung di sampingnya, semuanya satu baris dan tidak saling menutup. */
+@media (min-width:768px){
+  #inputStep2 .ui-product-entry{
+    display:grid!important;
+    grid-template-columns:minmax(260px, 1fr) 64px 112px 108px!important;
+    align-items:end!important;
+    column-gap:8px!important;
+    width:100%!important;
+    max-width:100%!important;
+    box-sizing:border-box!important;
+    overflow:visible!important;
+  }
+
+  #inputStep2 .ui-product-entry > div:first-child{
+    grid-column:1!important;
+    min-width:0!important;
+    width:100%!important;
+    max-width:none!important;
+    overflow:visible!important;
+    box-sizing:border-box!important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-item-controls{
+    display:contents!important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-qty-control{
+    grid-column:2!important;
+    width:64px!important;
+    min-width:64px!important;
+    max-width:64px!important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-satuan-control{
+    grid-column:3!important;
+    width:112px!important;
+    min-width:112px!important;
+    max-width:112px!important;
+  }
+
+  #inputStep2 .ui-product-entry > .ui-add-item-btn{
+    grid-column:4!important;
+    width:108px!important;
+    min-width:108px!important;
+    max-width:108px!important;
+    margin:0!important;
+    align-self:end!important;
+  }
+
+  #inputStep2 .ui-product-entry #addItemProduk{
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    box-sizing:border-box!important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-product-filters{
+    justify-content:flex-start!important;
+    width:100%!important;
+    overflow:visible!important;
+  }
+}
+</style>
+
+<style id="ui-product-container-width-v12">
+/* V12: outer product area stays wide; only inner controls are compact. UI ONLY. */
+@media (min-width: 768px){
+  #inputStep2 .ui-product-entry{
+    width:100% !important;
+    max-width:100% !important;
+    grid-template-columns:minmax(260px,1fr) 62px 108px 112px !important;
+    box-sizing:border-box !important;
+  }
+  #inputStep2 .ui-product-entry > div:first-child{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+  }
+  #inputStep2 .ui-product-entry .ui-product-filters{
+    width:100% !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+  }
+  /* Select produk tetap berada di kiri, tetapi kontrol di dalamnya compact. */
+  #inputStep2 .ui-product-entry #addItemProduk{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+  }
+  #inputStep2 .ui-product-entry #addItemQty{
+    width:62px !important;
+    min-width:62px !important;
+    max-width:62px !important;
+  }
+  #inputStep2 .ui-product-entry .ui-satuan-control > div{
+    width:108px !important;
+    min-width:108px !important;
+    max-width:108px !important;
+  }
+  #inputStep2 .ui-product-entry > .ui-add-item-btn{
+    width:112px !important;
+    min-width:112px !important;
+    max-width:112px !important;
+  }
+}
+</style>
+
+<style id="ui-product-layout-v13">
+/* V13: container utama tetap full-width; hanya kontrol di dalam yang compact */
+@media (min-width: 768px) {
+  /* Jangan biarkan override sebelumnya menyempitkan wrapper pemilihan produk */
+  #inputStep2,
+  #inputStep2 .product-selection-container,
+  #inputStep2 .produk-selection-container,
+  #inputStep2 .product-picker-container,
+  #inputStep2 .product-picker,
+  #inputStep2 .produk-picker {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Baris kontrol utama tetap memenuhi lebar container */
+  #inputStep2 .product-selection-row,
+  #inputStep2 .produk-selection-row,
+  #inputStep2 .product-controls-row {
+    width: 100% !important;
+    max-width: none !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Pilih Produk mengambil ruang yang tersedia */
+  #inputStep2 .product-selection-row > :first-child,
+  #inputStep2 .produk-selection-row > :first-child,
+  #inputStep2 .product-controls-row > :first-child {
+    flex: 1 1 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+
+  /* Hanya kotak di dalam yang compact */
+  #inputStep2 input[id*="qty" i],
+  #inputStep2 select[id*="satuan" i],
+  #inputStep2 select[id*="unit" i],
+  #inputStep2 button[id*="tambah" i] {
+    box-sizing: border-box !important;
+  }
+
+  #inputStep2 input[id*="qty" i] {
+    width: 62px !important;
+    min-width: 62px !important;
+    max-width: 62px !important;
+  }
+
+  #inputStep2 select[id*="satuan" i],
+  #inputStep2 select[id*="unit" i] {
+    width: 82px !important;
+    min-width: 82px !important;
+    max-width: 82px !important;
+  }
+
+  #inputStep2 button[id*="tambah" i] {
+    width: auto !important;
+    min-width: 92px !important;
+    max-width: 120px !important;
+    white-space: nowrap !important;
+  }
+}
+</style>
+
+
+<style id="ui-product-layout-v14-final">
+/* FINAL FIX: jangan pernah mengecilkan container utama produk pada desktop */
+@media (min-width: 768px) {
+  #inputStep2 > .ui-product-entry,
+  #inputStep2 .ui-product-entry {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 62px 108px 112px !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    align-items: end !important;
+    column-gap: 8px !important;
+    overflow: visible !important;
+  }
+
+  /* Kolom Pilih Produk memenuhi sisa ruang */
+  #inputStep2 .ui-product-entry > div:first-child {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-product-filters,
+  #inputStep2 .ui-product-entry #addItemProduk {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-item-controls {
+    display: contents !important;
+  }
+
+  /* Hanya kontrol bagian dalam yang kecil */
+  #inputStep2 .ui-product-entry .ui-qty-control {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    width: 62px !important;
+    min-width: 62px !important;
+    max-width: 62px !important;
+    box-sizing: border-box !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-satuan-control {
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+    width: 108px !important;
+    min-width: 108px !important;
+    max-width: 108px !important;
+    box-sizing: border-box !important;
+  }
+
+  #inputStep2 .ui-product-entry > button.ui-add-item-btn {
+    grid-column: 4 !important;
+    grid-row: 1 !important;
+    width: 112px !important;
+    min-width: 112px !important;
+    max-width: 112px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  #inputStep2 .ui-product-entry #addItemQty {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-satuan-control > div {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+}
+</style>
+
+
+<script id="card-view-restore-v13">
+/* Chart view: restore the previous card-based presentation without touching the existing chart functions. */
+function renderRiwayatCards(data) {
+    const container = document.getElementById('listRiwayat');
+    if (!container) return;
+    const isAdmin = String(currentUsernameInput || '').toLowerCase() === 'admin';
+    const totalPages = isAdmin ? Math.max(1, Math.ceil(data.length / RIWAYAT_PAGE_SIZE)) : 1;
+    if (riwayatPage > totalPages) riwayatPage = totalPages;
+    const startIndex = isAdmin ? (riwayatPage - 1) * RIWAYAT_PAGE_SIZE : 0;
+    const visibleData = isAdmin ? data.slice(startIndex, startIndex + RIWAYAT_PAGE_SIZE) : data;
+
+    let cards = '';
+    visibleData.forEach(function(item, index) {
+        const status = String(item.status || 'PENDING').toUpperCase();
+        const statusClass = status === 'APPROVE'
+            ? 'text-emerald-700 bg-emerald-50 border-emerald-200'
+            : status === 'DECLINE'
+                ? 'text-red-700 bg-red-50 border-red-200'
+                : 'text-amber-700 bg-amber-50 border-amber-200';
+        const statusDot = status === 'APPROVE' ? 'bg-emerald-500' : status === 'DECLINE' ? 'bg-red-500' : 'bg-amber-500';
+        const products = Array.isArray(item.products) ? item.products.filter(function(p){ return String(p || '').trim() !== ''; }) : [];
+        const productText = products.length ? products.map(function(p){ return escapeHtml(p); }).join('<br>') : '-';
+        const statusCell = isAdmin ? `
+            <select onclick="event.stopPropagation()" class="bulk-status-select w-full border border-slate-300 rounded-lg px-2.5 py-2 text-[10px] font-bold bg-white" data-order-id="${escapeHtml(item.id)}" data-current-status="${escapeHtml(status)}">
+                <option value="">${escapeHtml(status)} / TIDAK DIUBAH</option>
+                <option value="APPROVE" ${selectedRiwayatStatus[String(item.id)] === 'APPROVE' ? 'selected' : ''}>APPROVE</option>
+                <option value="DECLINE" ${selectedRiwayatStatus[String(item.id)] === 'DECLINE' ? 'selected' : ''}>DECLINE</option>
+            </select>` : `
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border text-[9px] font-extrabold ${statusClass}">
+                <span class="w-1.5 h-1.5 rounded-full ${statusDot}"></span>${escapeHtml(status)}
+            </span>`;
+        const selected = selectedRiwayatIds[String(item.id)] ? 'checked' : '';
+        const number = startIndex + index + 1;
+        const valueText = 'Rp ' + Number(item.value || 0).toLocaleString('id-ID');
+        const volumeText = escapeHtml(item.volume || '0') + ' L';
+        cards += `
+            <article class="riwayat-card group">
+                <div class="riwayat-card-top">
+                    <div class="flex items-start gap-2 min-w-0">
+                        <input type="checkbox" class="riwayat-select-checkbox w-4 h-4 mt-0.5 accent-emerald-600 cursor-pointer shrink-0" data-order-id="${escapeHtml(item.id)}" ${selected} onclick="event.stopPropagation()" onchange="toggleRiwayatSelection(this)" title="Pilih transaksi">
+                        <div class="min-w-0">
+                            <div class="flex flex-wrap items-center gap-2"><span class="riwayat-card-number">#${number}</span><span class="text-[10px] text-slate-400 font-medium">${escapeHtml(item.tanggal || '-')}</span></div>
+                            <div class="riwayat-card-outlet mt-1">${escapeHtml(item.outlet || '-')}</div>
+                            ${isAdmin ? `<div class="text-[9px] text-slate-400 mt-0.5">DSR: ${escapeHtml(item.dsr || '-')}</div>` : ''}
+                        </div>
+                    </div>
+                    <div class="shrink-0" onclick="event.stopPropagation()">${statusCell}</div>
+                </div>
+                <div class="riwayat-card-products"><div class="riwayat-card-label">PRODUK</div><div class="riwayat-card-product-text">${productText}</div></div>
+                <div class="riwayat-card-summary">
+                    <div class="riwayat-card-stat"><span class="riwayat-card-label">VOLUME</span><strong>${volumeText}</strong></div>
+                    <div class="riwayat-card-stat"><span class="riwayat-card-label">NILAI</span><strong>${valueText}</strong></div>
+                </div>
+                <div class="riwayat-card-footer" onclick="event.stopPropagation()">
+                    <span class="text-[9px] text-slate-400 font-medium">ID: ${escapeHtml(item.id || '-')}</span>
+                    <div class="flex items-center gap-1.5">
+                        <button type="button" onclick="editRiwayat('${escapeHtml(item.id)}'); return false;" class="riwayat-action riwayat-action-edit" title="Edit order">✏️ EDIT</button>
+                        <button type="button" onclick="kirimUlangWA('${escapeHtml(item.id)}')" class="riwayat-action riwayat-action-wa" title="Kirim ulang WhatsApp">💬 WA</button>
+                        <button type="button" onclick="hapusRiwayat('${escapeHtml(item.id)}')" class="riwayat-action riwayat-action-delete" title="Hapus">🗑️</button>
+                    </div>
+                </div>
+            </article>`;
+    });
+
+    const bulkControls = isAdmin ? `
+        <div class="flex flex-wrap items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl mb-3">
+            <button type="button" onclick="toggleSelectAllRiwayatVisible(true)" class="px-3 py-1.5 rounded-md bg-white hover:bg-slate-100 text-slate-600 text-[10px] font-bold border border-slate-200">PILIH SEMUA</button>
+            <button type="button" onclick="resetPilihanStatusRiwayat()" class="px-3 py-1.5 rounded-md bg-white hover:bg-slate-100 text-slate-600 text-[10px] font-bold border border-slate-200">RESET</button>
+            <button type="button" onclick="doneBulkStatusRiwayat()" class="px-4 py-1.5 rounded-md bg-slate-800 hover:bg-slate-900 text-white text-[10px] font-extrabold shadow-sm">DONE</button>
+            <span id="bulkStatusInfo" class="text-[10px] text-slate-500 font-semibold ml-auto">Pilih status pada masing-masing card lalu klik DONE.</span>
+        </div>` : '';
+    const pagination = isAdmin && totalPages > 1 ? `
+        <div class="flex items-center justify-between gap-2 mt-3 px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 text-[10px]">
+            <span class="text-slate-500">Menampilkan ${startIndex + 1}-${Math.min(startIndex + RIWAYAT_PAGE_SIZE, data.length)} dari ${data.length} transaksi</span>
+            <div class="flex items-center gap-1"><button type="button" onclick="changeRiwayatPage(-1)" class="px-2.5 py-1.5 rounded-lg border bg-white ${riwayatPage <= 1 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-slate-100'}" ${riwayatPage <= 1 ? 'disabled' : ''}>‹</button><span class="px-2 font-bold">Halaman ${riwayatPage}/${totalPages}</span><button type="button" onclick="changeRiwayatPage(1)" class="px-2.5 py-1.5 rounded-lg border bg-white ${riwayatPage >= totalPages ? 'opacity-40 cursor-not-allowed' : 'hover:bg-slate-100'}" ${riwayatPage >= totalPages ? 'disabled' : ''}>›</button></div>
+        </div>` : '';
+    container.innerHTML = `<div class="riwayat-cards-wrap">${bulkControls}<div class="riwayat-cards-grid">${cards}</div>${pagination}</div>`;
+    updateSelectedRiwayatUI();
+}
+
+function renderPencapaianCards(data) {
+    const container = document.getElementById('pencapaianSalesList');
+    if (!container) return;
+    container.innerHTML = data.map(function(item) {
+        return `
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3">
+                <div class="flex items-center justify-between gap-2 mb-2.5">
+                    <div class="flex items-center gap-2">
+                        <div class="w-9 h-9 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-extrabold text-xs">${escapeHtml((item.sales || '-').substring(0,2).toUpperCase())}</div>
+                        <div><div class="text-sm font-extrabold text-slate-800">${escapeHtml(item.sales || '-')}</div><div class="text-[9px] text-slate-400">${currentUsernameInput && currentUsernameInput.toLowerCase() === 'admin' ? 'Pencapaian semua Sales · ' : ''}Periode Quartal · Rincian 3 Bulan</div></div>
+                    </div>
+                    <span class="text-[9px] font-bold px-2 py-1 rounded-full bg-white border border-slate-200 text-slate-500">${escapeHtml(item.periode || '')}</span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    ${renderPencapaianCategory('Value', '💰', item.categories && item.categories.value, 'value', item.sales)}
+                    ${renderPencapaianCategory('Volume', '📦', item.categories && item.categories.volume, 'volume', item.sales)}
+                    ${renderPencapaianCategory('Active Outlet', '🏪', item.categories && item.categories.active, 'active', item.sales)}
+                    ${renderPencapaianCategory('Produk Fokus', '🎯', item.categories && item.categories.product, 'product', item.sales)}
+                    ${renderPencapaianCategory('Power Brand', '🏆', item.categories && item.categories.powerBrand, 'powerBrand', item.sales)}
+                </div>
+            </div>`;
+    }).join('');
+}
+</script>
 </body>
 </html>
 <style id="mobile-monitoring-pricelist-bottom-fix">
@@ -8020,6 +10865,439 @@ function deletePengumuman(row) {
   #customModal .bws-detail-modal-card {
     width: min(1500px, calc(100vw - 48px)) !important;
     max-width: 1500px !important;
+  }
+}
+</style>
+
+<style id="ui-modern-v8-final">
+/* UI ONLY — V8: perbaikan lebar menu mobile + kolom produk desktop. */
+
+/* MOBILE: lebarkan menu agar tulisan menu tidak terpotong. */
+@media (max-width: 767px){
+  #leftNav.app-sidebar,
+  #leftNav.app-sidebar.is-collapsed{
+    width:220px!important;
+    min-width:220px!important;
+    max-width:220px!important;
+    padding-left:10px!important;
+    padding-right:10px!important;
+  }
+  #leftNav .sidebar-item{
+    width:100%!important;
+    box-sizing:border-box!important;
+    justify-content:flex-start!important;
+    padding-left:12px!important;
+    padding-right:12px!important;
+  }
+  #leftNav .sidebar-text{
+    width:auto!important;
+    max-width:none!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+    white-space:nowrap!important;
+    text-align:left!important;
+    flex:1 1 auto!important;
+  }
+}
+
+/* DESKTOP: setiap kontrol punya kolom sendiri; kotak Pilih Produk
+   tidak boleh melebar/menimpa Qty, Satuan, atau Tambah Item. */
+@media (min-width:768px){
+  #inputStep2 .ui-product-entry{
+    display:grid!important;
+    grid-template-columns:minmax(180px,1fr) 70px 126px 108px!important;
+    width:100%!important;
+    max-width:100%!important;
+    box-sizing:border-box!important;
+    overflow:visible!important;
+  }
+  #inputStep2 .ui-product-entry > div:first-child{
+    grid-column:1!important;
+    min-width:0!important;
+    width:100%!important;
+    max-width:100%!important;
+    overflow:hidden!important;
+    box-sizing:border-box!important;
+  }
+  #inputStep2 .ui-product-entry .ui-product-filters,
+  #inputStep2 .ui-product-entry #addItemProduk{
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    box-sizing:border-box!important;
+  }
+  #inputStep2 .ui-product-entry > .ui-item-controls{
+    display:contents!important;
+  }
+  #inputStep2 .ui-product-entry .ui-qty-control{
+    grid-column:2!important;
+    width:70px!important;
+    min-width:70px!important;
+    max-width:70px!important;
+  }
+  #inputStep2 .ui-product-entry .ui-satuan-control{
+    grid-column:3!important;
+    width:126px!important;
+    min-width:126px!important;
+    max-width:126px!important;
+  }
+  #inputStep2 .ui-product-entry > button.ui-add-item-btn{
+    grid-column:4!important;
+    width:108px!important;
+    min-width:108px!important;
+    max-width:108px!important;
+    box-sizing:border-box!important;
+  }
+}
+</style>
+
+
+<style id="ui-final-user-request-v12">
+/* UI ONLY — V12
+   DESKTOP: Produk, Qty, Satuan, Tambah Item sejajar & proporsional.
+   MOBILE TIDAK DIUBAH.
+*/
+
+/* MOBILE: tulisan menu selalu rata kiri dan tidak terpotong. */
+@media (max-width: 767px){
+  #leftNav .sidebar-item{
+    justify-content:flex-start !important;
+    text-align:left !important;
+    width:100% !important;
+    box-sizing:border-box !important;
+  }
+  #leftNav .sidebar-text{
+    display:block !important;
+    flex:1 1 auto !important;
+    width:auto !important;
+    max-width:none !important;
+    margin:0 !important;
+    padding:0 !important;
+    text-align:left !important;
+    white-space:nowrap !important;
+    overflow:visible !important;
+    text-overflow:clip !important;
+  }
+}
+
+/* DESKTOP: Produk, Qty, Satuan, Tambah Item satu baris,
+   rapi, sejajar, dan proporsional. */
+@media (min-width: 768px){
+
+  #inputStep2 .ui-product-entry{
+    display:grid !important;
+    grid-template-columns:
+      minmax(240px, 2fr)
+      minmax(65px, .6fr)
+      minmax(115px, 1fr)
+      minmax(112px, 1fr) !important;
+    align-items:end !important;
+    column-gap:10px !important;
+    row-gap:0 !important;
+    width:100% !important;
+    max-width:100% !important;
+    box-sizing:border-box !important;
+    overflow:visible !important;
+  }
+
+  #inputStep2 .ui-product-entry > div:first-child{
+    grid-column:1 !important;
+    grid-row:1 !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+    overflow:visible !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-product-filters{
+    width:100% !important;
+    max-width:none !important;
+    display:flex !important;
+    gap:6px !important;
+    margin-bottom:6px !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-product-filters button{
+    flex:0 0 auto !important;
+    width:auto !important;
+  }
+
+  #inputStep2 .ui-product-entry #addItemProduk{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+  }
+
+  #inputStep2 .ui-product-entry > .ui-item-controls{
+    display:contents !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-qty-control{
+    grid-column:2 !important;
+    grid-row:1 !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-qty-control #addItemQty{
+    width:100% !important;
+    min-width:0 !important;
+    box-sizing:border-box !important;
+    text-align:center !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-satuan-control{
+    grid-column:3 !important;
+    grid-row:1 !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-satuan-control > div{
+    width:100% !important;
+    box-sizing:border-box !important;
+  }
+
+  #inputStep2 .ui-product-entry > .ui-add-item-btn{
+    grid-column:4 !important;
+    grid-row:1 !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
+    align-self:end !important;
+    white-space:nowrap !important;
+  }
+}
+</style>
+<style id="ui-desktop-product-final-fix">
+/* =========================================================
+   FINAL DESKTOP FIX — PRODUCT ENTRY ONLY
+   Mobile sengaja tidak disentuh.
+   ========================================================= */
+@media (min-width:768px){
+  #inputStep2 .ui-product-entry{
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:flex-end !important;
+    gap:8px !important;
+    width:100% !important;
+    max-width:none !important;
+    min-width:0 !important;
+    box-sizing:border-box !important;
+    overflow:visible !important;
+  }
+
+  /* Produk mengambil sisa ruang */
+  #inputStep2 .ui-product-entry > div:first-child{
+    order:1 !important;
+    flex:1 1 auto !important;
+    width:auto !important;
+    min-width:0 !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+    overflow:visible !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-product-filters{
+    display:flex !important;
+    width:100% !important;
+    max-width:none !important;
+    min-width:0 !important;
+    gap:6px !important;
+    margin-bottom:6px !important;
+    box-sizing:border-box !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-product-filters button{
+    flex:0 0 auto !important;
+    width:auto !important;
+  }
+
+  /* Select2 hasil render harus mengikuti lebar kolom Produk */
+  #inputStep2 .ui-product-entry #addItemProduk + .select2-container{
+    display:block !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+  }
+
+  #inputStep2 .ui-product-entry #addItemProduk{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Qty + Satuan tetap sebagai satu grup */
+  #inputStep2 .ui-product-entry > .ui-item-controls{
+    order:2 !important;
+    display:flex !important;
+    flex:0 0 auto !important;
+    flex-direction:row !important;
+    align-items:flex-end !important;
+    gap:8px !important;
+    width:auto !important;
+    min-width:0 !important;
+    box-sizing:border-box !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-qty-control{
+    width:62px !important;
+    min-width:62px !important;
+    max-width:62px !important;
+    flex:0 0 62px !important;
+    box-sizing:border-box !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-satuan-control{
+    width:108px !important;
+    min-width:108px !important;
+    max-width:108px !important;
+    flex:0 0 108px !important;
+    box-sizing:border-box !important;
+  }
+
+  #inputStep2 .ui-product-entry #addItemQty{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-satuan-control > div{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Tombol langsung setelah grup Qty/Satuan */
+  #inputStep2 .ui-product-entry > .ui-add-item-btn{
+    order:3 !important;
+    width:112px !important;
+    min-width:112px !important;
+    max-width:112px !important;
+    flex:0 0 112px !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
+    align-self:flex-end !important;
+    white-space:nowrap !important;
+  }
+}
+</style>
+
+<style id="ui-desktop-product-final-v13">
+/* =========================================================
+   V13 — DESKTOP ONLY
+   Produk di baris atas.
+   Qty + Satuan + Tambah Item di baris bawah.
+   MOBILE TIDAK DIUBAH.
+   ========================================================= */
+@media (min-width:768px){
+  #inputStep2 .ui-product-entry{
+    display:grid !important;
+    grid-template-columns:minmax(60px,72px) minmax(108px,130px) minmax(112px,130px) !important;
+    grid-template-rows:auto auto !important;
+    column-gap:8px !important;
+    row-gap:8px !important;
+    align-items:end !important;
+    width:100% !important;
+    max-width:100% !important;
+    box-sizing:border-box !important;
+    overflow:visible !important;
+  }
+
+  /* PILIH PRODUK — BARIS ATAS PENUH */
+  #inputStep2 .ui-product-entry > div:first-child{
+    grid-column:1 / -1 !important;
+    grid-row:1 !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+    overflow:visible !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-product-filters{
+    display:flex !important;
+    justify-content:flex-start !important;
+    width:100% !important;
+    max-width:none !important;
+    gap:6px !important;
+    margin-bottom:6px !important;
+    box-sizing:border-box !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-product-filters button{
+    flex:0 0 auto !important;
+    width:auto !important;
+  }
+
+  #inputStep2 .ui-product-entry #addItemProduk{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+  }
+
+  /* KONTROL BARIS BAWAH */
+  #inputStep2 .ui-product-entry > .ui-item-controls{
+    display:contents !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-qty-control{
+    grid-column:1 !important;
+    grid-row:2 !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-satuan-control{
+    grid-column:2 !important;
+    grid-row:2 !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+  }
+
+  #inputStep2 .ui-product-entry #addItemQty{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+    text-align:center !important;
+  }
+
+  #inputStep2 .ui-product-entry .ui-satuan-control > div{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+  }
+
+  /* TAMBAH ITEM — BARIS BAWAH, DI SAMPING SATUAN */
+  #inputStep2 .ui-product-entry > .ui-add-item-btn{
+    grid-column:3 !important;
+    grid-row:2 !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
+    align-self:end !important;
+    white-space:nowrap !important;
   }
 }
 </style>
