@@ -2646,6 +2646,296 @@ body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-ser
   }
 }
 </style>
+<style id="castrol-ui-premium-final">
+/* =========================================================
+   CASTROL PREMIUM UI — VISUAL ONLY
+   No JS / IDs / data-flow changes.
+   ========================================================= */
+:root{
+  --cp-green:#007f4f;
+  --cp-green-dark:#005f3c;
+  --cp-green-deep:#064b36;
+  --cp-green-soft:#eaf8f1;
+  --cp-red:#e31b23;
+  --cp-ink:#152235;
+  --cp-muted:#6b7a90;
+  --cp-line:#dfe8e4;
+  --cp-surface:#ffffff;
+  --cp-bg:#f5f8f7;
+  --cp-shadow:0 14px 38px rgba(15,43,34,.08);
+  --cp-shadow-sm:0 6px 18px rgba(15,43,34,.06);
+  --cp-radius:18px;
+}
+
+html{scroll-behavior:smooth}
+body{background:
+  radial-gradient(circle at 8% 0%,rgba(0,127,79,.07),transparent 28%),
+  radial-gradient(circle at 92% 10%,rgba(227,27,35,.035),transparent 24%),
+  var(--cp-bg)!important;
+  color:var(--cp-ink);
+}
+
+/* Header */
+#mainHeader{
+  background:linear-gradient(100deg,#064c37 0%,#007b4d 52%,#008957 100%)!important;
+  box-shadow:0 10px 28px rgba(0,74,47,.18)!important;
+  border-bottom:1px solid rgba(255,255,255,.12)!important;
+  backdrop-filter:blur(16px);
+}
+#mainHeader .header-action,
+#mainHeader button{
+  transition:transform .18s ease,background .18s ease,border-color .18s ease,box-shadow .18s ease;
+}
+#mainHeader button:hover{transform:translateY(-1px)}
+#mainHeader button:active{transform:translateY(0)}
+#mainHeader .notification-bell-btn,
+#mainHeader #btnRefreshAll{
+  background:rgba(255,255,255,.09)!important;
+  border:1px solid rgba(255,255,255,.22)!important;
+  box-shadow:0 5px 16px rgba(0,0,0,.08);
+}
+
+/* Sidebar */
+#leftNav.app-sidebar{
+  background:rgba(255,255,255,.96)!important;
+  border-right:1px solid var(--cp-line)!important;
+  box-shadow:12px 0 34px rgba(15,43,34,.055)!important;
+  backdrop-filter:blur(18px);
+}
+#leftNav .nav-section-title,
+#leftNav [class*="text-slate-400"]{
+  letter-spacing:.09em;
+}
+#leftNav a,
+#leftNav button{
+  border-radius:13px!important;
+  transition:background .18s ease,color .18s ease,transform .18s ease,box-shadow .18s ease;
+}
+#leftNav a:hover,
+#leftNav button:hover{
+  background:#f0f8f4!important;
+  transform:translateX(2px);
+}
+#leftNav a.active,
+#leftNav a[aria-current="page"]{
+  background:linear-gradient(90deg,#e8f8f0,#f5fbf8)!important;
+  color:var(--cp-green-dark)!important;
+  box-shadow:inset 3px 0 0 var(--cp-green),0 5px 14px rgba(0,127,79,.06);
+}
+
+/* Main shell */
+#app>.p-4.flex-1.overflow-y-auto{
+  background:transparent!important;
+}
+#mainPage{max-width:1360px;margin-inline:auto}
+
+/* Section headings */
+#mainPage h1,#mainPage h2,#mainPage h3{
+  color:var(--cp-ink);
+  letter-spacing:-.02em;
+}
+#mainPage .section-title,
+#mainPage [class*="border-b"] h2{
+  font-weight:800;
+}
+
+/* Cards / panels */
+#mainPage .bg-white,
+#mainPage .card,
+#mainPage .panel,
+#mainPage .rounded-xl,
+#mainPage .rounded-2xl{
+  border-color:var(--cp-line)!important;
+}
+#mainPage .shadow,
+#mainPage .shadow-sm,
+#mainPage .shadow-md{
+  box-shadow:var(--cp-shadow-sm)!important;
+}
+#mainPage .rounded-2xl{
+  border-radius:var(--cp-radius)!important;
+}
+
+/* Inputs */
+#mainPage input:not([type="checkbox"]):not([type="radio"]),
+#mainPage select,
+#mainPage textarea{
+  border-color:#d7e3de!important;
+  background:rgba(255,255,255,.96)!important;
+  color:var(--cp-ink)!important;
+  border-radius:12px!important;
+  transition:border-color .18s ease,box-shadow .18s ease,background .18s ease;
+}
+#mainPage input:not([type="checkbox"]):not([type="radio"]):focus,
+#mainPage select:focus,
+#mainPage textarea:focus{
+  border-color:#57b994!important;
+  box-shadow:0 0 0 4px rgba(0,127,79,.09)!important;
+  outline:none!important;
+}
+
+/* Primary / green buttons */
+#mainPage button.bg-emerald-600,
+#mainPage button.bg-emerald-700,
+#mainPage .bg-emerald-600,
+#mainPage .bg-emerald-700{
+  background:linear-gradient(135deg,#00855a,#006f49)!important;
+  box-shadow:0 7px 18px rgba(0,127,79,.16)!important;
+  border-color:transparent!important;
+}
+#mainPage button.bg-emerald-600:hover,
+#mainPage button.bg-emerald-700:hover{
+  filter:brightness(1.04);
+  transform:translateY(-1px);
+}
+
+/* Red action */
+#btnKirimOrder{
+  background:linear-gradient(135deg,#ed252b,#c9141c)!important;
+  box-shadow:0 9px 22px rgba(227,27,35,.19)!important;
+}
+
+/* Tables */
+#tabMonitoring table,
+#tabOutletKontrak table,
+#tabOutletBWS table,
+#tabPricelist table,
+.riwayat-table{
+  border-collapse:separate!important;
+  border-spacing:0!important;
+  overflow:hidden;
+  border:1px solid var(--cp-line)!important;
+  border-radius:14px!important;
+  background:#fff!important;
+  box-shadow:var(--cp-shadow-sm);
+}
+#tabMonitoring th,
+#tabOutletKontrak th,
+#tabOutletBWS th,
+#tabPricelist th,
+.riwayat-table th{
+  background:#f1f7f4!important;
+  color:#385168!important;
+  font-weight:800!important;
+  letter-spacing:.02em;
+  border-bottom:1px solid #dce7e2!important;
+}
+#tabMonitoring tbody tr:hover,
+#tabOutletKontrak tbody tr:hover,
+#tabOutletBWS tbody tr:hover,
+#tabPricelist tbody tr:hover,
+.riwayat-table tbody tr:hover{
+  background:#f8fcfa!important;
+}
+
+/* Riwayat / Pencapaian cards */
+#tabRiwayat .riwayat-card,
+#tabPencapaianSales .achievement-card,
+#tabPencapaianSales .sales-card{
+  background:linear-gradient(145deg,#fff 0%,#f9fcfb 100%)!important;
+  border:1px solid var(--cp-line)!important;
+  border-radius:16px!important;
+  box-shadow:var(--cp-shadow-sm)!important;
+}
+
+/* Filters */
+#tabRiwayat .bg-white,
+#tabPencapaianSales .bg-white{
+  border-color:var(--cp-line)!important;
+}
+
+/* Toggle Chart / Table */
+#tabRiwayat button,
+#tabPencapaianSales button{
+  transition:all .18s ease;
+}
+
+/* Modal */
+.modern-modal-overlay{
+  background:rgba(7,28,20,.42)!important;
+  backdrop-filter:blur(6px);
+}
+.modern-modal-card{
+  border:1px solid rgba(255,255,255,.7)!important;
+  border-radius:22px!important;
+  box-shadow:0 26px 70px rgba(5,31,22,.22)!important;
+  overflow:hidden;
+}
+.modern-modal-header{
+  background:linear-gradient(135deg,#f4fbf8,#fff)!important;
+  border-bottom:1px solid var(--cp-line)!important;
+}
+.modern-modal-footer{
+  background:#f8fbfa!important;
+  border-top:1px solid var(--cp-line)!important;
+}
+
+/* Search */
+#searchRiwayatInput,#searchMonitoringInput,#searchOutletKontrakInput{
+  box-shadow:0 4px 14px rgba(15,43,34,.035);
+}
+
+/* Notification panel */
+#mainHeader .notification-panel{
+  border:1px solid var(--cp-line)!important;
+  border-radius:18px!important;
+  box-shadow:0 24px 55px rgba(9,39,28,.18)!important;
+  background:rgba(255,255,255,.98)!important;
+}
+
+/* Select2 */
+.select2-container .select2-selection--single,
+.select2-container .select2-selection--multiple{
+  border:1px solid #d7e3de!important;
+  border-radius:12px!important;
+  min-height:42px!important;
+  background:#fff!important;
+}
+.select2-container--default.select2-container--focus .select2-selection--multiple,
+.select2-container--default.select2-container--open .select2-selection--single{
+  border-color:#57b994!important;
+  box-shadow:0 0 0 4px rgba(0,127,79,.08)!important;
+}
+
+/* Login / auth surfaces */
+#loginPage .login-card,
+#registerPage .login-card,
+#loginPage form,
+#registerPage form{
+  border-color:var(--cp-line)!important;
+  box-shadow:0 24px 70px rgba(15,43,34,.10)!important;
+}
+
+/* Premium scrollbar */
+*{scrollbar-width:thin;scrollbar-color:#aab8b2 transparent}
+*::-webkit-scrollbar{width:8px;height:8px}
+*::-webkit-scrollbar-track{background:transparent}
+*::-webkit-scrollbar-thumb{background:#b5c2bd;border-radius:99px;border:2px solid transparent;background-clip:padding-box}
+*::-webkit-scrollbar-thumb:hover{background:#8fa19a;background-clip:padding-box}
+
+@media (min-width:768px){
+  #mainHeader{min-height:68px}
+  #mainPage{padding-bottom:32px}
+  #mainPage>section,
+  #mainPage>div>section{
+    scroll-margin-top:84px;
+  }
+}
+
+@media (max-width:767px){
+  #mainPage{width:100%;overflow-x:hidden}
+  #mainPage .rounded-2xl{border-radius:16px!important}
+  #mainPage input:not([type="checkbox"]):not([type="radio"]),
+  #mainPage select,
+  #mainPage textarea{min-height:42px}
+  .modern-modal-card{border-radius:18px!important}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation-duration:.01ms!important;animation-iteration-count:1!important}
+}
+
+</style>
 </head>
 <body class="bg-slate-50 font-sans">
 
@@ -7908,13 +8198,21 @@ startAutoRefresh();
             Object.keys(navMap).forEach(function(key){
                 const el=document.getElementById(navMap[key]);
                 if(!el) return;
-                // Jangan menimpa class "hidden" Outlet BWS saat switch tab.
-                if(key==='outletbws' && !isAdminLogin){
+                // Menu khusus Admin tidak boleh muncul untuk user non-admin.
+                if((key==='outletbws' || key==='pengumumanadmin') && !isAdminLogin){
                     el.className='sidebar-item hidden';
                 }else{
                     el.className=key===tab?'sidebar-item sidebar-item-active':'sidebar-item';
                 }
             });
+            // Defensive guard: menu admin-only selalu tersembunyi untuk non-admin.
+            if(!isAdminLogin){
+                const adminOnlyNavs = ['navOutletBWS','navPengumumanAdmin'];
+                adminOnlyNavs.forEach(function(id){
+                    const adminNav = document.getElementById(id);
+                    if(adminNav){ adminNav.classList.add('hidden'); adminNav.classList.remove('sidebar-item-active'); }
+                });
+            }
             setSidebarState(true);
 if(tab==='riwayat')loadRiwayat(false, true);
             if(tab==='pencapaian')loadPencapaianSales(false, true);
