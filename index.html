@@ -3516,9 +3516,10 @@ body{background:
                     <!-- Pembungkus Tabel dengan Dukungan Scroll Kanan-Kiri yang Responsif -->
                     <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
                         <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
-                            <table class="w-full text-left border-collapse text-[11px]" style="min-width: 1180px; table-layout: fixed;">
+                            <table class="w-full text-left border-collapse text-[11px]" style="min-width: 1280px; table-layout: fixed;">
                                 <thead>
                                     <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
+                                        <th class="p-2.5 font-bold text-center whitespace-nowrap" style="width: 9%;">Status</th>
                                         <th class="p-2.5 font-bold text-center whitespace-nowrap cursor-pointer select-none hover:bg-slate-200" onclick="sortMonitoringTable('dsr')" style="width: 12%;">DSR <span id="sortMonitoring_dsr" class="text-[9px] text-slate-400"></span></th>
                                         <th class="p-2.5 font-bold text-center whitespace-nowrap cursor-pointer select-none hover:bg-slate-200" onclick="sortMonitoringTable('outlet')" style="width: 22%;">Nama Outlet <span id="sortMonitoring_outlet" class="text-[9px] text-slate-400"></span></th>
                                         <th class="p-2.5 font-bold text-center whitespace-nowrap cursor-pointer select-none hover:bg-slate-200" onclick="sortMonitoringTable('custCode')" style="width: 12%;">CUST.CODE <span id="sortMonitoring_custCode" class="text-[9px] text-slate-400"></span></th>
@@ -3533,7 +3534,7 @@ body{background:
                                 </thead>
                                 <tbody id="listMonitoringTableBody">
                                     <tr>
-                                        <td colspan="10" class="text-slate-400 text-center py-6">Memuat data monitoring...</td>
+                                        <td colspan="11" class="text-slate-400 text-center py-6">Memuat data monitoring...</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -3938,7 +3939,7 @@ body{background:
             } catch(e) { return null; }
         }
         function restoreFastTabCaches() {
-            const mon = appLocalCacheGet('MONITORING_V8_' + String(currentUsernameInput||'').toUpperCase());
+            const mon = appLocalCacheGet('MONITORING_V9_' + String(currentUsernameInput||'').toUpperCase());
             if (mon && typeof mon === 'object') rawMonitoringDataObject = mon;
             const kontrak = appLocalCacheGet('KONTRAK_' + String(currentUsernameInput||'').toUpperCase());
             if (Array.isArray(kontrak)) globalOutletKontrakData = kontrak;
@@ -4645,7 +4646,13 @@ startAutoRefresh();
                         if (!orderSubmitInFlightKeys.size) showLoading(false);
                         if (!res || !res.success) {
                             showModal("Gagal", res && res.message ? res.message : "Order gagal disimpan.");
+                            return;
                         }
+
+                        // Setelah order benar-benar tersimpan, ambil ulang Riwayat
+                        // dan Notifikasi dari server agar keduanya langsung diperbarui.
+                        loadRiwayat(true, true);
+                        loadNotifications(true);
                     })
                     .withFailureHandler(function(err) {
                         orderSubmitInFlightKeys.delete(orderKey);
@@ -5056,7 +5063,7 @@ startAutoRefresh();
                 google.script.run.withSuccessHandler(function(dataObj) {
                     monitoringLoading = false;
                     rawMonitoringDataObject = dataObj || {};
-                    appLocalCacheSet('MONITORING_V8_' + String(currentUsernameInput||'').toUpperCase(), rawMonitoringDataObject);
+                    appLocalCacheSet('MONITORING_V9_' + String(currentUsernameInput||'').toUpperCase(), rawMonitoringDataObject);
                     let quarters = Object.keys(rawMonitoringDataObject).sort(function(a,b){
                         function quarterKey(v){
                             const m=String(v||'').match(/Q\s*([1-4])\s*(\d{4})/i);
@@ -5088,7 +5095,7 @@ startAutoRefresh();
                 monitoringLoading = false;
                 if (!silentRefresh) showLoading(false);
                 rawMonitoringDataObject = dataObj || {};
-                appLocalCacheSet('MONITORING_V8_' + String(currentUsernameInput||'').toUpperCase(), rawMonitoringDataObject);
+                appLocalCacheSet('MONITORING_V9_' + String(currentUsernameInput||'').toUpperCase(), rawMonitoringDataObject);
                 let quarters = Object.keys(rawMonitoringDataObject).sort(function(a,b){
                     function quarterKey(v){
                         const m=String(v||'').match(/Q\s*([1-4])\s*(\d{4})/i);
@@ -5161,7 +5168,7 @@ startAutoRefresh();
             let countBadge = document.getElementById('monitoringCount');
 
             if (!selectedQuarter || !rawMonitoringDataObject[selectedQuarter]) {
-                container.innerHTML = `<tr><td colspan="10" class="text-slate-400 text-center py-8 bg-white">Memuat...</td></tr>`;
+                container.innerHTML = `<tr><td colspan="11" class="text-slate-400 text-center py-8 bg-white">Memuat...</td></tr>`;
                 countBadge.textContent = "0 outlet";
                 return;
             }
@@ -5238,7 +5245,7 @@ startAutoRefresh();
             updateQuarterMonthHeaderLabels(selectedQuarter);
 
             if (filtered.length === 0) {
-                container.innerHTML = `<tr><td colspan="10" class="text-slate-400 text-center py-8 bg-white">Outlet tidak ditemukan.</td></tr>`;
+                container.innerHTML = `<tr><td colspan="11" class="text-slate-400 text-center py-8 bg-white">Outlet tidak ditemukan.</td></tr>`;
                 return;
             }
 
@@ -5269,6 +5276,13 @@ startAutoRefresh();
                 let achClass = achievement >= 100 ? 'text-emerald-700' : (achievement >= 80 ? 'text-amber-600' : 'text-red-600');
                 html += `
                     <tr class="${rowBg} border-b border-slate-100 hover:bg-emerald-50/60 cursor-pointer transition" onclick="tampilkanDetailMonitoring('${dataString}')">
+                        <td class="p-2.5 text-center align-middle whitespace-nowrap">
+                            <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-full text-[10px] font-extrabold ${
+                                String(item.status || '').toLowerCase() === 'aktif'
+                                    ? 'bg-emerald-100 text-emerald-700 border border-emerald-200'
+                                    : 'bg-red-100 text-red-700 border border-red-200'
+                            }">${escapeHtml(item.status || 'Reaktivasi')}</span>
+                        </td>
                         <td class="p-2.5 font-semibold text-slate-700 text-center align-middle whitespace-nowrap">${escapeHtml(item.dsr || '-')}</td>
                         <td class="p-2.5 font-semibold text-slate-800 text-left align-middle whitespace-nowrap overflow-hidden text-ellipsis">${escapeHtml(item.outlet || '')}</td>
                         <td class="p-2.5 font-semibold text-slate-700 text-left align-middle whitespace-nowrap">${escapeHtml(item.custCode || '-')}</td>
@@ -5435,7 +5449,7 @@ startAutoRefresh();
             const target = document.getElementById('monitoringDetailHistoryChart');
             if (!target) return;
             const custKey = String(data && data.custCode || '').trim().toUpperCase().replace(/\s+/g, ' ');
-            const cacheKey = 'MONITORING_HISTORY_' + custKey;
+            const cacheKey = 'MONITORING_HISTORY_V2_' + custKey;
             const cached = appLocalCacheGet(cacheKey);
 
             if (cached && typeof cached === 'object' && Array.isArray(cached.history)) {
