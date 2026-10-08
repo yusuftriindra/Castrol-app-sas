@@ -473,6 +473,7 @@
         .modal-detail-table tbody tr:last-child td { border-bottom: 0; }
         .modal-detail-table tbody tr:hover { background: #f8fafc; }
         .modal-product-name { color: #1e293b; font-weight: 650; }
+        #monitoringDetailProducts .modal-detail-table tbody td { text-align: left !important; }
         .modal-product-qty { color: #047857; font-weight: 800; text-align: center; }
         .modal-product-date { color: #64748b; text-align: right; font-variant-numeric: tabular-nums; }
 
@@ -1685,6 +1686,48 @@ html{scroll-behavior:auto!important}
 </style>
 
 
+
+
+<style id="home-rebuild-clean-v1">
+#tabHome.home-rebuild{width:100%}
+.home-rebuild-wrap{width:100%;max-width:1180px;margin:0 auto;padding:0 0 18px;box-sizing:border-box}
+.home-rebuild-banner{position:relative;width:100%;height:clamp(110px,15vw,175px);border-radius:18px;overflow:hidden;background:#0f172a;box-shadow:0 8px 24px rgba(15,23,42,.08);display:none;margin-bottom:14px}
+.home-rebuild-banner.show{display:block}.home-rebuild-track{height:100%;display:flex;transition:transform .4s ease;touch-action:pan-y}.home-rebuild-slide{min-width:100%;height:100%;display:flex;align-items:center;justify-content:center;cursor:zoom-in;user-select:none}.home-rebuild-slide img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}.home-rebuild-caption{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:20px 14px 10px;background:linear-gradient(transparent,rgba(0,0,0,.72));color:#fff;font-size:11px;font-weight:800;line-height:1.35;text-align:left;pointer-events:none}.home-rebuild-slide{position:relative}
+.home-rebuild-arrow{position:absolute;top:50%;transform:translateY(-50%);width:36px;height:36px;border:0;border-radius:50%;background:rgba(0,0,0,.42);color:#fff;font-size:24px;line-height:1;z-index:3;cursor:pointer}.home-rebuild-arrow.prev{left:10px}.home-rebuild-arrow.next{right:10px}
+.home-rebuild-dots{position:absolute;left:0;right:0;bottom:9px;display:flex;justify-content:center;gap:5px;z-index:3;pointer-events:none}.home-rebuild-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.55)}.home-rebuild-dot.active{width:17px;border-radius:99px;background:#fff}
+.home-rebuild-card{background:#fff;border:1px solid #e2e8f0;border-radius:18px;box-shadow:0 7px 22px rgba(15,23,42,.05);overflow:hidden;margin-bottom:14px}.home-rebuild-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 16px;border-bottom:1px solid #eef2f7}.home-rebuild-title{font-size:13px;font-weight:900;color:#0f172a}.home-rebuild-sub{font-size:9px;color:#94a3b8;margin-top:2px}.home-rebuild-date{font-size:9px;color:#64748b;font-weight:800;white-space:nowrap}
+.home-rebuild-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;padding:12px 14px}.home-rebuild-metric{min-width:0;border:1px solid #e2e8f0;border-radius:14px;padding:11px;background:linear-gradient(135deg,#f8fafc,#fff);position:relative;overflow:hidden}.home-rebuild-metric:after{content:"";position:absolute;width:58px;height:58px;border-radius:50%;right:-25px;bottom:-25px;background:rgba(16,185,129,.07)}.home-rebuild-icon{width:28px;height:28px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:#ecfdf5;font-size:14px;margin-bottom:6px}.home-rebuild-label{font-size:8px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:#64748b;white-space:nowrap}.home-rebuild-value{font-size:22px;line-height:1.1;font-weight:900;color:#0f172a;margin-top:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.home-rebuild-unit{font-size:8px;font-weight:700;color:#64748b;margin-top:4px}
+.home-rebuild-compare{display:flex;align-items:center;justify-content:space-between;gap:5px;margin-top:7px;min-width:0}
+.home-rebuild-compare .home-rebuild-performance-yesterday{font-size:7px;font-weight:700;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.home-rebuild-compare .home-rebuild-performance-change{font-size:7px;font-weight:900;margin-top:0;white-space:nowrap;flex:none}
+.home-rebuild-metric>.home-rebuild-performance-today{display:none!important}
+.home-rebuild-performance{padding:0 14px 12px}
+.home-rebuild-performance-title{font-size:9px;font-weight:900;color:#334155;margin-bottom:7px}
+.home-rebuild-performance-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.home-rebuild-performance-item{min-width:0;border:1px solid #e2e8f0;border-radius:11px;padding:8px;background:#f8fafc}
+.home-rebuild-performance-label{font-size:7px;font-weight:900;letter-spacing:.04em;text-transform:uppercase;color:#64748b;white-space:nowrap}
+.home-rebuild-performance-row{display:flex;align-items:baseline;justify-content:space-between;gap:5px;margin-top:5px}
+.home-rebuild-performance-today{font-size:12px;font-weight:900;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.home-rebuild-performance-yesterday{font-size:7px;font-weight:700;color:#94a3b8;white-space:nowrap}
+.home-rebuild-performance-change{font-size:7px;font-weight:900;margin-top:4px;white-space:nowrap}
+.home-rebuild-performance-change.up{color:#059669}
+.home-rebuild-performance-change.down{color:#dc2626}
+.home-rebuild-performance-change.same{color:#64748b}
+.home-rebuild-outlets{padding:0 14px 14px}.home-rebuild-outlet-list{display:flex;flex-wrap:wrap;gap:6px}.home-rebuild-outlet{font-size:9px;font-weight:800;color:#334155;background:#f8fafc;border:1px solid #e2e8f0;border-radius:999px;padding:6px 9px}.home-rebuild-table-wrap{width:100%;overflow-x:auto;border:1px solid #e2e8f0;border-radius:10px}.home-rebuild-outlet-table{width:100%;border-collapse:collapse;font-size:9px}
+.home-rebuild-outlet-table th:first-child,.home-rebuild-outlet-table td:first-child{width:52%;text-align:left}.home-rebuild-outlet-table th:nth-child(2),.home-rebuild-outlet-table td:nth-child(2){width:16%}.home-rebuild-outlet-table th:nth-child(3),.home-rebuild-outlet-table td:nth-child(3){width:16%}.home-rebuild-outlet-table th:nth-child(4),.home-rebuild-outlet-table td:nth-child(4){width:16%}.home-rebuild-outlet-table th{padding:7px 8px;background:#f1f5f9;color:#475569;font-weight:900;text-align:center;white-space:nowrap}.home-rebuild-outlet-table td{padding:7px 8px;border-top:1px solid #eef2f7;color:#334155;font-weight:700;white-space:nowrap}.home-rebuild-outlet-table td:nth-child(2),.home-rebuild-outlet-table td:nth-child(3),.home-rebuild-outlet-table td:nth-child(4){text-align:center}.home-status-approve{color:#047857;font-weight:900}.home-status-decline{color:#dc2626;font-weight:900}.home-status-pending{color:#d97706;font-weight:900}.home-rebuild-empty{font-size:10px;color:#94a3b8;text-align:center;padding:14px}
+.home-rebuild-notif{padding:0 14px 12px}.home-rebuild-notif-item{display:flex;gap:8px;padding:9px 0;border-bottom:1px solid #eef2f7;text-align:left;width:100%}.home-rebuild-notif-item:last-child{border-bottom:0}.home-rebuild-notif-dot{width:7px;height:7px;border-radius:50%;background:#10b981;flex:none;margin-top:4px}.home-rebuild-notif-dot.unread{background:#f59e0b}.home-rebuild-notif-title{font-size:10px;font-weight:800;color:#334155}.home-rebuild-notif-msg{font-size:9px;color:#64748b;margin-top:2px}.home-rebuild-notif-time{font-size:8px;color:#94a3b8;margin-top:3px}
+.home-rebuild-lightbox{position:fixed;inset:0;z-index:100002;background:rgba(2,6,23,.96);display:none;align-items:center;justify-content:center;overflow:hidden;touch-action:none}.home-rebuild-lightbox.open{display:flex}.home-rebuild-lightbox img{max-width:none;max-height:none;width:auto;height:auto;object-fit:contain;transform-origin:center;user-select:none;touch-action:none;cursor:grab}.home-rebuild-lightbox .close{position:absolute;right:14px;top:14px;width:40px;height:40px;border:0;border-radius:50%;background:rgba(255,255,255,.15);color:#fff;font-size:25px;z-index:3;cursor:pointer}
+@media(max-width:640px){.home-rebuild-outlet-table{table-layout:fixed;width:100%}.home-rebuild-outlet-table th:first-child,.home-rebuild-outlet-table td:first-child{width:46%}.home-rebuild-outlet-table th:nth-child(2),.home-rebuild-outlet-table td:nth-child(2),.home-rebuild-outlet-table th:nth-child(3),.home-rebuild-outlet-table td:nth-child(3),.home-rebuild-outlet-table th:nth-child(4),.home-rebuild-outlet-table td:nth-child(4){width:18%;text-align:center}.home-rebuild-lightbox img{max-width:calc(100vw - 20px);max-height:calc(100vh - 20px);width:auto;height:auto}.home-rebuild-wrap{padding-bottom:12px}.home-rebuild-banner{height:105px;border-radius:12px;margin-bottom:8px}.home-rebuild-arrow{width:32px;height:32px;font-size:20px}.home-rebuild-card{border-radius:14px;margin-bottom:10px}.home-rebuild-head{padding:10px 11px}.home-rebuild-title{font-size:11px}.home-rebuild-sub{font-size:8px}.home-rebuild-date{font-size:8px}.home-rebuild-metrics{display:flex;flex-direction:row;flex-wrap:nowrap;gap:6px;padding:8px}.home-rebuild-metric{flex:1 1 0;min-width:0;padding:8px;border-radius:11px}.home-rebuild-icon{width:23px;height:23px;border-radius:7px;font-size:12px;margin-bottom:4px}.home-rebuild-label{font-size:6.5px;letter-spacing:.03em;overflow:hidden;text-overflow:ellipsis}.home-rebuild-value{font-size:16px;margin-top:5px}.home-rebuild-unit{font-size:7px;margin-top:3px}.home-rebuild-compare{margin-top:6px;gap:3px}.home-rebuild-compare .home-rebuild-performance-yesterday{font-size:6px}.home-rebuild-compare .home-rebuild-performance-change{font-size:6.5px}.home-rebuild-performance{padding:0 8px 8px}
+.home-rebuild-performance-title{font-size:8px;margin-bottom:5px}
+.home-rebuild-performance-grid{gap:5px}
+.home-rebuild-performance-item{padding:6px;border-radius:9px}
+.home-rebuild-performance-label{font-size:6px}
+.home-rebuild-performance-row{display:block;margin-top:4px}
+.home-rebuild-performance-today{font-size:11px}
+.home-rebuild-performance-yesterday{display:block;font-size:6.5px;margin-top:2px}
+.home-rebuild-performance-change{font-size:6.5px;margin-top:3px}
+.home-rebuild-outlets{padding:0 8px 8px}.home-rebuild-outlet{font-size:8px;padding:5px 7px}.home-rebuild-outlet-table{font-size:8px}.home-rebuild-outlet-table th,.home-rebuild-outlet-table td{padding:6px 7px}.home-rebuild-notif{padding:0 9px 8px}.home-rebuild-notif-item{padding:7px 0}.home-rebuild-notif-title{font-size:9px}.home-rebuild-notif-msg{font-size:8px}.home-rebuild-notif-time{font-size:7px}}
+</style>
 <style id="pengumuman-minimal-css">
 #announcementPage.pengumuman-page{position:fixed;inset:0;z-index:9998;overflow:auto;background:radial-gradient(circle at 15% 10%,rgba(16,185,129,.13),transparent 35%),radial-gradient(circle at 85% 85%,rgba(132,204,22,.10),transparent 35%),#f6faf8;padding:28px;box-sizing:border-box}
 .pengumuman-shell{width:min(1120px,100%);min-height:calc(100dvh - 56px);margin:auto;display:flex;align-items:center;justify-content:center}
@@ -2980,6 +3023,7 @@ body{background:
 #globalRefreshBtn.is-refreshing svg,#globalRefreshIcon.is-refreshing{animation:castrolRefreshSpin .8s linear infinite!important;transform-origin:50% 50%;}
 @keyframes castrolRefreshSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 </style>
+
 </head>
 <body class="bg-slate-50 font-sans">
 
@@ -3093,6 +3137,14 @@ body{background:
         <nav id="leftNav" class="app-sidebar hidden" aria-label="Navigasi utama">
             <div class="sidebar-inner">
                 <div class="sidebar-label">MENU</div>
+                
+
+                <button type="button" onclick="switchTab('home')" id="navHome"
+                        class="sidebar-item sidebar-item-active" title="Beranda" aria-label="Beranda">
+                    <span class="sidebar-icon">🏠</span>
+                    <span class="sidebar-text">Beranda</span>
+                </button>
+
                 <button type="button" onclick="switchTab('input')" id="navInput"
                         class="sidebar-item sidebar-item-active" title="Input Order" aria-label="Input Order">
                     <span class="sidebar-icon">🛒</span>
@@ -3234,8 +3286,32 @@ body{background:
             <!-- HALAMAN UTAMA -->
             <div id="mainPage" class="hidden space-y-4">
                 
+                <!-- TAB BERANDA / DASHBOARD HARIAN -->
+                
+
+                <!-- TAB BERANDA - REBUILD BERSIH -->
+                <div id="tabHome" class="tab-content home-rebuild">
+                    <div class="home-rebuild-wrap">
+                        <section id="homeRebuildBanner" class="home-rebuild-banner" aria-label="Banner pengumuman">
+                            <div id="homeRebuildTrack" class="home-rebuild-track"></div>
+                            <button type="button" class="home-rebuild-arrow prev" onclick="homeRebuildPrev(event)" aria-label="Sebelumnya">‹</button>
+                            <button type="button" class="home-rebuild-arrow next" onclick="homeRebuildNext(event)" aria-label="Berikutnya">›</button>
+                            <div id="homeRebuildDots" class="home-rebuild-dots"></div>
+                        </section>
+                        <section class="home-rebuild-card">
+                            <div class="home-rebuild-head"><div><div class="home-rebuild-title"> Transaksi Anda Hari Ini</div><div class="home-rebuild-sub"></div></div><div id="homeRebuildDate" class="home-rebuild-date">-</div></div>
+                            <div class="home-rebuild-metrics">
+                                <div class="home-rebuild-metric"><div class="home-rebuild-icon"></div><div class="home-rebuild-label">Volume</div><div id="homeRebuildVolume" class="home-rebuild-value">0,0</div><div class="home-rebuild-unit">Liter</div><div class="home-rebuild-compare"><span id="homeRebuildPerfVolumeYesterday" class="home-rebuild-performance-yesterday">Kemarin 0,0 L</span><span id="homeRebuildPerfVolumeChange" class="home-rebuild-performance-change same">—</span></div><span id="homeRebuildPerfVolumeToday" class="home-rebuild-performance-today" aria-hidden="true"></span></div>
+                                <div class="home-rebuild-metric"><div class="home-rebuild-icon"></div><div class="home-rebuild-label">Transaksi</div><div id="homeRebuildTransaction" class="home-rebuild-value">0</div><div class="home-rebuild-unit">Transaksi</div><div class="home-rebuild-compare"><span id="homeRebuildPerfTransactionYesterday" class="home-rebuild-performance-yesterday">Kemarin 0</span><span id="homeRebuildPerfTransactionChange" class="home-rebuild-performance-change same">—</span></div><span id="homeRebuildPerfTransactionToday" class="home-rebuild-performance-today" aria-hidden="true"></span></div>
+                                <div class="home-rebuild-metric"><div class="home-rebuild-icon"></div><div class="home-rebuild-label">Value</div><div id="homeRebuildValue" class="home-rebuild-value">Rp 0</div><div class="home-rebuild-unit">Rupiah</div><div class="home-rebuild-compare"><span id="homeRebuildPerfValueYesterday" class="home-rebuild-performance-yesterday">Kemarin Rp 0</span><span id="homeRebuildPerfValueChange" class="home-rebuild-performance-change same">—</span></div><span id="homeRebuildPerfValueToday" class="home-rebuild-performance-today" aria-hidden="true"></span></div>
+                            </div>
+                            <div class="home-rebuild-outlets"><div class="flex items-center justify-between gap-2 mb-2"><div class="text-[9px] font-extrabold text-slate-700">Outlet yang Order Hari Ini</div><div id="homeRebuildOutletCount" class="text-[8px] font-bold text-emerald-700">0 transaksi</div></div><div class="home-rebuild-table-wrap"><table class="home-rebuild-outlet-table"><thead><tr><th>Outlet</th><th>Volume</th><th>Value</th><th>Status</th></tr></thead><tbody id="homeRebuildOutletTableBody"><tr><td colspan="4" class="home-rebuild-empty">Memuat...</td></tr></tbody></table></div></div>
+                        </section>
+                    </div>
+                </div>
+
                 <!-- TAB INPUT : MODERN 2-STEP WIZARD -->
-                <div id="tabInput" class="tab-content space-y-4">
+                <div id="tabInput" class="tab-content hidden space-y-4">
                     <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
                         <div class="px-4 pt-4 pb-3 border-b border-slate-100">
                             <div class="flex items-center justify-between gap-3 ui-input-order-title">
@@ -3600,7 +3676,7 @@ body{background:
                     <div class="flex flex-wrap justify-between items-center gap-2 border-b border-slate-200 pb-2">
                         <div>
                             <h2 class="text-base font-bold text-slate-800">Outlet BWS</h2>
-                            <p class="text-[10px] text-slate-400 mt-0.5">Data Outlet BWS sesuai Sales login</p>
+                            <p class="text-[10px] text-slate-400 mt-0.5"></p>
                         </div>
                         <div class="flex items-center gap-2">
                             <span id="outletBWSCount" class="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">0 outlet</span>
@@ -4061,6 +4137,14 @@ body{background:
         let notificationMutationInFlight = false;
         let notificationReloadQueued = false;
         let notificationMutationTimer = null;
+        let homeRebuildData = [];
+        let homeRebuildIndex = 0;
+        let homeRebuildTimer = null;
+        let homeRebuildTouchX = 0;
+        let homeRebuildTouchY = 0;
+        let homeRebuildLightboxScale = 1;
+        let homeRebuildLightboxX = 0;
+        let homeRebuildLightboxY = 0;
         let pricelistLoading = false;
         let pesananOutletLoading = false;
 
@@ -4134,7 +4218,7 @@ body{background:
                 loadRiwayat(true, true);
                 loadInputMasterData();
                 preloadAppDataInBackground();
-                if (isAdminLogin) switchTab('riwayat');
+                switchTab('home');
                 checkActivePengumuman();
                 return true;
             } catch (e) {
@@ -4307,7 +4391,7 @@ startAutoRefresh();
                     loadRiwayat(true, true);
                     loadInputMasterData();
                     preloadAppDataInBackground();
-                    if (isAdminLogin) switchTab('riwayat');
+                    switchTab('home');
                 } else {
                     showModal("Login Gagal", res.message);
                 }
@@ -5088,7 +5172,7 @@ startAutoRefresh();
             monitoringLoading = true;
             if (forceReload && hasCached) renderMonitoringList();
             if (!silentRefresh) {
-                if (!hasCached && container) container.innerHTML = '<tr><td colspan="10" class="text-slate-400 text-center py-6">Memuat...</td></tr>';
+                if (!hasCached && container) container.innerHTML = '<tr><td colspan="11" class="text-slate-400 text-center py-6">Memuat...</td></tr>';
                 showLoading(true);
             }
             google.script.run.withSuccessHandler(function(dataObj) {
@@ -5113,7 +5197,7 @@ startAutoRefresh();
             }).withFailureHandler(function(err) {
                 monitoringLoading = false;
                 if (!silentRefresh) showLoading(false);
-                if (container) container.innerHTML = '<tr><td colspan="10" class="text-red-500 text-center py-6 text-xs">Gagal memuat monitoring: ' + escapeHtml(err && err.message ? err.message : 'Terjadi kesalahan.') + '</td></tr>';
+                if (container) container.innerHTML = '<tr><td colspan="11" class="text-red-500 text-center py-6 text-xs">Gagal memuat monitoring: ' + escapeHtml(err && err.message ? err.message : 'Terjadi kesalahan.') + '</td></tr>';
             }).getMonitoringOutletData(currentUser, currentUsernameInput);
         }
 
@@ -5245,7 +5329,7 @@ startAutoRefresh();
             updateQuarterMonthHeaderLabels(selectedQuarter);
 
             if (filtered.length === 0) {
-                container.innerHTML = `<tr><td colspan="11" class="text-slate-400 text-center py-8 bg-white">Outlet tidak ditemukan.</td></tr>`;
+                container.innerHTML = `<tr><td colspan="10" class="text-slate-400 text-center py-8 bg-white">Outlet tidak ditemukan.</td></tr>`;
                 return;
             }
 
@@ -5311,6 +5395,11 @@ startAutoRefresh();
             const initialGap = initialActual - initialTarget;
             const initialAch = initialTarget > 0 ? (initialActual / initialTarget) * 100 : 0;
 
+            const detailProductsCacheKey = 'MONITORING_PRODUCTS_V2_' +
+                String(data && data.custCode || '').trim().toUpperCase().replace(/\s+/g, ' ') + '|' +
+                String(data && data.quarter || '').trim().toUpperCase();
+            const cachedDetailProducts = appLocalCacheGet(detailProductsCacheKey);
+
             document.getElementById('modalBody').innerHTML = `
                 <div class="modal-detail-summary">
                     <div class="modal-stat-card">
@@ -5334,7 +5423,7 @@ startAutoRefresh();
                     <div class="text-[10px] font-extrabold text-slate-700">History Pengambilan</div>
                     <div class="text-[9px] text-slate-400 mt-1">Memuat...</div>
                 </div>
-                <div id="monitoringDetailProducts" class="text-xs text-slate-400 text-center py-6">${initialMsg}</div>
+                <div id="monitoringDetailProducts" class="text-xs text-slate-400 text-center py-6">${cachedDetailProducts && cachedDetailProducts.html ? cachedDetailProducts.html : initialMsg}</div>
             `;
             const monitoringModal = document.getElementById('customModal');
             const monitoringCard = monitoringModal ? monitoringModal.querySelector('.modern-modal-card') : null;
@@ -5424,6 +5513,7 @@ startAutoRefresh();
 
                     // Data Target / Actual / Gap / Ach tetap menggunakan perhitungan yang sama.
                     // Hanya area Transaksi yang diperbarui agar History tidak perlu menunggu transaksi selesai.
+                    appLocalCacheSet(detailProductsCacheKey, { html: produkHtml });
                     const productsTarget = document.getElementById('monitoringDetailProducts');
                     if (productsTarget) {
                         productsTarget.innerHTML = produkHtml;
@@ -8120,6 +8210,168 @@ startAutoRefresh();
             if (t === 'TRANSAKSI') return 'Transaksi';
             return t || 'Notifikasi';
         }
+        function formatHomeNumber(value, fraction) {
+            const n = Number(value || 0);
+            return n.toLocaleString('id-ID', {minimumFractionDigits: fraction || 0, maximumFractionDigits: fraction || 0});
+        }
+        let homeLightboxScale = 1, homeLightboxX = 0, homeLightboxY = 0, homeLightboxStartX = 0, homeLightboxStartY = 0, homeLightboxDragX = 0, homeLightboxDragY = 0, homeLightboxDragging = false, homeLightboxPinchStart = 0, homeLightboxPinchScale = 1;
+        function renderHomeRebuildNotificationHistory() {
+            const box=document.getElementById('homeRebuildNotificationHistory'); if(!box)return;
+            const list=Array.isArray(notificationData)?notificationData.slice(0,8):[];
+            if(!list.length){box.innerHTML='<div class="home-rebuild-empty">Belum ada notifikasi.</div>';return;}
+            box.innerHTML=list.map(function(n){const id=escapeHtml(String(n.id||''));const title=escapeHtml(String(n.judul||'Notifikasi'));const msg=escapeHtml(formatNotificationMessageForDisplay(n));const time=escapeHtml(formatNotificationTime(n.waktu));return '<button type="button" class="home-rebuild-notif-item" data-notif-id="'+id+'" onclick="openNotificationItem(this.dataset.notifId)"><span class="home-rebuild-notif-dot'+(n.unread?' unread':'')+'"></span><span><span class="home-rebuild-notif-title block">'+title+'</span><span class="home-rebuild-notif-msg block">'+msg+'</span><span class="home-rebuild-notif-time block">'+time+'</span></span></button>';}).join('');
+        }
+        function renderHomeRebuildDashboard(res){
+            res=res||{};
+            const v=Number(res.volume)||0,val=Number(res.value)||0,count=Number(res.transactionCount)||0;
+            const a=document.getElementById('homeRebuildVolume'),b=document.getElementById('homeRebuildTransaction'),c=document.getElementById('homeRebuildValue'),d=document.getElementById('homeRebuildDate');
+            if(a)a.textContent=v.toLocaleString('id-ID',{minimumFractionDigits:1,maximumFractionDigits:1});
+            if(b)b.textContent=count.toLocaleString('id-ID');
+            if(c)c.textContent='Rp '+Math.round(val).toLocaleString('id-ID');
+            if(d)d.textContent=String(res.displayDate||'-');
+
+            const y=res.yesterday||{};
+            const yv=Number(y.volume)||0,yval=Number(y.value)||0,ycount=Number(y.transactionCount)||0;
+            const setText=function(id,text){const el=document.getElementById(id);if(el)el.textContent=text;};
+            const setChange=function(id,today,yesterday){
+                const el=document.getElementById(id); if(!el)return;
+                const diff=today-yesterday;
+                if(yesterday===0){
+                    if(today===0){el.textContent='—';el.className='home-rebuild-performance-change same';}
+                    else{el.textContent='▲ Baru hari ini';el.className='home-rebuild-performance-change up';}
+                    return;
+                }
+                const pct=(diff/yesterday)*100;
+                const arrow=pct>0?'▲':(pct<0?'▼':'—');
+                const cls=pct>0?'up':(pct<0?'down':'same');
+                el.textContent=arrow+' '+Math.abs(pct).toLocaleString('id-ID',{minimumFractionDigits:1,maximumFractionDigits:1})+'%';
+                el.className='home-rebuild-performance-change '+cls;
+            };
+            setText('homeRebuildPerfVolumeToday',v.toLocaleString('id-ID',{minimumFractionDigits:1,maximumFractionDigits:1})+' L');
+            setText('homeRebuildPerfVolumeYesterday','Kemarin '+yv.toLocaleString('id-ID',{minimumFractionDigits:1,maximumFractionDigits:1})+' L');
+            setText('homeRebuildPerfTransactionToday',count.toLocaleString('id-ID'));
+            setText('homeRebuildPerfTransactionYesterday','Kemarin '+ycount.toLocaleString('id-ID'));
+            setText('homeRebuildPerfValueToday','Rp '+Math.round(val).toLocaleString('id-ID'));
+            setText('homeRebuildPerfValueYesterday','Kemarin Rp '+Math.round(yval).toLocaleString('id-ID'));
+            setChange('homeRebuildPerfVolumeChange',v,yv);
+            setChange('homeRebuildPerfTransactionChange',count,ycount);
+            setChange('homeRebuildPerfValueChange',val,yval);
+
+            const tbody=document.getElementById('homeRebuildOutletTableBody'),countEl=document.getElementById('homeRebuildOutletCount'),rows=Array.isArray(res.transactions)?res.transactions:[];
+            if(countEl)countEl.textContent=count+' transaksi';
+            if(!tbody)return;
+            if(!rows.length){tbody.innerHTML='<tr><td colspan="4" class="home-rebuild-empty">Belum ada transaksi hari ini.</td></tr>';return;}
+            tbody.innerHTML=rows.map(function(r){var st=String(r.status||'PENDING').trim().toUpperCase()||'PENDING';var cls=st==='APPROVE'?'home-status-approve':(st==='DECLINE'?'home-status-decline':'home-status-pending');return '<tr><td>'+escapeHtml(String(r.outlet||'-'))+'</td><td>'+formatHomeNumber(r.volume,1)+'</td><td>Rp '+Math.round(Number(r.value)||0).toLocaleString('id-ID')+'</td><td class="'+cls+'">'+escapeHtml(st)+'</td></tr>';}).join('');
+        }
+        function loadHomeRebuild(){google.script.run.withSuccessHandler(function(res){renderHomeRebuildDashboard(res&&res.success?res:{volume:0,value:0,transactionCount:0,transactions:[],displayDate:'-'});}).withFailureHandler(function(){renderHomeRebuildDashboard({volume:0,value:0,transactionCount:0,transactions:[],displayDate:'-'});}).getDashboardHariIni(currentUser||'',currentUsernameInput||'');}
+        function getHomeRebuildImages(){return (Array.isArray(homeRebuildData)?homeRebuildData:[]).slice().sort(function(a,b){return Number(b&&b.rowNumber||0)-Number(a&&a.rowNumber||0);}).filter(function(x){return x&&String(x.gambar||'').trim()!=='';});}
+        function renderHomeRebuildBanner(data){homeRebuildData=Array.isArray(data)?data.slice():[];const list=getHomeRebuildImages(),section=document.getElementById('homeRebuildBanner'),track=document.getElementById('homeRebuildTrack'),dots=document.getElementById('homeRebuildDots');if(!section||!track||!dots)return;if(!list.length){section.classList.remove('show');track.innerHTML='';dots.innerHTML='';stopHomeRebuildAuto();return;}homeRebuildIndex=Math.max(0,Math.min(homeRebuildIndex,list.length-1));section.classList.add('show');track.innerHTML=list.map(function(x,i){return '<div class="home-rebuild-slide" data-i="'+i+'" onclick="openHomeRebuildImage(this.dataset.i)"><img src="'+escapeHtml(String(x.gambar||''))+'" alt="Pengumuman" draggable="false">'+(String(x.keterangan||'').trim()?'<div class="home-rebuild-caption">'+escapeHtml(String(x.keterangan||''))+'</div>':'')+'</div>';}).join('');updateHomeRebuildPosition();bindHomeRebuildSwipe();startHomeRebuildAuto();}
+        function updateHomeRebuildPosition(){const track=document.getElementById('homeRebuildTrack'),dots=document.getElementById('homeRebuildDots'),list=getHomeRebuildImages();if(!track||!list.length)return;homeRebuildIndex=(homeRebuildIndex+list.length)%list.length;track.style.transform='translate3d('+(-homeRebuildIndex*100)+'%,0,0)';if(dots)dots.innerHTML=list.map(function(_,i){return '<span class="home-rebuild-dot'+(i===homeRebuildIndex?' active':'')+'"></span>';}).join('');}
+        function homeRebuildNext(e){if(e)e.stopPropagation();const l=getHomeRebuildImages();if(!l.length)return;homeRebuildIndex=(homeRebuildIndex+1)%l.length;updateHomeRebuildPosition();startHomeRebuildAuto();}function homeRebuildPrev(e){if(e)e.stopPropagation();const l=getHomeRebuildImages();if(!l.length)return;homeRebuildIndex=(homeRebuildIndex-1+l.length)%l.length;updateHomeRebuildPosition();startHomeRebuildAuto();}
+        function startHomeRebuildAuto(){stopHomeRebuildAuto();if(getHomeRebuildImages().length<2)return;homeRebuildTimer=setInterval(function(){const t=document.getElementById('tabHome');if(!t||t.classList.contains('hidden'))return;homeRebuildNext();},5000);}function stopHomeRebuildAuto(){if(homeRebuildTimer){clearInterval(homeRebuildTimer);homeRebuildTimer=null;}}
+        function bindHomeRebuildSwipe(){const v=document.getElementById('homeRebuildBanner');if(!v||v.dataset.swipeBound==='1')return;v.dataset.swipeBound='1';v.addEventListener('touchstart',function(e){const t=e.touches&&e.touches[0];if(t){homeRebuildTouchX=t.clientX;homeRebuildTouchY=t.clientY;}},{passive:true});v.addEventListener('touchend',function(e){const t=e.changedTouches&&e.changedTouches[0];if(!t)return;const dx=t.clientX-homeRebuildTouchX,dy=t.clientY-homeRebuildTouchY;if(Math.abs(dx)<45||Math.abs(dx)<Math.abs(dy))return;dx<0?homeRebuildNext():homeRebuildPrev();},{passive:true});}
+        function openHomeRebuildImage(i){const item=getHomeRebuildImages()[Number(i)],url=String(item&&item.gambar||'').trim();if(!url)return;let o=document.getElementById('homeRebuildLightbox');if(!o){o=document.createElement('div');o.id='homeRebuildLightbox';o.className='home-rebuild-lightbox';o.innerHTML='<button type="button" class="close" aria-label="Tutup">&times;</button><img id="homeRebuildLightboxImg" alt="Gambar Pengumuman">';document.body.appendChild(o);setupHomeRebuildLightbox(o);}const img=document.getElementById('homeRebuildLightboxImg');if(img)img.src=url;o.classList.add('open');stopHomeRebuildAuto();document.body.style.overflow='hidden';resetHomeRebuildZoom();}
+        function applyHomeRebuildZoom(){
+            const img=document.getElementById('homeRebuildLightboxImg');
+            if(!img)return;
+            homeLightboxScale=window.matchMedia('(min-width:641px)').matches?Math.max(.25,Math.min(5,Number(homeLightboxScale)||1)):Math.max(1,Math.min(5,Number(homeLightboxScale)||1));
+            if (window.matchMedia('(min-width:641px)').matches) {
+                img.style.transform='translate3d('+homeLightboxX+'px,'+homeLightboxY+'px,0) scale('+homeLightboxScale+')';
+                return;
+            }
+            const rect=img.getBoundingClientRect();
+            const baseW=rect.width/Math.max(1,homeLightboxScale);
+            const baseH=rect.height/Math.max(1,homeLightboxScale);
+            const maxX=Math.max(0,(baseW*(homeLightboxScale-1))/2);
+            const maxY=Math.max(0,(baseH*(homeLightboxScale-1))/2);
+            homeLightboxX=Math.max(-maxX,Math.min(maxX,homeLightboxX));
+            homeLightboxY=Math.max(-maxY,Math.min(maxY,homeLightboxY));
+            img.style.transform='translate3d('+homeLightboxX+'px,'+homeLightboxY+'px,0) scale('+homeLightboxScale+')';
+        }
+        function resetHomeRebuildZoom(){homeLightboxScale=1;homeLightboxX=0;homeLightboxY=0;homeLightboxDragging=false;homeLightboxPinchStart=0;homeLightboxPinchScale=1;applyHomeRebuildZoom();}
+        function closeHomeRebuildImage(){const o=document.getElementById('homeRebuildLightbox');if(o)o.classList.remove('open');document.body.style.overflow='';resetHomeRebuildZoom();startHomeRebuildAuto();}
+        function setupHomeRebuildLightbox(o){
+            const img=document.getElementById('homeRebuildLightboxImg');
+            if(!img)return;
+            o.addEventListener('click',function(e){if(e.target===o||e.target.classList.contains('close'))closeHomeRebuildImage();});
+            img.addEventListener('wheel',function(e){e.preventDefault();if(window.matchMedia('(min-width:641px)').matches){homeLightboxScale=Math.max(.25,Math.min(5,homeLightboxScale+(e.deltaY<0?.25:-.25)));}else{homeLightboxScale=Math.max(1,Math.min(5,homeLightboxScale+(e.deltaY<0?.25:-.25)));}applyHomeRebuildZoom();},{passive:false});
+            img.addEventListener('dblclick',function(e){e.preventDefault();homeLightboxScale=homeLightboxScale>1?1:2.5;homeLightboxX=0;homeLightboxY=0;applyHomeRebuildZoom();});
+            img.addEventListener('mousedown',function(e){
+                if (!window.matchMedia('(min-width:641px)').matches || e.button!==0) return;
+                e.preventDefault();
+                homeLightboxDragging=true;
+                homeLightboxStartX=e.clientX;homeLightboxStartY=e.clientY;
+                homeLightboxDragX=homeLightboxX;homeLightboxDragY=homeLightboxY;
+                img.style.cursor='grabbing';
+            });
+            window.addEventListener('mousemove',function(e){
+                if (!window.matchMedia('(min-width:641px)').matches || !homeLightboxDragging) return;
+                e.preventDefault();
+                homeLightboxX=homeLightboxDragX+(e.clientX-homeLightboxStartX);
+                homeLightboxY=homeLightboxDragY+(e.clientY-homeLightboxStartY);
+                applyHomeRebuildZoom();
+            });
+            window.addEventListener('mouseup',function(){
+                if (!window.matchMedia('(min-width:641px)').matches) return;
+                homeLightboxDragging=false;
+                img.style.cursor='grab';
+            });
+            img.addEventListener('touchstart',function(e){
+                e.preventDefault();
+                if(e.touches.length===2){
+                    homeLightboxPinchStart=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+                    homeLightboxPinchScale=homeLightboxScale;
+                    homeLightboxDragging=false;
+                }else if(e.touches.length===1&&homeLightboxScale>1){
+                    homeLightboxDragging=true;
+                    homeLightboxStartX=e.touches[0].clientX;homeLightboxStartY=e.touches[0].clientY;
+                    homeLightboxDragX=homeLightboxX;homeLightboxDragY=homeLightboxY;
+                }
+            },{passive:false});
+            img.addEventListener('touchmove',function(e){
+                e.preventDefault();
+                if(e.touches.length===2&&homeLightboxPinchStart>0){
+                    const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+                    homeLightboxScale=Math.max(1,Math.min(5,homeLightboxPinchScale*(d/homeLightboxPinchStart)));
+                    applyHomeRebuildZoom();
+                }else if(e.touches.length===1&&homeLightboxDragging){
+                    homeLightboxX=homeLightboxDragX+(e.touches[0].clientX-homeLightboxStartX);
+                    homeLightboxY=homeLightboxDragY+(e.touches[0].clientY-homeLightboxStartY);
+                    applyHomeRebuildZoom();
+                }
+            },{passive:false});
+            function endTouch(e){if(e.touches.length<2)homeLightboxPinchStart=0;if(e.touches.length===0)homeLightboxDragging=false;}
+            img.addEventListener('touchend',endTouch,{passive:false});
+            img.addEventListener('touchcancel',endTouch,{passive:false});
+        }
+
+        function formatNotificationMessageForDisplay(n) {
+            let message = String(n && n.pesan || '').trim();
+            const type = String(n && n.tipe || '').trim().toUpperCase();
+
+            // TRANSAKSI: tampilkan nama outlet saja tanpa ID INPUT.
+            if (type === 'TRANSAKSI') {
+                let outlet = '';
+                let match = message.match(/\buntuk\s+outlet\s+(.+?)\s*\.?$/i);
+                if (match) outlet = String(match[1] || '').trim();
+                if (!outlet) {
+                    match = message.match(/\bOutlet\s*:\s*(.+?)\s*\.?$/i);
+                    if (match) outlet = String(match[1] || '').trim();
+                }
+                if (outlet) return outlet.replace(/[.\s]+$/, '') + ' Berhasil di Input.';
+            }
+
+            // Semua tipe: hilangkan bagian ID INPUT / nomor transaksi dari teks notifikasi.
+            message = message
+                .replace(/\s*\|\s*Transaksi\s*[:#-]?\s*[^|.]+(?=\s*\||\s*\.?$)/i, '')
+                .replace(/\bID\s*INPUT\s*[:#-]?\s*[A-Za-z0-9][A-Za-z0-9._\/-]*/gi, '')
+                .replace(/\bTransaksi\s*[:#-]?\s*[A-Za-z0-9][A-Za-z0-9._\/-]*\s*/i, 'Transaksi ')
+                .replace(/\s{2,}/g, ' ')
+                .replace(/\s+\./g, '.')
+                .trim();
+
+            return message;
+        }
 
         function renderNotifications() {
             const list = document.getElementById('notificationList');
@@ -8137,13 +8389,14 @@ startAutoRefresh();
 
             if (!notificationData.length) {
                 list.innerHTML = '<div class="notification-empty">Belum ada notifikasi.</div>';
+                renderHomeRebuildNotificationHistory();
                 return;
             }
 
             list.innerHTML = notificationData.map(function(n) {
                 const id = escapeHtml(String(n.id || ''));
                 const title = escapeHtml(String(n.judul || 'Notifikasi'));
-                const message = escapeHtml(String(n.pesan || ''));
+                const message = escapeHtml(formatNotificationMessageForDisplay(n));
                 const time = escapeHtml(formatNotificationTime(n.waktu));
                 const type = escapeHtml(notificationTypeLabel(n.tipe));
                 const unreadClass = n.unread ? ' unread' : '';
@@ -8153,6 +8406,7 @@ startAutoRefresh();
                     '<div class="notification-item-meta"><span class="notification-type-chip">' + type + '</span><span>' + time + '</span></div>' +
                     '</button>';
             }).join('');
+            renderHomeRebuildNotificationHistory();
         }
 
         function reloadNotificationsAfterMutation() {
@@ -8345,8 +8599,8 @@ startAutoRefresh();
         function switchTab(tab) {
             const isAdminLogin = String(currentUsernameInput || '').trim().toLowerCase() === 'admin';
             if (tab === 'pengumumanadmin' && !isAdminLogin) { applyRoleVisibility(); return; }
-            const tabMap = {input:'tabInput',riwayat:'tabRiwayat',pencapaian:'tabPencapaian',monitoring:'tabMonitoring',outletkontrak:'tabOutletKontrak',outletbws:'tabOutletBWS',tambahcustomer:'tabTambahCustomer',pricelist:'tabPricelist',pesananoutlet:'tabPesananOutlet',pengumumanadmin:'tabPengumumanAdmin'};
-            const navMap = {input:'navInput',riwayat:'navRiwayat',pencapaian:'navPencapaian',monitoring:'navMonitoring',outletkontrak:'navOutletKontrak',outletbws:'navOutletBWS',tambahcustomer:'navTambahCustomer',pricelist:'navPricelist',pesananoutlet:'navPesananOutlet',pengumumanadmin:'navPengumumanAdmin'};
+            const tabMap = {home:'tabHome',input:'tabInput',riwayat:'tabRiwayat',pencapaian:'tabPencapaian',monitoring:'tabMonitoring',outletkontrak:'tabOutletKontrak',outletbws:'tabOutletBWS',tambahcustomer:'tabTambahCustomer',pricelist:'tabPricelist',pesananoutlet:'tabPesananOutlet',pengumumanadmin:'tabPengumumanAdmin'};
+            const navMap = {home:'navHome',input:'navInput',riwayat:'navRiwayat',pencapaian:'navPencapaian',monitoring:'navMonitoring',outletkontrak:'navOutletKontrak',outletbws:'navOutletBWS',tambahcustomer:'navTambahCustomer',pricelist:'navPricelist',pesananoutlet:'navPesananOutlet',pengumumanadmin:'navPengumumanAdmin'};
             Object.keys(tabMap).forEach(function(key){
                 const el=document.getElementById(tabMap[key]);
                 if(!el) return;
@@ -8376,6 +8630,7 @@ startAutoRefresh();
                 });
             }
             setSidebarState(true);
+if(tab==='home'){loadHomeRebuild();startHomeRebuildAuto();}
 if(tab==='riwayat')loadRiwayat(false, true);
             if(tab==='pencapaian')loadPencapaianSales(false, true);
             if(tab==='monitoring')loadMonitoring(false, true);
@@ -9225,7 +9480,8 @@ function checkActivePengumuman() {
     if (announcementDismissedThisSession) return;
     google.script.run.withSuccessHandler(function(res) {
         var data = res && res.success ? res.data : [];
-        showAnnouncementPage(Array.isArray(data) ? data : []);
+        renderHomeRebuildBanner(data);
+        showAnnouncementPage(data);
     }).withFailureHandler(function(err) {
         console.warn('Gagal memuat pengumuman:', err && err.message ? err.message : err);
     }).getPengumumanAktif();
@@ -9591,6 +9847,13 @@ button{ -webkit-tap-highlight-color:transparent }
 }
 
 /* ---------- LOGIN / REGISTER ---------- */
+/* Rapikan area form login: hilangkan bingkai/shadow bagian dalam, outer card tetap. */
+#loginPage form{
+  border:none!important;
+  box-shadow:none!important;
+  background:transparent!important;
+}
+
 #loginPage,#registerPage{
   width:min(100%,430px)!important;
   margin:0 auto!important;
