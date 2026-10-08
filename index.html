@@ -3519,16 +3519,16 @@ body{background:
                             <table class="w-full text-left border-collapse text-[11px]" style="min-width: 1180px; table-layout: fixed;">
                                 <thead>
                                     <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
-                                        <th class="p-2.5 font-bold text-center whitespace-nowrap" style="width: 12%;">DSR</th>
-                                        <th class="p-2.5 font-bold text-center whitespace-nowrap" style="width: 22%;">Nama Outlet</th>
-                                        <th class="p-2.5 font-bold text-center whitespace-nowrap" style="width: 12%;">CUST.CODE</th>
-                                        <th class="p-2.5 font-bold text-center whitespace-nowrap" style="width: 11%;">Target</th>
-                                        <th class="p-2.5 font-bold text-center whitespace-nowrap" style="width: 11%;">Actual</th>
-                                        <th class="p-2.5 font-bold text-center whitespace-nowrap" style="width: 11%;">Gap</th>
-                                        <th class="p-2.5 font-bold text-center whitespace-nowrap" style="width: 9%;">Ach.</th>
-                                        <th id="thM1" class="p-2.5 font-bold text-center whitespace-nowrap" style="width: 10%;">Bulan 1</th>
-                                        <th id="thM2" class="p-2.5 font-bold text-center whitespace-nowrap" style="width: 10%;">Bulan 2</th>
-                                        <th id="thM3" class="p-2.5 font-bold text-center whitespace-nowrap" style="width: 10%;">Bulan 3</th>
+                                        <th class="p-2.5 font-bold text-center whitespace-nowrap cursor-pointer select-none hover:bg-slate-200" onclick="sortMonitoringTable('dsr')" style="width: 12%;">DSR <span id="sortMonitoring_dsr" class="text-[9px] text-slate-400"></span></th>
+                                        <th class="p-2.5 font-bold text-center whitespace-nowrap cursor-pointer select-none hover:bg-slate-200" onclick="sortMonitoringTable('outlet')" style="width: 22%;">Nama Outlet <span id="sortMonitoring_outlet" class="text-[9px] text-slate-400"></span></th>
+                                        <th class="p-2.5 font-bold text-center whitespace-nowrap cursor-pointer select-none hover:bg-slate-200" onclick="sortMonitoringTable('custCode')" style="width: 12%;">CUST.CODE <span id="sortMonitoring_custCode" class="text-[9px] text-slate-400"></span></th>
+                                        <th class="p-2.5 font-bold text-center whitespace-nowrap cursor-pointer select-none hover:bg-slate-200" onclick="sortMonitoringTable('targetQuarter')" style="width: 11%;">Target <span id="sortMonitoring_targetQuarter" class="text-[9px] text-slate-400"></span></th>
+                                        <th class="p-2.5 font-bold text-center whitespace-nowrap cursor-pointer select-none hover:bg-slate-200" onclick="sortMonitoringTable('totalQuarterVol')" style="width: 11%;">Actual <span id="sortMonitoring_totalQuarterVol" class="text-[9px] text-slate-400"></span></th>
+                                        <th class="p-2.5 font-bold text-center whitespace-nowrap cursor-pointer select-none hover:bg-slate-200" onclick="sortMonitoringTable('gap')" style="width: 11%;">Gap <span id="sortMonitoring_gap" class="text-[9px] text-slate-400"></span></th>
+                                        <th class="p-2.5 font-bold text-center whitespace-nowrap cursor-pointer select-none hover:bg-slate-200" onclick="sortMonitoringTable('achievement')" style="width: 9%;">Ach. <span id="sortMonitoring_achievement" class="text-[9px] text-slate-400"></span></th>
+                                        <th id="thM1" class="p-2.5 font-bold text-center whitespace-nowrap cursor-pointer select-none hover:bg-slate-200" onclick="sortMonitoringTable('m1')" style="width: 10%;">Bulan 1 <span id="sortMonitoring_m1" class="text-[9px] text-slate-400"></span></th>
+                                        <th id="thM2" class="p-2.5 font-bold text-center whitespace-nowrap cursor-pointer select-none hover:bg-slate-200" onclick="sortMonitoringTable('m2')" style="width: 10%;">Bulan 2 <span id="sortMonitoring_m2" class="text-[9px] text-slate-400"></span></th>
+                                        <th id="thM3" class="p-2.5 font-bold text-center whitespace-nowrap cursor-pointer select-none hover:bg-slate-200" onclick="sortMonitoringTable('m3')" style="width: 10%;">Bulan 3 <span id="sortMonitoring_m3" class="text-[9px] text-slate-400"></span></th>
                                     </tr>
                                 </thead>
                                 <tbody id="listMonitoringTableBody">
@@ -4028,6 +4028,7 @@ body{background:
         let outletDataList = [];
         let globalRiwayatData = [];
         let rawMonitoringDataObject = {};
+        let monitoringSortState = { key: '', direction: 0 };
         let editingOrderId = "";
         let editOrderItems = [];
         let editingOrderData = null;
@@ -5115,6 +5116,34 @@ startAutoRefresh();
             renderMonitoringList();
         }
 
+        function sortMonitoringTable(key) {
+            const textKeys = ['dsr', 'outlet', 'custCode'];
+            const numericKeys = ['targetQuarter', 'totalQuarterVol', 'gap', 'achievement', 'm1', 'm2', 'm3'];
+            if (textKeys.indexOf(key) === -1 && numericKeys.indexOf(key) === -1) return;
+
+            if (monitoringSortState.key !== key) {
+                monitoringSortState.key = key;
+                // Teks: A-Z terlebih dahulu. Angka: terbesar terlebih dahulu.
+                monitoringSortState.direction = textKeys.indexOf(key) !== -1 ? 1 : -1;
+            } else {
+                monitoringSortState.direction *= -1;
+            }
+            renderMonitoringList();
+        }
+
+        function updateMonitoringSortIndicators() {
+            const keys = ['dsr','outlet','custCode','targetQuarter','totalQuarterVol','gap','achievement','m1','m2','m3'];
+            keys.forEach(function(key) {
+                const el = document.getElementById('sortMonitoring_' + key);
+                if (!el) return;
+                if (monitoringSortState.key !== key || !monitoringSortState.direction) {
+                    el.textContent = '';
+                    return;
+                }
+                el.textContent = monitoringSortState.direction === 1 ? '▲' : '▼';
+            });
+        }
+
         function renderMonitoringList() {
             const monitoringTab = document.getElementById('tabMonitoring');
             const isMonitoringAdmin = currentUsernameInput && currentUsernameInput.toLowerCase() === 'admin';
@@ -5175,12 +5204,36 @@ startAutoRefresh();
                     String(item && item.dsr != null ? item.dsr : '').trim().toUpperCase() === selectedSales;
                 return outletMatch && dayMatch && salesMatch;
             });
-            filtered.sort(function(a,b){
-    const actualA = Number(a.totalQuarterVol || 0);
-    const actualB = Number(b.totalQuarterVol || 0);
-    return actualB - actualA;
-});
+            if (monitoringSortState.key) {
+                const key = monitoringSortState.key;
+                const direction = monitoringSortState.direction || 1;
+
+                filtered.sort(function(a, b) {
+                    let valueA;
+                    let valueB;
+
+                    if (key === 'gap') {
+                        valueA = Number(a.totalQuarterVol || 0) - Number(a.targetQuarter || 0);
+                        valueB = Number(b.totalQuarterVol || 0) - Number(b.targetQuarter || 0);
+                    } else if (key === 'achievement') {
+                        const targetA = Number(a.targetQuarter || 0);
+                        const targetB = Number(b.targetQuarter || 0);
+                        valueA = targetA > 0 ? (Number(a.totalQuarterVol || 0) / targetA) * 100 : 0;
+                        valueB = targetB > 0 ? (Number(b.totalQuarterVol || 0) / targetB) * 100 : 0;
+                    } else if (['dsr','outlet','custCode'].indexOf(key) !== -1) {
+                        valueA = String(a[key] || '').trim();
+                        valueB = String(b[key] || '').trim();
+                        return valueA.localeCompare(valueB, 'id', {numeric:true, sensitivity:'base'}) * direction;
+                    } else {
+                        valueA = Number(a[key] || 0);
+                        valueB = Number(b[key] || 0);
+                    }
+
+                    return (valueA - valueB) * direction;
+                });
+            }
             countBadge.textContent = `${filtered.length} outlet`;
+            updateMonitoringSortIndicators();
 
             updateQuarterMonthHeaderLabels(selectedQuarter);
 
