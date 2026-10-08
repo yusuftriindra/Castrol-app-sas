@@ -9050,7 +9050,13 @@ function renderAnnouncementPage(data) {
     var headerMarquee = document.getElementById('announcementHeaderMarquee');
     if (!box) return;
 
-    var list = Array.isArray(data) ? data : [];
+    var list = Array.isArray(data) ? data.slice() : [];
+
+    /* Pengumuman terbaru (row paling akhir di sheet PENGUMUMAN) selalu tampil pertama. */
+    list.sort(function(a, b) {
+        return Number(b && b.rowNumber || 0) - Number(a && a.rowNumber || 0);
+    });
+
     var imageItems = list.filter(function(item) {
         return item && String(item.gambar || '').trim() !== '';
     });
@@ -9062,7 +9068,7 @@ function renderAnnouncementPage(data) {
     box.innerHTML = imageItems.length ? ('<div class="pengumuman-carousel" aria-label="Pengumuman bergambar">' + imageItems.map(function(item) {
         var imageUrl = String(item.gambar || '').trim();
         var text = escapeHtml(item.keterangan || '');
-        return '<div class="pengumuman-card"><img src="' + escapeHtml(imageUrl) + '" alt="Pengumuman">' +
+        return '<div class="pengumuman-card"><img src="' + escapeHtml(imageUrl) + '" alt="Pengumuman" onclick="openPengumumanImage(this.src)" title="Klik untuk melihat gambar penuh" style="cursor:zoom-in">' +
                (text ? '<div class="pengumuman-caption">' + text + '</div>' : '') +
                '</div>';
     }).join('') + '</div>') : '';
@@ -9086,6 +9092,48 @@ function renderAnnouncementPage(data) {
             headerMarquee.classList.add('hidden');
         }
     }
+}
+
+function openPengumumanImage(imageUrl) {
+    imageUrl = String(imageUrl || '').trim();
+    if (!imageUrl) return;
+
+    var overlay = document.getElementById('pengumumanImageLightbox');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'pengumumanImageLightbox';
+        overlay.style.cssText = 'position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;padding:18px;box-sizing:border-box;cursor:zoom-out;';
+        overlay.innerHTML =
+            '<button type="button" aria-label="Tutup gambar" title="Tutup" ' +
+            'style="position:absolute;top:14px;right:14px;width:42px;height:42px;border:0;border-radius:50%;background:rgba(255,255,255,.16);color:#fff;font-size:28px;line-height:1;cursor:pointer;z-index:2;">&times;</button>' +
+            '<img id="pengumumanImageLightboxImg" alt="Gambar Pengumuman" ' +
+            'style="display:block;max-width:96vw;max-height:94vh;width:auto;height:auto;object-fit:contain;cursor:default;box-shadow:0 20px 60px rgba(0,0,0,.45);">';
+        document.body.appendChild(overlay);
+
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay || e.target.tagName === 'BUTTON') closePengumumanImage();
+        });
+        var lightboxImg = document.getElementById('pengumumanImageLightboxImg');
+        if (lightboxImg) lightboxImg.addEventListener('click', function(e) { e.stopPropagation(); });
+    }
+
+    var img = document.getElementById('pengumumanImageLightboxImg');
+    if (img) img.src = imageUrl;
+    overlay.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closePengumumanImage() {
+    var overlay = document.getElementById('pengumumanImageLightbox');
+    if (overlay) overlay.style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+if (!window.__pengumumanImageEscBound) {
+    window.__pengumumanImageEscBound = true;
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closePengumumanImage();
+    });
 }
 
 function showAnnouncementPage(data) {
