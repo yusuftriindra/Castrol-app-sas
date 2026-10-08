@@ -5176,10 +5176,10 @@ startAutoRefresh();
                 return outletMatch && dayMatch && salesMatch;
             });
             filtered.sort(function(a,b){
-                const aa=dayVisitOrder[String(a.dayVisit||'').trim().toUpperCase()]||99;
-                const bb=dayVisitOrder[String(b.dayVisit||'').trim().toUpperCase()]||99;
-                return aa-bb||String(a.dayVisit||'').localeCompare(String(b.dayVisit||''))||String(a.outlet||'').localeCompare(String(b.outlet||''));
-            });
+    const actualA = Number(a.totalQuarterVol || 0);
+    const actualB = Number(b.totalQuarterVol || 0);
+    return actualB - actualA;
+});
             countBadge.textContent = `${filtered.length} outlet`;
 
             updateQuarterMonthHeaderLabels(selectedQuarter);
@@ -5385,8 +5385,11 @@ startAutoRefresh();
             const cacheKey = 'MONITORING_HISTORY_' + custKey;
             const cached = appLocalCacheGet(cacheKey);
 
-            if (Array.isArray(cached)) {
-                renderMonitoringHistoryChart(cached);
+            if (cached && typeof cached === 'object' && Array.isArray(cached.history)) {
+                renderMonitoringHistoryChart(cached.history, cached.lastOrder || null);
+            } else if (Array.isArray(cached)) {
+                // Kompatibilitas cache lama.
+                renderMonitoringHistoryChart(cached, null);
             } else {
                 target.innerHTML = `
                     <div class="text-[10px] font-extrabold text-slate-700">History Pengambilan</div>
@@ -5395,14 +5398,16 @@ startAutoRefresh();
             }
 
             google.script.run
-                .withSuccessHandler(function(history) {
-                    const result = Array.isArray(history) ? history : [];
-                    appLocalCacheSet(cacheKey, result);
-                    renderMonitoringHistoryChart(result);
+                .withSuccessHandler(function(result) {
+                    const payload = result && typeof result === 'object' ? result : { history: [], lastOrder: null };
+                    appLocalCacheSet(cacheKey, payload);
+                    renderMonitoringHistoryChart(
+                        Array.isArray(payload.history) ? payload.history : [],
+                        payload.lastOrder || null
+                    );
                 })
                 .withFailureHandler(function(err) {
-                    // Jika cache sudah tampil, jangan mengganti tampilan dengan pesan error.
-                    if (Array.isArray(cached)) return;
+                    if (cached) return;
                     const el = document.getElementById('monitoringDetailHistoryChart');
                     if (!el) return;
                     el.innerHTML = `
@@ -5413,11 +5418,11 @@ startAutoRefresh();
                 .getMonitoringOutletHistory(data.custCode || '');
         }
 
-        function renderMonitoringHistoryChart(history) {
+        function renderMonitoringHistoryChart(history, lastOrder) {
             const target = document.getElementById('monitoringDetailHistoryChart');
             if (!target) return;
 
-            if (!history.length) {
+            if (!Array.isArray(history) || !history.length) {
                 target.innerHTML = `
                     <div class="text-[11px] font-extrabold text-slate-700">History Pengambilan</div>
                     <div class="text-[9px] text-slate-400 mt-2">Belum ada history pengambilan sama sekali..</div>
@@ -5425,56 +5430,21 @@ startAutoRefresh();
                 return;
             }
 
-            // Chart tetap per bulan dan seluruh periode. Dibuat lebih ringkas secara vertikal
-            // agar grafik tetap jelas di dalam Detail tanpa perlu terlalu banyak scroll.
-            const width = Math.max(980, history.length * 82);
-            const height = 285;
+            // Chart batang per bulan. Semua bulan pada rentang history tetap ditampilkan,
+            // termasuk bulan tanpa order (nilai 0).
+            const width = Math.max(980, history.length * 72);
+            const height = 300;
             const padLeft = 56;
             const padRight = 24;
             const padTop = 22;
-            const padBottom = 48;
+            const padBottom = 52;
             const chartW = width - padLeft - padRight;
             const chartH = height - padTop - padBottom;
-
             const values = history.map(function(p) { return Number(p.volume) || 0; });
             const maxValue = Math.max.apply(null, values);
             const safeMax = maxValue > 0 ? maxValue : 1;
-
-            const stepX = history.length === 1 ? 0 : chartW / (history.length - 1);
-            const points = history.map(function(item, i) {
-                const value = Number(item.volume) || 0;
-                const x = history.length === 1 ? padLeft + chartW / 2 : padLeft + stepX * i;
-                const y = padTop + chartH - (value / safeMax) * chartH;
-                return { x:x, y:y, item:item };
-            });
-
-            // Kurva smooth dengan cubic Bezier, tetap mengikuti semua titik bulanan.
-            function smoothPath_(pts) {
-                if (pts.length === 1) return 'M ' + pts[0].x.toFixed(1) + ' ' + pts[0].y.toFixed(1);
-                let d = 'M ' + pts[0].x.toFixed(1) + ' ' + pts[0].y.toFixed(1);
-                for (let i = 0; i < pts.length - 1; i++) {
-                    const p0 = pts[i - 1] || pts[i];
-                    const p1 = pts[i];
-                    const p2 = pts[i + 1];
-                    const p3 = pts[i + 2] || p2;
-                    const tension = 0.18;
-                    const cp1x = p1.x + (p2.x - p0.x) * tension;
-                    const cp1y = p1.y + (p2.y - p0.y) * tension;
-                    const cp2x = p2.x - (p3.x - p1.x) * tension;
-                    const cp2y = p2.y - (p3.y - p1.y) * tension;
-                    d += ' C ' + cp1x.toFixed(1) + ' ' + cp1y.toFixed(1) +
-                         ', ' + cp2x.toFixed(1) + ' ' + cp2y.toFixed(1) +
-                         ', ' + p2.x.toFixed(1) + ' ' + p2.y.toFixed(1);
-                }
-                return d;
-            }
-
-            const linePath = smoothPath_(points);
-
-            // Area lembut di bawah kurva agar tampilan lebih modern.
-            const areaPath = linePath +
-                ' L ' + points[points.length - 1].x.toFixed(1) + ' ' + (padTop + chartH).toFixed(1) +
-                ' L ' + points[0].x.toFixed(1) + ' ' + (padTop + chartH).toFixed(1) + ' Z';
+            const slotW = chartW / history.length;
+            const barW = Math.max(18, Math.min(42, slotW * 0.58));
 
             let grid = '';
             for (let i = 0; i <= 4; i++) {
@@ -5484,68 +5454,78 @@ startAutoRefresh();
                 grid += `<text x="${padLeft-9}" y="${(y+3.5).toFixed(1)}" text-anchor="end" font-size="9" fill="#94a3b8">${value.toLocaleString('id-ID',{maximumFractionDigits:0})}</text>`;
             }
 
+            const yearColors = {};
+            const yearPalette = ['#059669','#2563eb','#d97706','#7c3aed','#db2777','#0891b2','#65a30d','#dc2626'];
+            let yearColorIndex = 0;
+            let bars = '';
+            history.forEach(function(item, i) {
+                const value = Number(item.volume) || 0;
+                const xCenter = padLeft + slotW * i + slotW / 2;
+                const barH = value > 0 ? (value / safeMax) * chartH : 0;
+                const y = padTop + chartH - barH;
+                const x = xCenter - barW / 2;
+                const label = escapeHtml(item.label || '');
+                const parts = String(item.label || '').trim().split(/\s+/);
+                const year = parts.length > 1 ? parts.slice(1).join(' ') : '';
+                if (!yearColors[year]) {
+                    yearColors[year] = yearPalette[yearColorIndex % yearPalette.length];
+                    yearColorIndex++;
+                }
+                const barColor = yearColors[year] || '#059669';
+                const tx = Number(item.transactions || 0);
+                bars += `
+                    <g class="monitor-history-point" tabindex="0"
+                       data-index="${i}"
+                       data-label="${label}"
+                       data-volume="${value.toLocaleString('id-ID',{maximumFractionDigits:1})}"
+                       data-transactions="${tx.toLocaleString('id-ID')}"
+                       data-x="${xCenter.toFixed(1)}"
+                       data-y="${y.toFixed(1)}">
+                        <rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${Math.max(barH, 1).toFixed(1)}" rx="5" fill="${barColor}" opacity="${value > 0 ? '0.88' : '0.18'}"></rect>
+                    </g>
+                `;
+            });
+
             let labels = '';
             history.forEach(function(item, i) {
-                const pt = points[i];
+                const x = padLeft + slotW * i + slotW / 2;
                 const label = String(item.label || '').trim();
                 const parts = label.split(/\s+/);
                 const month = parts.length > 0 ? parts[0] : label;
                 const year = parts.length > 1 ? parts.slice(1).join(' ') : '';
                 labels += `
-                    <text x="${pt.x.toFixed(1)}" y="${height-25}" text-anchor="middle" font-size="9.5" font-weight="600" fill="#64748b">
-                        ${escapeHtml(month)}
-                    </text>
-                    <text x="${pt.x.toFixed(1)}" y="${height-10}" text-anchor="middle" font-size="8.5" fill="#94a3b8">
-                        ${escapeHtml(year)}
-                    </text>
+                    <text x="${x.toFixed(1)}" y="${height-27}" text-anchor="middle" font-size="9.5" font-weight="600" fill="#64748b">${escapeHtml(month)}</text>
+                    <text x="${x.toFixed(1)}" y="${height-11}" text-anchor="middle" font-size="8.5" fill="#94a3b8">${escapeHtml(year)}</text>
                 `;
             });
 
-            let dots = '';
-            points.forEach(function(pt, i) {
-                const vol = Number(pt.item.volume) || 0;
-                const tx = Number(pt.item.transactions || 0);
-                const label = escapeHtml(pt.item.label || '');
-                dots += `
-                    <g class="monitor-history-point" tabindex="0"
-                       data-index="${i}"
-                       data-label="${label}"
-                       data-volume="${vol.toLocaleString('id-ID',{maximumFractionDigits:1})}"
-                       data-transactions="${tx.toLocaleString('id-ID')}">
-                        <circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="8" fill="transparent"></circle>
-                        <circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="4.8" fill="#059669" stroke="#ffffff" stroke-width="2.5"></circle>
-                    </g>
-                `;
-            });
+            const lastOrderKarton = lastOrder && Number(lastOrder.karton) || 0;
+            const lastOrderLabel = lastOrder && lastOrder.label ? String(lastOrder.label) : '-';
 
             target.innerHTML = `
                 <div class="flex items-center justify-between gap-2">
                     <div class="text-[11px] font-extrabold text-slate-700">History Pengambilan</div>
                     <div class="text-[9px] font-bold text-emerald-700 whitespace-nowrap">${history.length} bulan</div>
                 </div>
+                <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div class="rounded-xl border border-emerald-100 bg-emerald-50/60 px-3 py-2">
+                        <div class="text-[8px] font-extrabold uppercase tracking-wider text-emerald-600">Order Terakhir</div>
+                        <div class="mt-0.5 text-sm font-black text-emerald-800">${lastOrderKarton.toLocaleString('id-ID',{maximumFractionDigits:1})} Karton</div>
+                        <div class="text-[9px] font-semibold text-emerald-700">${escapeHtml(lastOrderLabel)}</div>
+                    </div>
+                </div>
 
                 <div class="mt-2 w-full overflow-x-auto overflow-y-hidden rounded-xl border border-slate-100 bg-slate-50/50" style="-webkit-overflow-scrolling:touch;scrollbar-width:thin;">
                     <div style="min-width:${width}px;position:relative;">
-                        <svg id="monitoringHistorySvg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img" aria-label="Chart history pengambilan per bulan" style="display:block;max-width:none;overflow:visible;">
-                            <defs>
-                                <linearGradient id="monitorHistoryAreaGradient" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="0%" stop-color="#10b981" stop-opacity="0.18"></stop>
-                                    <stop offset="100%" stop-color="#10b981" stop-opacity="0.015"></stop>
-                                </linearGradient>
-                                <filter id="monitorHistoryShadow" x="-20%" y="-20%" width="140%" height="160%">
-                                    <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#059669" flood-opacity="0.18"></feDropShadow>
-                                </filter>
-                            </defs>
+                        <svg id="monitoringHistorySvg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img" aria-label="Chart batang history pengambilan per bulan" style="display:block;max-width:none;overflow:visible;">
                             ${grid}
-                            <path d="${areaPath}" fill="url(#monitorHistoryAreaGradient)" stroke="none"></path>
-                            <path d="${linePath}" fill="none" stroke="#059669" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#monitorHistoryShadow)"></path>
-                            ${dots}
+                            ${bars}
                             ${labels}
                         </svg>
                         <div id="monitorHistoryTooltip" style="display:none;position:absolute;z-index:10;min-width:150px;pointer-events:none;padding:9px 11px;border-radius:12px;background:rgba(15,23,42,.96);box-shadow:0 8px 22px rgba(15,23,42,.18);color:#fff;font-size:10px;line-height:1.45;transform:translate(-50%,-112%);">
                             <div id="monitorHistoryTooltipLabel" style="font-weight:800;font-size:10px;"></div>
-                            <div style="margin-top:3px;color:#d1fae5;">Volume: <strong id="monitorHistoryTooltipVolume"></strong> dus</div>
-                            <div style="color:#e2e8f0;">Produk: <strong id="monitorHistoryTooltipTransactions"></strong> SKU</div>
+                            <div style="margin-top:3px;color:#d1fae5;">Order: <strong id="monitorHistoryTooltipVolume"></strong> Karton</div>
+                            <div style="color:#e2e8f0;">Transaksi: <strong id="monitorHistoryTooltipTransactions"></strong></div>
                         </div>
                     </div>
                 </div>
@@ -5561,35 +5541,31 @@ startAutoRefresh();
 
             function showHistoryTooltip_(group) {
                 const idx = Number(group.getAttribute('data-index') || 0);
-                const pt = points[idx];
-                if (!pt) return;
-                tooltipLabel.textContent = group.getAttribute('data-label') || '';
-                tooltipVolume.textContent = group.getAttribute('data-volume') || '0';
-                tooltipTransactions.textContent = group.getAttribute('data-transactions') || '0';
-                // Tooltip tidak boleh tertutup di bagian atas chart.
-                // Jika titik terlalu dekat dengan atas, tooltip ditaruh di bawah titik.
+                const label = group.getAttribute('data-label') || '';
+                const value = group.getAttribute('data-volume') || '0';
+                const tx = group.getAttribute('data-transactions') || '0';
+                tooltipLabel.textContent = label;
+                tooltipVolume.textContent = value;
+                tooltipTransactions.textContent = tx;
+
+                const x = Number(group.getAttribute('data-x') || 0);
+                const y = Number(group.getAttribute('data-y') || 0);
                 const tooltipWidth = 150;
-                const safeX = Math.max(tooltipWidth / 2 + 8, Math.min(width - tooltipWidth / 2 - 8, pt.x));
-                if (pt.y < 92) {
-                    tooltip.style.left = safeX + 'px';
-                    tooltip.style.top = (pt.y + 14) + 'px';
-                    tooltip.style.transform = 'translate(-50%, 0)';
-                } else {
-                    tooltip.style.left = safeX + 'px';
-                    tooltip.style.top = pt.y + 'px';
-                    tooltip.style.transform = 'translate(-50%, -112%)';
-                }
+                const safeX = Math.max(tooltipWidth / 2 + 8, Math.min(width - tooltipWidth / 2 - 8, x));
+                tooltip.style.left = safeX + 'px';
+                tooltip.style.top = (y < 92 ? y + 14 : y) + 'px';
+                tooltip.style.transform = y < 92 ? 'translate(-50%, 0)' : 'translate(-50%, -112%)';
                 tooltip.style.display = 'block';
-                points.forEach(function(p, n) {
-                    const g = svg.querySelector('.monitor-history-point[data-index="' + n + '"] circle:last-child');
-                    if (g) g.setAttribute('r', n === idx ? '6.5' : '4.8');
+
+                svg.querySelectorAll('.monitor-history-point rect').forEach(function(rect, n) {
+                    rect.setAttribute('opacity', n === idx ? '1' : (Number(history[n] && history[n].volume) > 0 ? '0.88' : '0.18'));
                 });
             }
 
             function hideHistoryTooltip_() {
                 tooltip.style.display = 'none';
-                svg.querySelectorAll('.monitor-history-point circle:last-child').forEach(function(c) {
-                    c.setAttribute('r', '4.8');
+                svg.querySelectorAll('.monitor-history-point rect').forEach(function(rect, n) {
+                    rect.setAttribute('opacity', Number(history[n] && history[n].volume) > 0 ? '0.88' : '0.18');
                 });
             }
 
