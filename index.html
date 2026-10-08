@@ -3248,7 +3248,7 @@ body{background:
                     <div class="-mt-1 mb-1 text-right text-xs">
                         <a href="https://wa.me/6285161199592" target="_blank" rel="noopener noreferrer" class="text-emerald-700 hover:text-emerald-800 font-semibold hover:underline">Lupa pasword? Hubungi saya.</a>
                     </div>
-                    <button type="submit" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-semibold py-2.5 rounded-lg shadow transition">Masuk</button>
+                    <button type="submit" id="loginSubmitBtn" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-semibold py-2.5 rounded-lg shadow transition">Masuk</button>
                 </form>
                 <div class="mt-6 text-center text-sm">
                     Belum punya akun? <button type="button" onclick="toggleAuthMode('register')" class="text-emerald-700 font-semibold">Daftar</button>
@@ -3299,13 +3299,13 @@ body{background:
                             <div id="homeRebuildDots" class="home-rebuild-dots"></div>
                         </section>
                         <section class="home-rebuild-card">
-                            <div class="home-rebuild-head"><div><div class="home-rebuild-title"> Transaksi Anda Hari Ini</div><div class="home-rebuild-sub"></div></div><div id="homeRebuildDate" class="home-rebuild-date">-</div></div>
+                            <div class="home-rebuild-head"><div><div class="home-rebuild-title">Transaksi Anda Hari Ini</div><div class="home-rebuild-sub"></div></div><div id="homeRebuildDate" class="home-rebuild-date">-</div></div>
                             <div class="home-rebuild-metrics">
-                                <div class="home-rebuild-metric"><div class="home-rebuild-icon"></div><div class="home-rebuild-label">Volume</div><div id="homeRebuildVolume" class="home-rebuild-value">0,0</div><div class="home-rebuild-unit">Liter</div><div class="home-rebuild-compare"><span id="homeRebuildPerfVolumeYesterday" class="home-rebuild-performance-yesterday">Kemarin 0,0 L</span><span id="homeRebuildPerfVolumeChange" class="home-rebuild-performance-change same">—</span></div><span id="homeRebuildPerfVolumeToday" class="home-rebuild-performance-today" aria-hidden="true"></span></div>
-                                <div class="home-rebuild-metric"><div class="home-rebuild-icon"></div><div class="home-rebuild-label">Transaksi</div><div id="homeRebuildTransaction" class="home-rebuild-value">0</div><div class="home-rebuild-unit">Transaksi</div><div class="home-rebuild-compare"><span id="homeRebuildPerfTransactionYesterday" class="home-rebuild-performance-yesterday">Kemarin 0</span><span id="homeRebuildPerfTransactionChange" class="home-rebuild-performance-change same">—</span></div><span id="homeRebuildPerfTransactionToday" class="home-rebuild-performance-today" aria-hidden="true"></span></div>
-                                <div class="home-rebuild-metric"><div class="home-rebuild-icon"></div><div class="home-rebuild-label">Value</div><div id="homeRebuildValue" class="home-rebuild-value">Rp 0</div><div class="home-rebuild-unit">Rupiah</div><div class="home-rebuild-compare"><span id="homeRebuildPerfValueYesterday" class="home-rebuild-performance-yesterday">Kemarin Rp 0</span><span id="homeRebuildPerfValueChange" class="home-rebuild-performance-change same">—</span></div><span id="homeRebuildPerfValueToday" class="home-rebuild-performance-today" aria-hidden="true"></span></div>
+                                <div class="home-rebuild-metric"><div class="home-rebuild-icon">Ltr</div><div class="home-rebuild-label">Volume</div><div id="homeRebuildVolume" class="home-rebuild-value">0,0</div><div class="home-rebuild-unit">Liter</div><div class="home-rebuild-compare"><span id="homeRebuildPerfVolumeYesterday" class="home-rebuild-performance-yesterday">Kemarin 0,0 L</span><span id="homeRebuildPerfVolumeChange" class="home-rebuild-performance-change same">—</span></div><span id="homeRebuildPerfVolumeToday" class="home-rebuild-performance-today" aria-hidden="true"></span></div>
+                                <div class="home-rebuild-metric"><div class="home-rebuild-icon">Transaksi</div><div class="home-rebuild-label">Transaksi</div><div id="homeRebuildTransaction" class="home-rebuild-value">0</div><div class="home-rebuild-unit">Transaksi</div><div class="home-rebuild-compare"><span id="homeRebuildPerfTransactionYesterday" class="home-rebuild-performance-yesterday">Kemarin 0</span><span id="homeRebuildPerfTransactionChange" class="home-rebuild-performance-change same">—</span></div><span id="homeRebuildPerfTransactionToday" class="home-rebuild-performance-today" aria-hidden="true"></span></div>
+                                <div class="home-rebuild-metric"><div class="home-rebuild-icon">Rp</div><div class="home-rebuild-label">Value</div><div id="homeRebuildValue" class="home-rebuild-value">Rp 0</div><div class="home-rebuild-unit">Rupiah</div><div class="home-rebuild-compare"><span id="homeRebuildPerfValueYesterday" class="home-rebuild-performance-yesterday">Kemarin Rp 0</span><span id="homeRebuildPerfValueChange" class="home-rebuild-performance-change same">—</span></div><span id="homeRebuildPerfValueToday" class="home-rebuild-performance-today" aria-hidden="true"></span></div>
                             </div>
-                            <div class="home-rebuild-outlets"><div class="flex items-center justify-between gap-2 mb-2"><div class="text-[9px] font-extrabold text-slate-700">Outlet yang Order Hari Ini</div><div id="homeRebuildOutletCount" class="text-[8px] font-bold text-emerald-700">0 transaksi</div></div><div class="home-rebuild-table-wrap"><table class="home-rebuild-outlet-table"><thead><tr><th>Outlet</th><th>Volume</th><th>Value</th><th>Status</th></tr></thead><tbody id="homeRebuildOutletTableBody"><tr><td colspan="4" class="home-rebuild-empty">Memuat...</td></tr></tbody></table></div></div>
+                            <div class="home-rebuild-outlets"><div class="flex items-center justify-between gap-2 mb-2"><div class="text-[9px] font-extrabold text-slate-700">Outlet Transaksi Hari Ini</div><div id="homeRebuildOutletCount" class="text-[8px] font-bold text-emerald-700">0 transaksi</div></div><div class="home-rebuild-table-wrap"><table class="home-rebuild-outlet-table"><thead><tr><th>Outlet</th><th>Volume</th><th>Value</th><th>Status</th></tr></thead><tbody id="homeRebuildOutletTableBody"><tr><td colspan="4" class="home-rebuild-empty">Memuat...</td></tr></tbody></table></div></div>
                         </section>
                     </div>
                 </div>
@@ -4365,9 +4365,20 @@ startAutoRefresh();
         function handleLogin(e) {
             e.preventDefault();
             currentUsernameInput = document.getElementById('loginUser').value.trim();
+            const loginBtn = document.getElementById('loginSubmitBtn');
+            if (loginBtn) {
+                loginBtn.classList.add('login-processing');
+                loginBtn.setAttribute('aria-busy', 'true');
+                loginBtn.disabled = true;
+            }
             showLoading(true);
             google.script.run.withSuccessHandler(function(res) {
                 showLoading(false);
+                if (loginBtn) {
+                    loginBtn.classList.remove('login-processing');
+                    loginBtn.removeAttribute('aria-busy');
+                    loginBtn.disabled = false;
+                }
                 if (res.success) {
                     currentUser = res.sales;
                     document.getElementById('loginPage').classList.add('hidden');
@@ -4395,6 +4406,14 @@ startAutoRefresh();
                 } else {
                     showModal("Login Gagal", res.message);
                 }
+            }).withFailureHandler(function(err) {
+                showLoading(false);
+                if (loginBtn) {
+                    loginBtn.classList.remove('login-processing');
+                    loginBtn.removeAttribute('aria-busy');
+                    loginBtn.disabled = false;
+                }
+                showModal("Login Gagal", err && err.message ? err.message : "Terjadi kesalahan saat proses login.");
             }).prosesLogin(currentUsernameInput, document.getElementById('loginPass').value);
         }
 
@@ -9844,6 +9863,28 @@ button{ -webkit-tap-highlight-color:transparent }
   gap:6px!important;
   padding-top:9px!important;
   border-top-color:#e5ece8!important;
+}
+
+/* Animasi tombol Login saat proses login */
+#loginSubmitBtn.login-processing{
+  position:relative!important;
+  pointer-events:none!important;
+  opacity:.88!important;
+}
+#loginSubmitBtn.login-processing::after{
+  content:"";
+  display:inline-block;
+  width:13px;
+  height:13px;
+  margin-left:8px;
+  vertical-align:-2px;
+  border:2px solid rgba(255,255,255,.45);
+  border-top-color:#fff;
+  border-radius:50%;
+  animation:loginButtonSpin .7s linear infinite;
+}
+@keyframes loginButtonSpin{
+  to{transform:rotate(360deg);}
 }
 
 /* ---------- LOGIN / REGISTER ---------- */
