@@ -3166,7 +3166,7 @@ body{background:
                 <button type="button" onclick="switchTab('monitoring')" id="navMonitoring"
                         class="sidebar-item" title="Monitoring Outlet" aria-label="Monitoring Outlet">
                     <span class="sidebar-icon">📈</span>
-                    <span class="sidebar-text">Monitoring</span>
+                    <span class="sidebar-text">Pencapaian Outelt</span>
                 </button>
 
                 <button type="button" onclick="switchTab('outletkontrak')" id="navOutletKontrak"
@@ -5701,7 +5701,7 @@ startAutoRefresh();
                         <div id="monitorHistoryTooltip" style="display:none;position:absolute;z-index:10;min-width:150px;pointer-events:none;padding:9px 11px;border-radius:12px;background:rgba(15,23,42,.96);box-shadow:0 8px 22px rgba(15,23,42,.18);color:#fff;font-size:10px;line-height:1.45;transform:translate(-50%,-112%);">
                             <div id="monitorHistoryTooltipLabel" style="font-weight:800;font-size:10px;"></div>
                             <div style="margin-top:3px;color:#d1fae5;">Order: <strong id="monitorHistoryTooltipVolume"></strong> Karton</div>
-                            <div style="color:#e2e8f0;">Produk dibeli : <strong id="monitorHistoryTooltipTransactions"></strong></div>
+                            <div style="color:#e2e8f0;">Transaksi: <strong id="monitorHistoryTooltipTransactions"></strong></div>
                         </div>
                     </div>
                 </div>
@@ -7120,7 +7120,33 @@ startAutoRefresh();
                     rows += '<tr class="border-b border-slate-100 hover:bg-emerald-50/50 cursor-pointer" onclick="openPencapaianDetail(\''+escapeHtml(categoryKeyForDetail(c.type))+'\', \''+escapeHtml(item.sales||'')+'\')">'+salesCell+'<td class="px-3 py-2.5">'+escapeHtml(c.label)+'</td><td class="px-3 py-2.5 text-right">'+formatPencapaianValue(q.target,c.type)+'</td><td class="px-3 py-2.5 text-right font-bold">'+formatPencapaianValue(q.actual,c.type)+'</td><td class="px-3 py-2.5 text-right font-bold '+(Number(q.gap||0)>=0?'text-emerald-700':'text-red-600')+'">'+formatPencapaianValue(q.gap||0,c.type)+'</td><td class="px-3 py-2.5 text-right font-extrabold">'+formatPercentID(q.percentage||0)+'</td></tr>';
                 });
             });
-            container.innerHTML='<div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden"><div class="overflow-x-auto"><table class="w-full min-w-[820px] text-[10px]"><thead><tr class="bg-slate-50 border-b border-slate-200 text-[9px] uppercase tracking-wide text-slate-500"><th class="px-3 py-2 text-left">Sales</th><th class="px-3 py-2 text-left">Kategori</th><th class="px-3 py-2 text-right">Target</th><th class="px-3 py-2 text-right">Actual</th><th class="px-3 py-2 text-right">Gap</th><th class="px-3 py-2 text-right">%</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+            let totalSummaryHtml = '';
+            const salesFilter = document.getElementById('pencapaianSalesFilter');
+            const isAdminLogin = String(currentUsernameInput || '').trim().toLowerCase() === 'admin';
+            const showTotals = isAdminLogin && !(salesFilter && String(salesFilter.value || '').trim());
+            if (showTotals) {
+                const totalCards = cats.map(function(c) {
+                    let totalTarget = 0;
+                    let totalActual = 0;
+                    data.forEach(function(item) {
+                        const q = (item.categories && item.categories[c.key] && item.categories[c.key].quarter) || {};
+                        totalTarget += Number(q.target || 0);
+                        totalActual += Number(q.actual || 0);
+                    });
+                    const totalGap = totalActual - totalTarget;
+                    const totalAch = totalTarget !== 0 ? (totalActual / totalTarget) * 100 : 0;
+                    return '<div class="rounded-xl border border-slate-200 bg-white p-3 shadow-sm min-w-0">' +
+                        '<div class="text-[9px] font-extrabold uppercase tracking-wide text-slate-500 mb-2">' + escapeHtml(c.label) + '</div>' +
+                        '<div class="grid grid-cols-2 gap-x-3 gap-y-2 text-[10px]">' +
+                        '<div><div class="text-slate-400">Total Target</div><div class="font-bold text-slate-700 break-words">' + formatPencapaianValue(totalTarget, c.type) + '</div></div>' +
+                        '<div><div class="text-slate-400">Total Actual</div><div class="font-extrabold text-slate-800 break-words">' + formatPencapaianValue(totalActual, c.type) + '</div></div>' +
+                        '<div><div class="text-slate-400">Total Gap</div><div class="font-bold ' + (totalGap >= 0 ? 'text-emerald-700' : 'text-red-600') + ' break-words">' + formatPencapaianValue(totalGap, c.type) + '</div></div>' +
+                        '<div><div class="text-slate-400">Total Ach%</div><div class="font-extrabold text-slate-800">' + formatPercentID(totalAch) + '</div></div>' +
+                        '</div></div>';
+                }).join('');
+                totalSummaryHtml = '<div class="mb-3"><div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-600 mb-2">Total Pencapaian Semua Sales</div><div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">' + totalCards + '</div></div>';
+            }
+            container.innerHTML=totalSummaryHtml+'<div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden"><div class="overflow-x-auto"><table class="w-full min-w-[820px] text-[10px]"><thead><tr class="bg-slate-50 border-b border-slate-200 text-[9px] uppercase tracking-wide text-slate-500"><th class="px-3 py-2 text-left">Sales</th><th class="px-3 py-2 text-left">Kategori</th><th class="px-3 py-2 text-right">Target</th><th class="px-3 py-2 text-right">Actual</th><th class="px-3 py-2 text-right">Gap</th><th class="px-3 py-2 text-right">%</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
         }
 
         function renderPencapaianChart(data) {
