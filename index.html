@@ -8594,7 +8594,7 @@ startAutoRefresh();
             if(countEl)countEl.textContent=count+' transaksi';
             if(!tbody)return;
             if(!rows.length){tbody.innerHTML='<tr><td colspan="4" class="home-rebuild-empty">Belum ada transaksi hari ini.</td></tr>';return;}
-            const adminView=isHomeAdminView();tbody.innerHTML=rows.map(function(r){var st=String(r.status||'PENDING').trim().toUpperCase()||'PENDING';var cls=st==='APPROVE'?'home-status-approve':(st==='DECLINE'?'home-status-decline':'home-status-pending');return (adminView?'<td>'+escapeHtml(String(r.dsr||'-'))+'</td>':'')+'<td>'+escapeHtml(String(r.outlet||'-'))+'</td><td>'+formatHomeNumber(r.volume,1)+'</td><td>Rp '+Math.round(Number(r.value)||0).toLocaleString('id-ID')+'</td><td class="'+cls+'">'+escapeHtml(st)+'</td>';}).map(function(row){return '<tr>'+row+'</tr>';}).join('');
+            const adminView=isHomeAdminView();tbody.innerHTML=rows.map(function(r){var st=String(r.status||'PENDING').trim().toUpperCase()||'PENDING';var cls=st==='APPROVE'?'home-status-approve':(st==='DECLINE'?'home-status-decline':'home-status-pending');return (adminView?'<td>'+escapeHtml(String(r.dsr||'-'))+'</td>':'')+'<td>'+escapeHtml(String(r.outlet||'-'))+'</td><td class="home-volume-cell">'+formatHomeNumber(r.volume,1)+'</td><td>Rp '+Math.round(Number(r.value)||0).toLocaleString('id-ID')+'</td><td class="'+cls+'">'+escapeHtml(st)+'</td>';}).map(function(row){return '<tr>'+row+'</tr>';}).join('');
         }
         function isHomeAdminView(){return !String(currentUser||'').trim()||String(currentUsernameInput||'').trim().toLowerCase()==='admin';}
         function selectedHomeDsr(){const el=document.getElementById('homeDsrFilter');return isHomeAdminView()&&el?String(el.value||'').trim():'';}
@@ -12115,8 +12115,8 @@ function renderPencapaianCards(data) {
 /* FIX: kolom angka/status tidak boleh memecah kata ke baris berikutnya */
 .home-rebuild-outlet-table th:nth-child(n+2),
 .home-rebuild-outlet-table td:nth-child(n+2){white-space:nowrap!important;overflow-wrap:normal!important;word-break:keep-all!important}
-/* Beranda: rata kanan khusus isi kolom Volume pada tabel, termasuk tampilan mobile */
-.home-rebuild-outlet-table tbody td:nth-child(3){text-align:right!important;}
+/* Beranda: isi kolom Volume rata tengah, termasuk tampilan mobile */
+.home-rebuild-outlet-table tbody td.home-volume-cell{text-align:center!important;}
 .home-rebuild-outlet-table th:first-child:not(.home-admin-dsr-col),
 .home-rebuild-outlet-table td:first-child:not(.home-admin-dsr-col){white-space:normal!important;overflow-wrap:anywhere!important;word-break:normal!important}
 .home-rebuild-outlet-table .home-admin-dsr-col{white-space:normal!important;overflow-wrap:anywhere!important;word-break:normal!important}
