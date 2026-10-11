@@ -4775,6 +4775,14 @@ startAutoRefresh();
 
         function formatInputTargetNumber(v) { return (Number(v)||0).toLocaleString('id-ID',{minimumFractionDigits:1,maximumFractionDigits:1}); }
         function getInputCartDusTotal() {
+            var totalVolume = (shoppingCart||[]).reduce(function(sum,item){
+                var qty=Number(item.qty)||0, pack=Number(item.pack)||1;
+                var totalPcs = String(item.satuan||'').toUpperCase()==='DUS' ? qty*pack : qty;
+                return sum + totalPcs*(Number(item.liter)||0);
+            },0);
+            var channel = String(document.getElementById('inputChannel')?.value||'').trim().toUpperCase();
+            if (channel === 'PCO') return totalVolume / 12;
+            if (channel === 'MCO-4T') return totalVolume / 9.6;
             return (shoppingCart||[]).reduce(function(sum,item){
                 var qty=Number(item.qty)||0, pack=Number(item.pack)||1;
                 return sum + (String(item.satuan||'').toUpperCase()==='DUS' ? qty : qty/pack);
