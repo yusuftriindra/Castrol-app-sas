@@ -3135,6 +3135,32 @@ body{background:
 }
 </style>
 
+
+<style>
+@media (max-width: 767px) {
+  /* Harga Nett: mobile only — fit all visible columns, no sticky product column */
+  #tabHargaNett .overflow-x-auto { overflow-x: hidden !important; width: 100% !important; }
+  #tabHargaNett .overflow-x-auto table { font-size: 9px !important; width: 100% !important; min-width: 0 !important; max-width: 100% !important; table-layout: fixed !important; }
+  #tabHargaNett .overflow-x-auto table th,
+  #tabHargaNett .overflow-x-auto table td { padding: 2px 2px !important; line-height: 1.1 !important; overflow-wrap: anywhere !important; }
+  #tabHargaNett .overflow-x-auto table th { font-size: 8px !important; white-space: normal !important; }
+  #tabHargaNett .overflow-x-auto table td { font-size: 9px !important; }
+  #tabHargaNett .overflow-x-auto table th.harga-nett-product-sticky,
+  #tabHargaNett .overflow-x-auto table td.harga-nett-product-sticky { position: static !important; left: auto !important; z-index: auto !important; box-shadow: none !important; width: 36% !important; min-width: 0 !important; max-width: 36% !important; white-space: normal !important; overflow-wrap: anywhere !important; }
+  #tabHargaNett .overflow-x-auto table th:nth-child(4),
+  #tabHargaNett .overflow-x-auto table td:nth-child(4) { width: 22% !important; }
+  #tabHargaNett .overflow-x-auto table th:nth-child(5),
+  #tabHargaNett .overflow-x-auto table td:nth-child(5) { width: 22% !important; }
+  #tabHargaNett .overflow-x-auto table th:nth-child(6),
+  #tabHargaNett .overflow-x-auto table td:nth-child(6) { width: 20% !important; }
+  #tabHargaNett .overflow-x-auto table td input[type="number"] { box-sizing: border-box !important; width: 100% !important; min-width: 0 !important; max-width: 44px !important; padding: 1px 2px !important; font-size: 9px !important; }
+}
+</style>
+
+<style id="hide-pricelist-tab-and-page">
+/* Sembunyikan menu dan halaman Pricelist tanpa menghapus sumber data/fungsi yang mungkin dipakai fitur lain. */
+#navPricelist, #tabPricelist { display: none !important; }
+</style>
 </head>
 <body class="bg-slate-50 font-sans">
 
@@ -3297,6 +3323,12 @@ body{background:
                     <span class="sidebar-icon">💰</span>
                     <span class="sidebar-text">Pricelist</span>
                 </button>
+                <button type="button" onclick="switchTab('harganett')" id="navHargaNett"
+                        class="sidebar-item" title="Harga Nett" aria-label="Harga Nett">
+                    <span class="sidebar-icon">🏷️</span>
+                    <span class="sidebar-text">Harga Nett</span>
+                </button>
+
                 <button type="button" onclick="switchTab('tambahcustomer')" id="navTambahCustomer"
                         class="sidebar-item" title="Tambah Customer" aria-label="Tambah Customer">
                     <span class="sidebar-icon">👤</span>
@@ -3948,6 +3980,26 @@ body{background:
                             <div><label class="block text-[10px] font-bold text-slate-600 mb-1">Selesai</label><input id="pengumumanEnd" type="date" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-xs"></div>
                         </div>
                         <div class="flex justify-end gap-2 mt-4 pt-3 border-t border-slate-100"><button type="button" onclick="closePengumumanForm()" class="px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-600 text-[10px] font-bold">Batal</button><button type="button" onclick="savePengumumanForm()" class="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-[10px] font-extrabold">Simpan Pengumuman</button></div>
+                    </div>
+                </div>
+
+                <!-- HARGA NETT: halaman baru, tidak mengubah Pricelist yang sudah ada -->
+                <div id="tabHargaNett" class="tab-content hidden space-y-3">
+                    <div class="flex justify-between items-center border-b border-slate-200 pb-2">
+                        <div><h2 class="text-base font-bold text-slate-800">Harga Nett</h2></div>
+                        <div class="flex gap-2"><button type="button" onclick="exportHargaNettPDF()" class="px-3 py-2 rounded-xl bg-slate-700 text-white text-xs font-bold">Export PDF</button><button type="button" onclick="loadHargaNett(true)" class="px-3 py-2 rounded-xl bg-emerald-700 text-white text-xs font-bold">↻ Muat ulang</button></div>
+                    </div>
+                    <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-3">
+                        <div class="grid grid-cols-2 md:grid-cols-5 gap-2 mb-3 items-center">
+                          <input id="searchHargaNett" oninput="renderHargaNett()" placeholder="Cari produk..." class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-xs">
+                          <div class="flex items-center justify-center gap-1"><button type="button" id="filterProdukPCOHargaNett" onclick="setHargaNettProductType('PCO')" class="flex-1 px-2 py-2.5 border border-slate-200 rounded-xl text-xs">PCO</button><button type="button" id="filterProdukMCOHargaNett" onclick="setHargaNettProductType('MCO-4T')" class="flex-1 px-2 py-2.5 border border-slate-200 rounded-xl text-xs">MCO-4T</button><input type="hidden" id="filterProdukHargaNett" value=""></div>
+                          <input id="filterCashbackHargaNett" list="hargaNettCashbackOptions" oninput="renderHargaNett()" placeholder="Cari Cashback..." class="w-full min-w-0 px-3 py-2.5 border border-slate-200 rounded-xl text-xs"><datalist id="hargaNettCashbackOptions"></datalist>
+                          <input id="filterQuarterHargaNett" list="hargaNettQuarterOptions" oninput="renderHargaNett()" placeholder="Cari Quartal..." class="w-full min-w-0 px-3 py-2.5 border border-slate-200 rounded-xl text-xs"><datalist id="hargaNettQuarterOptions"></datalist>
+                          <input id="discountHargaNett" type="number" min="0" max="100" step="0.01" oninput="renderHargaNett()" placeholder="Discount (%)" aria-label="Discount persen" class="w-full min-w-0 px-3 py-2.5 border border-slate-200 rounded-xl text-xs">
+                        </div>
+                        <div class="overflow-x-auto rounded-lg border border-slate-200"><table class="text-[10px] border-collapse" style="width:max-content;min-width:0;table-layout:auto"><thead><tr class="bg-slate-100 text-slate-700">
+                        <th class="p-2 border harga-nett-product-sticky">PRODUK</th><th class="p-2 border">LITER</th><th class="p-2 border">PRICELIST</th><th class="p-2 border">CASHBACK</th><th class="p-2 border">EXTRA CASHBACK</th><th class="p-2 border">NETT</th>
+                        </tr></thead><tbody id="hargaNettBody"><tr><td colspan="6" class="p-5 text-center text-slate-400">Klik menu Harga Nett untuk memuat data.</td></tr></tbody></table></div>
                     </div>
                 </div>
 
@@ -5664,7 +5716,6 @@ startAutoRefresh();
         function tampilkanDetailMonitoring(encodedData) {
             setDetailModalNoFooter();
             let data = JSON.parse(decodeURIComponent(encodedData));
-            let initialMsg = `Rincian transaksi outlet akan ditampilkan di sini.`;
 
             document.getElementById('modalTitle').textContent = "DETAIL";
             document.getElementById('modalSubtitle').textContent = (data.outlet || '') + (data.custCode ? ' • CUST.CODE ' + data.custCode : '');
@@ -5672,11 +5723,6 @@ startAutoRefresh();
             const initialActual = Number(data.total || 0);
             const initialGap = initialActual - initialTarget;
             const initialAch = initialTarget > 0 ? (initialActual / initialTarget) * 100 : 0;
-
-            const detailProductsCacheKey = 'MONITORING_PRODUCTS_V2_' +
-                String(data && data.custCode || '').trim().toUpperCase().replace(/\s+/g, ' ') + '|' +
-                String(data && data.quarter || '').trim().toUpperCase();
-            const cachedDetailProducts = appLocalCacheGet(detailProductsCacheKey);
 
             document.getElementById('modalBody').innerHTML = `
                 <div class="modal-detail-summary">
@@ -5701,7 +5747,6 @@ startAutoRefresh();
                     <div class="text-[10px] font-extrabold text-slate-700">History Pengambilan</div>
                     <div class="text-[9px] text-slate-400 mt-1">Memuat...</div>
                 </div>
-                <div id="monitoringDetailProducts" class="text-xs text-slate-400 text-center py-6">${cachedDetailProducts && cachedDetailProducts.html ? cachedDetailProducts.html : initialMsg}</div>
             `;
             const monitoringModal = document.getElementById('customModal');
             const monitoringCard = monitoringModal ? monitoringModal.querySelector('.modern-modal-card') : null;
@@ -5710,106 +5755,8 @@ startAutoRefresh();
             document.getElementById('modalCancelBtn').style.display = 'none';
             document.getElementById('modalOkBtn').style.display = 'none';
 
-            // Jalankan History langsung setelah modal tampil, tanpa menunggu Transaksi.
+            // Tampilkan chart History Pengambilan saja; tooltip chart tidak diubah.
             loadMonitoringHistoryChart(data);
-
-            google.script.run
-                .withSuccessHandler(function(produkList) {
-                    let produkHtml = "";
-                    if (!produkList || produkList.length === 0) {
-                        produkHtml = `<p class="text-slate-400 text-xs py-2 italic">Tidak ada transaksi pada periode ini.</p>`;
-                    } else {
-                        // Grouping rincian berdasarkan tanggal.
-                        // Setiap tanggal ditampilkan sebagai header grup, lalu produk-produk di bawahnya.
-                        let grouped = {};
-                        produkList.forEach(function(p) {
-                            let tglValue = p.tanggal !== undefined && p.tanggal !== null && String(p.tanggal).trim()
-                                ? String(p.tanggal).trim() : '-';
-                            if (!grouped[tglValue]) grouped[tglValue] = [];
-                            grouped[tglValue].push(p);
-                        });
-
-                        let groupedDates = Object.keys(grouped).sort(function(a, b) {
-                            if (a === '-') return 1;
-                            if (b === '-') return -1;
-                            return new Date(b).getTime() - new Date(a).getTime();
-                        });
-
-                        produkHtml = `
-                            <div class="modal-table-wrap">
-                                <table class="modal-detail-table">
-                                    <thead>
-                                        <tr>
-                                            <th style="width:55px; text-align:center;">No</th>
-                                            <th style="text-align:left;">Produk</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                        `;
-
-                        let nomor = 1;
-                        groupedDates.forEach(function(tgl) {
-                            let dateLabel = tgl;
-                            if (tgl !== '-') {
-                                let parsed = new Date(tgl);
-                                if (!isNaN(parsed.getTime())) {
-                                    dateLabel = parsed.toLocaleDateString('id-ID', {
-                                        day: '2-digit', month: 'long', year: 'numeric'
-                                    });
-                                }
-                            }
-
-                            produkHtml += `
-                                <tr class="monitor-date-group-row">
-                                    <td colspan="2" class="monitor-date-group-cell">
-                                        <div class="monitor-date-group-label">
-                                            <span class="monitor-date-group-icon">📅</span>
-                                            <span>${escapeHtml(dateLabel)}</span>
-                                            <span class="monitor-date-group-count">${grouped[tgl].length} produk</span>
-                                        </div>
-                                    </td>
-                                </tr>
-                            `;
-
-                            grouped[tgl].forEach(function(p) {
-                                let produkValue = p.produk !== undefined && p.produk !== null ? String(p.produk) : '-';
-                                produkHtml += `
-                                    <tr>
-                                        <td class="p-2.5 text-center text-slate-400 font-bold">${nomor++}</td>
-                                        <td class="modal-product-name">${escapeHtml(produkValue)}</td>
-                                    </tr>
-                                `;
-                            });
-                        });
-
-                        produkHtml += `
-                                    </tbody>
-                                </table>
-                            </div>
-                        `;
-                    }
-
-                    // Data Target / Actual / Gap / Ach tetap menggunakan perhitungan yang sama.
-                    // Hanya area Transaksi yang diperbarui agar History tidak perlu menunggu transaksi selesai.
-                    appLocalCacheSet(detailProductsCacheKey, { html: produkHtml });
-                    const productsTarget = document.getElementById('monitoringDetailProducts');
-                    if (productsTarget) {
-                        productsTarget.innerHTML = produkHtml;
-                    }
-                    const monitoringBodyEl = document.getElementById('modalBody');
-                    if (monitoringBodyEl) monitoringBodyEl.scrollTop = 0;
-                })
-                .withFailureHandler(function(err) {
-                    const productsTarget = document.getElementById('monitoringDetailProducts');
-                    if (productsTarget) {
-                        productsTarget.innerHTML = `
-                            <p class="text-red-500 text-xs py-4 text-center">
-                                Gagal memuat transaksi: ${err && err.message ? err.message : 'Terjadi kesalahan.'}
-                            </p>
-                        `;
-                    }
-                })
-                .getProdukDibeliOutletQuarter(data.outlet, data.quarter, data.custCode || '');
         }
 
 
@@ -7830,6 +7777,92 @@ startAutoRefresh();
             return text;
         }
 
+        let hargaNettData = [];
+        let hargaNettCashbackChoices = [];
+        let hargaNettQuarterChoices = [];
+        let hargaNettCashbackMap = {};
+        let hargaNettExtraCashback = {};
+        function formatHargaNett(n) { return 'Rp ' + (Number(n)||0).toLocaleString('id-ID',{maximumFractionDigits:0}); }
+        function loadHargaNett(forceRefresh) {
+            const body = document.getElementById('hargaNettBody'); if (!body) return;
+            body.innerHTML = '<tr><td colspan="6" class="p-5 text-center text-slate-400">Memuat data Harga Nett...</td></tr>';
+            google.script.run.withSuccessHandler(function(res){
+                if (!res || !res.success) { body.innerHTML='<tr><td colspan="6" class="p-5 text-center text-red-500">'+escapeHtml(res&&res.error||'Gagal memuat data.')+'</td></tr>'; return; }
+                hargaNettData = Array.isArray(res.data)?res.data:[];
+                hargaNettCashbackChoices = Array.isArray(res.cashbackChoices)?res.cashbackChoices:[];
+                hargaNettQuarterChoices = Array.isArray(res.quarterChoices)?res.quarterChoices:[];
+                hargaNettCashbackMap = res.cashbackMap || {};
+                renderHargaNettCashbackChoices();
+                const qsel=document.getElementById('hargaNettQuarterOptions');
+                if(qsel){qsel.innerHTML=hargaNettQuarterChoices.map(c=>'<option value="'+escapeHtml(c.value)+'"></option>').join('');}
+                renderHargaNett();
+            }).withFailureHandler(function(err){ body.innerHTML='<tr><td colspan="6" class="p-5 text-center text-red-500">'+escapeHtml(err&&err.message||'Gagal memuat data.')+'</td></tr>'; }).getHargaNettData(!!forceRefresh);
+        }
+        function renderHargaNettCashbackChoices() {
+            const sel=document.getElementById('hargaNettCashbackOptions'); if(!sel)return;
+            const type=String((document.getElementById('filterProdukHargaNett')||{}).value||'').trim().toUpperCase();
+            let allowedTerms=null;
+            if(type==='PCO') allowedTerms=['PCO','CAS'];
+            else if(type==='MCO-4T') allowedTerms=['MCO-4T','BP'];
+            const choices=allowedTerms ? hargaNettCashbackChoices.filter(function(item){
+                const value=String(item && item.value || '').toUpperCase();
+                return allowedTerms.some(function(term){return value.includes(term);});
+            }) : hargaNettCashbackChoices;
+            sel.innerHTML=choices.map(c=>'<option value="'+escapeHtml(c.value)+'"></option>').join('');
+            const input=document.getElementById('filterCashbackHargaNett');
+            if(input && input.value && !choices.some(function(c){return String(c.value)===input.value;})) input.value='';
+        }
+        function renderHargaNett() {
+            const body=document.getElementById('hargaNettBody'); if(!body)return;
+            const q=String((document.getElementById('searchHargaNett')||{}).value||'').toLowerCase().trim();
+            const campaign=String((document.getElementById('filterCashbackHargaNett')||{}).value||'').trim();
+            const quarter=String((document.getElementById('filterQuarterHargaNett')||{}).value||'').trim();
+            const productType=String((document.getElementById('filterProdukHargaNett')||{}).value||'').trim().toUpperCase();
+            const rows=hargaNettData.filter(x=>String(x.produk||'').toLowerCase().includes(q)&&(!productType||String(x.productType||'').toUpperCase()===productType));
+            if(!rows.length){body.innerHTML='<tr><td colspan="6" class="p-5 text-center text-slate-400">Tidak ada produk aktif sesuai filter.</td></tr>';return;}
+            const discPercent=Math.min(100,Math.max(0,Number((document.getElementById('discountHargaNett')||{}).value||0)));
+            body.innerHTML=rows.map(function(x){
+                const base=Number(x.pricelist||0); const hasCtmProdukF=/CTM/i.test(String(x.ctmProdukF||'')); const discountedPricelist=hasCtmProdukF?base:Math.max(0,base-(base*discPercent/100)); const nett=Math.max(0,discountedPricelist-Number(x.disc||0));
+                const campaignText=(campaign ? campaign : '') + (x.kategoriCashback ? ((campaign ? ' - ' : '') + String(x.kategoriCashback).trim()) : '') + (quarter ? (((campaign || x.kategoriCashback) ? ' - ' : '') + quarter) : '');
+                const cashbackKey=String(campaignText||'').trim().replace(/\s+/g,' ').toUpperCase();
+                const literText=String(x.liter==null?'':x.liter).replace(/\./g,'').replace(',','.'); const literValue=Number(literText)||0;
+                const cashbackPerLiter=campaign ? Number(hargaNettCashbackMap[cashbackKey]||0) : 0; const cashbackAmount=cashbackPerLiter*literValue; const extraCashback=Number(hargaNettExtraCashback[String(x.produk||'')]||0); const nettFinal=Math.max(0,discountedPricelist-cashbackAmount-extraCashback);
+                return '<tr class="odd:bg-white even:bg-slate-50">'+
+                '<td class="p-2 border whitespace-nowrap harga-nett-product-sticky">'+escapeHtml(x.produk)+'</td><td class="p-2 border text-center">'+escapeHtml(x.liter)+'</td><td class="p-2 border text-right whitespace-nowrap">'+formatHargaNett(discountedPricelist)+'</td><td class="p-2 border text-right whitespace-nowrap">'+formatHargaNett(cashbackAmount)+'</td><td class="p-2 border text-right"><input type="number" min="0" step="any" value="'+(hargaNettExtraCashback[String(x.produk||'')] == null ? '' : hargaNettExtraCashback[String(x.produk||'')])+'" aria-label="Extra Cashback '+escapeHtml(x.produk)+'" onchange="setHargaNettExtraCashback(\''+String(x.produk||'').replace(/\\/g,'\\\\').replace(/\'/g,"\\'")+'\',this.value)" class="w-28 min-w-20 px-2 py-1 border border-slate-200 rounded text-right"></td><td class="p-2 border text-right font-bold whitespace-nowrap">'+formatHargaNett(nettFinal)+'</td></tr>';
+            }).join('');
+        }
+        function exportHargaNettPDF() {
+            const campaign=String((document.getElementById('filterCashbackHargaNett')||{}).value||'').trim();
+            const quarter=String((document.getElementById('filterQuarterHargaNett')||{}).value||'').trim();
+            const discPercent=Math.min(100,Math.max(0,Number((document.getElementById('discountHargaNett')||{}).value||0)));
+            const search=String((document.getElementById('searchHargaNett')||{}).value||'').toLowerCase().trim();
+            const productType=String((document.getElementById('filterProdukHargaNett')||{}).value||'').trim().toUpperCase();
+            // PDF mengikuti produk yang sedang difilter di tabel (pencarian + PCO/MCO-4T), tetap mengecualikan CTM.
+            const rows=(hargaNettData||[]).filter(function(x){
+                const matchesSearch=String(x.produk||'').toLowerCase().includes(search);
+                const matchesType=!productType||String(x.productType||'').toUpperCase()===productType;
+                return matchesSearch&&matchesType&&!/CTM/i.test(String(x.ctmProdukF||''));
+            });
+            if(!rows.length){showModal('Export PDF','Tidak ada produk sesuai filter (selain CTM) untuk diekspor.');return;}
+            const esc=function(v){return escapeHtml(v==null?'':String(v));};
+            const body=rows.map(function(x){
+                const base=Number(x.pricelist||0), hasCtm=/CTM/i.test(String(x.ctmProdukF||''));
+                const pricelist=hasCtm?base:Math.max(0,base-base*discPercent/100);
+                const campaignText=(campaign||'')+(x.kategoriCashback?((campaign?' - ':'')+String(x.kategoriCashback).trim()):'')+(quarter?(((campaign||x.kategoriCashback)?' - ':'')+quarter):'');
+                const key=String(campaignText||'').trim().replace(/\s+/g,' ').toUpperCase();
+                const literText=String(x.liter==null?'':x.liter).replace(/\./g,'').replace(',','.');
+                const cashback=(campaign?Number(hargaNettCashbackMap[key]||0):0)*(Number(literText)||0);
+                const extra=Number(hargaNettExtraCashback[String(x.produk||'')]||0);
+                const nett=Math.max(0,pricelist-cashback-extra);
+                return '<tr><td>'+esc(x.produk)+'</td><td>'+esc(x.liter)+'</td><td>'+formatHargaNett(pricelist)+'</td><td>'+formatHargaNett(cashback)+'</td><td>'+formatHargaNett(extra)+'</td><td>'+formatHargaNett(nett)+'</td></tr>';
+            }).join('');
+            const win=window.open('','_blank');
+            if(!win){showModal('Export PDF','Browser memblokir jendela cetak. Izinkan pop-up untuk Export PDF.');return;}
+            win.document.write('<!doctype html><html><head><title>Harga Nett</title><style>body{font-family:Arial,sans-serif;padding:18px;color:#111}h1{font-size:18px;margin:0 0 12px}table{width:100%;border-collapse:collapse;font-size:10px}th,td{border:1px solid #bbb;padding:5px;text-align:left}th{background:#eee}td:nth-child(n+2){white-space:nowrap}@page{size:A4 landscape;margin:10mm}</style></head><body><h1>Harga Nett</h1><table><thead><tr><th>PRODUK</th><th>LITER</th><th>PRICELIST</th><th>CASHBACK</th><th>EXTRA CASHBACK</th><th>NETT</th></tr></thead><tbody>'+body+'</tbody></table><script>window.onload=function(){window.print();};<\/script></body></html>');
+            win.document.close();
+        }
+        function setHargaNettProductType(type) { const el=document.getElementById('filterProdukHargaNett'); if(!el)return; el.value=(el.value===type?'':type); ['PCO','MCO-4T'].forEach(function(t){const b=document.getElementById(t==='PCO'?'filterProdukPCOHargaNett':'filterProdukMCOHargaNett');if(b){const active=el.value===t;b.classList.toggle('bg-emerald-700',active);b.classList.toggle('text-white',active);b.classList.toggle('border-emerald-700',active);}}); renderHargaNettCashbackChoices(); renderHargaNett(); }
+        function setHargaNettExtraCashback(produk, value) { hargaNettExtraCashback[String(produk||'')] = Math.max(0, Number(value)||0); renderHargaNett(); }
         function loadPricelist(forceRefresh, silentRefresh) {
             const tbody = document.getElementById('listPricelistTableBody');
             if (!tbody) return;
@@ -9064,8 +9097,8 @@ startAutoRefresh();
         function switchTab(tab) {
             const isAdminLogin = String(currentUsernameInput || '').trim().toLowerCase() === 'admin';
             if (tab === 'pengumumanadmin' && !isAdminLogin) { applyRoleVisibility(); return; }
-            const tabMap = {home:'tabHome',input:'tabInput',riwayat:'tabRiwayat',pencapaian:'tabPencapaian',monitoring:'tabMonitoring',outletkontrak:'tabOutletKontrak',outletbws:'tabOutletBWS',tambahcustomer:'tabTambahCustomer',pricelist:'tabPricelist',pesananoutlet:'tabPesananOutlet',pengumumanadmin:'tabPengumumanAdmin'};
-            const navMap = {home:'navHome',input:'navInput',riwayat:'navRiwayat',pencapaian:'navPencapaian',monitoring:'navMonitoring',outletkontrak:'navOutletKontrak',outletbws:'navOutletBWS',tambahcustomer:'navTambahCustomer',pricelist:'navPricelist',pesananoutlet:'navPesananOutlet',pengumumanadmin:'navPengumumanAdmin'};
+            const tabMap = {home:'tabHome',input:'tabInput',riwayat:'tabRiwayat',pencapaian:'tabPencapaian',monitoring:'tabMonitoring',outletkontrak:'tabOutletKontrak',outletbws:'tabOutletBWS',tambahcustomer:'tabTambahCustomer',pricelist:'tabPricelist',harganett:'tabHargaNett',pesananoutlet:'tabPesananOutlet',pengumumanadmin:'tabPengumumanAdmin'};
+            const navMap = {home:'navHome',input:'navInput',riwayat:'navRiwayat',pencapaian:'navPencapaian',monitoring:'navMonitoring',outletkontrak:'navOutletKontrak',outletbws:'navOutletBWS',tambahcustomer:'navTambahCustomer',pricelist:'navPricelist',harganett:'navHargaNett',pesananoutlet:'navPesananOutlet',pengumumanadmin:'navPengumumanAdmin'};
             Object.keys(tabMap).forEach(function(key){
                 const el=document.getElementById(tabMap[key]);
                 if(!el) return;
@@ -9103,6 +9136,7 @@ if(tab==='riwayat')loadRiwayat(false, true);
             if(tab==='outletbws')loadOutletBWSAdmin(false, true);
             if(tab==='tambahcustomer')loadTambahCustomer(false, true);
             if(tab==='pricelist')loadPricelist(false, true);
+            if(tab==='harganett')loadHargaNett(false);
             if(tab==='pesananoutlet')loadPesananOutlet(false, true);
             if(tab==='pengumumanadmin')loadPengumumanAdmin();
         }
@@ -11422,6 +11456,39 @@ function renderPencapaianCards(data) {
 
 
 <!-- STEP 2 PRODUCT DESKTOP — QTY / SATUAN / TAMBAH ITEM DI BAWAH PRODUK -->
+
+<style id="harga-nett-mobile-font-extracashback-fit-final">
+/* Hanya tampilan mobile Harga Nett; aturan desktop tidak diubah. */
+@media (max-width: 767px) {
+  #tabHargaNett .overflow-x-auto table {
+    width: max-content !important;
+    min-width: 100% !important;
+    table-layout: auto !important;
+  }
+  #tabHargaNett .overflow-x-auto table th {
+    font-size: 6.5px !important;
+    padding: 1px 2px !important;
+    white-space: nowrap !important;
+  }
+  #tabHargaNett .overflow-x-auto table td {
+    font-size: 7px !important;
+    padding: 1px 2px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+  #tabHargaNett .overflow-x-auto table td input[type="number"] {
+    width: 38px !important;
+    min-width: 38px !important;
+    max-width: 38px !important;
+    height: 18px !important;
+    min-height: 18px !important;
+    padding: 0 1px !important;
+    font-size: 7px !important;
+    line-height: 16px !important;
+    box-sizing: border-box !important;
+  }
+}
+</style>
 </body>
 </html>
 <style id="mobile-monitoring-pricelist-bottom-fix">
@@ -12251,4 +12318,84 @@ function renderPencapaianCards(data) {
 <style id="home-volume-center-final-fix">
 .home-rebuild-outlet-table th.home-volume-header, .home-rebuild-outlet-table td.home-volume-cell { text-align: center !important; }
 @media (max-width: 640px) { .home-rebuild-outlet-table th.home-volume-header, .home-rebuild-outlet-table td.home-volume-cell { text-align: center !important; } }
+</style>
+
+<style id="harga-nett-desktop-mobile-sizing-fix">
+/* LITER dan PRICELIST disembunyikan pada tabel layar saja; tetap dihitung dan masuk Export PDF */
+#tabHargaNett .overflow-x-auto table th:nth-child(2),
+#tabHargaNett .overflow-x-auto table td:nth-child(2),
+#tabHargaNett .overflow-x-auto table th:nth-child(3),
+#tabHargaNett .overflow-x-auto table td:nth-child(3) { display: none !important; }
+/* Desktop Harga Nett: gunakan ruang yang tersedia, terpisah dari aturan mobile */
+@media (min-width: 768px) {
+  #tabHargaNett .overflow-x-auto table {
+    width: 100% !important;
+    min-width: 100% !important;
+    table-layout: auto !important;
+    font-size: 13px !important;
+  }
+  #tabHargaNett .overflow-x-auto table th,
+  #tabHargaNett .overflow-x-auto table td {
+    padding: 8px 10px !important;
+    line-height: 1.35 !important;
+  }
+}
+/* Mobile only: tabel lebih ringkas dan input Extra Cashback lebih pendek */
+@media (max-width: 767px) {
+  #tabHargaNett .overflow-x-auto table { font-size: 7px !important; }
+  #tabHargaNett .overflow-x-auto table th { font-size: 6.5px !important; padding: 1px 2px !important; }
+  #tabHargaNett .overflow-x-auto table td { font-size: 7px !important; padding: 1px 2px !important; line-height: 1 !important; }
+  #tabHargaNett .overflow-x-auto table td input[type="number"] {
+    height: 20px !important;
+    min-height: 20px !important;
+    padding: 0 2px !important;
+    font-size: 7px !important;
+    line-height: 18px !important;
+    box-sizing: border-box !important;
+  }
+}
+</style>
+
+<style id="harga-nett-mobile-product-column-fit-final">
+@media (max-width: 767px) {
+  #tabHargaNett .overflow-x-auto { overflow-x: hidden !important; }
+  #tabHargaNett .overflow-x-auto table {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    table-layout: fixed !important;
+    border-collapse: collapse !important;
+  }
+  /* Mobile saja: beri ruang lebih besar pada nama produk, perkecil kolom nominal.
+     Teks produk tetap satu baris dan tabel tetap muat dalam lebar layar. */
+  #tabHargaNett .overflow-x-auto table th:first-child,
+  #tabHargaNett .overflow-x-auto table td:first-child {
+    width: 46% !important;
+    max-width: 46% !important;
+    font-size: 6.5px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: clip !important;
+    word-break: keep-all !important;
+  }
+  #tabHargaNett .overflow-x-auto table th:nth-child(4),
+  #tabHargaNett .overflow-x-auto table td:nth-child(4) { width: 18% !important; }
+  #tabHargaNett .overflow-x-auto table th:nth-child(5),
+  #tabHargaNett .overflow-x-auto table td:nth-child(5) { width: 18% !important; }
+  #tabHargaNett .overflow-x-auto table th:nth-child(6),
+  #tabHargaNett .overflow-x-auto table td:nth-child(6) { width: 18% !important; }
+  #tabHargaNett .overflow-x-auto table th,
+  #tabHargaNett .overflow-x-auto table td {
+    box-sizing: border-box !important;
+    padding-left: 2px !important;
+    padding-right: 2px !important;
+    white-space: nowrap !important;
+  }
+  #tabHargaNett .overflow-x-auto table td input[type="number"] {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+}
 </style>
