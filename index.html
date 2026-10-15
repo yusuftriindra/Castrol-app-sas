@@ -1,3 +1,16 @@
+<!-- ========================================================================
+     DOKUMENTASI INDEX.HTML — ANTARMUKA PENGGUNA
+     File ini memuat struktur halaman, gaya CSS, komponen UI, dan JavaScript
+     sisi browser. JavaScript berkomunikasi dengan backend melalui mekanisme
+     yang sudah ada di aplikasi.
+
+     Catatan pemeliharaan:
+     - Struktur HTML, CSS, JavaScript, event, dan perhitungan dipertahankan.
+     - Fungsi tidak dihapus hanya berdasarkan pencarian teks karena sebagian
+       dapat dipanggil melalui event, callback, atau nama fungsi dinamis.
+     - Saat mengubah ID elemen, pastikan referensinya di JavaScript ikut dicek.
+     ======================================================================== -->
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -1498,11 +1511,15 @@ html,body{height:100%;}
     var seq = 0;
     var pending = Object.create(null);
 
+    // Fungsi cleanup(p). Fungsi bantu untuk normalisasi, pencarian kolom/nilai, atau konversi data.
+
     function cleanup(p) {
         if (!p) return;
         if (p.frame && p.frame.parentNode) p.frame.parentNode.removeChild(p.frame);
         if (p.form && p.form.parentNode) p.form.parentNode.removeChild(p.form);
     }
+
+    // Fungsi hiddenInput(name, value). Mengambil, memvalidasi, atau mengolah data input/customer/outlet.
 
     function hiddenInput(name, value) {
         var input = document.createElement('input');
@@ -1529,6 +1546,8 @@ html,body{height:100%;}
             ), p.userObject);
         }
     });
+
+    // Fungsi call(method, args, success, failure, userObject). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
 
     function call(method, args, success, failure, userObject) {
         var id = 'gas_' + Date.now() + '_' + (++seq);
@@ -1567,6 +1586,8 @@ html,body{height:100%;}
             if (p.failure) p.failure(err, p.userObject);
         }
     }
+
+    // Fungsi runner(state). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
 
     function runner(state) {
         state = state || { success: null, failure: null, userObject: null };
@@ -4053,11 +4074,15 @@ body{background:
         let currentSatuanInput = "Pcs";
         let globalPricelistData = [];
 
+        // Fungsi refreshSelect2(selector). Memperbarui, menyimpan, menandai, atau menyinkronkan data terkait.
+
         function refreshSelect2(selector) {
             try {
                 if (window.jQuery && $.fn && $.fn.select2) $(selector).trigger('change');
             } catch (e) { console.warn('refreshSelect2:', e); }
         }
+
+        // Fungsi setSatuanInput(satuan). Mengambil, memvalidasi, atau mengolah data input/customer/outlet.
 
         function setSatuanInput(satuan) {
             currentSatuanInput = satuan;
@@ -4077,6 +4102,7 @@ body{background:
         /* BACKGROUND ACTIVITY INDICATOR
            Tidak lagi memakai overlay "Memproses...". Semua proses berjalan di belakang
            layar dan indikatornya hanya memakai icon refresh di header. */
+        // Fungsi showLoading(show). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
         function showLoading(show) {
             const el = document.getElementById('loadingOverlay');
             if (el) {
@@ -4095,6 +4121,8 @@ body{background:
         let globalRefreshPollTimer = null;
         let globalLastSyncAt = 0;
 
+        // Fungsi formatLastSync(value). Menangani pengolahan atau pemformatan tanggal/waktu.
+
         function formatLastSync(value) {
             if (!value) return 'Belum sync';
             const diff = Math.max(0, Date.now() - value);
@@ -4106,6 +4134,8 @@ body{background:
             return new Date(value).toLocaleString('id-ID',{hour:'2-digit',minute:'2-digit'});
         }
 
+        // Fungsi renderLastSync(). Memperbarui, menyimpan, menandai, atau menyinkronkan data terkait.
+
         function renderLastSync() {
             const el = document.getElementById('globalLastSync');
             if (!el) return;
@@ -4115,6 +4145,8 @@ body{background:
             }
         }
 
+        // Fungsi setGlobalRefreshState(active). Memperbarui, menyimpan, menandai, atau menyinkronkan data terkait.
+
         function setGlobalRefreshState(active) {
             const btn = document.getElementById('globalRefreshBtn');
             if (!btn) return;
@@ -4122,15 +4154,21 @@ body{background:
             btn.setAttribute('aria-busy', active ? 'true' : 'false');
         }
 
+        // Fungsi refreshWithIndicator(loader). Memperbarui, menyimpan, menandai, atau menyinkronkan data terkait.
+
         function refreshWithIndicator(loader) {
             // Kompatibilitas untuk pemanggilan lama: refresh tidak lagi menampilkan overlay.
             // Tombol global akan berputar saat sinkronisasi berjalan.
             try { return loader(); } catch (e) { console.warn('Refresh gagal:', e); }
         }
 
+        // Fungsi globalRefreshStillLoading(). Memperbarui, menyimpan, menandai, atau menyinkronkan data terkait.
+
         function globalRefreshStillLoading() {
             return !!(riwayatLoading || monitoringLoading || kontrakLoading || pencapaianLoading || outletBWSLoading || inputMasterLoading || tambahCustomerLoading || pricelistLoading || pesananOutletLoading || notificationLoading);
         }
+
+        // Fungsi finishGlobalRefreshIfReady(startedAt). Memperbarui, menyimpan, menandai, atau menyinkronkan data terkait.
 
         function finishGlobalRefreshIfReady(startedAt) {
             if (!globalRefreshRunning) return;
@@ -4145,6 +4183,8 @@ body{background:
             renderLastSync();
             setGlobalRefreshState(false);
         }
+
+        // Fungsi refreshAllPages(). Memperbarui, menyimpan, menandai, atau menyinkronkan data terkait.
 
         function refreshAllPages() {
             if (globalRefreshRunning) return;
@@ -4179,9 +4219,11 @@ body{background:
         })();
 
         // Cache browser untuk membuat tab utama langsung tampil saat dibuka kembali.
+        // Fungsi appLocalCacheSet(key, value). Mengelola cache agar pembacaan data lebih efisien.
         function appLocalCacheSet(key, value) {
             try { localStorage.setItem('CASTROL_FAST_' + key, JSON.stringify({t:Date.now(),v:value})); } catch(e) {}
         }
+        // Fungsi appLocalCacheGet(key). Mengelola cache agar pembacaan data lebih efisien.
         function appLocalCacheGet(key) {
             try {
                 const raw = localStorage.getItem('CASTROL_FAST_' + key);
@@ -4191,6 +4233,7 @@ body{background:
             } catch(e) { return null; }
         }
         // Cache dianggap segar selama 60 detik agar perpindahan tab tidak terus meminta data ke server.
+        // Fungsi appLocalCacheIsFresh(key, maxAgeMs). Mengelola cache agar pembacaan data lebih efisien.
         function appLocalCacheIsFresh(key, maxAgeMs) {
             try {
                 const raw = localStorage.getItem('CASTROL_FAST_' + key);
@@ -4199,6 +4242,7 @@ body{background:
                 return !!(obj && obj.t && (Date.now() - Number(obj.t) < (maxAgeMs || 60000)));
             } catch(e) { return false; }
         }
+        // Fungsi restoreFastTabCaches(). Mengelola cache agar pembacaan data lebih efisien.
         function restoreFastTabCaches() {
             const usernameKey = String(currentUsernameInput||'').toUpperCase();
             const riwayat = appLocalCacheGet('RIWAYAT_' + usernameKey);
@@ -4212,6 +4256,8 @@ body{background:
             const penc = appLocalCacheGet('PENCAPAIAN_' + String(currentUsernameInput||'').toUpperCase());
             if (penc && typeof penc === 'object') Object.assign(pencapaianCache, penc);
         }
+
+        // Fungsi setDetailModalNoFooter(). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
 
         function setDetailModalNoFooter() {
             const modal = document.getElementById('customModal');
@@ -4227,6 +4273,8 @@ body{background:
             if (okBtn) okBtn.style.display = 'none';
         }
 
+        // Fungsi clearDetailModalNoFooter(). Memperbarui, menyimpan, menandai, atau menyinkronkan data terkait.
+
         function clearDetailModalNoFooter() {
             const modal = document.getElementById('customModal');
             if (!modal) return;
@@ -4236,6 +4284,8 @@ body{background:
             const footer = modal.querySelector('.modern-modal-footer');
             if (footer) footer.style.display = '';
         }
+
+        // Fungsi showModal(title, message, isConfirm = false, callback = null). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
 
         function showModal(title, message, isConfirm = false, callback = null) {
             // Peringatan koneksi/Apps Script tidak ditampilkan ke pengguna.
@@ -4275,6 +4325,8 @@ body{background:
             okBtn.textContent = isConfirm ? 'OK' : 'Oke';
             modalCallback = callback;
         }
+
+        // Fungsi closeModal(isOk). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
 
         function closeModal(isOk) {
             clearDetailModalNoFooter();
@@ -4343,6 +4395,8 @@ body{background:
         let pricelistLoading = false;
         let pesananOutletLoading = false;
 
+        // Fungsi saveAuthState(). Memperbarui, menyimpan, menandai, atau menyinkronkan data terkait.
+
         function saveAuthState() {
             try {
                 localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({
@@ -4354,10 +4408,14 @@ body{background:
             }
         }
 
+        // Fungsi clearAuthState(). Memperbarui, menyimpan, menandai, atau menyinkronkan data terkait.
+
         function clearAuthState() {
             try { localStorage.removeItem(AUTH_STORAGE_KEY); }
             catch (e) { console.warn("Gagal menghapus sesi lokal:", e); }
         }
+
+        // Fungsi applyRoleVisibility(). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
 
         function applyRoleVisibility() {
             const isAdminLogin = String(currentUsernameInput || '').trim().toLowerCase() === 'admin';
@@ -4382,6 +4440,8 @@ body{background:
             const filterOutletKontrakSales = document.getElementById('filterOutletKontrakSales');
             if (filterOutletKontrakSales) filterOutletKontrakSales.classList.toggle('hidden', !isAdminLogin);
         }
+
+        // Fungsi restoreAuthState(). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
 
         function restoreAuthState() {
             try {
@@ -4450,10 +4510,14 @@ startAutoRefresh();
         let inputMasterLoaded = false;
         let produkFilterType = 'ALL';
 
+        // Fungsi setProdukFilter(type). Mengambil atau mengolah data produk, pricelist, harga, atau cashback.
+
         function setProdukFilter(type) {
             produkFilterType = String(type || 'ALL').toUpperCase();
             renderProdukDropdown();
         }
+
+        // Fungsi updateProdukFilterButtons(). Menangani pengolahan atau pemformatan tanggal/waktu.
 
         function updateProdukFilterButtons() {
             const buttons = {
@@ -4471,6 +4535,8 @@ startAutoRefresh();
                 }
             });
         }
+
+        // Fungsi renderProdukDropdown(). Mengambil atau mengolah data produk, pricelist, harga, atau cashback.
 
         function renderProdukDropdown() {
             const select = $('#addItemProduk');
@@ -4506,10 +4572,13 @@ startAutoRefresh();
             updateProdukFilterButtons();
         }
 
+        // Fungsi loadInputMasterData(). Mengambil, memvalidasi, atau mengolah data input/customer/outlet.
+
         function loadInputMasterData() {
             if (inputMasterLoaded || inputMasterLoading) return;
             inputMasterLoading = true;
             let done = 0;
+            // Fungsi finish(). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
             function finish(){ done++; if(done>=2){ inputMasterLoading=false; inputMasterLoaded=true; showLoading(false); } }
             google.script.run.withSuccessHandler(function(data) {
                 produkDataList = data || [];
@@ -4528,10 +4597,14 @@ startAutoRefresh();
             }).withFailureHandler(function(err){ console.warn('Gagal memuat cashback:', err); finish(); }).getListCashback();
         }
 
+        // Fungsi toggleAuthMode(mode). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
+
         function toggleAuthMode(mode) {
             document.getElementById('loginPage').classList.toggle('hidden', mode === 'register');
             document.getElementById('registerPage').classList.toggle('hidden', mode !== 'register');
         }
+
+        // Fungsi loadSalesOptionsForRegister(). Mengelola proses login, pendaftaran, atau data akun pengguna.
 
         function loadSalesOptionsForRegister() {
             google.script.run.withSuccessHandler(function(salesList) {
@@ -4544,6 +4617,8 @@ startAutoRefresh();
             }).getListSalesOptions();
         }
 
+        // Fungsi handleRegister(e). Mengelola proses login, pendaftaran, atau data akun pengguna.
+
         function handleRegister(e) {
             e.preventDefault();
             showLoading(true);
@@ -4553,6 +4628,8 @@ startAutoRefresh();
                 if (res.success) toggleAuthMode('login');
             }).prosesRegister($('#regSalesName').val(), document.getElementById('regUser').value, document.getElementById('regPass').value);
         }
+
+        // Fungsi handleLogin(e). Mengelola proses login, pendaftaran, atau data akun pengguna.
 
         function handleLogin(e) {
             e.preventDefault();
@@ -4609,6 +4686,8 @@ startAutoRefresh();
             }).prosesLogin(currentUsernameInput, document.getElementById('loginPass').value);
         }
 
+        // Fungsi loadOutletForSales(sales, usernameInput). Mengambil, memvalidasi, atau mengolah data input/customer/outlet.
+
         function loadOutletForSales(sales, usernameInput) {
             if (usernameInput && usernameInput.toLowerCase() === 'admin') {
                 google.script.run.withSuccessHandler(function(outlets) {
@@ -4645,6 +4724,8 @@ startAutoRefresh();
             }
         }
 
+        // Fungsi renderInputOutletOptions(). Mengambil, memvalidasi, atau mengolah data input/customer/outlet.
+
         function renderInputOutletOptions() {
             const select = $('#inputOutlet');
             if (!select || !select.length) return;
@@ -4670,10 +4751,14 @@ startAutoRefresh();
             refreshSelect2('#inputOutlet');
         }
 
+        // Fungsi onInputSalesFilterChange(). Mengambil, memvalidasi, atau mengolah data input/customer/outlet.
+
         function onInputSalesFilterChange() {
             if (String(currentUsernameInput || '').trim().toLowerCase() !== 'admin') return;
             renderInputOutletOptions();
         }
+
+        // Fungsi updateInputWizardIndicator(step). Menangani pengolahan atau pemformatan tanggal/waktu.
 
         function updateInputWizardIndicator(step) {
             const i1 = document.getElementById('inputStep1Indicator');
@@ -4691,6 +4776,8 @@ startAutoRefresh();
                 i2.querySelector('span').className = 'w-6 h-6 rounded-full bg-slate-300 text-white text-[10px] font-extrabold flex items-center justify-center';
             }
         }
+
+        // Fungsi lanjutKeTambahProduk(). Mengambil atau mengolah data produk, pricelist, harga, atau cashback.
 
         function lanjutKeTambahProduk() {
             const outlet = $('#inputOutlet').val();
@@ -4727,12 +4814,16 @@ startAutoRefresh();
             window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
+        // Fungsi kembaliKeInfoOrder(). Menangani data atau proses pesanan/transaksi dan riwayatnya.
+
         function kembaliKeInfoOrder() {
             document.getElementById('inputStep2').classList.add('hidden');
             document.getElementById('inputStep1').classList.remove('hidden');
             updateInputWizardIndicator(1);
             window.scrollTo({top: 0, behavior: 'smooth'});
         }
+
+        // Fungsi renderCashbackOptionsForInputChannel(). Mengambil atau mengolah data produk, pricelist, harga, atau cashback.
 
         function renderCashbackOptionsForInputChannel() {
             const selectCB = $('#cashbackSelect');
@@ -4759,6 +4850,8 @@ startAutoRefresh();
             refreshSelect2('#cashbackSelect');
         }
 
+        // Fungsi onOutletChange(). Mengambil, memvalidasi, atau mengolah data input/customer/outlet.
+
         function onOutletChange() {
             let val = $('#inputOutlet').val();
             let found = outletDataList.find(o => o.outlet === val);
@@ -4773,21 +4866,17 @@ startAutoRefresh();
             loadInputCustCodeTarget();
         }
 
+        // Fungsi formatInputTargetNumber(v). Menangani pengolahan atau pemformatan tanggal/waktu.
+
         function formatInputTargetNumber(v) { return (Number(v)||0).toLocaleString('id-ID',{minimumFractionDigits:1,maximumFractionDigits:1}); }
+        // Fungsi getInputCartDusTotal(). Mengambil, memvalidasi, atau mengolah data input/customer/outlet.
         function getInputCartDusTotal() {
-            var totalVolume = (shoppingCart||[]).reduce(function(sum,item){
-                var qty=Number(item.qty)||0, pack=Number(item.pack)||1;
-                var totalPcs = String(item.satuan||'').toUpperCase()==='DUS' ? qty*pack : qty;
-                return sum + totalPcs*(Number(item.liter)||0);
-            },0);
-            var channel = String(document.getElementById('inputChannel')?.value||'').trim().toUpperCase();
-            if (channel === 'PCO') return totalVolume / 12;
-            if (channel === 'MCO-4T') return totalVolume / 9.6;
             return (shoppingCart||[]).reduce(function(sum,item){
                 var qty=Number(item.qty)||0, pack=Number(item.pack)||1;
                 return sum + (String(item.satuan||'').toUpperCase()==='DUS' ? qty : qty/pack);
             },0);
         }
+        // Fungsi renderInputCustCodeTarget(). Mengambil, memvalidasi, atau mengolah data input/customer/outlet.
         function renderInputCustCodeTarget() {
             var d=inputTargetCustCodeData||{};
             var months=Array.isArray(d.months)?d.months:[];
@@ -4825,8 +4914,10 @@ startAutoRefresh();
                 set('inputAchPctQ_',formatInputTargetNumber(qAch)+'%');
             });
         }
+        // Fungsi loadInputCustCodeTarget(forceRefresh, refreshButton). Mengambil, memvalidasi, atau mengolah data input/customer/outlet.
         function loadInputCustCodeTarget(forceRefresh, refreshButton) {
             var originalButtonHtml = refreshButton ? refreshButton.innerHTML : '';
+            // Fungsi finishRefreshButton(). Memperbarui, menyimpan, menandai, atau menyinkronkan data terkait.
             function finishRefreshButton(){
                 if(refreshButton){refreshButton.disabled=false;refreshButton.innerHTML=originalButtonHtml;refreshButton.classList.remove('opacity-70','cursor-wait');}
             }
@@ -4844,6 +4935,8 @@ startAutoRefresh();
                 finishRefreshButton();
             }).withFailureHandler(function(err){if(inputTargetRequestKey===key){inputTargetCustCodeData=null;renderInputCustCodeTarget();var msg=err&&err.message?err.message:'Gagal memuat target.';['inputTargetQuarterLabel1','inputTargetQuarterLabel2'].forEach(function(id){var el=document.getElementById(id);if(el){el.textContent='Gagal memuat target: '+msg;el.title=msg;}});}finishRefreshButton();}).getInputCustCodeAchievement(custCode,dateValue);
         }
+
+        // Fungsi tambahKeKeranjang(). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
 
         function tambahKeKeranjang() {
             let produkNama = $('#addItemProduk').val();
@@ -4882,10 +4975,14 @@ startAutoRefresh();
             renderCart();
         }
 
+        // Fungsi hapusItemCart(index). Menghapus data terkait sesuai parameter fungsi.
+
         function hapusItemCart(index) {
             shoppingCart.splice(index, 1);
             renderCart();
         }
+
+        // Fungsi renderCart(). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
 
         function renderCart() {
             let container = document.getElementById('cartList');
@@ -4934,6 +5031,8 @@ startAutoRefresh();
             renderInputCustCodeTarget();
         }
 
+        // Fungsi setPayment(value). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
+
         function setPayment(value) {
             value = String(value || 'CASH').toUpperCase();
             if (value !== 'CASH' && value !== 'CREDIT') value = 'CASH';
@@ -4953,6 +5052,8 @@ startAutoRefresh();
             active.forEach(c => selected.classList.add(c));
             inactive.forEach(c => other.classList.add(c));
         }
+
+        // Fungsi resetFormOrderSetelahKirim(). Menangani data atau proses pesanan/transaksi dan riwayatnya.
 
         function resetFormOrderSetelahKirim() {
             shoppingCart = [];
@@ -4975,6 +5076,8 @@ startAutoRefresh();
             const p=document.getElementById('addItemProduk'); if(p){p.value='';renderProdukDropdown();}
         }
 
+        // Fungsi buildOrderWhatsAppUrl(payload). Menangani data atau proses pesanan/transaksi dan riwayatnya.
+
         function buildOrderWhatsAppUrl(payload) {
             const outlet = String(payload && payload.outlet || '').trim();
             const items = Array.isArray(payload && payload.items) ? payload.items : [];
@@ -4987,6 +5090,8 @@ startAutoRefresh();
             if (note) message += '\n\n*Note :* ' + note;
             return 'https://api.whatsapp.com/send?text=' + encodeURIComponent(message);
         }
+
+        // Fungsi kirimSemuaOrder(). Menangani data atau proses pesanan/transaksi dan riwayatnya.
 
         function kirimSemuaOrder() {
             let outlet = $('#inputOutlet').val();
@@ -5080,6 +5185,8 @@ startAutoRefresh();
             });
         }
 
+        // Fungsi loadRiwayat(forceReload, silentRefresh). Menangani data atau proses pesanan/transaksi dan riwayatnya.
+
         function loadRiwayat(forceReload, silentRefresh) {
             if (forceReload && !silentRefresh) riwayatPage = 1;
             const riwayatCacheKey = 'RIWAYAT_' + String(currentUsernameInput||'').toUpperCase();
@@ -5114,6 +5221,8 @@ startAutoRefresh();
                 document.getElementById('riwayatCount').textContent = '0 transaksi';
             }).getRiwayatOrder(currentUser, currentUsernameInput);
         }
+
+        // Fungsi renderRiwayatList(data). Menangani data atau proses pesanan/transaksi dan riwayatnya.
 
         function renderRiwayatList(data) {
             const container = document.getElementById('listRiwayat');
@@ -5292,6 +5401,8 @@ startAutoRefresh();
             updateSelectedRiwayatUI();
         }
 
+        // Fungsi changeRiwayatPage(delta). Menangani data atau proses pesanan/transaksi dan riwayatnya.
+
         function changeRiwayatPage(delta) {
             const total = Math.max(1, Math.ceil((globalRiwayatData || []).length / RIWAYAT_PAGE_SIZE));
             riwayatPage = Math.max(1, Math.min(total, riwayatPage + Number(delta || 0)));
@@ -5299,6 +5410,8 @@ startAutoRefresh();
             const wrap = document.querySelector('.riwayat-table-wrap');
             if (wrap) wrap.scrollTop = 0;
         }
+
+        // Fungsi pilihSemuaStatusRiwayat(status). Menangani data atau proses pesanan/transaksi dan riwayatnya.
 
         function pilihSemuaStatusRiwayat(status) {
             document.querySelectorAll('.bulk-status-select').forEach(function(select) {
@@ -5315,6 +5428,8 @@ startAutoRefresh();
             updateBulkStatusInfo();
         }
 
+        // Fungsi resetPilihanStatusRiwayat(). Menangani data atau proses pesanan/transaksi dan riwayatnya.
+
         function resetPilihanStatusRiwayat() {
             document.querySelectorAll('.bulk-status-select').forEach(function(select) {
                 const id = String(select.dataset.orderId || '').trim();
@@ -5323,6 +5438,8 @@ startAutoRefresh();
             });
             updateBulkStatusInfo();
         }
+
+        // Fungsi updateBulkStatusInfo(). Menangani pengolahan atau pemformatan tanggal/waktu.
 
         function updateBulkStatusInfo() {
             let approve = 0;
@@ -5357,6 +5474,8 @@ startAutoRefresh();
                 updateBulkStatusInfo();
             }
         });
+
+        // Fungsi doneBulkStatusRiwayat(). Menangani data atau proses pesanan/transaksi dan riwayatnya.
 
         function doneBulkStatusRiwayat() {
             if (!currentUsernameInput || currentUsernameInput.toLowerCase() !== 'admin') {
@@ -5398,6 +5517,8 @@ startAutoRefresh();
                     let index = 0;
                     let success = 0;
                     let failed = 0;
+
+                    // Fungsi processNext(). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
 
                     function processNext() {
                         if (index >= changes.length) {
@@ -5446,6 +5567,7 @@ startAutoRefresh();
 
 
         // Menjaga KPI detail Monitoring tetap tampil setelah transaksi selesai dimuat.
+        // Fungsi updateMonitoringDetailKPI(detail). Menangani pengolahan atau pemformatan tanggal/waktu.
         function updateMonitoringDetailKPI(detail) {
             if (!detail) return;
 
@@ -5470,6 +5592,8 @@ startAutoRefresh();
             setVal(['monitoringDetailAch', 'detailMonitoringAch'], ach.toFixed(1) + '%');
         }
 
+        // Fungsi loadMonitoring(forceReload, silentRefresh). Mengambil atau mengolah data untuk halaman Monitoring.
+
         function loadMonitoring(forceReload, silentRefresh) {
             const hasCached = Object.keys(rawMonitoringDataObject || {}).length > 0;
             let container = document.getElementById('listMonitoringTableBody');
@@ -5487,6 +5611,7 @@ startAutoRefresh();
                     rawMonitoringDataObject = dataObj || {};
                     appLocalCacheSet('MONITORING_V9_' + String(currentUsernameInput||'').toUpperCase(), rawMonitoringDataObject);
                     let quarters = Object.keys(rawMonitoringDataObject).sort(function(a,b){
+                        // Fungsi quarterKey(v). Mengambil atau mengolah data Pencapaian Sales/periode pencapaian.
                         function quarterKey(v){
                             const m=String(v||'').match(/Q\s*([1-4])\s*(\d{4})/i);
                             return m ? Number(m[2])*10+Number(m[1]) : -1;
@@ -5519,6 +5644,7 @@ startAutoRefresh();
                 rawMonitoringDataObject = dataObj || {};
                 appLocalCacheSet('MONITORING_V9_' + String(currentUsernameInput||'').toUpperCase(), rawMonitoringDataObject);
                 let quarters = Object.keys(rawMonitoringDataObject).sort(function(a,b){
+                    // Fungsi quarterKey(v). Mengambil atau mengolah data Pencapaian Sales/periode pencapaian.
                     function quarterKey(v){
                         const m=String(v||'').match(/Q\s*([1-4])\s*(\d{4})/i);
                         return m ? Number(m[2])*10+Number(m[1]) : -1;
@@ -5539,11 +5665,15 @@ startAutoRefresh();
             }).getMonitoringOutletData(currentUser, currentUsernameInput);
         }
 
+        // Fungsi filterMonitoring(). Mengambil atau mengolah data untuk halaman Monitoring.
+
         function filterMonitoring() {
             // Pencarian hanya menyaring data Monitoring yang sudah dimuat.
             // Tidak mengambil data baru dari server.
             renderMonitoringList();
         }
+
+        // Fungsi sortMonitoringTable(key). Mengambil atau mengolah data untuk halaman Monitoring.
 
         function sortMonitoringTable(key) {
             const textKeys = ['dsr', 'outlet', 'custCode'];
@@ -5560,6 +5690,8 @@ startAutoRefresh();
             renderMonitoringList();
         }
 
+        // Fungsi updateMonitoringSortIndicators(). Menangani pengolahan atau pemformatan tanggal/waktu.
+
         function updateMonitoringSortIndicators() {
             const keys = ['dsr','outlet','custCode','targetQuarter','totalQuarterVol','gap','achievement','m1','m2','m3'];
             keys.forEach(function(key) {
@@ -5572,6 +5704,8 @@ startAutoRefresh();
                 el.textContent = monitoringSortState.direction === 1 ? '▲' : '▼';
             });
         }
+
+        // Fungsi renderMonitoringList(). Mengambil atau mengolah data untuk halaman Monitoring.
 
         function renderMonitoringList() {
             const monitoringTab = document.getElementById('tabMonitoring');
@@ -5721,9 +5855,12 @@ startAutoRefresh();
             container.innerHTML = html;
         }
 
+        // Fungsi tampilkanDetailMonitoring(encodedData). Mengambil atau mengolah data untuk halaman Monitoring.
+
         function tampilkanDetailMonitoring(encodedData) {
             setDetailModalNoFooter();
             let data = JSON.parse(decodeURIComponent(encodedData));
+            let initialMsg = `Rincian transaksi outlet akan ditampilkan di sini.`;
 
             document.getElementById('modalTitle').textContent = "DETAIL";
             document.getElementById('modalSubtitle').textContent = (data.outlet || '') + (data.custCode ? ' • CUST.CODE ' + data.custCode : '');
@@ -5731,6 +5868,11 @@ startAutoRefresh();
             const initialActual = Number(data.total || 0);
             const initialGap = initialActual - initialTarget;
             const initialAch = initialTarget > 0 ? (initialActual / initialTarget) * 100 : 0;
+
+            const detailProductsCacheKey = 'MONITORING_PRODUCTS_V2_' +
+                String(data && data.custCode || '').trim().toUpperCase().replace(/\s+/g, ' ') + '|' +
+                String(data && data.quarter || '').trim().toUpperCase();
+            const cachedDetailProducts = appLocalCacheGet(detailProductsCacheKey);
 
             document.getElementById('modalBody').innerHTML = `
                 <div class="modal-detail-summary">
@@ -5755,6 +5897,7 @@ startAutoRefresh();
                     <div class="text-[10px] font-extrabold text-slate-700">History Pengambilan</div>
                     <div class="text-[9px] text-slate-400 mt-1">Memuat...</div>
                 </div>
+                <div id="monitoringDetailProducts" class="text-xs text-slate-400 text-center py-6">${cachedDetailProducts && cachedDetailProducts.html ? cachedDetailProducts.html : initialMsg}</div>
             `;
             const monitoringModal = document.getElementById('customModal');
             const monitoringCard = monitoringModal ? monitoringModal.querySelector('.modern-modal-card') : null;
@@ -5763,9 +5906,110 @@ startAutoRefresh();
             document.getElementById('modalCancelBtn').style.display = 'none';
             document.getElementById('modalOkBtn').style.display = 'none';
 
-            // Tampilkan chart History Pengambilan saja; tooltip chart tidak diubah.
+            // Jalankan History langsung setelah modal tampil, tanpa menunggu Transaksi.
             loadMonitoringHistoryChart(data);
+
+            google.script.run
+                .withSuccessHandler(function(produkList) {
+                    let produkHtml = "";
+                    if (!produkList || produkList.length === 0) {
+                        produkHtml = `<p class="text-slate-400 text-xs py-2 italic">Tidak ada transaksi pada periode ini.</p>`;
+                    } else {
+                        // Grouping rincian berdasarkan tanggal.
+                        // Setiap tanggal ditampilkan sebagai header grup, lalu produk-produk di bawahnya.
+                        let grouped = {};
+                        produkList.forEach(function(p) {
+                            let tglValue = p.tanggal !== undefined && p.tanggal !== null && String(p.tanggal).trim()
+                                ? String(p.tanggal).trim() : '-';
+                            if (!grouped[tglValue]) grouped[tglValue] = [];
+                            grouped[tglValue].push(p);
+                        });
+
+                        let groupedDates = Object.keys(grouped).sort(function(a, b) {
+                            if (a === '-') return 1;
+                            if (b === '-') return -1;
+                            return new Date(b).getTime() - new Date(a).getTime();
+                        });
+
+                        produkHtml = `
+                            <div class="modal-table-wrap">
+                                <table class="modal-detail-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:55px; text-align:center;">No</th>
+                                            <th style="text-align:left;">Produk</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                        `;
+
+                        let nomor = 1;
+                        groupedDates.forEach(function(tgl) {
+                            let dateLabel = tgl;
+                            if (tgl !== '-') {
+                                let parsed = new Date(tgl);
+                                if (!isNaN(parsed.getTime())) {
+                                    dateLabel = parsed.toLocaleDateString('id-ID', {
+                                        day: '2-digit', month: 'long', year: 'numeric'
+                                    });
+                                }
+                            }
+
+                            produkHtml += `
+                                <tr class="monitor-date-group-row">
+                                    <td colspan="2" class="monitor-date-group-cell">
+                                        <div class="monitor-date-group-label">
+                                            <span class="monitor-date-group-icon">📅</span>
+                                            <span>${escapeHtml(dateLabel)}</span>
+                                            <span class="monitor-date-group-count">${grouped[tgl].length} produk</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
+
+                            grouped[tgl].forEach(function(p) {
+                                let produkValue = p.produk !== undefined && p.produk !== null ? String(p.produk) : '-';
+                                produkHtml += `
+                                    <tr>
+                                        <td class="p-2.5 text-center text-slate-400 font-bold">${nomor++}</td>
+                                        <td class="modal-product-name">${escapeHtml(produkValue)}</td>
+                                    </tr>
+                                `;
+                            });
+                        });
+
+                        produkHtml += `
+                                    </tbody>
+                                </table>
+                            </div>
+                        `;
+                    }
+
+                    // Data Target / Actual / Gap / Ach tetap menggunakan perhitungan yang sama.
+                    // Hanya area Transaksi yang diperbarui agar History tidak perlu menunggu transaksi selesai.
+                    appLocalCacheSet(detailProductsCacheKey, { html: produkHtml });
+                    const productsTarget = document.getElementById('monitoringDetailProducts');
+                    if (productsTarget) {
+                        productsTarget.innerHTML = produkHtml;
+                    }
+                    const monitoringBodyEl = document.getElementById('modalBody');
+                    if (monitoringBodyEl) monitoringBodyEl.scrollTop = 0;
+                })
+                .withFailureHandler(function(err) {
+                    const productsTarget = document.getElementById('monitoringDetailProducts');
+                    if (productsTarget) {
+                        productsTarget.innerHTML = `
+                            <p class="text-red-500 text-xs py-4 text-center">
+                                Gagal memuat transaksi: ${err && err.message ? err.message : 'Terjadi kesalahan.'}
+                            </p>
+                        `;
+                    }
+                })
+                .getProdukDibeliOutletQuarter(data.outlet, data.quarter, data.custCode || '');
         }
+
+
+        // Fungsi loadMonitoringHistoryChart(data). Mengambil atau mengolah data untuk halaman Monitoring.
 
 
         function loadMonitoringHistoryChart(data) {
@@ -5807,6 +6051,8 @@ startAutoRefresh();
                 })
                 .getMonitoringOutletHistory(data.custCode || '');
         }
+
+        // Fungsi renderMonitoringHistoryChart(history, lastOrder). Mengambil atau mengolah data untuk halaman Monitoring.
 
         function renderMonitoringHistoryChart(history, lastOrder) {
             const target = document.getElementById('monitoringDetailHistoryChart');
@@ -5938,6 +6184,8 @@ startAutoRefresh();
             // yang memakai overflow horizontal.
             if (tooltip.parentElement !== document.body) document.body.appendChild(tooltip);
 
+            // Fungsi showHistoryTooltip_(group). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
+
             function showHistoryTooltip_(group) {
                 const idx = Number(group.getAttribute('data-index') || 0);
                 const label = group.getAttribute('data-label') || '';
@@ -5958,6 +6206,7 @@ startAutoRefresh();
                         const dateKeys = Object.keys(detailsByDate).sort(function(a, b) {
                             if (a === '-') return 1;
                             if (b === '-') return -1;
+                            // Fungsi dateSortValue(value). Menangani pengolahan atau pemformatan tanggal/waktu.
                             function dateSortValue(value) {
                                 const match = value.match(/^(\d{1,2})\s+([A-Za-z\u00C0-\u024F]+)\s+(\d{4})$/);
                                 if (!match) return 0;
@@ -5974,7 +6223,7 @@ startAutoRefresh();
                                 }).join('') + '</div>';
                         }).join('');
                     } else {
-                        tooltipDetails.innerHTML = '<div style="padding:3px 0;color:#cbd5e1">Memuat.</div>';
+                        tooltipDetails.innerHTML = '<div style="padding:3px 0;color:#cbd5e1">Tidak ada transaksi pada bulan ini.</div>';
                     }
                 }
 
@@ -6007,6 +6256,8 @@ startAutoRefresh();
                     rect.setAttribute('opacity', n === idx ? '1' : (Number(history[n] && history[n].volume) > 0 ? '0.88' : '0.18'));
                 });
             }
+
+            // Fungsi hideHistoryTooltip_(). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
 
             function hideHistoryTooltip_() {
                 tooltip.style.display = 'none';
@@ -6055,6 +6306,8 @@ startAutoRefresh();
             });
         }
 
+        // Fungsi updateQuarterMonthHeaderLabels(quarterKey). Menangani normalisasi atau pengolahan nama dan periode bulan.
+
         function updateQuarterMonthHeaderLabels(quarterKey) {
             let parts = quarterKey.split(" ");
             let qNum = parts[0]; 
@@ -6072,6 +6325,8 @@ startAutoRefresh();
             document.getElementById('thM3').textContent = months[2];
         }
 
+        // Fungsi populateRiwayatDsrFilter(). Menangani data atau proses pesanan/transaksi dan riwayatnya.
+
         function populateRiwayatDsrFilter() {
             const select = document.getElementById('filterRiwayatDsr');
             if (!select) return;
@@ -6080,6 +6335,8 @@ startAutoRefresh();
             select.innerHTML = '<option value="">Semua DSR / Sales</option>' + values.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
             if (values.includes(previous)) select.value = previous;
         }
+
+        // Fungsi populateRiwayatStatusFilter(). Menangani data atau proses pesanan/transaksi dan riwayatnya.
 
         function populateRiwayatStatusFilter() {
             const select = document.getElementById('filterRiwayatStatus');
@@ -6095,6 +6352,8 @@ startAutoRefresh();
             select.classList.toggle('hidden', !(currentUsernameInput && currentUsernameInput.toLowerCase() === 'admin'));
         }
 
+        // Fungsi populateRiwayatYearFilter(data). Menangani data atau proses pesanan/transaksi dan riwayatnya.
+
         function populateRiwayatYearFilter(data) {
             const select = document.getElementById('filterRiwayatYear');
             if (!select) return;
@@ -6109,6 +6368,8 @@ startAutoRefresh();
             select.innerHTML = '<option value="">Semua Tahun</option>' + list.map(function(y) { return '<option value="' + escapeHtml(y) + '">' + escapeHtml(y) + '</option>'; }).join('');
             if (years[current]) select.value = current;
         }
+
+        // Fungsi filterRiwayat(). Menangani data atau proses pesanan/transaksi dan riwayatnya.
 
         function filterRiwayat() {
             const search = document.getElementById('searchRiwayatInput');
@@ -6139,6 +6400,8 @@ startAutoRefresh();
             renderRiwayatList(filtered);
         }
 
+        // Fungsi resetRiwayatDateFilter(). Menangani pengolahan atau pemformatan tanggal/waktu.
+
         function resetRiwayatDateFilter() {
             const month = document.getElementById('filterRiwayatMonth');
             const year = document.getElementById('filterRiwayatYear');
@@ -6147,6 +6410,8 @@ startAutoRefresh();
             filterRiwayat();
         }
 
+        // Fungsi resetRiwayatAdminFilter(). Menangani data atau proses pesanan/transaksi dan riwayatnya.
+
         function resetRiwayatAdminFilter() {
             const dsr = document.getElementById('filterRiwayatDsr');
             const status = document.getElementById('filterRiwayatStatus');
@@ -6154,6 +6419,8 @@ startAutoRefresh();
             if (status) status.value = '';
             filterRiwayat();
         }
+
+        // Fungsi resetRiwayatAllFilter(). Menangani data atau proses pesanan/transaksi dan riwayatnya.
 
         function resetRiwayatAllFilter() {
             const search = document.getElementById('searchRiwayatInput');
@@ -6171,11 +6438,15 @@ startAutoRefresh();
             filterRiwayat();
         }
 
+        // Fungsi clearSearch(). Memperbarui, menyimpan, menandai, atau menyinkronkan data terkait.
+
         function clearSearch() {
             document.getElementById('searchRiwayatInput').value = "";
             document.getElementById('clearSearchBtn').classList.add('hidden');
             filterRiwayat();
         }
+
+        // Fungsi lihatDetail(idInput). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
 
         function lihatDetail(idInput) {
             setDetailModalNoFooter();
@@ -6197,6 +6468,8 @@ startAutoRefresh();
               '<div class="flex flex-wrap justify-end gap-2 mt-4 pt-3 border-t border-slate-200"><button type="button" onclick="editRiwayat(\''+escapeHtml(targetId)+'\')" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-xl text-[10px] font-extrabold">✏️ EDIT</button><button type="button" onclick="kirimUlangWA(\''+escapeHtml(targetId)+'\')" class="bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-4 rounded-xl text-[10px] font-extrabold">💬 KIRIM WA</button><button type="button" onclick="hapusRiwayat(\''+escapeHtml(targetId)+'\')" class="bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 py-2 px-4 rounded-xl text-[10px] font-extrabold">🗑️ HAPUS</button></div>';
         }
 
+        // Fungsi escapeHtml(value). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
+
         function escapeHtml(value) {
             return String(value == null ? '' : value)
                 .replace(/&/g, '&amp;')
@@ -6205,6 +6478,8 @@ startAutoRefresh();
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#039;');
         }
+
+        // Fungsi kirimUlangWA(idInput). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
 
         function kirimUlangWA(idInput) {
             const targetId=String(idInput||'').trim();
@@ -6218,6 +6493,8 @@ startAutoRefresh();
                 showModal("Informasi","Gagal membuka WhatsApp: "+(err&&err.message?err.message:'Terjadi kesalahan.'));
             }).getWhatsAppUrlById(targetId);
         }
+
+        // Fungsi editRiwayat(idInput). Menangani data atau proses pesanan/transaksi dan riwayatnya.
 
         function editRiwayat(idInput){
             var requestedEditId=String(idInput||'').trim();
@@ -6241,10 +6518,14 @@ startAutoRefresh();
             }).filter(function(x){return x.produk;});
             renderEditOrderForm(cached);
         }
+        // Fungsi getEditOutletOptions(selected). Mengambil, memvalidasi, atau mengolah data input/customer/outlet.
         function getEditOutletOptions(selected){let html='<option value="">-- Pilih Outlet --</option>',seen={};(outletDataList||[]).forEach(function(o){let n=String(o.outlet||'').trim();if(n&&!seen[n]){seen[n]=1;html+='<option value="'+escapeHtml(n)+'" '+(n===String(selected||'')?'selected':'')+'>'+escapeHtml(n)+'</option>';}});if(selected&&!seen[String(selected)])html='<option value="'+escapeHtml(selected)+'" selected>'+escapeHtml(selected)+'</option>'+html.slice(html.indexOf('</option>')+9);return html;}
+        // Fungsi getEditProductOptions(selected,selectedKode). Memperbarui, menyimpan, menandai, atau menyinkronkan data terkait.
         function getEditProductOptions(selected,selectedKode){let html='<option value="">-- Pilih Produk --</option>';let selectedText=String(selected||'').trim();let selectedCode=String(selectedKode||'').trim();let found=false;(produkDataList||[]).forEach(function(p){let n=String(p.nama||'').trim();if(!n)return;let kode=String(p.kode||'').trim();let isSelected=(selectedText&&n===selectedText)||(selectedCode&&kode===selectedCode);if(isSelected)found=true;html+='<option value="'+escapeHtml(n)+'" '+(isSelected?'selected':'')+'>'+escapeHtml(n)+' ('+Number(p.liter||0)+'L | Rp '+Number(p.harga||0).toLocaleString('id-ID')+')</option>';});if(selectedText&&!found){html+='<option value="'+escapeHtml(selectedText)+'" selected>'+escapeHtml(selectedText)+' (Produk saat ini)</option>';}return html;}
+        // Fungsi renderEditOrderProducts(). Menangani data atau proses pesanan/transaksi dan riwayatnya.
         function renderEditOrderProducts(){let b=document.getElementById('editProducts');if(!b)return;if(!editOrderItems.length){b.innerHTML='<div class="text-xs text-slate-400 text-center py-3">Belum ada produk.</div>';return;}b.innerHTML=editOrderItems.map(function(it,i){return '<div class="border border-slate-200 rounded-lg p-2 mb-2 bg-slate-50"><div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center"><select id="editProd'+i+'" class="sm:col-span-7 w-full border rounded p-2 bg-white text-xs">'+getEditProductOptions(it.produk,it.kode)+'</select><input id="editQty'+i+'" type="number" min="1" value="'+Number(it.qty||1)+'" class="sm:col-span-2 w-full border rounded p-2 text-xs"><select id="editUnit'+i+'" class="sm:col-span-2 w-full border rounded p-2 bg-white text-xs"><option value="Pcs" '+(String(it.satuan).toUpperCase()==='PCS'?'selected':'')+'>Pcs</option><option value="Dus" '+(String(it.satuan).toUpperCase()==='DUS'?'selected':'')+'>Dus</option></select><button type="button" onclick="removeEditProduct('+i+')" class="sm:col-span-1 text-red-600 bg-red-50 border border-red-200 rounded p-2">✕</button></div></div>';}).join('');}
         // Simpan nilai yang sedang diketik pada form sebelum daftar produk dirender ulang.
+        // Fungsi syncEditOrderProductsFromForm(). Menangani data atau proses pesanan/transaksi dan riwayatnya.
         function syncEditOrderProductsFromForm(){
             if(!Array.isArray(editOrderItems)) editOrderItems=[];
             for(let i=0;i<editOrderItems.length;i++){
@@ -6259,6 +6540,7 @@ startAutoRefresh();
                 if(selected&&selected.kode) editOrderItems[i].kode=String(selected.kode).trim();
             }
         }
+        // Fungsi addEditProduct(). Memperbarui, menyimpan, menandai, atau menyinkronkan data terkait.
         function addEditProduct(){
             // Ambil dahulu isian produk sebelumnya agar tidak hilang saat render ulang.
             syncEditOrderProductsFromForm();
@@ -6271,7 +6553,9 @@ startAutoRefresh();
                 showModal('Gagal','Master produk tidak dapat dimuat.');
             }).getListProduk();
         }
+        // Fungsi removeEditProduct(i). Memperbarui, menyimpan, menandai, atau menyinkronkan data terkait.
         function removeEditProduct(i){syncEditOrderProductsFromForm();editOrderItems.splice(i,1);renderEditOrderProducts();}
+        // Fungsi renderEditOrderForm(o). Menangani data atau proses pesanan/transaksi dan riwayatnya.
         function renderEditOrderForm(o){
             var discValue = o && o.disc != null ? String(o.disc).trim() : '0%';
             // Nilai DISC dari sheet tersimpan sebagai desimal persen (2% = 0.02).
@@ -6303,6 +6587,7 @@ startAutoRefresh();
                 '<div class="border-t pt-3"><div class="flex justify-between items-center mb-2"><b>Produk</b><button type="button" onclick="addEditProduct()" class="bg-emerald-600 text-white rounded px-3 py-1.5 text-[10px] font-bold">+ Tambah Produk</button></div><div id="editProducts"></div></div></div>';
             renderEditOrderProducts();
         }
+        // Fungsi simpanEditOrder(). Menangani data atau proses pesanan/transaksi dan riwayatnya.
         function simpanEditOrder(){
             if(!editingOrderId||!editingOrderData)return;
             var saveOrderId=String(editingOrderId);
@@ -6348,6 +6633,8 @@ startAutoRefresh();
             }).updateOrderById(saveOrderId,payload,currentUser,currentUsernameInput);
         }
 
+        // Fungsi updateSelectedRiwayatUI(). Menangani pengolahan atau pemformatan tanggal/waktu.
+
         function updateSelectedRiwayatUI() {
             const count = Object.keys(selectedRiwayatIds).length;
             const countEl = document.getElementById('selectedRiwayatCount');
@@ -6364,6 +6651,8 @@ startAutoRefresh();
             }
         }
 
+        // Fungsi toggleRiwayatSelection(checkbox). Menangani data atau proses pesanan/transaksi dan riwayatnya.
+
         function toggleRiwayatSelection(checkbox) {
             const id = String(checkbox && checkbox.dataset ? checkbox.dataset.orderId : '').trim();
             if (!id) return;
@@ -6371,6 +6660,8 @@ startAutoRefresh();
             else delete selectedRiwayatIds[id];
             updateSelectedRiwayatUI();
         }
+
+        // Fungsi toggleSelectAllRiwayatVisible(fromHeader). Menangani data atau proses pesanan/transaksi dan riwayatnya.
 
         function toggleSelectAllRiwayatVisible(fromHeader) {
             const boxes = Array.from(document.querySelectorAll('.riwayat-select-checkbox'));
@@ -6392,16 +6683,22 @@ startAutoRefresh();
             updateSelectedRiwayatUI();
         }
 
+        // Fungsi clearPilihanRiwayat(). Menangani data atau proses pesanan/transaksi dan riwayatnya.
+
         function clearPilihanRiwayat() {
             selectedRiwayatIds = {};
             renderRiwayatList(globalRiwayatData || []);
         }
+
+        // Fungsi refreshRiwayat(). Menangani data atau proses pesanan/transaksi dan riwayatnya.
 
         function refreshRiwayat() {
             selectedRiwayatIds = {};
             riwayatPage = 1;
             loadRiwayat(true, false);
         }
+
+        // Fungsi hapusRiwayatTerpilih(). Menangani data atau proses pesanan/transaksi dan riwayatnya.
 
         function hapusRiwayatTerpilih() {
             const ids = Object.keys(selectedRiwayatIds);
@@ -6451,6 +6748,8 @@ startAutoRefresh();
             );
         }
 
+        // Fungsi hapusRiwayat(idInput). Menangani data atau proses pesanan/transaksi dan riwayatnya.
+
         function hapusRiwayat(idInput) {
             showModal("Konfirmasi Hapus", "Hapus transaksi " + idInput + "? Data akan dihapus permanen dari sistem.", true, function(isOk) {
                 if (isOk) {
@@ -6470,10 +6769,14 @@ startAutoRefresh();
             });
         }
 
+        // Fungsi formatRupiah(value). Menangani pengolahan atau pemformatan tanggal/waktu.
+
         function formatRupiah(value) {
             const n = Number(value) || 0;
             return 'Rp ' + Math.round(n).toLocaleString('id-ID');
         }
+
+        // Fungsi formatNumberID(value, decimals = 1). Menangani pengolahan atau pemformatan tanggal/waktu.
 
         function formatNumberID(value, decimals = 1) {
             const n = Number(value) || 0;
@@ -6483,6 +6786,8 @@ startAutoRefresh();
             });
         }
 
+        // Fungsi formatPercentID(value). Menangani pengolahan atau pemformatan tanggal/waktu.
+
         function formatPercentID(value) {
             const n = Number(value) || 0;
             return n.toLocaleString('id-ID', {
@@ -6490,6 +6795,9 @@ startAutoRefresh();
                 maximumFractionDigits: 1
             }) + '%';
         }
+
+
+        // Fungsi loadOutletBWSAdmin(forceReload, silentRefresh). Menangani data, formulir, atau perhitungan pada fitur Outlet BWS.
 
 
         function loadOutletBWSAdmin(forceReload, silentRefresh) {
@@ -6520,6 +6828,8 @@ startAutoRefresh();
             }).getDataOutletBWSAdmin(currentUsernameInput, currentUser);
         }
 
+        // Fungsi filterOutletBWSAdmin(). Menangani data, formulir, atau perhitungan pada fitur Outlet BWS.
+
         function filterOutletBWSAdmin() {
             const input = document.getElementById('searchOutletBWSInput');
             const keyword = String(input ? input.value : '').trim().toLowerCase();
@@ -6530,6 +6840,8 @@ startAutoRefresh();
             });
             renderOutletBWSAdmin(rows);
         }
+
+        // Fungsi renderOutletBWSAdmin(rows). Menangani data, formulir, atau perhitungan pada fitur Outlet BWS.
 
         function renderOutletBWSAdmin(rows) {
             const headers = globalOutletBWSData.headers || [];
@@ -6569,6 +6881,8 @@ startAutoRefresh();
                 return '<tr class="hover:bg-emerald-50/40 transition cursor-pointer" title="Klik untuk melihat detail lengkap" onclick="openOutletBWSDetail(' + Number(item.rowNumber) + ')">' + cells + actionCell + '</tr>';
             }).join('');
         }
+
+        // Fungsi openOutletBWSDetail(rowNumber). Menangani data, formulir, atau perhitungan pada fitur Outlet BWS.
 
         function openOutletBWSDetail(rowNumber) {
             setDetailModalNoFooter();
@@ -6651,6 +6965,8 @@ startAutoRefresh();
             modal.style.display = 'flex';
         }
 
+        // Fungsi loadOutletBWSFormMaster(callback). Menangani data, formulir, atau perhitungan pada fitur Outlet BWS.
+
         function loadOutletBWSFormMaster(callback) {
             callback = typeof callback === 'function' ? callback : function(){};
             if (outletBWSFormMaster && outletBWSFormMaster.sales && outletBWSFormMaster.sales.length) { callback(); return; }
@@ -6670,9 +6986,13 @@ startAutoRefresh();
             }).getBWSFormMasterAdmin(currentUsernameInput);
         }
 
+        // Fungsi _bwsHeaderNormClient(value). Menangani data, formulir, atau perhitungan pada fitur Outlet BWS.
+
         function _bwsHeaderNormClient(value) {
             return String(value == null ? '' : value).trim().toUpperCase().replace(/[._-]+/g,' ').replace(/\s+/g,' ');
         }
+
+        // Fungsi _bwsHeaderIndexClient(headers, names). Menangani data, formulir, atau perhitungan pada fitur Outlet BWS.
 
         function _bwsHeaderIndexClient(headers, names) {
             for (let i=0;i<names.length;i++) {
@@ -6682,7 +7002,11 @@ startAutoRefresh();
             return -1;
         }
 
+        // Fungsi _bwsGetFormField(index). Menangani data, formulir, atau perhitungan pada fitur Outlet BWS.
+
         function _bwsGetFormField(index) { return document.getElementById('bwsField_' + index); }
+
+        // Fungsi _bwsGetSelectedOutletInfo(). Menangani data, formulir, atau perhitungan pada fitur Outlet BWS.
 
         function _bwsGetSelectedOutletInfo() {
             const salesEl=document.getElementById('bwsFieldSales');
@@ -6692,6 +7016,8 @@ startAutoRefresh();
             const list=(outletBWSFormMaster.outletMap && outletBWSFormMaster.outletMap[salesKey]) || [];
             return list.find(function(x){ return String(x.outlet||'').trim().toUpperCase()===outletKey; }) || null;
         }
+
+        // Fungsi _bwsPopulateOutlets(selectedOutlet). Menangani data, formulir, atau perhitungan pada fitur Outlet BWS.
 
         function _bwsPopulateOutlets(selectedOutlet) {
             const salesEl=document.getElementById('bwsFieldSales');
@@ -6707,6 +7033,8 @@ startAutoRefresh();
             _bwsApplyOutletSourceValues();
         }
 
+        // Fungsi _bwsApplyOutletSourceValues(). Menangani data, formulir, atau perhitungan pada fitur Outlet BWS.
+
         function _bwsApplyOutletSourceValues() {
             const info=_bwsGetSelectedOutletInfo();
             const headers=globalOutletBWSData.headers||[];
@@ -6719,6 +7047,8 @@ startAutoRefresh();
             // Jangan menimpa pilihan channel saat Sales/Outlet berubah.
             _bwsRecalculateForm();
         }
+
+        // Fungsi _bwsRecalculateForm(). Menangani data, formulir, atau perhitungan pada fitur Outlet BWS.
 
         function _bwsRecalculateForm() {
             const headers=globalOutletBWSData.headers||[];
@@ -6749,6 +7079,8 @@ startAutoRefresh();
             const monthInfo=document.getElementById('bwsCalcMonthInfo');
             if(monthInfo) monthInfo.textContent=months ? ('Rentang = '+months+' bulan kalender') : 'Pilih START dan END yang valid';
         }
+
+        // Fungsi openOutletBWSForm(rowNumber). Menangani data, formulir, atau perhitungan pada fitur Outlet BWS.
 
         function openOutletBWSForm(rowNumber) {
             if (String(currentUsernameInput || '').trim().toLowerCase() !== 'admin') {
@@ -6945,6 +7277,8 @@ startAutoRefresh();
             });
         }
 
+        // Fungsi saveOutletBWSAdmin(rowNumber, values). Menangani data, formulir, atau perhitungan pada fitur Outlet BWS.
+
         function saveOutletBWSAdmin(rowNumber, values) {
             showLoading(true);
             google.script.run.withSuccessHandler(function(res) {
@@ -6962,6 +7296,8 @@ startAutoRefresh();
                 showModal('Error Sistem', err && err.message ? err.message : 'Terjadi kesalahan saat menyimpan data.');
             }).saveDataOutletBWSAdmin(currentUsernameInput, rowNumber, values);
         }
+
+        // Fungsi deleteOutletBWS(rowNumber). Menangani data, formulir, atau perhitungan pada fitur Outlet BWS.
 
         function deleteOutletBWS(rowNumber) {
             if (String(currentUsernameInput || '').trim().toLowerCase() !== 'admin') {
@@ -6985,6 +7321,8 @@ startAutoRefresh();
                 }).deleteDataOutletBWSAdmin(currentUsernameInput, rowNumber);
             });
         }
+
+        // Fungsi loadOutletKontrak(forceReload, silentRefresh). Mengambil atau mengolah data Outlet Kontrak.
 
         function loadOutletKontrak(forceReload, silentRefresh) {
             const tbody = document.getElementById('listOutletKontrakTableBody');
@@ -7014,6 +7352,8 @@ startAutoRefresh();
             }).getOutletKontrakData_BWS(currentUser || 'Admin', currentUsernameInput || 'admin');
         }
 
+        // Fungsi filterOutletKontrak(). Mengambil atau mengolah data Outlet Kontrak.
+
         function filterOutletKontrak() {
             const keyword = (document.getElementById('searchOutletKontrakInput').value || '').toLowerCase().trim();
             const salesSelect = document.getElementById('filterOutletKontrakSales');
@@ -7036,6 +7376,8 @@ startAutoRefresh();
 
             renderOutletKontrakTable(filtered);
         }
+
+        // Fungsi renderOutletKontrakTable(data). Mengambil atau mengolah data Outlet Kontrak.
 
         function renderOutletKontrakTable(data) {
             const kontrakTab = document.getElementById('tabOutletKontrak');
@@ -7097,6 +7439,8 @@ startAutoRefresh();
 
             tbody.innerHTML = html;
         }
+
+        // Fungsi tampilkanDetailOutletKontrak(encodedData). Mengambil atau mengolah data Outlet Kontrak.
 
         function tampilkanDetailOutletKontrak(encodedData) {
             setDetailModalNoFooter();
@@ -7223,15 +7567,22 @@ startAutoRefresh();
         }
 
 
+        // Fungsi formatRupiahPencapaian(value). Menangani pengolahan atau pemformatan tanggal/waktu.
+
+
         function formatRupiahPencapaian(value) {
             return 'Rp ' + Number(value || 0).toLocaleString('id-ID', {maximumFractionDigits: 0});
         }
+
+        // Fungsi formatPencapaianValue(value, type). Menangani pengolahan atau pemformatan tanggal/waktu.
 
         function formatPencapaianValue(value, type) {
             value = Number(value || 0);
             if (type === 'value') return formatRupiahPencapaian(value);
             return formatNumberID(value, 0);
         }
+
+        // Fungsi renderPencapaianCategory(label, icon, category, type, sales). Mengambil atau mengolah data Pencapaian Sales/periode pencapaian.
 
         function renderPencapaianCategory(label, icon, category, type, sales) {
             category = category || {months: [], quarter: {actual:0,target:0,percentage:0}};
@@ -7293,6 +7644,8 @@ startAutoRefresh();
                 </div>`;
         }
 
+        // Fungsi renderPencapaianSales(data). Mengambil atau mengolah data Pencapaian Sales/periode pencapaian.
+
         function renderPencapaianSales(data) {
             const container = document.getElementById('pencapaianSalesList');
             const loading = document.getElementById('pencapaianLoading');
@@ -7341,6 +7694,8 @@ startAutoRefresh();
             }).join('');
         }
 
+        // Fungsi updateViewToggleButtons(section). Menangani pengolahan atau pemformatan tanggal/waktu.
+
         function updateViewToggleButtons(section) {
             const modes = section === 'riwayat'
                 ? { table: 'riwayatViewTableBtn', chart: 'riwayatViewChartBtn' }
@@ -7352,10 +7707,14 @@ startAutoRefresh();
             });
         }
 
+        // Fungsi setRiwayatView(mode). Menangani data atau proses pesanan/transaksi dan riwayatnya.
+
         function setRiwayatView(mode) {
             riwayatViewMode = mode === 'chart' ? 'chart' : 'table';
             renderRiwayatList(globalRiwayatData || []);
         }
+
+        // Fungsi setPencapaianView(mode). Mengambil atau mengolah data Pencapaian Sales/periode pencapaian.
 
         function setPencapaianView(mode) {
             pencapaianViewMode = mode === 'chart' ? 'chart' : 'table';
@@ -7372,6 +7731,8 @@ startAutoRefresh();
                 loadPencapaianSales(false, true);
             }
         }
+
+        // Fungsi renderRiwayatTable(data). Menangani data atau proses pesanan/transaksi dan riwayatnya.
 
         function renderRiwayatTable(data) {
             const container = document.getElementById('listRiwayat');
@@ -7414,6 +7775,8 @@ startAutoRefresh();
             updateSelectedRiwayatUI();
         }
 
+        // Fungsi renderRiwayatChart(data). Menangani data atau proses pesanan/transaksi dan riwayatnya.
+
         function renderRiwayatChart(data) {
             const container = document.getElementById('listRiwayat');
             if (!container) return;
@@ -7436,6 +7799,8 @@ startAutoRefresh();
             const label = function(k){ if(/^\d{4}-\d{2}$/.test(k)){ const d=new Date(k+'-01T00:00:00'); return d.toLocaleDateString('id-ID',{month:'short',year:'numeric'}); } return k; };
             container.innerHTML = '<div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm"><div class="flex items-center justify-between gap-2 mb-3"><div><div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Ringkasan Riwayat</div><div class="text-[9px] text-slate-400">Volume, nilai, dan jumlah transaksi per bulan</div></div><span class="text-[9px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-2 py-1">'+data.length+' transaksi</span></div>'+items.map(function(x){ return '<div class="mb-4 last:mb-0"><div class="flex justify-between text-[10px] font-bold text-slate-700 mb-1"><span>'+escapeHtml(label(x.key))+'</span><span>'+x.count+' transaksi · Rp '+x.value.toLocaleString('id-ID')+'</span></div><div class="h-2.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-emerald-600 rounded-full" style="width:'+Math.max(3,(x.value/maxValue)*100)+'%"></div></div><div class="mt-1 text-[9px] text-slate-400">Volume '+x.volume.toLocaleString('id-ID')+' L</div></div>'; }).join('')+'</div>';
         }
+
+        // Fungsi renderPencapaianTable(data). Mengambil atau mengolah data Pencapaian Sales/periode pencapaian.
 
         function renderPencapaianTable(data) {
             const container = document.getElementById('pencapaianSalesList');
@@ -7480,6 +7845,8 @@ startAutoRefresh();
             container.innerHTML=totalSummaryHtml+'<div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden"><div class="overflow-x-auto"><table class="w-full min-w-[820px] text-[10px]"><thead><tr class="bg-slate-50 border-b border-slate-200 text-[9px] uppercase tracking-wide text-slate-500"><th class="px-3 py-2 text-left">Sales</th><th class="px-3 py-2 text-left">Kategori</th><th class="px-3 py-2 text-right">Target</th><th class="px-3 py-2 text-right">Actual</th><th class="px-3 py-2 text-right">Gap</th><th class="px-3 py-2 text-right">%</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
         }
 
+        // Fungsi renderPencapaianChart(data). Mengambil atau mengolah data Pencapaian Sales/periode pencapaian.
+
         function renderPencapaianChart(data) {
             const container = document.getElementById('pencapaianSalesList');
             if (!container) return;
@@ -7491,9 +7858,13 @@ startAutoRefresh();
             container.innerHTML='<div class="grid grid-cols-1 lg:grid-cols-2 gap-3">'+blocks+'</div>';
         }
 
+        // Fungsi categoryKeyForDetail(type). Fungsi bantu untuk normalisasi, pencarian kolom/nilai, atau konversi data.
+
         function categoryKeyForDetail(type) {
             return String(type || '').trim().toLowerCase();
         }
+
+        // Fungsi closePencapaianDetail(). Mengambil atau mengolah data Pencapaian Sales/periode pencapaian.
 
         function closePencapaianDetail() {
             const modal = document.getElementById('customModal');
@@ -7501,6 +7872,8 @@ startAutoRefresh();
                 closeModal(false);
             }
         }
+
+        // Fungsi openPencapaianDetail(category, sales). Mengambil atau mengolah data Pencapaian Sales/periode pencapaian.
 
         function openPencapaianDetail(category, sales) {
             setDetailModalNoFooter();
@@ -7554,6 +7927,8 @@ startAutoRefresh();
                 const names = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
                 return (names[Number(m[2]) - 1] || m[2]) + ' ' + m[1];
             };
+
+            // Fungsi renderDetailRows(rows). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
 
             function renderDetailRows(rows) {
                 const detailBody = document.getElementById('pencapaianDetailBody');
@@ -7649,6 +8024,8 @@ startAutoRefresh();
                 detailBody.innerHTML = '<div class="riwayat-cards-wrap">' + monthSections + '</div>';
             }
 
+            // Fungsi requestDetail(). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
+
             function requestDetail() {
                 const cached = pencapaianDetailCache[cacheKey];
                 if (cached && cached.success) renderDetailRows(Array.isArray(cached.data) ? cached.data : []);
@@ -7675,6 +8052,8 @@ startAutoRefresh();
             requestDetail();
         }
 
+        // Fungsi loadPencapaianSalesFilter(). Mengambil atau mengolah data Pencapaian Sales/periode pencapaian.
+
         function loadPencapaianSalesFilter() {
             const select = document.getElementById('pencapaianSalesFilter');
             if (!select) return;
@@ -7697,6 +8076,8 @@ startAutoRefresh();
             }).getListSalesOptions();
         }
 
+        // Fungsi prefetchPencapaianDetailData(sales, period). Mengambil atau mengolah data Pencapaian Sales/periode pencapaian.
+
         function prefetchPencapaianDetailData(sales, period) {
             if (!sales || !period) return;
             const cats = ['value','volume','active','product','powerbrand'];
@@ -7710,6 +8091,8 @@ startAutoRefresh();
                 }, index * 80);
             });
         }
+
+        // Fungsi loadPencapaianSales(forceReloadPeriods, silentRefresh). Mengambil atau mengolah data Pencapaian Sales/periode pencapaian.
 
         function loadPencapaianSales(forceReloadPeriods, silentRefresh) {
             const loading = document.getElementById('pencapaianLoading');
@@ -7774,6 +8157,8 @@ startAutoRefresh();
             }).getPencapaianSales(isAdminLogin ? selectedSales : currentUser, currentUsernameInput, selectedPeriod);
         }
 
+        // Fungsi formatPricelistDate(value). Menangani pengolahan atau pemformatan tanggal/waktu.
+
         function formatPricelistDate(value) {
             if (value === null || value === undefined || value === '') return '-';
             const text = String(value).trim();
@@ -7790,7 +8175,9 @@ startAutoRefresh();
         let hargaNettQuarterChoices = [];
         let hargaNettCashbackMap = {};
         let hargaNettExtraCashback = {};
+        // Fungsi formatHargaNett(n). Menangani pengolahan atau pemformatan tanggal/waktu.
         function formatHargaNett(n) { return 'Rp ' + (Number(n)||0).toLocaleString('id-ID',{maximumFractionDigits:0}); }
+        // Fungsi loadHargaNett(forceRefresh). Mengambil atau mengolah data produk, pricelist, harga, atau cashback.
         function loadHargaNett(forceRefresh) {
             const body = document.getElementById('hargaNettBody'); if (!body) return;
             body.innerHTML = '<tr><td colspan="6" class="p-5 text-center text-slate-400">Memuat data Harga Nett...</td></tr>';
@@ -7806,6 +8193,7 @@ startAutoRefresh();
                 renderHargaNett();
             }).withFailureHandler(function(err){ body.innerHTML='<tr><td colspan="6" class="p-5 text-center text-red-500">'+escapeHtml(err&&err.message||'Gagal memuat data.')+'</td></tr>'; }).getHargaNettData(!!forceRefresh);
         }
+        // Fungsi renderHargaNettCashbackChoices(). Mengambil atau mengolah data produk, pricelist, harga, atau cashback.
         function renderHargaNettCashbackChoices() {
             const sel=document.getElementById('hargaNettCashbackOptions'); if(!sel)return;
             const type=String((document.getElementById('filterProdukHargaNett')||{}).value||'').trim().toUpperCase();
@@ -7820,6 +8208,7 @@ startAutoRefresh();
             const input=document.getElementById('filterCashbackHargaNett');
             if(input && input.value && !choices.some(function(c){return String(c.value)===input.value;})) input.value='';
         }
+        // Fungsi renderHargaNett(). Mengambil atau mengolah data produk, pricelist, harga, atau cashback.
         function renderHargaNett() {
             const body=document.getElementById('hargaNettBody'); if(!body)return;
             const q=String((document.getElementById('searchHargaNett')||{}).value||'').toLowerCase().trim();
@@ -7839,6 +8228,7 @@ startAutoRefresh();
                 '<td class="p-2 border whitespace-nowrap harga-nett-product-sticky">'+escapeHtml(x.produk)+'</td><td class="p-2 border text-center">'+escapeHtml(x.liter)+'</td><td class="p-2 border text-right whitespace-nowrap">'+formatHargaNett(discountedPricelist)+'</td><td class="p-2 border text-right whitespace-nowrap">'+formatHargaNett(cashbackAmount)+'</td><td class="p-2 border text-right"><input type="number" min="0" step="any" value="'+(hargaNettExtraCashback[String(x.produk||'')] == null ? '' : hargaNettExtraCashback[String(x.produk||'')])+'" aria-label="Extra Cashback '+escapeHtml(x.produk)+'" onchange="setHargaNettExtraCashback(\''+String(x.produk||'').replace(/\\/g,'\\\\').replace(/\'/g,"\\'")+'\',this.value)" class="w-28 min-w-20 px-2 py-1 border border-slate-200 rounded text-right"></td><td class="p-2 border text-right font-bold whitespace-nowrap">'+formatHargaNett(nettFinal)+'</td></tr>';
             }).join('');
         }
+        // Fungsi exportHargaNettPDF(). Menangani data atau proses pesanan/transaksi dan riwayatnya.
         function exportHargaNettPDF() {
             const campaign=String((document.getElementById('filterCashbackHargaNett')||{}).value||'').trim();
             const quarter=String((document.getElementById('filterQuarterHargaNett')||{}).value||'').trim();
@@ -7869,8 +8259,11 @@ startAutoRefresh();
             win.document.write('<!doctype html><html><head><title>Harga Nett</title><style>body{font-family:Arial,sans-serif;padding:18px;color:#111}h1{font-size:18px;margin:0 0 12px}table{width:100%;border-collapse:collapse;font-size:10px}th,td{border:1px solid #bbb;padding:5px;text-align:left}th{background:#eee}td:nth-child(n+2){white-space:nowrap}@page{size:A4 landscape;margin:10mm}</style></head><body><h1>Harga Nett</h1><table><thead><tr><th>PRODUK</th><th>LITER</th><th>PRICELIST</th><th>CASHBACK</th><th>EXTRA CASHBACK</th><th>NETT</th></tr></thead><tbody>'+body+'</tbody></table><script>window.onload=function(){window.print();};<\/script></body></html>');
             win.document.close();
         }
+        // Fungsi setHargaNettProductType(type). Mengambil atau mengolah data produk, pricelist, harga, atau cashback.
         function setHargaNettProductType(type) { const el=document.getElementById('filterProdukHargaNett'); if(!el)return; el.value=(el.value===type?'':type); ['PCO','MCO-4T'].forEach(function(t){const b=document.getElementById(t==='PCO'?'filterProdukPCOHargaNett':'filterProdukMCOHargaNett');if(b){const active=el.value===t;b.classList.toggle('bg-emerald-700',active);b.classList.toggle('text-white',active);b.classList.toggle('border-emerald-700',active);}}); renderHargaNettCashbackChoices(); renderHargaNett(); }
+        // Fungsi setHargaNettExtraCashback(produk, value). Mengambil atau mengolah data produk, pricelist, harga, atau cashback.
         function setHargaNettExtraCashback(produk, value) { hargaNettExtraCashback[String(produk||'')] = Math.max(0, Number(value)||0); renderHargaNett(); }
+        // Fungsi loadPricelist(forceRefresh, silentRefresh). Mengambil atau mengolah data produk, pricelist, harga, atau cashback.
         function loadPricelist(forceRefresh, silentRefresh) {
             const tbody = document.getElementById('listPricelistTableBody');
             if (!tbody) return;
@@ -7915,9 +8308,13 @@ startAutoRefresh();
                 .getPricelistData(!!forceRefresh);
         }
 
+        // Fungsi normalizePricelistSegment(value). Mengambil atau mengolah data produk, pricelist, harga, atau cashback.
+
         function normalizePricelistSegment(value) {
             return String(value == null ? '' : value).replace(/\u00A0/g, ' ').trim().toUpperCase();
         }
+
+        // Fungsi populatePricelistSegmentFilter(data). Menangani data atau proses pesanan/transaksi dan riwayatnya.
 
         function populatePricelistSegmentFilter(data) {
             const select = document.getElementById('filterPricelistSegment');
@@ -7937,6 +8334,8 @@ startAutoRefresh();
             }).join('');
             if (current && values.indexOf(current) !== -1) select.value = current;
         }
+
+        // Fungsi populatePricelistUpdateFilter(data). Menangani pengolahan atau pemformatan tanggal/waktu.
 
         function populatePricelistUpdateFilter(data) {
             const select = document.getElementById('filterPricelistUpdate');
@@ -7959,6 +8358,8 @@ startAutoRefresh();
             if (values.some(function(v) { return v.key === current; })) select.value = current;
         }
 
+        // Fungsi filterPricelist(). Mengambil atau mengolah data produk, pricelist, harga, atau cashback.
+
         function filterPricelist() {
             const updateSelect=document.getElementById('filterPricelistUpdate'), segmentSelect=document.getElementById('filterPricelistSegment');
             const selectedUpdate=updateSelect?String(updateSelect.value||'').trim():'', selectedSegment=segmentSelect?normalizePricelistSegment(segmentSelect.value):'';
@@ -7968,12 +8369,16 @@ startAutoRefresh();
             renderPricelistTable(filtered);
         }
 
+        // Fungsi renderPricelistTable(data). Mengambil atau mengolah data produk, pricelist, harga, atau cashback.
+
         function renderPricelistTable(data) {
             const tbody=document.getElementById('listPricelistTableBody'), count=document.getElementById('pricelistCount'); if(!tbody)return;
             if(count)count.textContent=(data||[]).length.toLocaleString('id-ID')+' produk';
             if(!data||!data.length){tbody.innerHTML='<tr><td colspan="2" class="text-slate-400 text-center py-6">Tidak ada data pricelist untuk filter ini.</td></tr>';return;}
             tbody.innerHTML=data.map(function(item){return '<tr class="border-b border-slate-200 align-middle"><td class="p-2.5 font-bold text-slate-800 break-words">'+escapeHtml(item.nama||'-')+'</td><td class="p-2.5 text-right whitespace-nowrap font-bold text-slate-800">'+formatRupiah(item.harga||0)+'</td></tr>';}).join('');
         }
+
+        // Fungsi exportPricelistPDF(). Menangani data atau proses pesanan/transaksi dan riwayatnya.
 
         function exportPricelistPDF() {
             const segment=document.getElementById('filterPricelistSegment'), update=document.getElementById('filterPricelistUpdate');
@@ -7989,6 +8394,8 @@ startAutoRefresh();
             win.document.write('<!doctype html><html><head><title>Pricelist Castrol</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#111}h1{font-size:20px;margin:0 0 6px}p{font-size:11px;color:#666;margin:0 0 16px}table{width:100%;border-collapse:collapse;font-size:11px}th,td{border:1px solid #ccc;padding:7px}th{text-align:left;background:#f1f5f9}@media print{body{padding:10px}}</style></head><body><h1>Pricelist Castrol</h1><p>'+escapeHtml(filterText)+'</p><table><thead><tr><th style="width:50px">No</th><th>Produk</th><th style="width:160px;text-align:right">Harga</th></tr></thead><tbody>'+rows+'</tbody></table></body></html>');
             win.document.close();win.focus();setTimeout(function(){win.print();},250);
         }
+
+        // Fungsi loadPesananOutlet(forceRefresh, silentRefresh). Menangani data atau proses pesanan/transaksi dan riwayatnya.
 
         function loadPesananOutlet(forceRefresh, silentRefresh) {
             const body=document.getElementById('pesananOutletTableBody'), head=document.getElementById('pesananOutletTableHead'); if(!body||!head)return;
@@ -8025,6 +8432,8 @@ startAutoRefresh();
         let globalPesananOutletOrdersChangesById = {};
         let globalPesananOutletDisplayCols = [];
 
+        // Fungsi normalizePesananOutletDate(value). Menangani pengolahan atau pemformatan tanggal/waktu.
+
         function normalizePesananOutletDate(value) {
             const raw=String(value==null?'':value).trim();
             if(!raw)return '';
@@ -8036,6 +8445,8 @@ startAutoRefresh();
             if(!isNaN(d.getTime()))return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
             return '';
         }
+
+        // Fungsi populatePesananOutletStatusFilter(). Menangani data atau proses pesanan/transaksi dan riwayatnya.
 
         function populatePesananOutletStatusFilter() {
             const el=document.getElementById('filterPesananOutletStatus');
@@ -8056,6 +8467,8 @@ startAutoRefresh();
             el.innerHTML='<option value="">Semua Status</option>'+values.map(function(v){return '<option value="'+escapeHtml(v)+'">'+escapeHtml(v)+'</option>';}).join('');
             if(values.indexOf(current)>=0)el.value=current;
         }
+
+        // Fungsi filterPesananOutlet(). Menangani data atau proses pesanan/transaksi dan riwayatnya.
 
         function filterPesananOutlet() {
             const body=document.getElementById('pesananOutletTableBody');
@@ -8108,17 +8521,22 @@ startAutoRefresh();
             if(countEl)countEl.textContent=filtered.length+' dari '+globalPesananOutletRows.length+' pesanan';
         }
 
+        // Fungsi resetFilterPesananOutlet(). Menangani data atau proses pesanan/transaksi dan riwayatnya.
+
         function resetFilterPesananOutlet() {
             ['filterPesananOutletSearch','filterPesananOutletDateFrom','filterPesananOutletDateTo'].forEach(function(id){const el=document.getElementById(id);if(el)el.value='';});
             const status=document.getElementById('filterPesananOutletStatus');if(status)status.value='';
             filterPesananOutlet();
         }
 
+        // Fungsi renderPesananOutlet(res). Menangani data atau proses pesanan/transaksi dan riwayatnya.
+
         function renderPesananOutlet(res) {
             const head=document.getElementById('pesananOutletTableHead'), body=document.getElementById('pesananOutletTableBody'); if(!head||!body)return;
             const headers=Array.isArray(res.headers)?res.headers:[], rows=Array.isArray(res.rows)?res.rows:[];
             // Urutan Pesanan Outlet mengikuti urutan row dari sheet: row paling terakhir tampil paling atas.
             // Tabel utama hanya menampilkan 4 kolom yang diperlukan.
+            // Fungsi findTableIdx(aliases). Fungsi bantu untuk normalisasi, pencarian kolom/nilai, atau konversi data.
             function findTableIdx(aliases){
                 const norm=function(v){return String(v==null?'':v).trim().toUpperCase().replace(/[.\/_-]+/g,' ').replace(/\s+/g,' ').replace(/[^A-Z0-9]/g,'');};
                 const hh=headers.map(norm);
@@ -8155,6 +8573,8 @@ startAutoRefresh();
             filterPesananOutlet();
         }
 
+        // Fungsi lihatDetailPesananOutlet(rowIndex). Menangani data atau proses pesanan/transaksi dan riwayatnya.
+
         function lihatDetailPesananOutlet(rowIndex) {
             setDetailModalNoFooter();
             const row=globalPesananOutletRows[Number(rowIndex)];
@@ -8169,6 +8589,8 @@ startAutoRefresh();
             if(!modal||!body)return;
 
             const headers=globalPesananOutletHeaders||[];
+
+            // Fungsi findRowIdx(aliases). Fungsi bantu untuk normalisasi, pencarian kolom/nilai, atau konversi data.
 
             function findRowIdx(aliases){
                 const norm=function(v){
@@ -8195,6 +8617,8 @@ startAutoRefresh();
             const noteValue=idxNote>=0?String(row[idxNote]==null?'':row[idxNote]).trim():'';
             const volumeValue=idxVolume>=0?row[idxVolume]:'';
             const valueValue=idxValue>=0?row[idxValue]:'';
+
+            // Fungsi compactValue(v). Fungsi bantu untuk normalisasi, pencarian kolom/nilai, atau konversi data.
 
             function compactValue(v){
                 const raw=String(v==null?'':v).trim();
@@ -8286,6 +8710,8 @@ startAutoRefresh();
             modal.style.display='flex';
         }
 
+        // Fungsi bukaPopupTolakPesananOutlet(headers,row,sourceBtn). Menangani data atau proses pesanan/transaksi dan riwayatnya.
+
         function bukaPopupTolakPesananOutlet(headers,row,sourceBtn){
             // Popup form penolakan BUKAN mode detail: footer tombol tetap harus tampil.
             clearDetailModalNoFooter();
@@ -8349,10 +8775,14 @@ startAutoRefresh();
             if(noteEl)setTimeout(function(){noteEl.focus();},50);
         }
 
+        // Fungsi formatVolumeRespon(v). Menangani pengolahan atau pemformatan tanggal/waktu.
+
         function formatVolumeRespon(v){
             const n=Number(v)||0;
             return n.toLocaleString('id-ID',{minimumFractionDigits:0,maximumFractionDigits:2})+' L';
         }
+
+        // Fungsi bukaPopupCashbackRespon(headers,row,dh,dr,totalVolume,sourceBtn). Menangani data atau proses pesanan/transaksi dan riwayatnya.
 
         function bukaPopupCashbackRespon(headers,row,dh,dr,totalVolume,sourceBtn){
             // Popup form cashback/discount BUKAN mode detail: footer tombol tetap harus tampil.
@@ -8454,6 +8884,8 @@ startAutoRefresh();
             }).getListCashback();
         }
 
+        // Fungsi renderDetailOrderPesananOutletModal(headers,row,dh,dr,totalVolume,sourceBtn). Menangani data atau proses pesanan/transaksi dan riwayatnya.
+
         function renderDetailOrderPesananOutletModal(headers,row,dh,dr,totalVolume,sourceBtn){
             setDetailModalNoFooter();
             const modal=document.getElementById('customModal');
@@ -8470,6 +8902,8 @@ startAutoRefresh();
                     .replace(/[^A-Z0-9]/g,'');
             };
             const _poHeaders=(Array.isArray(headers)?headers:[]).map(_poNorm);
+
+            // Fungsi _findPoIdx(aliases). Menangani data atau proses pesanan/transaksi dan riwayatnya.
 
             function _findPoIdx(aliases){
                 for(const a of aliases){
@@ -8490,6 +8924,8 @@ startAutoRefresh();
             const _noteValue=_noteIdx>=0&&row&&row.length>_noteIdx?String(row[_noteIdx]==null?'':row[_noteIdx]).trim():'';
             const _volumeValue=_volumeIdx>=0&&row&&row.length>_volumeIdx?row[_volumeIdx]:totalVolume;
             const _valueValue=_valueIdx>=0&&row&&row.length>_valueIdx?row[_valueIdx]:'';
+
+            // Fungsi _money(v). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
 
             function _money(v){
                 const raw=String(v==null?'':v).trim();
@@ -8558,10 +8994,14 @@ startAutoRefresh();
         let autoRefreshTimer = null;
         let autoRefreshUserActivityUntil = 0;
 
+        // Fungsi markAutoRefreshUserActivity(). Memperbarui, menyimpan, menandai, atau menyinkronkan data terkait.
+
         function markAutoRefreshUserActivity() {
             // Beri jeda setelah aktivitas user agar refresh tidak memotong interaksi.
             autoRefreshUserActivityUntil = Date.now() + 8000;
         }
+
+        // Fungsi autoRefreshTabHasUserState(tab). Memperbarui, menyimpan, menandai, atau menyinkronkan data terkait.
 
         function autoRefreshTabHasUserState(tab) {
             const root = document.getElementById(tab);
@@ -8597,6 +9037,8 @@ startAutoRefresh();
                 if (target.closest('#mainPage')) markAutoRefreshUserActivity();
             }, {passive:true});
         });
+
+        // Fungsi autoRefreshActiveTab(). Memperbarui, menyimpan, menandai, atau menyinkronkan data terkait.
 
         function autoRefreshActiveTab() {
             const mainPage = document.getElementById('mainPage');
@@ -8651,6 +9093,8 @@ startAutoRefresh();
             }
         }
 
+        // Fungsi formatNotificationTime(value). Menangani pengolahan atau pemformatan tanggal/waktu.
+
         function formatNotificationTime(value) {
             if (!value) return '';
             try {
@@ -8668,6 +9112,8 @@ startAutoRefresh();
             }
         }
 
+        // Fungsi notificationTypeLabel(type). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
+
         function notificationTypeLabel(type) {
             const t = String(type || '').toUpperCase();
             if (t === 'PENGUMUMAN') return 'Pengumuman';
@@ -8675,17 +9121,20 @@ startAutoRefresh();
             if (t === 'TRANSAKSI') return 'Transaksi';
             return t || 'Notifikasi';
         }
+        // Fungsi formatHomeNumber(value, fraction). Menangani pengolahan atau pemformatan tanggal/waktu.
         function formatHomeNumber(value, fraction) {
             const n = Number(value || 0);
             return n.toLocaleString('id-ID', {minimumFractionDigits: fraction || 0, maximumFractionDigits: fraction || 0});
         }
         let homeLightboxScale = 1, homeLightboxX = 0, homeLightboxY = 0, homeLightboxStartX = 0, homeLightboxStartY = 0, homeLightboxDragX = 0, homeLightboxDragY = 0, homeLightboxDragging = false, homeLightboxPinchStart = 0, homeLightboxPinchScale = 1;
+        // Fungsi renderHomeRebuildNotificationHistory(). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
         function renderHomeRebuildNotificationHistory() {
             const box=document.getElementById('homeRebuildNotificationHistory'); if(!box)return;
             const list=Array.isArray(notificationData)?notificationData.slice(0,8):[];
             if(!list.length){box.innerHTML='<div class="home-rebuild-empty">Belum ada notifikasi.</div>';return;}
             box.innerHTML=list.map(function(n){const id=escapeHtml(String(n.id||''));const title=escapeHtml(String(n.judul||'Notifikasi'));const msg=escapeHtml(formatNotificationMessageForDisplay(n));const time=escapeHtml(formatNotificationTime(n.waktu));return '<button type="button" class="home-rebuild-notif-item" data-notif-id="'+id+'" onclick="openNotificationItem(this.dataset.notifId)"><span class="home-rebuild-notif-dot'+(n.unread?' unread':'')+'"></span><span><span class="home-rebuild-notif-title block">'+title+'</span><span class="home-rebuild-notif-msg block">'+msg+'</span><span class="home-rebuild-notif-time block">'+time+'</span></span></button>';}).join('');
         }
+        // Fungsi renderHomeRebuildDashboard(res). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
         function renderHomeRebuildDashboard(res){
             res=res||{};
             const v=Number(res.volume)||0,val=Number(res.value)||0,count=Number(res.transactionCount)||0;
@@ -8728,12 +9177,18 @@ startAutoRefresh();
             if(!rows.length){tbody.innerHTML='<tr><td colspan="4" class="home-rebuild-empty">Belum ada transaksi hari ini.</td></tr>';return;}
             const adminView=isHomeAdminView();tbody.innerHTML=rows.map(function(r){var st=String(r.status||'PENDING').trim().toUpperCase()||'PENDING';var cls=st==='APPROVE'?'home-status-approve':(st==='DECLINE'?'home-status-decline':'home-status-pending');return (adminView?'<td>'+escapeHtml(String(r.dsr||'-'))+'</td>':'')+'<td>'+escapeHtml(String(r.outlet||'-'))+'</td><td class="home-volume-cell">'+formatHomeNumber(r.volume,1)+'</td><td>Rp '+Math.round(Number(r.value)||0).toLocaleString('id-ID')+'</td><td class="'+cls+'">'+escapeHtml(st)+'</td>';}).map(function(row){return '<tr>'+row+'</tr>';}).join('');
         }
+        // Fungsi isHomeAdminView(). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
         function isHomeAdminView(){return !String(currentUser||'').trim()||String(currentUsernameInput||'').trim().toLowerCase()==='admin';}
+        // Fungsi selectedHomeDsr(). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
         function selectedHomeDsr(){const el=document.getElementById('homeDsrFilter');return isHomeAdminView()&&el?String(el.value||'').trim():'';}
+        // Fungsi resetHomeDsrFilter(). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
         function resetHomeDsrFilter(){const el=document.getElementById('homeDsrFilter');if(el)el.value='';loadHomeRebuild();}
+        // Fungsi setupHomeDsrFilter(options). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
         function setupHomeDsrFilter(options){const wrap=document.getElementById('homeDsrFilterWrap'),el=document.getElementById('homeDsrFilter');if(!wrap||!el)return;const show=isHomeAdminView();wrap.classList.toggle('hidden',!show);document.getElementById('tabHome')?.classList.toggle('home-admin-view',show);if(!show)return;const old=el.value;const vals=Array.isArray(options)?options:[];el.innerHTML='<option value="">Semua DSR</option>'+vals.map(v=>'<option value="'+escapeHtml(v)+'">'+escapeHtml(v)+'</option>').join('');if(vals.includes(old))el.value=old;if(el.dataset.bound!=='1'){el.dataset.bound='1';el.addEventListener('change',loadHomeRebuild);}}
+        // Fungsi loadHomeRebuild(). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
         function loadHomeRebuild(){google.script.run.withSuccessHandler(function(res){if(res&&res.success)setupHomeDsrFilter(res.dsrOptions||[]);renderHomeRebuildDashboard(res&&res.success?res:{volume:0,value:0,transactionCount:0,transactions:[],displayDate:'-'});}).withFailureHandler(function(){renderHomeRebuildDashboard({volume:0,value:0,transactionCount:0,transactions:[],displayDate:'-'});}).getDashboardHariIni(currentUser||'',currentUsernameInput||'',selectedHomeDsr());loadHomeWeeklyAndStatus();}
         let homeWeeklyData=[],homeWeeklySelected=-1,homeStatusRows=[];
+        // Fungsi loadHomeWeeklyAndStatus(). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
         function loadHomeWeeklyAndStatus(){
             const now=new Date(),m=now.getMonth()+1,y=now.getFullYear();
             const ms=document.getElementById('homeStatusMonth'),ys=document.getElementById('homeStatusYear');
@@ -8743,17 +9198,29 @@ startAutoRefresh();
             if(ys&&ys.dataset.bound!=='1'){ys.dataset.bound='1';ys.addEventListener('change',loadHomeWeeklyAndStatus);}
             google.script.run.withSuccessHandler(function(r){if(!r||!r.success)return;homeWeeklyData=Array.isArray(r.week)?r.week:[];homeWeeklySelected=homeWeeklySelected<0?Math.max(0,homeWeeklyData.length-1):Math.min(homeWeeklySelected,Math.max(0,homeWeeklyData.length-1));renderHomeWeeklyChart();homeStatusRows=Array.isArray(r.statusRows)?r.statusRows:[];renderHomeStatusCards(r.statusCounts||{});}).withFailureHandler(function(){const c=document.getElementById('homeWeeklyChart');if(c)c.innerHTML='<div class="home-rebuild-empty">Grafik belum dapat dimuat.</div>';}).getDashboardBerandaDetail(currentUser||'',currentUsernameInput||'',Number(ms&&ms.value||m),Number(ys&&ys.value||y),selectedHomeDsr());
         }
+        // Fungsi renderHomeWeeklyChart(). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
         function renderHomeWeeklyChart(){const box=document.getElementById('homeWeeklyChart');if(!box)return;if(!homeWeeklyData.length){box.innerHTML='<div class="home-rebuild-empty">Belum ada data transaksi minggu ini.</div>';return;}const W=640,H=190,L=28,R=14,T=18,B=30,innerW=W-L-R,innerH=H-T-B,max=Math.max(1,...homeWeeklyData.map(d=>Number(d.transactionCount)||0)),pts=homeWeeklyData.map((d,i)=>({x:L+(homeWeeklyData.length===1?innerW/2:i*innerW/(homeWeeklyData.length-1)),y:T+innerH-(Number(d.transactionCount)||0)/max*innerH,d:d,i:i}));let grid='';for(let g=0;g<=3;g++){let yy=T+innerH-g*innerH/3;grid+='<line x1="'+L+'" y1="'+yy+'" x2="'+(W-R)+'" y2="'+yy+'" stroke="#e2e8f0" stroke-dasharray="3 4"/><text x="'+(L-7)+'" y="'+(yy+3)+'" font-size="9" fill="#94a3b8" text-anchor="end">'+Math.round(max*g/3)+'</text>';}let path=pts.map((p,i)=>(i?'L':'M')+p.x+','+p.y).join(' '),arrows='';for(let i=1;i<pts.length;i++){let a=pts[i-1],b=pts[i],up=b.y<a.y,color=up?'#059669':(b.y>a.y?'#dc2626':'#64748b'),ang=Math.atan2(b.y-a.y,b.x-a.x),len=7,ax=b.x-Math.cos(ang)*len,ay=b.y-Math.sin(ang)*len,leftX=ax-Math.cos(ang-.65)*len*.7,leftY=ay-Math.sin(ang-.65)*len*.7,rightX=ax-Math.cos(ang+.65)*len*.7,rightY=ay-Math.sin(ang+.65)*len*.7;arrows+='<path d="M '+leftX+' '+leftY+' L '+ax+' '+ay+' L '+rightX+' '+rightY+'" fill="none" stroke="'+color+'" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>';}let dots=pts.map(p=>'<g class="weekly-point '+(p.i===homeWeeklySelected?'selected':'')+'" tabindex="0" role="button" aria-label="'+escapeHtml(p.d.label)+', '+p.d.transactionCount+' transaksi" data-week-index="'+p.i+'"><circle cx="'+p.x+'" cy="'+p.y+'" r="13" fill="transparent"/><circle cx="'+p.x+'" cy="'+p.y+'" r="5" fill="'+(p.i===homeWeeklySelected?'#047857':'#10b981')+'" stroke="white" stroke-width="2"/><text x="'+p.x+'" y="'+(H-9)+'" font-size="10" fill="#475569" text-anchor="middle">'+escapeHtml(p.d.shortLabel)+'</text></g>').join('');box.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Grafik transaksi harian Senin sampai Minggu">'+grid+'<path d="'+path+'" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>'+arrows+dots+'</svg><div id="homeWeeklyDetail" class="home-weekly-detail"><div class="home-weekly-detail-day"></div><div class="home-weekly-detail-grid"><div><span>Total Outlet</span><b id="homeWeeklyOutlet">—</b></div><div><span>Volume</span><b id="homeWeeklyVolume">—</b></div><div><span>Value</span><b id="homeWeeklyValue">—</b></div></div></div>';box.querySelectorAll('.weekly-point').forEach(el=>{const pick=()=>{homeWeeklySelected=Number(el.dataset.weekIndex);box.querySelectorAll('.weekly-point').forEach((n,j)=>{n.classList.toggle('selected',j===homeWeeklySelected);const c=n.querySelectorAll('circle')[1];if(c)c.setAttribute('fill',j===homeWeeklySelected?'#047857':'#10b981');});renderHomeWeeklyDetail(homeWeeklySelected);};el.addEventListener('mouseenter',pick);el.addEventListener('focus',pick);el.addEventListener('click',pick);el.addEventListener('touchstart',pick,{passive:true});el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick();}});});renderHomeWeeklyDetail(homeWeeklySelected);box.onmouseleave=function(){if(window.matchMedia&&window.matchMedia('(hover: hover) and (pointer: fine)').matches){const tip=document.getElementById('homeWeeklyDetail');if(tip)tip.classList.remove('show');}};if(!window.__homeWeeklyOutsideClickBound){window.__homeWeeklyOutsideClickBound=true;document.addEventListener('click',function(ev){const chart=document.getElementById('homeWeeklyChart'),tip=document.getElementById('homeWeeklyDetail');if(chart&&tip&&!chart.contains(ev.target))tip.classList.remove('show');},true);}}
+        // Fungsi renderHomeWeeklyDetail(i). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
         function renderHomeWeeklyDetail(i){const box=document.getElementById('homeWeeklyChart'),tip=document.getElementById('homeWeeklyDetail'),d=homeWeeklyData[i];if(!box||!tip||!d){if(tip)tip.classList.remove('show');return;}const day=tip.querySelector('.home-weekly-detail-day');if(day)day.textContent=d.label;const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};set('homeWeeklyOutlet','Outlet: '+Number(d.outletCount||0).toLocaleString('id-ID'));set('homeWeeklyVolume','Volume: '+Number(d.volume||0).toLocaleString('id-ID',{minimumFractionDigits:1,maximumFractionDigits:1})+' Liter');set('homeWeeklyValue','Value: Rp '+Math.round(Number(d.value)||0).toLocaleString('id-ID'));tip.classList.add('show');const svg=box.querySelector('svg'),pt=svg&&svg.querySelectorAll('.weekly-point')[i];if(svg&&pt){const c=pt.querySelectorAll('circle')[1],r=c.getBoundingClientRect(),br=box.getBoundingClientRect();let left=r.left+r.width/2-br.left-tip.offsetWidth/2,top=r.top-br.top-tip.offsetHeight-9;left=Math.max(4,Math.min(box.clientWidth-tip.offsetWidth-4,left));if(top<2)top=Math.min(box.clientHeight-tip.offsetHeight-2,r.bottom-br.top+9);tip.style.left=left+'px';tip.style.top=Math.max(2,top)+'px';}}
+        // Fungsi renderHomeStatusCards(c). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
         function renderHomeStatusCards(c){['APPROVE','PENDING','DECLINE'].forEach(st=>{const el=document.getElementById('homeStatus'+st.charAt(0)+st.slice(1).toLowerCase());if(el)el.textContent=Number(c[st]||0).toLocaleString('id-ID');});const wrap=document.getElementById('homeStatusListWrap');if(wrap)wrap.classList.add('hidden');}
+        // Fungsi showHomeStatusList(status). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
         function showHomeStatusList(status){const wrap=document.getElementById('homeStatusListWrap'),title=document.getElementById('homeStatusListTitle'),body=document.getElementById('homeStatusListBody');if(!wrap||!body)return;const rows=homeStatusRows.filter(r=>String(r.status||'PENDING').toUpperCase()===status);if(title)title.textContent='Daftar Outlet — '+status+' ('+rows.length+' transaksi)';body.innerHTML=rows.length?rows.map(r=>'<tr>'+(isHomeAdminView()?'<td>'+escapeHtml(String(r.dsr||'-'))+'</td>':'')+'<td>'+escapeHtml(String(r.outlet||'-'))+'</td><td class="home-volume-cell">'+formatHomeNumber(r.volume,1)+'</td><td>Rp '+Math.round(Number(r.value)||0).toLocaleString('id-ID')+'</td><td class="'+(status==='APPROVE'?'home-status-approve':status==='DECLINE'?'home-status-decline':'home-status-pending')+'">'+status+'</td></tr>').join(''):'<tr><td colspan="'+(isHomeAdminView()?5:4)+'" class="home-rebuild-empty">Tidak ada transaksi dengan status '+status+' pada periode ini.</td></tr>';wrap.classList.remove('hidden');}
 
+        // Fungsi getHomeRebuildImages(). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
+
         function getHomeRebuildImages(){return (Array.isArray(homeRebuildData)?homeRebuildData:[]).slice().sort(function(a,b){return Number(b&&b.rowNumber||0)-Number(a&&a.rowNumber||0);}).filter(function(x){return x&&String(x.gambar||'').trim()!=='';});}
+        // Fungsi renderHomeRebuildBanner(data). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
         function renderHomeRebuildBanner(data){homeRebuildData=Array.isArray(data)?data.slice():[];const list=getHomeRebuildImages(),section=document.getElementById('homeRebuildBanner'),track=document.getElementById('homeRebuildTrack'),dots=document.getElementById('homeRebuildDots');if(!section||!track||!dots)return;if(!list.length){section.classList.remove('show');track.innerHTML='';dots.innerHTML='';stopHomeRebuildAuto();return;}homeRebuildIndex=Math.max(0,Math.min(homeRebuildIndex,list.length-1));section.classList.add('show');track.innerHTML=list.map(function(x,i){return '<div class="home-rebuild-slide" data-i="'+i+'" onclick="openHomeRebuildImage(this.dataset.i)"><img src="'+escapeHtml(String(x.gambar||''))+'" alt="Pengumuman" draggable="false">'+(String(x.keterangan||'').trim()?'<div class="home-rebuild-caption">'+escapeHtml(String(x.keterangan||''))+'</div>':'')+'</div>';}).join('');updateHomeRebuildPosition();bindHomeRebuildSwipe();startHomeRebuildAuto();}
+        // Fungsi updateHomeRebuildPosition(). Menangani pengolahan atau pemformatan tanggal/waktu.
         function updateHomeRebuildPosition(){const track=document.getElementById('homeRebuildTrack'),dots=document.getElementById('homeRebuildDots'),list=getHomeRebuildImages();if(!track||!list.length)return;homeRebuildIndex=(homeRebuildIndex+list.length)%list.length;track.style.transform='translate3d('+(-homeRebuildIndex*100)+'%,0,0)';if(dots)dots.innerHTML=list.map(function(_,i){return '<span class="home-rebuild-dot'+(i===homeRebuildIndex?' active':'')+'"></span>';}).join('');}
+        // Fungsi homeRebuildNext(e). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
         function homeRebuildNext(e){if(e)e.stopPropagation();const l=getHomeRebuildImages();if(!l.length)return;homeRebuildIndex=(homeRebuildIndex+1)%l.length;updateHomeRebuildPosition();startHomeRebuildAuto();}function homeRebuildPrev(e){if(e)e.stopPropagation();const l=getHomeRebuildImages();if(!l.length)return;homeRebuildIndex=(homeRebuildIndex-1+l.length)%l.length;updateHomeRebuildPosition();startHomeRebuildAuto();}
+        // Fungsi startHomeRebuildAuto(). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
         function startHomeRebuildAuto(){stopHomeRebuildAuto();if(getHomeRebuildImages().length<2)return;homeRebuildTimer=setInterval(function(){const t=document.getElementById('tabHome');if(!t||t.classList.contains('hidden'))return;homeRebuildNext();},5000);}function stopHomeRebuildAuto(){if(homeRebuildTimer){clearInterval(homeRebuildTimer);homeRebuildTimer=null;}}
+        // Fungsi bindHomeRebuildSwipe(). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
         function bindHomeRebuildSwipe(){const v=document.getElementById('homeRebuildBanner');if(!v||v.dataset.swipeBound==='1')return;v.dataset.swipeBound='1';v.addEventListener('touchstart',function(e){const t=e.touches&&e.touches[0];if(t){homeRebuildTouchX=t.clientX;homeRebuildTouchY=t.clientY;}},{passive:true});v.addEventListener('touchend',function(e){const t=e.changedTouches&&e.changedTouches[0];if(!t)return;const dx=t.clientX-homeRebuildTouchX,dy=t.clientY-homeRebuildTouchY;if(Math.abs(dx)<45||Math.abs(dx)<Math.abs(dy))return;dx<0?homeRebuildNext():homeRebuildPrev();},{passive:true});}
+        // Fungsi openHomeRebuildImage(i). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
         function openHomeRebuildImage(i){const item=getHomeRebuildImages()[Number(i)],url=String(item&&item.gambar||'').trim();if(!url)return;let o=document.getElementById('homeRebuildLightbox');if(!o){o=document.createElement('div');o.id='homeRebuildLightbox';o.className='home-rebuild-lightbox';o.innerHTML='<button type="button" class="close" aria-label="Tutup">&times;</button><button type="button" class="home-rebuild-download" onclick="downloadHomeRebuildImage(event)" aria-label="Download gambar">⬇ Download</button><img id="homeRebuildLightboxImg" alt="Gambar Pengumuman">';document.body.appendChild(o);setupHomeRebuildLightbox(o);}const img=document.getElementById('homeRebuildLightboxImg');if(img)img.src=url;o.classList.add('open');stopHomeRebuildAuto();document.body.style.overflow='hidden';resetHomeRebuildZoom();}
         async function downloadHomeRebuildImage(e){
             if(e){e.preventDefault();e.stopPropagation();}
@@ -8774,6 +9241,7 @@ startAutoRefresh();
                 document.body.appendChild(anchor);anchor.click();anchor.remove();
             }
         }
+        // Fungsi applyHomeRebuildZoom(). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
         function applyHomeRebuildZoom(){
             const img=document.getElementById('homeRebuildLightboxImg');
             if(!img)return;
@@ -8791,8 +9259,11 @@ startAutoRefresh();
             homeLightboxY=Math.max(-maxY,Math.min(maxY,homeLightboxY));
             img.style.transform='translate3d('+homeLightboxX+'px,'+homeLightboxY+'px,0) scale('+homeLightboxScale+')';
         }
+        // Fungsi resetHomeRebuildZoom(). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
         function resetHomeRebuildZoom(){homeLightboxScale=1;homeLightboxX=0;homeLightboxY=0;homeLightboxDragging=false;homeLightboxPinchStart=0;homeLightboxPinchScale=1;applyHomeRebuildZoom();}
+        // Fungsi closeHomeRebuildImage(). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
         function closeHomeRebuildImage(){const o=document.getElementById('homeRebuildLightbox');if(o)o.classList.remove('open');document.body.style.overflow='';resetHomeRebuildZoom();startHomeRebuildAuto();}
+        // Fungsi setupHomeRebuildLightbox(o). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
         function setupHomeRebuildLightbox(o){
             const img=document.getElementById('homeRebuildLightboxImg');
             if(!img)return;
@@ -8843,10 +9314,13 @@ startAutoRefresh();
                     applyHomeRebuildZoom();
                 }
             },{passive:false});
+            // Fungsi endTouch(e). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
             function endTouch(e){if(e.touches.length<2)homeLightboxPinchStart=0;if(e.touches.length===0)homeLightboxDragging=false;}
             img.addEventListener('touchend',endTouch,{passive:false});
             img.addEventListener('touchcancel',endTouch,{passive:false});
         }
+
+        // Fungsi formatNotificationMessageForDisplay(n). Menangani pengolahan atau pemformatan tanggal/waktu.
 
         function formatNotificationMessageForDisplay(n) {
             let message = String(n && n.pesan || '').trim();
@@ -8875,6 +9349,8 @@ startAutoRefresh();
 
             return message;
         }
+
+        // Fungsi renderNotifications(). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
 
         function renderNotifications() {
             const list = document.getElementById('notificationList');
@@ -8912,6 +9388,8 @@ startAutoRefresh();
             renderHomeRebuildNotificationHistory();
         }
 
+        // Fungsi reloadNotificationsAfterMutation(). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
+
         function reloadNotificationsAfterMutation() {
             if (notificationMutationTimer) clearTimeout(notificationMutationTimer);
             // Beri waktu backend menyelesaikan write, lalu baca ulang dua kali agar
@@ -8922,6 +9400,8 @@ startAutoRefresh();
                 setTimeout(function() { loadNotifications(true); }, 1200);
             }, 350);
         }
+
+        // Fungsi loadNotifications(silent). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
 
         function loadNotifications(silent) {
             if (!currentUsernameInput && !currentUser) return;
@@ -8956,6 +9436,8 @@ startAutoRefresh();
                 .getNotifikasi(currentUser || '', currentUsernameInput || '');
         }
 
+        // Fungsi toggleNotificationPanel(). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
+
         function toggleNotificationPanel() {
             const panel = document.getElementById('notificationPanel');
             const btn = document.getElementById('notificationBellBtn');
@@ -8969,6 +9451,8 @@ startAutoRefresh();
             if (willOpen) loadNotifications(false);
         }
 
+        // Fungsi closeNotificationPanel(). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
+
         function closeNotificationPanel() {
             const panel = document.getElementById('notificationPanel');
             const btn = document.getElementById('notificationBellBtn');
@@ -8978,6 +9462,8 @@ startAutoRefresh();
             if (btn) btn.setAttribute('aria-expanded', 'false');
         }
 
+        // Fungsi finishNotificationMutation(). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
+
         function finishNotificationMutation() {
             notificationMutationInFlight = false;
             const queued = notificationReloadQueued;
@@ -8985,6 +9471,8 @@ startAutoRefresh();
             if (queued) reloadNotificationsAfterMutation();
             else reloadNotificationsAfterMutation();
         }
+
+        // Fungsi openNotificationItem(notificationId). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
 
         function openNotificationItem(notificationId) {
             const id = String(notificationId || '').trim();
@@ -9012,6 +9500,8 @@ startAutoRefresh();
             }
         }
 
+        // Fungsi markAllNotificationsRead(). Memperbarui, menyimpan, menandai, atau menyinkronkan data terkait.
+
         function markAllNotificationsRead() {
             if (notificationMutationInFlight || !notificationUnreadCount) return;
 
@@ -9033,6 +9523,8 @@ startAutoRefresh();
                 })
                 .markAllNotifikasiDibaca(currentUser || '', currentUsernameInput || '');
         }
+
+        // Fungsi clearAllNotifications(). Memperbarui, menyimpan, menandai, atau menyinkronkan data terkait.
 
         function clearAllNotifications() {
             if (notificationMutationInFlight || !notificationData.length) return;
@@ -9061,6 +9553,8 @@ startAutoRefresh();
             if (wrap && !wrap.contains(e.target)) closeNotificationPanel();
         });
 
+        // Fungsi startAutoRefresh(). Memperbarui, menyimpan, menandai, atau menyinkronkan data terkait.
+
         function startAutoRefresh() {
             if (autoRefreshTimer) clearInterval(autoRefreshTimer);
             // Jalankan setiap 5 detik.
@@ -9071,6 +9565,7 @@ startAutoRefresh();
         }
 
         let appBackgroundPreloadStarted = false;
+        // Fungsi preloadAppDataInBackground(). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
         function preloadAppDataInBackground() {
             if (appBackgroundPreloadStarted) return;
             appBackgroundPreloadStarted = true;
@@ -9101,6 +9596,8 @@ startAutoRefresh();
                 run(function(){ loadInputMasterData(); }, 2400);
             }
         }
+
+        // Fungsi switchTab(tab). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
 
         function switchTab(tab) {
             const isAdminLogin = String(currentUsernameInput || '').trim().toLowerCase() === 'admin';
@@ -9149,6 +9646,8 @@ if(tab==='riwayat')loadRiwayat(false, true);
             if(tab==='pengumumanadmin')loadPengumumanAdmin();
         }
 
+        // Fungsi setSidebarState(collapsed). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
+
         function setSidebarState(collapsed) {
             const app = document.getElementById('app');
             const nav = document.getElementById('leftNav');
@@ -9173,6 +9672,8 @@ if(tab==='riwayat')loadRiwayat(false, true);
             }
         }
 
+        // Fungsi toggleSidebar(). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
+
         function toggleSidebar() {
             const app = document.getElementById('app');
             if (!app) return;
@@ -9194,6 +9695,8 @@ if(tab==='riwayat')loadRiwayat(false, true);
                 setSidebarState(true);
             }
         });
+
+        // Fungsi openEditAccount(). Mengelola proses login, pendaftaran, atau data akun pengguna.
 
         function openEditAccount() {
             const modal = document.getElementById('customModal');
@@ -9252,6 +9755,8 @@ if(tab==='riwayat')loadRiwayat(false, true);
             };
         }
 
+        // Fungsi logout(). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
+
         function logout() {
             showModal("Konfirmasi", "Keluar aplikasi?", true, function(isOk) {
                 if (isOk) {
@@ -9280,19 +9785,27 @@ if(tab==='riwayat')loadRiwayat(false, true);
         let tambahCustomerEditingRow = 0;
         let tambahCustomerEditingValues = [];
 
+        // Fungsi _customerHeaderNormClient(v). Mengambil, memvalidasi, atau mengolah data input/customer/outlet.
+
         function _customerHeaderNormClient(v) {
             return String(v == null ? '' : v).trim().toUpperCase().replace(/[.\/_-]+/g, ' ').replace(/\s+/g, ' ').trim();
         }
+
+        // Fungsi _customerDateHeaderClient(v). Menangani pengolahan atau pemformatan tanggal/waktu.
 
         function _customerDateHeaderClient(v) {
             const h = _customerHeaderNormClient(v);
             return h.indexOf('DATE') !== -1 || h.indexOf('TANGGAL') !== -1 || h.indexOf('START') !== -1 || h.indexOf('END') !== -1;
         }
 
+        // Fungsi _customerSalesHeaderClient(v). Mengambil, memvalidasi, atau mengolah data input/customer/outlet.
+
         function _customerSalesHeaderClient(v) {
             const h = _customerHeaderNormClient(v);
             return h === 'SALES' || h === 'DSR' || h === 'NAMA SALES';
         }
+
+        // Fungsi _customerFieldIndexClient(headers, aliases). Mengambil, memvalidasi, atau mengolah data input/customer/outlet.
 
         function _customerFieldIndexClient(headers, aliases) {
             const normalized = (headers || []).map(_customerHeaderNormClient);
@@ -9306,14 +9819,19 @@ if(tab==='riwayat')loadRiwayat(false, true);
 
         // DSR Customer selalu bersumber dari kolom D sheet OUTLET.
         // Jika header DSR tidak terbaca, tetap gunakan kolom D (index 3).
+        // Fungsi _customerDsrFieldIndexClient(headers). Mengambil, memvalidasi, atau mengolah data input/customer/outlet.
         function _customerDsrFieldIndexClient(headers) {
             const idx = _customerFieldIndexClient(headers, ['DSR', 'SALES', 'NAMA SALES']);
             return idx >= 0 ? idx : 3;
         }
 
+        // Fungsi _customerEscape(v). Mengambil, memvalidasi, atau mengolah data input/customer/outlet.
+
         function _customerEscape(v) {
             return escapeHtml(v == null ? '' : String(v));
         }
+
+        // Fungsi _customerEnsureOption(list, current). Mengambil, memvalidasi, atau mengolah data input/customer/outlet.
 
         function _customerEnsureOption(list, current) {
             const arr = Array.isArray(list) ? list.slice() : [];
@@ -9321,6 +9839,8 @@ if(tab==='riwayat')loadRiwayat(false, true);
             if (value && !arr.some(function(x) { return String(x).trim().toUpperCase() === value.toUpperCase(); })) arr.unshift(value);
             return arr;
         }
+
+        // Fungsi loadTambahCustomerFormMaster(callback). Mengambil, memvalidasi, atau mengolah data input/customer/outlet.
 
         function loadTambahCustomerFormMaster(callback) {
             callback = typeof callback === 'function' ? callback : function(){};
@@ -9358,6 +9878,8 @@ if(tab==='riwayat')loadRiwayat(false, true);
                 showModal('Error Sistem', err && err.message ? err.message : 'Master form customer gagal dimuat.');
             }).getOutletCustomerFormMaster(currentUsernameInput, currentUser);
         }
+
+        // Fungsi loadTambahCustomer(forceReload, silentRefresh). Mengambil, memvalidasi, atau mengolah data input/customer/outlet.
 
         function loadTambahCustomer(forceReload, silentRefresh) {
             if (tambahCustomerLoading) return;
@@ -9401,6 +9923,7 @@ if(tab==='riwayat')loadRiwayat(false, true);
 
         // TABEL TAMBAH CUSTOMER: HANYA 4 KOLOM YANG DITAMPILKAN.
         // Klik baris membuka detail lengkap; aksi Edit/Hapus tersedia di detail.
+        // Fungsi renderTambahCustomerTable(rows). Mengambil, memvalidasi, atau mengolah data input/customer/outlet.
         function renderTambahCustomerTable(rows) {
             const headers = globalTambahCustomerData.headers || [];
             const head = document.getElementById('tambahCustomerHead');
@@ -9447,6 +9970,7 @@ if(tab==='riwayat')loadRiwayat(false, true);
         }
 
         // DETAIL CUSTOMER: seluruh field customer ditampilkan di modal, dengan aksi Edit dan Hapus.
+        // Fungsi lihatDetailTambahCustomer(rowNumber). Mengambil, memvalidasi, atau mengolah data input/customer/outlet.
         function lihatDetailTambahCustomer(rowNumber) {
             setDetailModalNoFooter();
             const row = (globalTambahCustomerData.rows || []).find(function(item) {
@@ -9544,6 +10068,8 @@ if(tab==='riwayat')loadRiwayat(false, true);
             modal.style.display = 'flex';
         }
 
+        // Fungsi filterTambahCustomer(). Mengambil, memvalidasi, atau mengolah data input/customer/outlet.
+
         function filterTambahCustomer() {
             const q = String((document.getElementById('searchTambahCustomer') || {}).value || '').trim().toLowerCase();
             const rows = globalTambahCustomerData.rows || [];
@@ -9557,6 +10083,8 @@ if(tab==='riwayat')loadRiwayat(false, true);
             renderTambahCustomerTable(filtered);
         }
 
+        // Fungsi _renderCustomerSelectOptions(options, current, placeholder). Mengambil, memvalidasi, atau mengolah data input/customer/outlet.
+
         function _renderCustomerSelectOptions(options, current, placeholder) {
             const list = _customerEnsureOption(options, current);
             let html = '<option value="">' + _customerEscape(placeholder || 'Pilih...') + '</option>';
@@ -9567,12 +10095,16 @@ if(tab==='riwayat')loadRiwayat(false, true);
             return html;
         }
 
+        // Fungsi _customerGetMapsValueFromInput(). Mengambil, memvalidasi, atau mengolah data input/customer/outlet.
+
         function _customerGetMapsValueFromInput() {
             const idx = _customerFieldIndexClient(globalTambahCustomerData.headers, ['MAPS', 'GOOGLE MAPS', 'LOCATION', 'LOKASI', 'KOORDINAT']);
             if (idx < 0) return null;
             const el = document.getElementById('tambahCustomerField_' + idx);
             return el ? el.value : '';
         }
+
+        // Fungsi getLokasiCustomerSaatIni(). Mengambil, memvalidasi, atau mengolah data input/customer/outlet.
 
         function getLokasiCustomerSaatIni() {
             const idxMaps = _customerFieldIndexClient(globalTambahCustomerData.headers, ['MAPS', 'GOOGLE MAPS', 'LOCATION', 'LOKASI', 'KOORDINAT']);
@@ -9627,6 +10159,8 @@ if(tab==='riwayat')loadRiwayat(false, true);
                 showModal('Kontak', e && e.message ? e.message : 'Kontak tidak dapat diambil.');
             }
         }
+
+        // Fungsi openTambahCustomerForm(rowNumber, existingValues). Mengambil, memvalidasi, atau mengolah data input/customer/outlet.
 
         function openTambahCustomerForm(rowNumber, existingValues) {
             const headers = globalTambahCustomerData.headers || [];
@@ -9755,6 +10289,8 @@ if(tab==='riwayat')loadRiwayat(false, true);
             document.getElementById('customModal').style.display = 'flex';
         }
 
+        // Fungsi editTambahCustomer(rowNumber). Mengambil, memvalidasi, atau mengolah data input/customer/outlet.
+
         function editTambahCustomer(rowNumber) {
             const row = (globalTambahCustomerData.rows || []).find(function(item) { return Number(item.rowNumber) === Number(rowNumber); });
             if (!row) {
@@ -9771,6 +10307,8 @@ if(tab==='riwayat')loadRiwayat(false, true);
                 openTambahCustomerForm(rowNumber, row.values || []);
             });
         }
+
+        // Fungsi saveTambahCustomerForm(). Mengambil, memvalidasi, atau mengolah data input/customer/outlet.
 
         function saveTambahCustomerForm() {
             const headers = globalTambahCustomerData.headers || [];
@@ -9830,6 +10368,8 @@ if(tab==='riwayat')loadRiwayat(false, true);
             }).saveOutletCustomer(currentUsernameInput, currentUser, rowNumber, values);
         }
 
+        // Fungsi deleteTambahCustomer(rowNumber). Mengambil, memvalidasi, atau mengolah data input/customer/outlet.
+
         function deleteTambahCustomer(rowNumber) {
             const row = (globalTambahCustomerData.rows || []).find(function(item) { return Number(item.rowNumber) === Number(rowNumber); });
             if (!row) {
@@ -9870,9 +10410,13 @@ if(tab==='riwayat')loadRiwayat(false, true);
 var pengumumanAdminData = [];
 var announcementDismissedThisSession = false;
 
+// Fungsi isAdminPengumuman(). Mengelola data pengumuman atau notifikasi.
+
 function isAdminPengumuman() {
     return String(typeof currentUsernameInput !== 'undefined' ? currentUsernameInput : '').trim().toLowerCase() === 'admin';
 }
+
+// Fungsi renderAnnouncementPage(data). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
 
 function renderAnnouncementPage(data) {
     var box = document.getElementById('announcementContent');
@@ -9923,6 +10467,8 @@ function renderAnnouncementPage(data) {
     }
 }
 
+// Fungsi openPengumumanImage(imageUrl). Mengelola data pengumuman atau notifikasi.
+
 function openPengumumanImage(imageUrl) {
     imageUrl = String(imageUrl || '').trim();
     if (!imageUrl) return;
@@ -9952,6 +10498,8 @@ function openPengumumanImage(imageUrl) {
     document.body.style.overflow = 'hidden';
 }
 
+// Fungsi closePengumumanImage(). Mengelola data pengumuman atau notifikasi.
+
 function closePengumumanImage() {
     var overlay = document.getElementById('pengumumanImageLightbox');
     if (overlay) overlay.style.display = 'none';
@@ -9965,6 +10513,8 @@ if (!window.__pengumumanImageEscBound) {
     });
 }
 
+// Fungsi showAnnouncementPage(data). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
+
 function showAnnouncementPage(data) {
     if (announcementDismissedThisSession) return;
     if (!Array.isArray(data) || !data.length) return;
@@ -9975,6 +10525,8 @@ function showAnnouncementPage(data) {
     if (app) app.classList.add('hidden');
 }
 
+// Fungsi closeAnnouncementPage(fromLogout). Fungsi bantu untuk proses yang ditunjukkan oleh nama dan isi fungsi ini.
+
 function closeAnnouncementPage(fromLogout) {
     if (!fromLogout) announcementDismissedThisSession = true;
     var page = document.getElementById('announcementPage');
@@ -9982,6 +10534,8 @@ function closeAnnouncementPage(fromLogout) {
     if (page) { page.classList.add('hidden'); page.setAttribute('aria-hidden','true'); }
     if (app && document.getElementById('mainPage') && !document.getElementById('mainPage').classList.contains('hidden')) app.classList.remove('hidden');
 }
+
+// Fungsi checkActivePengumuman(). Mengelola data pengumuman atau notifikasi.
 
 function checkActivePengumuman() {
     if (announcementDismissedThisSession) return;
@@ -9993,6 +10547,8 @@ function checkActivePengumuman() {
         console.warn('Gagal memuat pengumuman:', err && err.message ? err.message : err);
     }).getPengumumanAktif();
 }
+
+// Fungsi loadPengumumanAdmin(). Mengelola data pengumuman atau notifikasi.
 
 function loadPengumumanAdmin() {
     if (!isAdminPengumuman()) return;
@@ -10009,6 +10565,8 @@ function loadPengumumanAdmin() {
         if (body) body.innerHTML = '<tr><td colspan="6" class="text-red-500 text-center py-8">' + escapeHtml(err && err.message ? err.message : 'Terjadi kesalahan.') + '</td></tr>';
     }).getPengumumanAdmin(currentUsernameInput);
 }
+
+// Fungsi renderPengumumanAdminTable(). Mengelola data pengumuman atau notifikasi.
 
 function renderPengumumanAdminTable() {
     var body = document.getElementById('pengumumanAdminTableBody');
@@ -10031,6 +10589,8 @@ function renderPengumumanAdminTable() {
             '</tr>';
     }).join('');
 }
+
+// Fungsi handlePengumumanImageFile(input). Mengelola data pengumuman atau notifikasi.
 
 function handlePengumumanImageFile(input) {
     var file = input && input.files && input.files[0];
@@ -10122,6 +10682,8 @@ function handlePengumumanImageFile(input) {
     reader.readAsDataURL(file);
 }
 
+// Fungsi openPengumumanForm(item). Mengelola data pengumuman atau notifikasi.
+
 function openPengumumanForm(item) {
     if (!isAdminPengumuman()) return;
     var box = document.getElementById('pengumumanFormBox');
@@ -10136,15 +10698,21 @@ function openPengumumanForm(item) {
     box.scrollIntoView({behavior:'smooth', block:'start'});
 }
 
+// Fungsi closePengumumanForm(). Mengelola data pengumuman atau notifikasi.
+
 function closePengumumanForm() {
     var box = document.getElementById('pengumumanFormBox');
     if (box) box.classList.add('hidden');
 }
 
+// Fungsi editPengumuman(row). Mengelola data pengumuman atau notifikasi.
+
 function editPengumuman(row) {
     var item = pengumumanAdminData.find(function(x){ return Number(x.rowNumber) === Number(row); });
     if (item) openPengumumanForm(item);
 }
+
+// Fungsi savePengumumanForm(). Mengelola data pengumuman atau notifikasi.
 
 function savePengumumanForm() {
     if (!isAdminPengumuman()) return;
@@ -10168,6 +10736,8 @@ function savePengumumanForm() {
         showModal('Error Sistem', err && err.message ? err.message : 'Terjadi kesalahan.');
     }).savePengumumanAdmin(currentUsernameInput, row, payload);
 }
+
+// Fungsi deletePengumuman(row). Mengelola data pengumuman atau notifikasi.
 
 function deletePengumuman(row) {
     if (!isAdminPengumuman()) return;
@@ -11359,6 +11929,7 @@ button{ -webkit-tap-highlight-color:transparent }
 </style>
 <script id="card-view-restore-v13">
 /* Chart view: restore the previous card-based presentation without touching the existing chart functions. */
+// Fungsi renderRiwayatCards(data). Menangani data atau proses pesanan/transaksi dan riwayatnya.
 function renderRiwayatCards(data) {
     const container = document.getElementById('listRiwayat');
     if (!container) return;
@@ -11436,6 +12007,8 @@ function renderRiwayatCards(data) {
     container.innerHTML = `<div class="riwayat-cards-wrap">${bulkControls}<div class="riwayat-cards-grid">${cards}</div>${pagination}</div>`;
     updateSelectedRiwayatUI();
 }
+
+// Fungsi renderPencapaianCards(data). Mengambil atau mengolah data Pencapaian Sales/periode pencapaian.
 
 function renderPencapaianCards(data) {
     const container = document.getElementById('pencapaianSalesList');
@@ -12292,6 +12865,7 @@ function renderPencapaianCards(data) {
 </style>
 <script id="input-step2-heading-sync-fix">
 (function(){
+  // Fungsi syncStep2OutletHeading(). Mengambil, memvalidasi, atau mengolah data input/customer/outlet.
   function syncStep2OutletHeading(){
     var outletSelect=document.getElementById('inputOutlet');
     var custInput=document.getElementById('inputCustCode');
