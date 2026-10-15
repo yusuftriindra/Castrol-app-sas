@@ -7386,7 +7386,6 @@ startAutoRefresh();
                             ${renderPencapaianCategory('Active Outlet', '🏪', item.categories && item.categories.active, 'active', item.sales)}
                             ${renderPencapaianCategory('Produk Fokus', '🎯', item.categories && item.categories.product, 'product', item.sales)}
                             ${renderPencapaianCategory('Power Brand', '🏆', item.categories && item.categories.powerBrand, 'powerBrand', item.sales)}
-                            ${renderPencapaianCategory('NOO/Reaktifasi', '🔄', item.categories && item.categories.noo, 'noo', item.sales)}
                         </div>
                     </div>`;
             }).join('');
@@ -7491,7 +7490,7 @@ startAutoRefresh();
         function renderPencapaianTable(data) {
             const container = document.getElementById('pencapaianSalesList');
             if (!container) return;
-            const cats = [{key:'value',label:'Value',type:'value'},{key:'volume',label:'Volume',type:'volume'},{key:'active',label:'Active Outlet',type:'active'},{key:'product',label:'Produk Fokus',type:'product'},{key:'powerBrand',label:'Power Brand',type:'powerBrand'},{key:'noo',label:'NOO/Reaktifasi',type:'noo'}];
+            const cats = [{key:'value',label:'Value',type:'value'},{key:'volume',label:'Volume',type:'volume'},{key:'active',label:'Active Outlet',type:'active'},{key:'product',label:'Produk Fokus',type:'product'},{key:'powerBrand',label:'Power Brand',type:'powerBrand'}];
             let rows='';
             data.forEach(function(item){
                 cats.forEach(function(c, index){
@@ -7534,7 +7533,7 @@ startAutoRefresh();
         function renderPencapaianChart(data) {
             const container = document.getElementById('pencapaianSalesList');
             if (!container) return;
-            const cats = [{key:'value',label:'Value'},{key:'volume',label:'Volume'},{key:'active',label:'Active Outlet'},{key:'product',label:'Produk Fokus'},{key:'powerBrand',label:'Power Brand'},{key:'noo',label:'NOO/Reaktifasi'}];
+            const cats = [{key:'value',label:'Value'},{key:'volume',label:'Volume'},{key:'active',label:'Active Outlet'},{key:'product',label:'Produk Fokus'},{key:'powerBrand',label:'Power Brand'}];
             const blocks=data.map(function(item){
                 const bars=cats.map(function(c){ const q=(item.categories&&item.categories[c.key]&&item.categories[c.key].quarter)||{}; const pct=Math.max(0,Math.min(Number(q.percentage||0),100)); return '<div class="mb-2"><div class="flex justify-between text-[9px] font-bold text-slate-600 mb-1"><span>'+c.label+'</span><span>'+formatPercentID(q.percentage||0)+'</span></div><div class="h-2.5 rounded-full bg-slate-100 overflow-hidden"><div class="h-full rounded-full '+(Number(q.percentage||0)>=100?'bg-emerald-600':Number(q.percentage||0)>=80?'bg-amber-500':'bg-red-500')+'" style="width:'+Math.max(2,pct)+'%"></div></div></div>'; }).join('');
                 return '<div class="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm"><div class="flex items-center justify-between mb-3"><div class="text-sm font-extrabold text-slate-800">'+escapeHtml(item.sales||'-')+'</div><span class="text-[9px] text-slate-400">'+escapeHtml(item.periode||'')+'</span></div>'+bars+'</div>';
@@ -7559,7 +7558,7 @@ startAutoRefresh();
             const selectedPeriod = periodSelect && periodSelect.value ? periodSelect.value : '';
             const titleMap = {
                 value: 'Value', volume: 'Volume', active: 'Active Outlet',
-                product: 'Produk Fokus', powerbrand: 'Power Brand', noo: 'NOO/Reaktifasi'
+                product: 'Produk Fokus', powerbrand: 'Power Brand'
             };
             const title = titleMap[String(category || '').toLowerCase()] || category;
             const cacheKey = String(currentUsernameInput || '').toLowerCase() + '|' +
@@ -11661,7 +11660,6 @@ function renderPencapaianCards(data) {
                     ${renderPencapaianCategory('Active Outlet', '🏪', item.categories && item.categories.active, 'active', item.sales)}
                     ${renderPencapaianCategory('Produk Fokus', '🎯', item.categories && item.categories.product, 'product', item.sales)}
                     ${renderPencapaianCategory('Power Brand', '🏆', item.categories && item.categories.powerBrand, 'powerBrand', item.sales)}
-                    ${renderPencapaianCategory('NOO/Reaktifasi', '🔄', item.categories && item.categories.noo, 'noo', item.sales)}
                 </div>
             </div>`;
     }).join('');
