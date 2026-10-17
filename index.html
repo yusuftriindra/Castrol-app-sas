@@ -3701,10 +3701,10 @@ body{background:
                         </div>
                         <div class="flex items-center gap-2">
                             <label for="pencapaianPeriodSelect" class="text-[9px] font-bold text-slate-500">Periode</label>
-                            <select id="pencapaianSalesFilter" onchange="loadPencapaianSales()" class="hidden bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[10px] text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <select id="pencapaianSalesFilter" onchange="loadPencapaianSales(false, true)" class="hidden bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[10px] text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500">
                                 <option value="">Semua Sales</option>
                             </select>
-                            <select id="pencapaianPeriodSelect" onchange="loadPencapaianSales()" class="bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[10px] text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <select id="pencapaianPeriodSelect" onchange="loadPencapaianSales(false, true)" class="bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[10px] text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500">
                                 <option value="">Memuat...</option>
                             </select>
                         </div>
@@ -4018,6 +4018,11 @@ body{background:
                                       <div><label class="block text-[10px] font-bold text-slate-500 mb-1">Satuan</label><select id="hnUnit" class="w-full border border-slate-200 rounded-lg px-2 py-2 text-xs" onchange="updateHargaNettInvoiceProduct()"><option value="DUS">Dus</option><option value="PCS">Pcs</option></select></div>
                                       <div><label class="block text-[10px] font-bold text-slate-500 mb-1">Jumlah</label><input id="hnQty" type="number" min="1" value="1" class="w-full border border-slate-200 rounded-lg px-2 py-2 text-xs" oninput="updateHargaNettInvoiceProduct()"></div>
                                     </div>
+                                    <div class="flex items-center gap-2 rounded-lg border border-slate-200 p-2">
+                                      <input id="hnManualPriceToggle" type="checkbox" class="h-4 w-4" onchange="toggleHargaNettManualPrice()">
+                                      <label for="hnManualPriceToggle" class="text-[10px] font-bold text-slate-600">Atur Harga Sendiri</label>
+                                    </div>
+                                    <div id="hnManualPriceWrap" class="hidden"><label class="block text-[10px] font-bold text-slate-500 mb-1">Harga Nett / Pcs Manual (Rp)</label><input id="hnManualPrice" type="number" min="0" value="0" class="w-full border border-slate-200 rounded-lg px-2 py-2 text-xs" oninput="updateHargaNettInvoiceProduct()"></div>
                                     <div class="grid grid-cols-2 gap-2">
                                       <div><label class="block text-[10px] font-bold text-slate-500 mb-1">Extra Cashback (Rp/Pcs)</label><input id="hnExtra" type="number" min="0" value="0" class="w-full border border-slate-200 rounded-lg px-2 py-2 text-xs" oninput="updateHargaNettInvoiceProduct()"></div>
                                       <div class="rounded-lg bg-slate-50 border border-slate-100 p-2"><div class="text-[9px] text-slate-400">Harga Nett / Pcs</div><div id="hnNettPreview" class="text-sm font-extrabold text-emerald-800 mt-1">Rp 0</div></div>
@@ -5822,7 +5827,7 @@ startAutoRefresh();
             const target = document.getElementById('monitoringDetailHistoryChart');
             if (!target) return;
             const custKey = String(data && data.custCode || '').trim().toUpperCase().replace(/\s+/g, ' ');
-            const cacheKey = 'MONITORING_HISTORY_V2_' + custKey;
+            const cacheKey = 'MONITORING_HISTORY_V3_' + custKey;
             const cached = appLocalCacheGet(cacheKey);
 
             if (cached && typeof cached === 'object' && Array.isArray(cached.history)) {
@@ -6024,7 +6029,7 @@ startAutoRefresh();
                                 }).join('') + '</div>';
                         }).join('');
                     } else {
-                        tooltipDetails.innerHTML = '<div style="padding:3px 0;color:#cbd5e1">Memuat.</div>';
+                        tooltipDetails.innerHTML = '<div style="padding:3px 0;color:#cbd5e1">Tidak ada rincian transaksi pada bulan ini.</div>';
                     }
                 }
 
@@ -7349,8 +7354,11 @@ startAutoRefresh();
             if (loading) loading.classList.add('hidden');
             if (!container) return;
             // Pencapaian Sales: keluarkan SETYO dari semua tampilan dan perhitungan tab ini saja.
+            const isAdminPencapaian = String(currentUsernameInput || '').trim().toLowerCase() === 'admin';
+            const selectedSalesPencapaian = isAdminPencapaian ? String((document.getElementById('pencapaianSalesFilter') || {}).value || '').trim().toUpperCase() : '';
             data = (Array.isArray(data) ? data : []).filter(function(item) {
-                return String(item && item.sales || '').trim().toUpperCase() !== 'SETYO';
+                const name = String(item && item.sales || '').trim().toUpperCase();
+                return name !== 'SETYO' && (!selectedSalesPencapaian || name === selectedSalesPencapaian);
             });
             if (!Array.isArray(data) || data.length === 0) {
                 container.innerHTML = '<div class="bg-white border border-slate-200 rounded-2xl p-6 text-center text-xs text-slate-400 shadow-sm">Belum ada target untuk periode ini.</div>';
@@ -7491,44 +7499,69 @@ startAutoRefresh();
         function renderPencapaianTable(data) {
             const container = document.getElementById('pencapaianSalesList');
             if (!container) return;
-            const cats = [{key:'value',label:'Value',type:'value'},{key:'volume',label:'Volume',type:'volume'},{key:'active',label:'Active Outlet',type:'active'},{key:'product',label:'Produk Fokus',type:'product'},{key:'powerBrand',label:'Power Brand',type:'powerBrand'},{key:'noo',label:'NOO/Reaktivasi',type:'noo'}];
-            let rows='';
-            data.forEach(function(item){
-                cats.forEach(function(c, index){
-                    const q=(item.categories&&item.categories[c.key]&&item.categories[c.key].quarter)||{};
-                    const salesCell = index === 0
-                        ? '<td class="px-3 py-2.5 font-bold text-slate-700 align-top border-r border-slate-100" rowspan="'+cats.length+'">'+escapeHtml(item.sales||'-')+'</td>'
-                        : '';
-                    rows += '<tr class="border-b border-slate-100 hover:bg-emerald-50/50 cursor-pointer" onclick="openPencapaianDetail(\''+escapeHtml(categoryKeyForDetail(c.type))+'\', \''+escapeHtml(item.sales||'')+'\')">'+salesCell+'<td class="px-3 py-2.5">'+escapeHtml(c.label)+'</td><td class="px-3 py-2.5 text-right">'+formatPencapaianValue(q.target,c.type)+'</td><td class="px-3 py-2.5 text-right font-bold">'+formatPencapaianValue(q.actual,c.type)+'</td><td class="px-3 py-2.5 text-right font-bold '+(Number(q.gap||0)>=0?'text-emerald-700':'text-red-600')+'">'+formatPencapaianValue(q.gap||0,c.type)+'</td><td class="px-3 py-2.5 text-right font-extrabold">'+formatPercentID(q.percentage||0)+'</td></tr>';
+            const cats = [
+                {key:'value',label:'Value',type:'value'},
+                {key:'volume',label:'Volume',type:'volume'},
+                {key:'active',label:'Active Outlet',type:'active'},
+                {key:'product',label:'Produk Fokus',type:'product'},
+                {key:'powerBrand',label:'Power Brand',type:'powerBrand'},
+                {key:'noo',label:'NOO/Reaktivasi',type:'noo'}
+            ];
+            // Simpan data yang sudah difilter Sales agar pergantian kategori hanya merender ulang tabel.
+            window.__pencapaianTableData = Array.isArray(data) ? data : [];
+            const oldFilter = document.getElementById('pencapaianCategoryFilter');
+            const selectedCategory = oldFilter ? oldFilter.value : 'value';
+            const selectedCat = cats.find(function(c){ return c.key === selectedCategory; }) || cats[0];
+            const monthly = {};
+            window.__pencapaianTableData.forEach(function(item) {
+                const category = item && item.categories && item.categories[selectedCat.key];
+                const months = category && Array.isArray(category.months) ? category.months : [];
+                months.forEach(function(m) {
+                    const key = String(m.period || ('MONTH ' + (m.monthNo || '')));
+                    if (!monthly[key]) monthly[key] = {period:key, target:0, actual:0, gap:0, percentage:0, monthNo:Number(m.monthNo || 0)};
+                    monthly[key].target += Number(m.target || 0);
+                    monthly[key].actual += Number(m.actual || 0);
+                    monthly[key].gap += Number(m.gap != null ? m.gap : (Number(m.actual || 0) - Number(m.target || 0)));
+                    monthly[key].monthNo = monthly[key].monthNo || Number(m.monthNo || 0);
                 });
             });
-            let totalSummaryHtml = '';
-            const salesFilter = document.getElementById('pencapaianSalesFilter');
-            const isAdminLogin = String(currentUsernameInput || '').trim().toLowerCase() === 'admin';
-            const showTotals = isAdminLogin && !(salesFilter && String(salesFilter.value || '').trim());
-            if (showTotals) {
-                const totalCards = cats.map(function(c) {
-                    let totalTarget = 0;
-                    let totalActual = 0;
-                    data.forEach(function(item) {
-                        const q = (item.categories && item.categories[c.key] && item.categories[c.key].quarter) || {};
-                        totalTarget += Number(q.target || 0);
-                        totalActual += Number(q.actual || 0);
-                    });
-                    const totalGap = totalActual - totalTarget;
-                    const totalAch = totalTarget !== 0 ? (totalActual / totalTarget) * 100 : 0;
-                    return '<div class="rounded-xl border border-slate-200 bg-white p-3 shadow-sm min-w-0">' +
-                        '<div class="text-[9px] font-extrabold uppercase tracking-wide text-slate-500 mb-2">' + escapeHtml(c.label) + '</div>' +
-                        '<div class="grid grid-cols-2 gap-x-3 gap-y-2 text-[10px]">' +
-                        '<div><div class="text-slate-400">Total Target</div><div class="font-bold text-slate-700 break-words">' + formatPencapaianValue(totalTarget, c.type) + '</div></div>' +
-                        '<div><div class="text-slate-400">Total Actual</div><div class="font-extrabold text-slate-800 break-words">' + formatPencapaianValue(totalActual, c.type) + '</div></div>' +
-                        '<div><div class="text-slate-400">Total Gap</div><div class="font-bold ' + (totalGap >= 0 ? 'text-emerald-700' : 'text-red-600') + ' break-words">' + formatPencapaianValue(totalGap, c.type) + '</div></div>' +
-                        '<div><div class="text-slate-400">Total Ach%</div><div class="font-extrabold text-slate-800">' + formatPercentID(totalAch) + '</div></div>' +
-                        '</div></div>';
-                }).join('');
-                totalSummaryHtml = '<div class="mb-3"><div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-600 mb-2">Total Pencapaian Semua Sales</div><div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">' + totalCards + '</div></div>';
-            }
-            container.innerHTML=totalSummaryHtml+'<div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden"><div class="overflow-x-auto"><table class="w-full min-w-[820px] text-[10px]"><thead><tr class="bg-slate-50 border-b border-slate-200 text-[9px] uppercase tracking-wide text-slate-500"><th class="px-3 py-2 text-left">Sales</th><th class="px-3 py-2 text-left">Kategori</th><th class="px-3 py-2 text-right">Target</th><th class="px-3 py-2 text-right">Actual</th><th class="px-3 py-2 text-right">Gap</th><th class="px-3 py-2 text-right">%</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+            const rowsData = Object.keys(monthly).map(function(k) {
+                const m = monthly[k];
+                m.percentage = m.target !== 0 ? (m.actual / m.target) * 100 : 0;
+                return m;
+            }).sort(function(a,b){ return a.monthNo - b.monthNo || a.period.localeCompare(b.period); });
+            const rows = rowsData.map(function(m) {
+                const gap = Number(m.gap || 0);
+                return '<tr class="border-b border-slate-100 hover:bg-emerald-50/50">' +
+                    '<td class="px-3 py-2.5 font-semibold text-slate-700">' + escapeHtml(m.period) + '</td>' +
+                    '<td class="px-3 py-2.5 text-right">' + formatPencapaianValue(m.target, selectedCat.type) + '</td>' +
+                    '<td class="px-3 py-2.5 text-right font-bold">' + formatPencapaianValue(m.actual, selectedCat.type) + '</td>' +
+                    '<td class="px-3 py-2.5 text-right font-bold ' + (gap >= 0 ? 'text-emerald-700' : 'text-red-600') + '">' + formatPencapaianValue(gap, selectedCat.type) + '</td>' +
+                    '<td class="px-3 py-2.5 text-right font-extrabold">' + formatPercentID(m.percentage) + '</td>' +
+                    '</tr>';
+            }).join('');
+            const totalTarget = rowsData.reduce(function(sum, m){ return sum + Number(m.target || 0); }, 0);
+            const totalActual = rowsData.reduce(function(sum, m){ return sum + Number(m.actual || 0); }, 0);
+            const totalGap = rowsData.reduce(function(sum, m){ return sum + Number(m.gap || 0); }, 0);
+            const totalAch = totalTarget !== 0 ? (totalActual / totalTarget) * 100 : 0;
+            const totalRow = rowsData.length ? '<tr class="bg-slate-100 border-t-2 border-slate-300 font-extrabold">' +
+                '<td class="px-3 py-2.5 text-slate-800">Total</td>' +
+                '<td class="px-3 py-2.5 text-right">' + formatPencapaianValue(totalTarget, selectedCat.type) + '</td>' +
+                '<td class="px-3 py-2.5 text-right">' + formatPencapaianValue(totalActual, selectedCat.type) + '</td>' +
+                '<td class="px-3 py-2.5 text-right ' + (totalGap >= 0 ? 'text-emerald-700' : 'text-red-600') + '">' + formatPencapaianValue(totalGap, selectedCat.type) + '</td>' +
+                '<td class="px-3 py-2.5 text-right">' + formatPercentID(totalAch) + '</td>' +
+                '</tr>' : '';
+            container.innerHTML =
+                '<div class="flex flex-wrap items-center justify-between gap-2 mb-2">' +
+                    '<label for="pencapaianCategoryFilter" class="text-[10px] font-bold text-slate-600">Kategori</label>' +
+                    '<select id="pencapaianCategoryFilter" onchange="renderPencapaianTable(window.__pencapaianTableData || [])" class="bg-white border border-slate-200 rounded-lg px-3 py-2 text-[10px] text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500">' +
+                        cats.map(function(c){ return '<option value="' + c.key + '"' + (c.key === selectedCat.key ? ' selected' : '') + '>' + escapeHtml(c.label) + '</option>'; }).join('') +
+                    '</select>' +
+                '</div>' +
+                '<div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden"><div class="overflow-x-auto"><table class="w-full min-w-[520px] text-[10px]">' +
+                    '<thead><tr class="bg-slate-50 border-b border-slate-200 text-[9px] uppercase tracking-wide text-slate-500">' +
+                        '<th class="px-3 py-2 text-left">Bulan</th><th class="px-3 py-2 text-right">Target</th><th class="px-3 py-2 text-right">Actual</th><th class="px-3 py-2 text-right">Gap</th><th class="px-3 py-2 text-right">Ach</th>' +
+                    '</tr></thead><tbody>' + (rows ? rows + totalRow : '<tr><td colspan="5" class="px-3 py-6 text-center text-slate-400">Data bulanan belum tersedia untuk kategori ini.</td></tr>') + '</tbody></table></div></div>';
         }
 
         function renderPencapaianChart(data) {
@@ -7736,6 +7769,8 @@ startAutoRefresh();
             }
             select.classList.remove('hidden');
             const current = select.value || '';
+            const periodSelect = document.getElementById('pencapaianPeriodSelect');
+            const selectedPeriod = periodSelect && periodSelect.value ? periodSelect.value : '';
             google.script.run.withSuccessHandler(function(list) {
                 const salesList = Array.isArray(list) ? list : [];
                 select.innerHTML = '<option value="">Semua Sales</option>' +
@@ -7745,7 +7780,7 @@ startAutoRefresh();
                 if (salesList.indexOf(current) !== -1) select.value = current;
             }).withFailureHandler(function() {
                 select.innerHTML = '<option value="">Semua Sales</option>';
-            }).getListSalesOptions();
+            }).getListSalesOptions(selectedPeriod);
         }
 
         function prefetchPencapaianDetailData(sales, period) {
@@ -7762,6 +7797,33 @@ startAutoRefresh();
             });
         }
 
+        function pencapaianCacheKeyFor(period, isAdminLogin) {
+            const owner = (currentUsernameInput || 'admin').toLowerCase();
+            // Admin mengambil semua sales sekaligus agar filter Sales cukup memfilter data lokal.
+            const salesKey = isAdminLogin ? '' : String(currentUser || '').trim().toUpperCase();
+            return owner + '|' + salesKey + '|' + String(period || '');
+        }
+
+        function prefetchPencapaianPeriods(periods, currentPeriod, isAdminLogin) {
+            if (!Array.isArray(periods) || !periods.length) return;
+            const salesName = isAdminLogin ? '' : currentUser;
+            periods.forEach(function(p, index) {
+                const period = String(p && p.value || '');
+                if (!period || period === currentPeriod) return;
+                const key = pencapaianCacheKeyFor(period, isAdminLogin);
+                if (pencapaianCache[key]) return;
+                // Pemanasan cache di latar belakang; pergantian filter berikutnya cukup render lokal.
+                setTimeout(function() {
+                    google.script.run.withSuccessHandler(function(res) {
+                        if (!res) return;
+                        const actualPeriod = String(res.selectedPeriod || period);
+                        pencapaianCache[pencapaianCacheKeyFor(actualPeriod, isAdminLogin)] = res;
+                        try { appLocalCacheSet('PENCAPAIAN_' + String(currentUsernameInput || '').toUpperCase(), pencapaianCache); } catch(e) {}
+                    }).withFailureHandler(function() {}).getPencapaianSales(salesName, currentUsernameInput, period);
+                }, (index + 1) * 180);
+            });
+        }
+
         function loadPencapaianSales(forceReloadPeriods, silentRefresh) {
             const loading = document.getElementById('pencapaianLoading');
             const container = document.getElementById('pencapaianSalesList');
@@ -7770,7 +7832,19 @@ startAutoRefresh();
             const isAdminLogin = String(currentUsernameInput || '').trim().toLowerCase() === 'admin';
             const selectedPeriod = periodSelect && periodSelect.value ? periodSelect.value : '';
             const selectedSales = isAdminLogin && salesFilter && salesFilter.value ? salesFilter.value : '';
-            const cacheKey = (currentUsernameInput || 'admin').toLowerCase() + '|' + selectedSales + '|' + selectedPeriod;
+            const cacheKey = pencapaianCacheKeyFor(selectedPeriod, isAdminLogin);
+
+            // Sinkronkan opsi Sales dengan kolom A dan periode kolom F pada TARGET PER SALES.
+            if (isAdminLogin) loadPencapaianSalesFilter();
+
+            // Filter Sales admin hanya mengubah tampilan dari data kwartal yang sudah dimuat.
+            if (!forceReloadPeriods && isAdminLogin && pencapaianCache[cacheKey]) {
+                if (loading) loading.classList.add('hidden');
+                const cached = pencapaianCache[cacheKey];
+                renderPencapaianSales(cached.data || []);
+                prefetchPencapaianDetailData(selectedSales || '', cached.selectedPeriod || selectedPeriod);
+                return;
+            }
             if (!forceReloadPeriods && pencapaianCache[cacheKey]) {
                 const res = pencapaianCache[cacheKey];
                 if (loading) loading.classList.add('hidden');
@@ -7779,23 +7853,12 @@ startAutoRefresh();
                     periodSelect.value = res.selectedPeriod || selectedPeriod || res.periods[0].value;
                 }
                 renderPencapaianSales(res.data || []);
-                prefetchPencapaianDetailData(isAdminLogin ? selectedSales : currentUser, res.selectedPeriod || selectedPeriod);
+                prefetchPencapaianDetailData(currentUser, res.selectedPeriod || selectedPeriod);
                 return;
             }
-            // Setiap perubahan filter boleh langsung membuat request baru.
-            // Request lama tidak boleh menghalangi filter baru dan hasil lama
-            // akan diabaikan jika sudah ada request yang lebih baru.
+
             const requestId = ++pencapaianRequestSeq;
             pencapaianLoading = true;
-            const hadCache = !!pencapaianCache[cacheKey];
-            if (hadCache) {
-                const cachedRes = pencapaianCache[cacheKey];
-                if (periodSelect && cachedRes.periods && cachedRes.periods.length) {
-                    periodSelect.innerHTML = cachedRes.periods.map(function(p){return '<option value="'+escapeHtml(p.value)+'">'+escapeHtml(p.label)+'</option>';}).join('');
-                    periodSelect.value = cachedRes.selectedPeriod || selectedPeriod || cachedRes.periods[0].value;
-                }
-                renderPencapaianSales(cachedRes.data || []);
-            }
             if (!silentRefresh) {
                 if (loading) loading.classList.add('hidden');
                 showLoading(true);
@@ -7804,25 +7867,28 @@ startAutoRefresh();
                 if (requestId !== pencapaianRequestSeq) return;
                 pencapaianLoading = false;
                 if (!silentRefresh) showLoading(false);
-                pencapaianCache[cacheKey] = res || {};
+                res = res || {};
+                const actualPeriod = String(res.selectedPeriod || selectedPeriod || '');
+                const actualCacheKey = pencapaianCacheKeyFor(actualPeriod, isAdminLogin);
+                pencapaianCache[actualCacheKey] = res;
                 try { appLocalCacheSet('PENCAPAIAN_' + String(currentUsernameInput||'').toUpperCase(), pencapaianCache); } catch(e) {}
-                const periods = Array.isArray(res && res.periods) ? res.periods : [];
+                const periods = Array.isArray(res.periods) ? res.periods : [];
                 if (periodSelect && periods.length) {
-                    const currentValue = selectedPeriod || (res && res.selectedPeriod ? res.selectedPeriod : '');
                     periodSelect.innerHTML = periods.map(function(p){ return '<option value="'+escapeHtml(p.value)+'">'+escapeHtml(p.label)+'</option>'; }).join('');
-                    periodSelect.value = periods.some(function(p){return p.value===currentValue;}) ? currentValue : periods[0].value;
+                    periodSelect.value = periods.some(function(p){return p.value===actualPeriod;}) ? actualPeriod : periods[0].value;
                 }
                 const periodeEl = document.getElementById('pencapaianPeriode');
-                if (periodeEl) { let txt='Periode: '+(res && res.periode ? res.periode : '-'); if(res && res.volumeQuarter) txt+=' · Volume: '+res.volumeQuarter; periodeEl.textContent=txt; }
-                renderPencapaianSales(Array.isArray(res && res.data) ? res.data : []);
-                prefetchPencapaianDetailData(isAdminLogin ? selectedSales : currentUser, res && res.selectedPeriod ? res.selectedPeriod : selectedPeriod);
+                if (periodeEl) { let txt='Periode: '+(res.periode || '-'); if(res.volumeQuarter) txt+=' · Volume: '+res.volumeQuarter; periodeEl.textContent=txt; }
+                renderPencapaianSales(Array.isArray(res.data) ? res.data : []);
+                prefetchPencapaianDetailData(isAdminLogin ? selectedSales : currentUser, actualPeriod);
+                prefetchPencapaianPeriods(periods, actualPeriod, isAdminLogin);
             }).withFailureHandler(function(err) {
                 if (requestId !== pencapaianRequestSeq) return;
                 pencapaianLoading = false;
                 if (!silentRefresh) showLoading(false);
                 if (loading) loading.classList.add('hidden');
-                if (!hadCache && container) container.innerHTML = '<div class="bg-white border border-red-200 rounded-2xl p-6 text-center text-xs text-red-500">Gagal memuat pencapaian: ' + escapeHtml(err && err.message ? err.message : 'Terjadi kesalahan.') + '</div>';
-            }).getPencapaianSales(isAdminLogin ? selectedSales : currentUser, currentUsernameInput, selectedPeriod);
+                if (!pencapaianCache[cacheKey] && container) container.innerHTML = '<div class="bg-white border border-red-200 rounded-2xl p-6 text-center text-xs text-red-500">Gagal memuat pencapaian: ' + escapeHtml(err && err.message ? err.message : 'Terjadi kesalahan.') + '</div>';
+            }).getPencapaianSales(isAdminLogin ? '' : currentUser, currentUsernameInput, selectedPeriod);
         }
 
         function formatPricelistDate(value) {
@@ -7944,17 +8010,25 @@ startAutoRefresh();
                 const totalPcs=item.unit==='PCS'?item.qty:item.qty*pack;
                 const discPercent=ctx.isCtm?0:ctx.discPercent;
                 const grossPcs=ctx.isCtm?ctx.base:Math.max(0,ctx.base-ctx.base*discPercent/100);
-                item.pack=pack;item.totalPcs=totalPcs;item.liter=ctx.liter;item.price=ctx.base;
-                item.isCtm=ctx.isCtm;item.subtotalGross=ctx.base*totalPcs;
+                const manual=!!item.manualPrice;
+                const unitPrice=manual?Math.max(0,Number(item.manualNettPerPcs)||0):ctx.base;
+                item.pack=pack;item.totalPcs=totalPcs;item.liter=ctx.liter;item.price=unitPrice;
+                item.isCtm=ctx.isCtm;item.manualPrice=manual;item.subtotalGross=unitPrice*totalPcs;
                 item.totalDisc=(ctx.base-grossPcs)*totalPcs;
                 item.cashbackPerPcs=ctx.cashbackPerPcs;item.totalCashback=ctx.cashbackPerPcs*totalPcs;
                 item.totalExtra=Math.max(0,Number(item.extraPerPcs)||0)*totalPcs;
-                item.nettSubtotal=Math.max(0,item.subtotalGross-item.totalDisc-item.totalCashback-item.totalExtra);
+                item.nettSubtotal=manual?unitPrice*totalPcs:Math.max(0,item.subtotalGross-item.totalDisc-item.totalCashback-item.totalExtra);
             });
         }
         function getHargaNettInvoiceSelectedProduct() {
             const key=String((document.getElementById('hnProductSelect')||{}).value||'');
             return hargaNettData.find(function(x){return String(x.kode||x.produk||'')===key;})||null;
+        }
+        function toggleHargaNettManualPrice() {
+            const active=!!((document.getElementById('hnManualPriceToggle')||{}).checked);
+            const wrap=document.getElementById('hnManualPriceWrap');
+            if(wrap)wrap.classList.toggle('hidden',!active);
+            updateHargaNettInvoiceProduct();
         }
         function updateHargaNettInvoiceProduct() {
             const prod=getHargaNettInvoiceSelectedProduct();
@@ -7962,11 +8036,19 @@ startAutoRefresh();
             const preview=document.getElementById('hnNettPreview');
             if(!prod){if(notice)notice.textContent='';if(preview)preview.textContent='Rp 0';return;}
             const ctx=getHargaNettInvoiceContext(prod);
-            if(notice)notice.textContent=ctx.isCtm?'★ Produk CTM: diskon tidak diterapkan.':'';
-            const disc=ctx.isCtm?0:ctx.discPercent;
-            const extra=Math.max(0,Number((document.getElementById('hnExtra')||{}).value||0));
-            const gross=ctx.isCtm?ctx.base:Math.max(0,ctx.base-ctx.base*disc/100);
-            if(preview)preview.textContent=formatHargaNett(Math.max(0,gross-ctx.cashbackPerPcs-extra));
+            const manual=!!((document.getElementById('hnManualPriceToggle')||{}).checked);
+            const manualInput=document.getElementById('hnManualPrice');
+            if(notice)notice.textContent=manual?'Mode harga manual aktif: diskon, cashback, dan extra cashback tidak mengurangi total.':(ctx.isCtm?'★ Produk CTM: diskon tidak diterapkan.':'');
+            let nettPerPcs;
+            if(manual){nettPerPcs=Math.max(0,Number((manualInput||{}).value)||0);}
+            else {
+                const discPercent=ctx.isCtm?0:ctx.discPercent;
+                const discountAmount=ctx.base*discPercent/100;
+                const cashbackAmount=Number(ctx.cashbackPerPcs)||0;
+                const extraCashback=Math.max(0,Number((document.getElementById('hnExtra')||{}).value||0));
+                nettPerPcs=Math.max(0,ctx.base-discountAmount-cashbackAmount-extraCashback);
+            }
+            if(preview)preview.textContent=formatHargaNett(nettPerPcs);
         }
         function addHargaNettInvoiceItem() {
             const prod=getHargaNettInvoiceSelectedProduct();
@@ -7978,13 +8060,16 @@ startAutoRefresh();
             const totalPcs=unit==='PCS'?qty:qty*pack;
             const discPercent=ctx.isCtm?0:ctx.discPercent;
             const extraPerPcs=Math.max(0,Number((document.getElementById('hnExtra')||{}).value||0));
+            const manual=!!((document.getElementById('hnManualPriceToggle')||{}).checked);
+            const manualNettPerPcs=manual?Math.max(0,Number((document.getElementById('hnManualPrice')||{}).value)||0):0;
             const grossPcs=ctx.isCtm?ctx.base:Math.max(0,ctx.base-ctx.base*discPercent/100);
-            const subtotalGross=ctx.base*totalPcs;
+            const unitPrice=manual?manualNettPerPcs:ctx.base;
+            const subtotalGross=unitPrice*totalPcs;
             const totalDisc=(ctx.base-grossPcs)*totalPcs;
             const totalCashback=ctx.cashbackPerPcs*totalPcs;
             const totalExtra=extraPerPcs*totalPcs;
-            const nettSubtotal=Math.max(0,subtotalGross-totalDisc-totalCashback-totalExtra);
-            hargaNettInvoiceCart.push({key:String(prod.kode||prod.produk||''),produk:prod.produk,unit:unit,qty:qty,totalPcs:totalPcs,pack:pack,liter:ctx.liter,price:ctx.base,discPercent:discPercent,subtotalGross:subtotalGross,totalDisc:totalDisc,cashbackPerPcs:ctx.cashbackPerPcs,totalCashback:totalCashback,extraPerPcs:extraPerPcs,totalExtra:totalExtra,nettSubtotal:nettSubtotal,isCtm:ctx.isCtm});
+            const nettSubtotal=manual?manualNettPerPcs*totalPcs:Math.max(0,subtotalGross-totalDisc-totalCashback-totalExtra);
+            hargaNettInvoiceCart.push({key:String(prod.kode||prod.produk||''),produk:prod.produk,unit:unit,qty:qty,totalPcs:totalPcs,pack:pack,liter:ctx.liter,price:unitPrice,discPercent:discPercent,subtotalGross:subtotalGross,totalDisc:totalDisc,cashbackPerPcs:ctx.cashbackPerPcs,totalCashback:totalCashback,extraPerPcs:extraPerPcs,totalExtra:totalExtra,nettSubtotal:nettSubtotal,isCtm:ctx.isCtm,manualPrice:manual,manualNettPerPcs:manualNettPerPcs});
             renderHargaNettInvoiceCart();
             document.getElementById('hnExtra').value='0';
         }
@@ -8007,9 +8092,14 @@ startAutoRefresh();
                 gross+=item.subtotalGross;disc+=item.totalDisc;cashback+=item.totalCashback;extra+=item.totalExtra;net+=item.nettSubtotal;
                 const qtyLabel=item.unit==='PCS'?item.qty+' Pcs':item.qty+' Dus ('+item.totalPcs+' Pcs)';
                 const star=item.isCtm?' <span style="color:#eab308;font-weight:700">★</span>':'';
-                return '<tr class="border-b border-slate-100 last:border-0"><td class="p-2 font-semibold text-slate-700">'+escapeHtml(item.produk)+star+'</td><td class="p-2 text-center">'+escapeHtml(qtyLabel)+'</td><td class="p-2 text-right whitespace-nowrap">'+formatHargaNett(item.price)+'</td><td class="p-2 text-right whitespace-nowrap">'+formatHargaNett(item.subtotalGross)+'</td><td class="p-2 text-right whitespace-nowrap text-red-600">-'+formatHargaNett(item.totalDisc)+'</td><td class="p-2 text-right whitespace-nowrap text-emerald-700">-'+formatHargaNett(item.totalCashback)+'</td><td class="p-2 text-right whitespace-nowrap text-blue-700">-'+formatHargaNett(item.totalExtra)+'</td><td class="p-2 text-right whitespace-nowrap font-extrabold">'+formatHargaNett(item.nettSubtotal)+'</td><td class="p-2 text-center"><button type="button" onclick="removeHargaNettInvoiceItem('+index+')" class="text-red-500 font-bold px-1" aria-label="Hapus item">×</button></td></tr>';
+                const discountCell=item.manualPrice?'':'-'+formatHargaNett(item.totalDisc);
+                const cashbackCell=item.manualPrice?'':'-'+formatHargaNett(item.totalCashback);
+                const extraCell=item.manualPrice?'':'-'+formatHargaNett(item.totalExtra);
+                return '<tr class="border-b border-slate-100 last:border-0"><td class="p-2 font-semibold text-slate-700">'+escapeHtml(item.produk)+star+'</td><td class="p-2 text-center">'+escapeHtml(qtyLabel)+'</td><td class="p-2 text-right whitespace-nowrap">'+formatHargaNett(item.price)+'</td><td class="p-2 text-right whitespace-nowrap">'+formatHargaNett(item.subtotalGross)+'</td><td class="p-2 text-right whitespace-nowrap text-red-600">'+discountCell+'</td><td class="p-2 text-right whitespace-nowrap text-emerald-700">'+cashbackCell+'</td><td class="p-2 text-right whitespace-nowrap text-blue-700">'+extraCell+'</td><td class="p-2 text-right whitespace-nowrap font-extrabold">'+formatHargaNett(item.nettSubtotal)+'</td><td class="p-2 text-center"><button type="button" onclick="removeHargaNettInvoiceItem('+index+')" class="text-red-500 font-bold px-1" aria-label="Hapus item">×</button></td></tr>';
             }).join('');
             const bonus=Math.max(0,Number((document.getElementById('hnBonus')||{}).value||0));
+            const hasManualPrice=hargaNettInvoiceCart.some(function(item){return !!item.manualPrice;});
+            ['hnDiscountTotal','hnCashbackTotal','hnExtraTotal'].forEach(function(id){const el=document.getElementById(id);if(el&&el.parentElement)el.parentElement.classList.toggle('hidden',hasManualPrice);});
             const set=function(id,value){const el=document.getElementById(id);if(el)el.textContent=value;};
             set('hnGross',formatHargaNett(gross));
             set('hnDiscountTotal','-'+formatHargaNett(disc));
@@ -8025,14 +8115,21 @@ startAutoRefresh();
             const rows=hargaNettInvoiceCart.map(function(item,index){
                 gross+=item.subtotalGross;disc+=item.totalDisc;cashback+=item.totalCashback;extra+=item.totalExtra;net+=item.nettSubtotal;
                 const qtyLabel=item.unit==='PCS'?item.qty+' Pcs':item.qty+' Dus ('+item.totalPcs+' Pcs)';
-                return '<tr><td class="num">'+String(index+1).padStart(2,'0')+'</td><td><div class="product">'+escapeHtml(item.produk)+(item.isCtm?' <span class="star">★ CTM</span>':'')+'</div><div class="muted">'+escapeHtml(item.key||'')+'</div></td><td class="center">'+escapeHtml(qtyLabel)+'</td><td class="right">'+formatHargaNett(item.price)+'</td><td class="right">'+formatHargaNett(item.subtotalGross)+'</td><td class="right negative">'+(item.totalDisc?'-':'')+formatHargaNett(item.totalDisc)+'</td><td class="right cashback">'+(item.totalCashback?'-':'')+formatHargaNett(item.totalCashback)+'</td><td class="right strong">'+formatHargaNett(item.nettSubtotal)+'</td></tr>';
+                const namaProdukPdf=String(item.produk||'').replace(/\bCTM\b/ig,'').replace(/\s{2,}/g,' ').trim();
+                const discountPdf=item.manualPrice?'':(item.totalDisc?'-':'')+formatHargaNett(item.totalDisc);
+                const cashbackPdf=item.manualPrice?'':(item.totalCashback?'-':'')+formatHargaNett(item.totalCashback);
+                return '<tr><td class="num">'+String(index+1).padStart(2,'0')+'</td><td><div class="product">'+escapeHtml(namaProdukPdf)+'</div></td><td class="center">'+escapeHtml(qtyLabel)+'</td><td class="right">'+formatHargaNett(item.price)+'</td><td class="right">'+formatHargaNett(item.subtotalGross)+'</td><td class="right negative">'+discountPdf+'</td><td class="right cashback">'+cashbackPdf+'</td><td class="right strong">'+formatHargaNett(item.nettSubtotal)+'</td></tr>';
             }).join('');
             const bonus=Math.max(0,Number((document.getElementById('hnBonus')||{}).value||0));
+            const hasManualPrice=hargaNettInvoiceCart.some(function(item){return !!item.manualPrice;});
+            const discountSummary=hasManualPrice?'':'<div class="sumrow"><span>Total Diskon Produk</span><b class="negative">-'+formatHargaNett(disc)+'</b></div>';
+            const cashbackSummary=hasManualPrice?'':'<div class="sumrow"><span>Total Cashback</span><b class="cashback">-'+formatHargaNett(cashback)+'</b></div>';
+            const extraSummary=hasManualPrice?'':'<div class="sumrow"><span>Total Extra Cashback</span><b class="cashback">-'+formatHargaNett(extra)+'</b></div>';
             const grand=Math.max(0,net-bonus);
             const campaign=String((document.getElementById('filterCashbackHargaNett')||{}).selectedOptions?.[0]?.textContent||'').trim();
             win.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Simulasi Invoice</title><style>'+
-              '*{box-sizing:border-box}body{margin:0;background:#eef2f7;font-family:Arial,Helvetica,sans-serif;color:#172033;font-size:11px;-webkit-print-color-adjust:exact;print-color-adjust:exact}.sheet{max-width:1100px;margin:24px auto;background:#fff;padding:34px 38px;border-radius:14px;box-shadow:0 8px 30px #18243a14}.top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;padding-bottom:22px;border-bottom:3px solid #173b68}.eyebrow{font-size:10px;font-weight:700;letter-spacing:2px;color:#64748b;text-transform:uppercase;margin-bottom:8px}.title{font-size:27px;letter-spacing:-.5px;font-weight:800;color:#173b68;margin:0}.subtitle{color:#64748b;margin-top:7px;font-size:11px}.badge{background:#e8f1ff;color:#174a83;padding:9px 13px;border-radius:8px;font-size:10px;font-weight:700;white-space:nowrap}.meta{display:flex;gap:12px;margin:20px 0}.meta-card{flex:1;background:#f6f8fb;border:1px solid #e5eaf1;border-radius:9px;padding:12px 14px;min-width:0}.label{font-size:9px;color:#718096;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}.value{font-size:12px;font-weight:700;overflow-wrap:anywhere}.section-title{font-size:13px;font-weight:800;margin:24px 0 10px;color:#1c2c43}.table-wrap{border:1px solid #e3e8ef;border-radius:9px;overflow:hidden}table{width:100%;border-collapse:collapse;font-size:10px}thead{display:table-header-group}th{background:#173b68;color:#fff;text-align:left;font-size:9px;letter-spacing:.3px;padding:11px 8px;white-space:nowrap}td{padding:11px 8px;border-bottom:1px solid #e8edf3;vertical-align:top}tbody tr:nth-child(even){background:#f8fafc}tbody tr:last-child td{border-bottom:0}.num{color:#94a3b8;width:30px}.product{font-weight:700;color:#1e293b;line-height:1.4}.muted{font-size:9px;color:#94a3b8;margin-top:4px}.center{text-align:center;white-space:nowrap}.right{text-align:right;white-space:nowrap}.strong{font-weight:800;color:#173b68}.negative{color:#dc4b4b}.cashback{color:#0b896b}.star{font-size:9px;color:#b77905;white-space:nowrap}.bottom{display:flex;justify-content:flex-end;margin-top:18px}.summary{width:360px;border:1px solid #e3e8ef;border-radius:10px;padding:8px 15px;background:#fbfcfe}.sumrow{display:flex;justify-content:space-between;gap:18px;padding:8px 0;color:#596579;border-bottom:1px solid #edf0f4}.sumrow b{color:#25334a;white-space:nowrap}.sumrow.total{border:0;border-top:2px solid #173b68;margin-top:5px;padding-top:13px;color:#173b68;font-size:13px;font-weight:800}.sumrow.total b{font-size:17px;color:#173b68}.foot{display:flex;justify-content:space-between;gap:16px;border-top:1px solid #e5eaf1;margin-top:24px;padding-top:12px;color:#94a3b8;font-size:9px}.foot strong{color:#64748b}@page{size:A4 landscape;margin:9mm}@media print{body{background:#fff}.sheet{max-width:none;margin:0;padding:8px;border-radius:0;box-shadow:none}.meta{margin:14px 0}.section-title{margin-top:18px}th,td{padding:8px 6px}.summary{width:330px}.foot{margin-top:16px}}'+
-              '</style></head><body><main class="sheet"><header class="top"><div><div class="eyebrow">INVOICE</div><h1 class="title">PT. Sukses Adi Surya</h1><div class="subtitle">Jl. Muncul II, Komplek Pergudangan Gedangan</div></div><div class="badge">Castrol</div></header><section class="meta"><div class="meta-card"><div class="label">Tanggal Cetak</div><div class="value">'+escapeHtml(new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'}))+'</div></div><div class="meta-card"><div class="label">Program</div><div class="value">'+escapeHtml(campaign||'-')+'</div></div><div class="meta-card"><div class="label">Jumlah Item</div><div class="value">'+hargaNettInvoiceCart.length+' produk</div></div></section><div class="section-title">Rincian Produk</div><div class="table-wrap"><table><thead><tr><th>No.</th><th>SKU / Produk</th><th>Qty</th><th>Harga Unit</th><th>Subtotal</th><th>Diskon</th><th>Cashback</th><th>Nett Subtotal</th></tr></thead><tbody>'+rows+'</tbody></table></div><section class="bottom"><div class="summary"><div class="sumrow"><span>Subtotal Pricelist</span><b>'+formatHargaNett(gross)+'</b></div><div class="sumrow"><span>Total Diskon Produk</span><b class="negative">-'+formatHargaNett(disc)+'</b></div><div class="sumrow"><span>Total Cashback</span><b class="cashback">-'+formatHargaNett(cashback)+'</b></div><div class="sumrow"><span>Total Extra Cashback</span><b class="cashback">-'+formatHargaNett(extra)+'</b></div><div class="sumrow"><span>Bonus Cashback</span><b>-'+formatHargaNett(bonus)+'</b></div><div class="sumrow total"><span>Grand Total Nett</span><b>'+formatHargaNett(grand)+'</b></div></div></section><footer class="foot"><span><strong>BCA</strong> 0102178899 a.n PT Sukses Adi Surya</span><span>Dicetak '+escapeHtml(new Date().toLocaleString('id-ID'))+'</span></footer></main></body></html>');
+              '*{box-sizing:border-box}body{margin:0;background:#eef2f7;font-family:Arial,Helvetica,sans-serif;color:#172033;font-size:11px;-webkit-print-color-adjust:exact;print-color-adjust:exact}.sheet{max-width:1100px;margin:24px auto;background:#fff;padding:34px 38px;border-radius:14px;box-shadow:0 8px 30px #18243a14}.top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;padding-bottom:22px;border-bottom:3px solid #173b68}.eyebrow{font-size:10px;font-weight:700;letter-spacing:2px;color:#64748b;text-transform:uppercase;margin-bottom:8px}.title{font-size:27px;letter-spacing:-.5px;font-weight:800;color:#173b68;margin:0}.subtitle{color:#64748b;margin-top:7px;font-size:11px}.badge{background:#e8f1ff;color:#174a83;padding:9px 13px;border-radius:8px;font-size:10px;font-weight:700;white-space:nowrap}.meta{display:flex;gap:12px;margin:20px 0}.meta-card{flex:1;background:#f6f8fb;border:1px solid #e5eaf1;border-radius:9px;padding:12px 14px;min-width:0}.label{font-size:9px;color:#718096;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}.value{font-size:12px;font-weight:700;overflow-wrap:anywhere}.section-title{font-size:13px;font-weight:800;margin:24px 0 10px;color:#1c2c43}.table-wrap{border:1px solid #e3e8ef;border-radius:9px;overflow:hidden}table{width:100%;border-collapse:collapse;font-size:10px}thead{display:table-header-group}th{background:#173b68;color:#fff;text-align:left;font-size:9px;letter-spacing:.3px;padding:11px 8px;white-space:nowrap}td{padding:11px 8px;border-bottom:1px solid #e8edf3;vertical-align:top}table th:not(:nth-child(2)),table td:not(:nth-child(2)){text-align:center!important}tbody tr:nth-child(even){background:#f8fafc}tbody tr:last-child td{border-bottom:0}.num{color:#94a3b8;width:30px}.product{font-weight:700;color:#1e293b;line-height:1.4}.muted{font-size:9px;color:#94a3b8;margin-top:4px}.center{text-align:center;white-space:nowrap}.right{text-align:right;white-space:nowrap}.strong{font-weight:800;color:#173b68}.negative{color:#dc4b4b}.cashback{color:#0b896b}.star{font-size:9px;color:#b77905;white-space:nowrap}.bottom{display:flex;justify-content:flex-end;margin-top:18px}.summary{width:360px;border:1px solid #e3e8ef;border-radius:10px;padding:8px 15px;background:#fbfcfe}.sumrow{display:flex;justify-content:space-between;gap:18px;padding:8px 0;color:#596579;border-bottom:1px solid #edf0f4}.sumrow b{color:#25334a;white-space:nowrap}.sumrow.total{border:0;border-top:2px solid #173b68;margin-top:5px;padding-top:13px;color:#173b68;font-size:13px;font-weight:800}.sumrow.total b{font-size:17px;color:#173b68}.foot{display:flex;justify-content:space-between;gap:16px;border-top:1px solid #e5eaf1;margin-top:24px;padding-top:12px;color:#94a3b8;font-size:9px}.foot strong{color:#64748b}@page{size:A4 landscape;margin:9mm}@media print{body{background:#fff}.sheet{max-width:none;margin:0;padding:8px;border-radius:0;box-shadow:none}.meta{margin:14px 0}.section-title{margin-top:18px}th,td{padding:8px 6px}.summary{width:330px}.foot{margin-top:16px}}'+
+              '</style></head><body><main class="sheet"><header class="top"><div><div class="eyebrow">INVOICE</div><h1 class="title">PT. Sukses Adi Surya</h1><div class="subtitle">Jl. Muncul Pergudangan Ritzgate Gedangan</div></div><div class="badge">Castrol</div></header><div class="section-title">Rincian Produk</div><div class="table-wrap"><table><thead><tr><th>No.</th><th>SKU / Produk</th><th>Qty</th><th>Harga Unit</th><th>Subtotal</th><th>Diskon</th><th>Cashback</th><th>Nett Subtotal</th></tr></thead><tbody>'+rows+'</tbody></table></div><section class="bottom"><div class="summary"><div class="sumrow"><span>Subtotal Pricelist</span><b>'+formatHargaNett(gross)+'</b></div>'+discountSummary+cashbackSummary+extraSummary+'<div class="sumrow"><span>Bonus Cashback</span><b>-'+formatHargaNett(bonus)+'</b></div><div class="sumrow total"><span>Grand Total Nett</span><b>'+formatHargaNett(grand)+'</b></div></div></section><footer class="foot"><span><strong>BCA 0102178899 a.n PT. Sukses Adi Surya</strong></span><span>Dicetak '+escapeHtml(new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'}))+'</span></footer></main></body></html>');
             win.document.close();
             win.focus();
             setTimeout(function(){ try { win.print(); } catch(e) { showModal('Cetak PDF','Gunakan Ctrl+P pada jendela invoice, lalu pilih Simpan sebagai PDF.'); } },600);
