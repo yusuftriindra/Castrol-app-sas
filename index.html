@@ -541,14 +541,23 @@
 .riwayat-card-stat{min-width:0;padding:9px 10px;background:#f8fafc;border-radius:10px;}
 .riwayat-card-stat strong{display:block;font-size:11px;color:#334155;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .riwayat-card-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:10px;}
-.riwayat-action{display:inline-flex;align-items:center;justify-content:center;width:30px;min-height:30px;padding:0;border-radius:8px;font-size:9px;font-weight:800;transition:.15s ease;border:1px solid transparent;}
+.riwayat-action{display:inline-flex;align-items:center;justify-content:center;width:30px;min-height:30px;padding:0;border-radius:8px;font-size:9px;font-weight:800;transition:.15s ease;border:none;}
 .riwayat-action svg{width:15px;height:15px;display:block}
-.riwayat-action-edit{background:#2563eb;color:#fff;border-color:#1d4ed8;}
-.riwayat-action-edit:hover{background:#1d4ed8;}
-.riwayat-action-wa{background:#059669;color:#fff;border-color:#047857;}
-.riwayat-action-wa:hover{background:#047857;}
-.riwayat-action-delete{background:#fff1f2;color:#dc2626;border-color:#fecdd3;min-width:31px;padding:0 7px;}
-.riwayat-action-delete:hover{background:#ffe4e6;}
+/* Task 39: Edit/Hapus = silver timbul, WhatsApp = hijau timbul, semua tanpa border */
+.riwayat-action-edit,.riwayat-action-delete,.cst-act-silver{background:linear-gradient(160deg,#fafbfd 0%,#e4e8ec 38%,#c9cdd4 74%,#aeb5be 100%);color:#59636f;box-shadow:0 3px 6px rgba(15,23,42,.22),0 1px 2px rgba(15,23,42,.15),inset 0 1.5px 0 rgba(255,255,255,.85),inset 0 -2px 3px rgba(15,23,42,.16);}
+.riwayat-action-edit:hover,.riwayat-action-delete:hover,.cst-act-silver:hover{background:linear-gradient(160deg,#ffffff 0%,#edf0f3 38%,#d3d8dd 74%,#bcc2ca 100%);color:#49535e;}
+.riwayat-action-edit:active,.riwayat-action-delete:active,.cst-act-silver:active{transform:translateY(1px);box-shadow:0 1px 2px rgba(15,23,42,.18),inset 0 2px 4px rgba(15,23,42,.22);}
+.riwayat-action-edit svg,.riwayat-action-delete svg,.cst-act-silver svg{filter:drop-shadow(0 1px 1px rgba(15,23,42,.3)) drop-shadow(0 -0.5px 0 rgba(255,255,255,.55));}
+/* Task 40: svg ikon tombol cst-act (modal DETAIL ORDER) butuh ukuran eksplisit - svg tanpa
+   width/height menyusut 0x0 di dalam tombol ber-lebar otomatis (flex item). Beri display
+   inline-flex agar ikon terpusat & ukuran svg 16x16 agar ikon Edit/WA/Hapus tampak. */
+.cst-act-silver,.cst-act-wa{display:inline-flex;align-items:center;justify-content:center;}
+.cst-act-silver svg,.cst-act-wa svg{width:16px;height:16px;flex:none;}
+.riwayat-action-wa,.cst-act-wa{background:linear-gradient(160deg,#23c463 0%,#00a651 46%,#008a45 100%);color:#fff;box-shadow:0 3px 6px rgba(0,138,69,.34),0 1px 2px rgba(0,109,55,.28),inset 0 1.5px 0 rgba(255,255,255,.5),inset 0 -2px 3px rgba(0,77,39,.36);}
+.riwayat-action-wa:hover,.cst-act-wa:hover{background:linear-gradient(160deg,#2fd06e 0%,#00b35a 46%,#00964e 100%);}
+.riwayat-action-wa:active,.cst-act-wa:active{transform:translateY(1px);box-shadow:0 1px 2px rgba(0,109,55,.28),inset 0 2px 4px rgba(0,77,39,.32);}
+.riwayat-action-wa svg,.cst-act-wa svg{filter:drop-shadow(0 1px 1px rgba(0,60,30,.42)) drop-shadow(0 -0.5px 0 rgba(255,255,255,.35));}
+.riwayat-action-delete{min-width:31px;padding:0 7px;}
 @media(max-width:900px){.riwayat-cards-grid{grid-template-columns:1fr;}}
 @media(max-width:640px){
     .riwayat-card{padding:12px;border-radius:14px;}
@@ -3294,26 +3303,26 @@ body{background:
 <button type="button" onclick="switchTab('riwayat')" id="navRiwayat"
                         class="sidebar-item" title="Riwayat Transaksi" aria-label="Riwayat Transaksi">
                     <span class="sidebar-icon">📊</span>
-                    <span class="sidebar-text">Riwayat Order</span>
+                    <span class="sidebar-text">Riwayat</span>
                 </button>
 
                 <button type="button" onclick="switchTab('pencapaian')" id="navPencapaian"
                         class="sidebar-item sidebar-pencapaian-menu" title="Pencapaian Sales" aria-label="Pencapaian Sales"
                         style="display:flex !important; visibility:visible !important;">
                     <span class="sidebar-icon">🏆</span>
-                    <span class="sidebar-text">Pencapaian Anda</span>
+                    <span class="sidebar-text">Pencapaian Sales</span>
                 </button>
 
                 <button type="button" onclick="switchTab('monitoring')" id="navMonitoring"
                         class="sidebar-item" title="Monitoring Outlet" aria-label="Monitoring Outlet">
                     <span class="sidebar-icon">📈</span>
-                    <span class="sidebar-text">Pencapaian Outlet</span>
+                    <span class="sidebar-text">Monitoring</span>
                 </button>
 
                 <button type="button" onclick="switchTab('outletkontrak')" id="navOutletKontrak"
                         class="sidebar-item" title="Outlet Kontrak" aria-label="Outlet Kontrak">
                     <span class="sidebar-icon">📋</span>
-                    <span class="sidebar-text">Outlet BWS Anda</span>
+                    <span class="sidebar-text">Kontrak</span>
                 </button>
 
                 <button type="button" onclick="switchTab('outletbws')" id="navOutletBWS"
@@ -3334,7 +3343,7 @@ body{background:
                 </button>
 
                 <button type="button" onclick="switchTab('tambahcustomer')" id="navTambahCustomer"
-                        class="sidebar-item" title="Customer Anda" aria-label="Tambah Customer">
+                        class="sidebar-item" title="Tambah Customer" aria-label="Tambah Customer">
                     <span class="sidebar-icon">👤</span>
                     <span class="sidebar-text">Tambah Customer</span>
                 </button>
@@ -3405,6 +3414,7 @@ body{background:
 </div>
 
 
+
 <!-- REGISTER — desain preview Castrol Executive Portal -->
 <div id="registerPage" class="castrol-auth-page hidden">
     <header class="castrol-auth-brand castrol-auth-brand-compact">
@@ -3437,6 +3447,7 @@ body{background:
         <p class="castrol-auth-copy">&copy; <span class="castrol-auth-year">2026</span> PT Sukses Adi Surya</p>
     </footer>
 </div>
+
 
 
 <!-- HALAMAN UTAMA -->
@@ -3474,12 +3485,12 @@ body{background:
                         </section>
                         <div class="cst-home-grid">
                             <section class="cst-card cst-outlet-card" aria-label="Outlet yang bertransaksi hari ini">
-                                <div class="cst-card-head"><span class="cst-card-ic" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.2 10.2v9a1.3 1.3 0 0 0 1.3 1.3h13a1.3 1.3 0 0 0 1.3-1.3v-9"/><path d="M3.6 6.6 5 3.6h14l1.4 3a2.35 2.35 0 0 1-4.65.5 2.35 2.35 0 0 1-4.75 0 2.35 2.35 0 0 1-4.75 0A2.35 2.35 0 0 1 3.6 6.6Z"/><path d="M9.7 20.4v-4.6h4.6v4.6"/></svg></span><h3 class="cst-card-title">Outlet yang Bertransaksi Hari Ini</h3><button type="button" onclick="switchTab('input')" class="home-rebuild-input-order-btn">＋ Input Order</button><button type="button" class="cst-card-link" onclick="switchTab('monitoring')">Lihat Semua <span aria-hidden="true">›</span></button></div>
+                                <div class="cst-card-head"><span class="cst-card-ic" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.2 10.2v9a1.3 1.3 0 0 0 1.3 1.3h13a1.3 1.3 0 0 0 1.3-1.3v-9"/><path d="M3.6 6.6 5 3.6h14l1.4 3a2.35 2.35 0 0 1-4.65.5 2.35 2.35 0 0 1-4.75 0 2.35 2.35 0 0 1-4.75 0A2.35 2.35 0 0 1 3.6 6.6Z"/><path d="M9.7 20.4v-4.6h4.6v4.6"/></svg></span><h3 class="cst-card-title">Outlet yang Bertransaksi Hari Ini</h3><button type="button" onclick="switchTab('input')" class="home-rebuild-input-order-btn">＋ Input Order</button><button type="button" class="cst-card-link" onclick="switchTab('riwayat')">Lihat Semua <span aria-hidden="true">›</span></button></div>
                                 <div class="cst-table-scroll"><table class="cst-outlet-table"><thead><tr><th class="cst-th-no">No</th><th class="cst-th-outlet">Outlet</th><th>Sales</th><th class="cst-th-num">Total Nilai</th><th class="cst-th-dot"><span class="sr-only">Status</span></th></tr></thead><tbody id="cstOutletBody"><tr><td colspan="5" class="cst-empty">Memuat...</td></tr></tbody></table></div>
                                 <button type="button" id="cstOutletFooter" class="cst-outlet-footer hidden" onclick="cstToggleOutletExpand()" aria-expanded="false"><span class="cst-footer-ic" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2a8.8 8.8 0 1 0 8.8 8.8H12V3.2Z"/><path d="M14.6 2.9a8.8 8.8 0 0 1 6.5 6.5h-6.5V2.9Z"/></svg></span><span>Total <b id="cstOutletTotal">0</b> outlet melakukan transaksi hari ini</span><span class="cst-footer-chev" id="cstOutletFooterChev" aria-hidden="true">›</span></button>
                             </section>
                             <section class="cst-card cst-weekly-card" aria-label="Perkembangan transaksi minggu ini">
-                                <div class="cst-card-head"><span class="cst-card-ic" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16"/><path d="M6.5 20v-6M12 20V6.5M17.5 20v-9"/></svg></span><h3 class="cst-card-title">Perkembangan Transaksi Minggu Ini</h3><button type="button" class="cst-card-link" onclick="switchTab('riwayat')">Lihat Detail</button></div>
+                                <div class="cst-card-head"><span class="cst-card-ic" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16"/><path d="M6.5 20v-6M12 20V6.5M17.5 20v-9"/></svg></span><h3 class="cst-card-title">Perkembangan Transaksi Minggu Ini</h3></div>
                                 <div class="cst-weekly-legend" aria-hidden="true"><span><i class="lg-bar"></i>Jumlah Transaksi</span><span><i class="lg-line"></i>Nilai Transaksi</span></div>
                                 <div id="homeWeeklyChart" class="home-weekly-chart"><div class="home-rebuild-empty">Memuat grafik...</div></div>
                             </section>
@@ -3755,17 +3766,6 @@ body{background:
                             </select>
                         </div>
                     </div>
-                    <div id="pencapaianLoading" class="bg-white border border-slate-200 rounded-2xl px-6 py-5 shadow-sm flex items-center justify-center gap-2" role="status" aria-busy="true">
-                        <span class="sr-only">Memuat data pencapaian</span>
-                        <span class="castrol-load-dot" aria-hidden="true"></span>
-                        <span class="castrol-load-dot" style="animation-delay:-.36s" aria-hidden="true"></span>
-                        <span class="castrol-load-dot" style="animation-delay:-.72s" aria-hidden="true"></span>
-                    </div>
-                    <style>
-                    /* Task 36: loading Pencapaian = animasi dot saja (tanpa teks visual) */
-                    .castrol-load-dot{display:inline-block;width:10px;height:10px;border-radius:9999px;background:linear-gradient(135deg,#047857,#10b981);box-shadow:0 2px 8px rgba(16,185,129,.35);animation:castrolLoadDot 1.1s ease-in-out infinite}
-                    @keyframes castrolLoadDot{0%,80%,100%{transform:translateY(0) scale(.85);opacity:.45}40%{transform:translateY(-7px) scale(1);opacity:1}}
-                    </style>
                     <div id="pencapaianSalesList" class="space-y-3"></div>
                 </div>
 
@@ -4360,6 +4360,9 @@ body{background:
             
             let cancelBtn = document.getElementById('modalCancelBtn');
             let okBtn = document.getElementById('modalOkBtn');
+            // Task 38: modal detail menyembunyikan tombol OK (style display:none).
+            // Pulihkan selalu agar popup informasi/konfirmasi tidak kehilangan tombolnya.
+            okBtn.style.display = 'inline-block';
             cancelBtn.style.display = isConfirm ? 'inline-block' : 'none';
 
             // Popup informasi/berhasil/detail hanya memakai satu tombol Oke.
@@ -4723,6 +4726,9 @@ startAutoRefresh();
                     homeLastQueryKey = String(currentUsernameInput||'') + '|' + String(currentUser||'') + '|' + selectedHomeDsr();
                     applyHomeHariIni(window._homeHariIniCache);
                     if (!homeHasCustomMonthYear()) applyHomeBeranda(window._homeBerandaCache || {});
+                    // Task 37: isi cache per-DSR dari data boot lalu prefetch senyap opsi sales.
+                    try{ window._homeDsrCache=window._homeDsrCache||{}; window._homeDsrCache[homeLastQueryKey]={hi:window._homeHariIniCache,ber:window._homeBerandaCache,at:Date.now()}; }catch(e){}
+                    _prefetchHomeDsrOptions(selectedHomeDsr());
                 }
             } catch(e) {}
         }
@@ -6361,13 +6367,57 @@ startAutoRefresh();
             modal.style.display='flex';
             const order=(globalRiwayatData||[]).find(function(item){return String(item.id||'').trim()===targetId;});
             if(!order){body.innerHTML='<div class="modal-empty-state"><div class="modal-empty-icon">📦</div><div class="font-bold text-slate-700">Order tidak ditemukan</div></div>';return;}
+            // Task 41: pilihan ubah status hanya untuk admin (atau sesi tanpa nama sales).
+            var canChangeStatus = String(currentUsernameInput||'').trim().toLowerCase()==='admin' || String(currentUser||'').trim()==='';
             const detail=Array.isArray(order.products)?order.products:[];
             const rows=detail.length?detail.map(function(p,i){return '<tr><td class="p-2.5 text-center text-slate-400 font-bold" style="width:48px;">'+(i+1)+'</td><td class="p-2.5 text-slate-800 font-semibold break-words">'+escapeHtml(p||'-')+'</td></tr>';}).join(''):
               '<tr><td colspan="2" class="p-5 text-center text-slate-400">Tidak ada rincian produk.</td></tr>';
             body.innerHTML='<div class="modal-detail-headline"><div><div class="text-[9px] font-bold uppercase tracking-wider text-slate-400">Rincian Produk Terbeli</div><div class="text-[13px] font-extrabold text-slate-800 mt-0.5">'+detail.length+' item</div></div><div class="modal-id-chip">'+escapeHtml(targetId)+'</div></div>'+
               '<div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-3"><div class="rounded-xl border border-slate-200 bg-slate-50 p-3"><div class="text-[9px] font-bold uppercase tracking-wider text-slate-400">Nama Outlet</div><div class="text-[12px] font-extrabold text-slate-800 mt-1 break-words">'+escapeHtml(order.outlet||'-')+'</div></div><div class="rounded-xl border border-slate-200 bg-slate-50 p-3"><div class="text-[9px] font-bold uppercase tracking-wider text-slate-400">Volume</div><div class="text-[12px] font-extrabold text-slate-800 mt-1">'+Number(order.volume||0).toLocaleString('id-ID',{maximumFractionDigits:1})+' L</div></div></div>'+
               '<div class="mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">Produk dari DAMEN kolom M</div><div class="modal-table-wrap"><table class="modal-detail-table"><thead><tr><th style="width:48px;text-align:center;">No</th><th>Rincian Produk</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
-              '<div class="flex flex-wrap justify-end gap-2 mt-4 pt-3 border-t border-slate-200"><button type="button" onclick="editRiwayat(\''+escapeHtml(targetId)+'\')" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-xl text-[10px] font-extrabold" title="Edit"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19.5 8.5a2.12 2.12 0 0 0-3-3L5 17v3Z"/><path d="M13.5 6.5l3 3"/></svg></button><button type="button" onclick="kirimUlangWA(\''+escapeHtml(targetId)+'\')" class="bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-4 rounded-xl text-[10px] font-extrabold" title="Kirim WhatsApp"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg></button><button type="button" onclick="hapusRiwayat(\''+escapeHtml(targetId)+'\')" class="bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 py-2 px-4 rounded-xl text-[10px] font-extrabold" title="Hapus"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V5h6v2"/><path d="M6.5 7l1 13h9l1-13"/><path d="M10 11v6M14 11v6"/></svg></button></div>';
+              (canChangeStatus?'<div class="mt-4 pt-3 border-t border-slate-200"><div class="text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Status Transaksi (Admin)</div><div class="flex flex-wrap items-center gap-2"><select id="detailStatusSelect" class="border border-slate-300 rounded-lg px-2.5 py-2 text-[11px] font-extrabold bg-white text-slate-800" data-order-id="'+escapeHtml(targetId)+'" data-current-status="'+escapeHtml(String(order.status||'').toUpperCase())+'"><option value="">'+escapeHtml(String(order.status||'PENDING').toUpperCase())+' / TIDAK DIUBAH</option><option value="APPROVE">APPROVE</option><option value="DECLINE">DECLINE</option></select><button type="button" onclick="simpanStatusDetail(\''+escapeHtml(targetId)+'\')" class="cst-act-wa py-2 px-4 rounded-xl text-[10px] font-extrabold" title="Simpan Status">Simpan Status</button></div></div>':'')+
+              '<div class="flex flex-wrap justify-end gap-2 mt-4 pt-3 border-t border-slate-200"><button type="button" onclick="editRiwayat(\''+escapeHtml(targetId)+'\')" class="cst-act-silver py-2 px-4 rounded-xl text-[10px] font-extrabold" title="Edit"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19.5 8.5a2.12 2.12 0 0 0-3-3L5 17v3Z"/><path d="M13.5 6.5l3 3"/></svg></button><button type="button" onclick="kirimUlangWA(\''+escapeHtml(targetId)+'\')" class="cst-act-wa py-2 px-4 rounded-xl text-[10px] font-extrabold" title="Kirim WhatsApp"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg></button><button type="button" onclick="hapusRiwayat(\''+escapeHtml(targetId)+'\')" class="cst-act-silver py-2 px-4 rounded-xl text-[10px] font-extrabold" title="Hapus"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V5h6v2"/><path d="M6.5 7l1 13h9l1-13"/><path d="M10 11v6M14 11v6"/></svg></button></div>';
+        }
+
+        // Task 41: simpan perubahan status dari modal DETAIL ORDER (khusus admin /
+        // sesi tanpa nama sales). Server menyimpan sinkron lebih dulu; bila gagal
+        // karena galat sistem, perubahan diantrikan ke proses latar belakang.
+        const statusDetailInFlight = {};
+        function simpanStatusDetail(idInput) {
+            if (!currentUsernameInput || currentUsernameInput.toLowerCase() !== 'admin') {
+                showModal('Akses Ditolak', 'Hanya Admin yang dapat mengubah status.');
+                return;
+            }
+            const targetId = String(idInput == null ? '' : idInput).trim();
+            const sel = document.getElementById('detailStatusSelect');
+            if (!sel || !targetId) return;
+            const newStatus = String(sel.value || '').trim().toUpperCase();
+            const oldStatus = String(sel.dataset.currentStatus || '').trim().toUpperCase();
+            if (!newStatus) {
+                showModal('Tidak Ada Perubahan', 'Silakan pilih APPROVE atau DECLINE terlebih dahulu.');
+                return;
+            }
+            if (newStatus === oldStatus) {
+                showModal('Status Sudah Sama', 'Status transaksi ini sudah ' + (oldStatus || '-') + '.');
+                return;
+            }
+            showModal('Konfirmasi Status', 'Ubah status order ' + targetId + ' menjadi ' + newStatus + '?', true, function(isOk) {
+                if (!isOk || statusDetailInFlight[targetId]) return;
+                statusDetailInFlight[targetId] = true;
+                google.script.run
+                    .withSuccessHandler(function(res) {
+                        delete statusDetailInFlight[targetId];
+                        try { window._homeDsrCache = {}; } catch (eHomeCache) {}
+                        showModal((res && res.queued) ? 'Status Diproses' : 'Status Tersimpan', (res && res.message) || ('Status order ' + targetId + ' kini ' + newStatus + '.'));
+                        try { loadRiwayat(true, true); } catch (eReloadRiwayat) {}
+                        try { loadHomeRebuild(true); } catch (eReloadHome) {}
+                    })
+                    .withFailureHandler(function(err) {
+                        delete statusDetailInFlight[targetId];
+                        showModal('Gagal Mengubah Status', (err && err.message ? err.message : 'Terjadi kesalahan saat mengubah status.'));
+                    })
+                    .updateOrderStatusSync(targetId, newStatus, currentUsernameInput);
+            });
         }
 
         function escapeHtml(value) {
@@ -6378,6 +6428,91 @@ startAutoRefresh();
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#039;');
         }
+
+        // ===== Task 37: SORT TABEL GENERIK (klik header = urut A-Z / Z-A) =====
+        (function(){
+            const addSortCss=function(){
+                if(document.getElementById('cstTableSortCss'))return;
+                const st=document.createElement('style');st.id='cstTableSortCss';
+                st.textContent='.cst-th-sortable{cursor:pointer;user-select:none;-webkit-user-select:none}#customModal table th{cursor:default}';
+                (document.head||document.documentElement).appendChild(st);
+            };
+            if(document.head)addSortCss();else document.addEventListener('DOMContentLoaded',addSortCss);
+        })();
+        function tableSortValue(txt){
+            const s=String(txt==null?'':txt).replace(/\u00a0/g,' ').trim();
+            if(!s)return null;
+            const bare=s.replace(/rp/gi,'').replace(/%/g,'').replace(/\s+/g,'');
+            if(!/^[-+]?[\d.,]+$/.test(bare))return {str:s.toLowerCase()};
+            let n=bare;
+            if(/^-?\d{1,3}(\.\d{3})+(,\d+)?$/.test(n))n=n.replace(/\./g,'').replace(',','.');
+            else if(/^-?\d{1,3}(,\d{3})+(\.\d+)?$/.test(n))n=n.replace(/,/g,'');
+            else n=n.replace(/\.(?=\d{3}(\D|$))/g,'').replace(',','.');
+            const num=parseFloat(n);
+            return isNaN(num)?{str:s.toLowerCase()}:{num:num};
+        }
+        function sortTableByHeader(th){
+            const table=th.closest('table');
+            if(!table)return;
+            const tr=th.parentElement;
+            const thead=table.querySelector('thead');
+            if(!thead||!tr||!thead.contains(tr))return;
+            const headers=Array.prototype.slice.call(tr.children);
+            const colIdx=headers.indexOf(th);
+            if(colIdx<0)return;
+            const tbody=table.tBodies&&table.tBodies[0];
+            if(!tbody)return;
+            const allRows=Array.prototype.slice.call(tbody.rows);
+            const isStatic=function(r){return r.querySelector('td[colspan]')||r.hasAttribute('data-sort-skip');};
+            const isPinned=function(r){return r.getAttribute('data-sort-pin')==='bottom';};
+            const rows=allRows.filter(function(r){return !isStatic(r)&&!isPinned(r);});
+            if(rows.length<2)return;
+            const dir=th.getAttribute('data-sort-dir')==='asc'?'desc':'asc';
+            headers.forEach(function(h){h.removeAttribute('data-sort-dir');const a=h.querySelector('.cst-sort-arrow');if(a)a.remove();});
+            th.setAttribute('data-sort-dir',dir);
+            const arrow=document.createElement('span');arrow.className='cst-sort-arrow';arrow.setAttribute('aria-hidden','true');
+            arrow.textContent=dir==='asc'?' \u25B2':' \u25BC';th.appendChild(arrow);
+            const cmp=function(a,b){
+                const va=tableSortValue(a.cells[colIdx]?a.cells[colIdx].textContent:'');
+                const vb=tableSortValue(b.cells[colIdx]?b.cells[colIdx].textContent:'');
+                let r=0;
+                if(va&&vb&&va.num!==undefined&&vb.num!==undefined)r=va.num-vb.num;
+                else if(va&&va.num!==undefined)r=-1;
+                else if(vb&&vb.num!==undefined)r=1;
+                else{
+                    const sa=va&&va.str!==undefined?va.str:(va?String(va.num):'');
+                    const sb=vb&&vb.str!==undefined?vb.str:(vb?String(vb.num):'');
+                    r=sa.localeCompare(sb,'id',{numeric:true});
+                }
+                return dir==='asc'?r:-r;
+            };
+            rows.sort(cmp).forEach(function(r){tbody.appendChild(r);});
+            allRows.filter(isStatic).forEach(function(r){tbody.appendChild(r);});
+            allRows.filter(isPinned).forEach(function(r){tbody.appendChild(r);});
+        }
+        function initGenericTableSort(){
+            document.addEventListener('click',function(e){
+                const th=e.target&&e.target.closest?e.target.closest('th'):null;
+                if(!th||!th.isConnected)return;
+                if(th.hasAttribute('onclick'))return;
+                if(th.closest('#customModal'))return;
+                if(th.getAttribute('data-sortable')==='off')return;
+                if(th.querySelector('input,button,select,a'))return;
+                const table=th.closest('table');
+                if(!table||!table.tBodies||!table.tBodies.length)return;
+                const body=table.tBodies[0];
+                if(!body||body.rows.length<2)return;
+                const idx=Array.prototype.indexOf.call(th.parentElement.children,th);
+                if(idx<0)return;
+                const sample=Array.prototype.slice.call(body.rows,0,14).filter(function(r){return !r.querySelector('td[colspan]');});
+                if(!sample.length)return;
+                const ok=sample.every(function(r){return r.cells.length>idx&&r.cells.length>=3;});
+                if(!ok)return;
+                if(th.getAttribute('data-sort-bound')!=='1'){th.setAttribute('data-sort-bound','1');th.classList.add('cst-th-sortable');}
+                sortTableByHeader(th);
+            });
+        }
+        initGenericTableSort();
 
         function kirimUlangWA(idInput) {
             const targetId=String(idInput||'').trim();
@@ -6402,7 +6537,14 @@ startAutoRefresh();
             editingOrderData=cached;
             document.getElementById('modalTitle').textContent='EDIT ORDER';
             document.getElementById('modalSubtitle').textContent='ID INPUT: '+editingOrderId;
+            // Task 38: modal detail (lihatDetail) menyembunyikan footer via detail-no-footer
+            // + style display:none pada tombol. Pulihkan footer & tombol agar form edit
+            // selalu memiliki tombol "Simpan Perubahan" dan "Batal".
+            clearDetailModalNoFooter();
+            var __editModalCard=document.querySelector('#customModal .modern-modal-card');
+            if(__editModalCard){__editModalCard.classList.remove('bws-detail-modal-card');__editModalCard.classList.remove('pencapaian-detail-modal-card');}
             document.getElementById('modalCancelBtn').style.display='inline-block';
+            document.getElementById('modalOkBtn').style.display='inline-block';
             document.getElementById('modalOkBtn').textContent='Simpan Perubahan';
             document.getElementById('customModal').style.display='flex';
             modalCallback=function(ok){if(ok)simpanEditOrder();};
@@ -6507,8 +6649,11 @@ startAutoRefresh();
                 var anotherEditOpen=!!editingOrderId&&editingOrderId!==saveOrderId;
                 if(editingOrderId===saveOrderId){editingOrderId='';editingOrderData=null;editOrderItems=[];}
                 if(res&&res.success){
-                    if(!anotherEditOpen)showModal('Berhasil',res.message||('Order '+saveOrderId+' tersimpan dan sedang diproses di latar belakang.'));
-                    // Data diperbarui otomatis setelah job latar belakang selesai berjalan.
+                    // Task 38: simpan kini sinkron -> konfirmasi terlihat + data dimuat
+                    // ulang seketika agar perubahan langsung tampil (bukan menunggu job).
+                    try{window._homeDsrCache={};}catch(eHomeCache){}
+                    if(!anotherEditOpen)showModal((res&&res.queued)?'Edit Diproses':'Edit Tersimpan',res.message||('Perubahan order '+saveOrderId+' sudah disimpan.'));
+                    try{loadRiwayat(true,true);}catch(eReloadNow){}
                     setTimeout(function(){ try{loadRiwayat(true,true);}catch(e){} }, 10000);
                 }else{
                     if(!anotherEditOpen)showModal('Gagal',res&&res.message?res.message:'Gagal menyimpan perubahan.');
@@ -7555,7 +7700,7 @@ startAutoRefresh();
             const totalGap = totalActual - totalTarget;
             const totalAch = totalTarget > 0 ? (totalActual / totalTarget) * 100 : 0;
             const totalGapCls = totalGap >= 0 ? 'text-emerald-700' : 'text-red-600';
-            const totalRow = '<tr class="bg-emerald-50/70 border-t-2 border-emerald-200 hover:bg-emerald-50 cursor-pointer" role="button" tabindex="0" onclick="' + openDetail + '" onkeydown="if(event.key===\'Enter\'){event.preventDefault();' + openDetail + ';}">' +
+            const totalRow = '<tr data-sort-pin="bottom" class="bg-emerald-50/70 border-t-2 border-emerald-200 hover:bg-emerald-50 cursor-pointer" role="button" tabindex="0" onclick="' + openDetail + '" onkeydown="if(event.key===\'Enter\'){event.preventDefault();' + openDetail + ';}">' +
                 '<td class="px-3 py-2.5 font-extrabold uppercase tracking-wide text-slate-800">Total</td>' +
                 '<td class="px-3 py-2.5 text-right font-extrabold text-slate-800">' + formatPencapaianValue(totalTarget, catDef.type) + '</td>' +
                 '<td class="px-3 py-2.5 text-right font-extrabold text-slate-800">' + formatPencapaianValue(totalActual, catDef.type) + '</td>' +
@@ -7789,6 +7934,16 @@ startAutoRefresh();
             const cached = pencapaianCache[cacheKey];
             if (cached && Array.isArray(cached.data)) {
                 renderPencapaianSales(cached.data);
+                // Task 37: auto-heal — bila kategori terpilih masih kosong di cache lama
+                // (mis. NOO/Reaktivasi), segarkan senyap di latar belakang tanpa loading.
+                const key = pencapaianSelectedCategory;
+                const hasCat = cached.data.some(function(it){
+                    const c = it && it.categories && it.categories[key];
+                    return c && Array.isArray(c.months) && c.months.length &&
+                        c.months.some(function(m){ return Number(m.target || 0) !== 0 || Number(m.actual || 0) !== 0; });
+                });
+                const healKey = 'pencapaianHeal_' + cacheKey + '|' + key;
+                if (!hasCat && !window[healKey]) { window[healKey] = true; loadPencapaianSales(true, true); }
             } else {
                 loadPencapaianSales(false, true);
             }
@@ -7809,6 +7964,8 @@ startAutoRefresh();
                         return '<option value="' + escapeHtml(s) + '">' + escapeHtml(s) + '</option>';
                     }).join('');
                 if (salesList.indexOf(current) !== -1) select.value = current;
+                // Task 37: opsi sales siap -> panaskan cache semua kombinasi sales x periode.
+                _prefetchAllPencapaianSalesPeriods(null);
             }).withFailureHandler(function() {
                 select.innerHTML = '<option value="">Semua Sales</option>';
             }).getListSalesOptions();
@@ -7859,6 +8016,38 @@ startAutoRefresh();
                 });
             } catch(e) {}
         }
+        // Task 37: prefetch senyap semua kombinasi sales x periode (Admin/akun Nama kosong)
+        // sehingga pergantian filter sales/periode tampil instan dari cache tanpa memuat.
+        function _prefetchAllPencapaianSalesPeriods(res) {
+            try {
+                if (!canViewAllPencapaianSales()) return;
+                const salesFilter = document.getElementById('pencapaianSalesFilter');
+                const salesList = salesFilter ? Array.prototype.slice.call(salesFilter.options || [])
+                    .map(function(o){ return String(o.value || '').trim(); })
+                    .filter(function(v){ return v && v !== ''; }) : [];
+                const periods = Array.isArray(res && res.periods) ? res.periods : (function(){ for (var k in pencapaianCache) { if (pencapaianCache[k] && Array.isArray(pencapaianCache[k].periods) && pencapaianCache[k].periods.length) return pencapaianCache[k].periods; } return []; })();
+                if (!salesList.length || !periods.length) return;
+                const flagKey = 'pencapaianPrefetchAllDone_' + String(currentUsernameInput||'').toLowerCase();
+                if (window[flagKey]) return;
+                window[flagKey] = true;
+                const jobs = [];
+                salesList.forEach(function(s){ periods.forEach(function(p){ jobs.push({ s: s, p: p.value }); }); });
+                let i = 0;
+                (function next() {
+                    if (i >= jobs.length) return;
+                    const j = jobs[i++];
+                    const key = (currentUsernameInput || 'admin').toLowerCase() + '|' + j.s + '|' + j.p;
+                    if (pencapaianCache[key]) { next(); return; }
+                    google.script.run.withSuccessHandler(function(r2) {
+                        if (r2) {
+                            pencapaianCache[key] = r2;
+                            try { appLocalCacheSet('PENCAPAIAN_' + String(currentUsernameInput||'').toUpperCase(), pencapaianCache); } catch(e) {}
+                        }
+                        setTimeout(next, 150);
+                    }).withFailureHandler(function(){ setTimeout(next, 150); }).getPencapaianSales(j.s, currentUsernameInput, j.p, false);
+                })();
+            } catch(e) {}
+        }
         function loadPencapaianSales(forceReloadPeriods, silentRefresh) {
             const loading = document.getElementById('pencapaianLoading');
             const container = document.getElementById('pencapaianSalesList');
@@ -7881,6 +8070,7 @@ startAutoRefresh();
                 const periodeElCached = document.getElementById('pencapaianPeriode');
                 if (periodeElCached) periodeElCached.textContent = 'Periode: ' + (res && res.periode ? res.periode : '-');
                 _prefetchAllPencapaianPeriods(res);
+                _prefetchAllPencapaianSalesPeriods(res);
                 prefetchPencapaianDetailData(canViewAll ? selectedSales : currentUser, res.selectedPeriod || selectedPeriod);
                 return;
             }
@@ -7898,12 +8088,8 @@ startAutoRefresh();
                 }
                 renderPencapaianSales(cachedRes.data || []);
             }
-            if (!silentRefresh) {
-                // Bila data sudah tampil dari cache, segarkan di belakang layar TANPA overlay;
-                // bila belum ada cache, gunakan spinner di dalam kartu (tetap tanpa overlay).
-                if (loading) loading.classList.toggle('hidden', !!hadCache);
-                if (!hadCache) showLoading(true);
-            }
+            // Task 37: loading Pencapaian sepenuhnya di belakang layar (tanpa kartu & spinner global).
+            if (loading) loading.classList.add('hidden');
             google.script.run.withSuccessHandler(function(res) {
                 if (requestId !== pencapaianRequestSeq) return;
                 pencapaianLoading = false;
@@ -7911,6 +8097,7 @@ startAutoRefresh();
                 pencapaianCache[cacheKey] = res || {};
                 try { appLocalCacheSet('PENCAPAIAN_' + String(currentUsernameInput||'').toUpperCase(), pencapaianCache); } catch(e) {}
                 _prefetchAllPencapaianPeriods(res);
+                _prefetchAllPencapaianSalesPeriods(res);
                 const periods = Array.isArray(res && res.periods) ? res.periods : [];
                 if (periodSelect && periods.length) {
                     const currentValue = selectedPeriod || (res && res.selectedPeriod ? res.selectedPeriod : '');
@@ -9066,11 +9253,25 @@ startAutoRefresh();
             const hiCache = window._homeHariIniCache;
             // Bootstrap login sedang berjalan: tunggu hasilnya agar tidak ada request ganda.
             if (!force && window._appBootstrapInFlight) return;
+            // Task 37: cache per-DSR — hasil tiap pilihan sales disimpan sehingga
+            // pergantian filter tampil INSTAN tanpa menunggu proses server yang lambat.
+            const dsrCached = window._homeDsrCache && window._homeDsrCache[qkey];
+            if (!force && dsrCached) {
+                window._homeHariIniCache = dsrCached.hi; window._homeBerandaCache = dsrCached.ber;
+                homeLastLoadedAt = dsrCached.at; homeLastQueryKey = qkey;
+                applyHomeHariIni(dsrCached.hi);
+                if (homeHasCustomMonthYear()) loadHomeWeeklyAndStatus();
+                else applyHomeBeranda(dsrCached.ber || {});
+                if (Date.now() - dsrCached.at > 60000) _fetchHomeDsrData(dsr, true);
+                else _prefetchHomeDsrOptions(dsr);
+                return;
+            }
             // Hemat server: bila data Beranda masih segar (<30 detik), render dari cache tanpa request.
             if (!force && hiCache && homeLastQueryKey === qkey && (Date.now() - homeLastLoadedAt < 30000)) {
                 applyHomeHariIni(hiCache);
                 if (homeHasCustomMonthYear()) loadHomeWeeklyAndStatus();
                 else applyHomeBeranda(window._homeBerandaCache || {});
+                _prefetchHomeDsrOptions(dsr);
                 return;
             }
             // Bila getDashboardBerandaAll terbukti tak tersedia di backend (Code.gs lama),
@@ -9079,10 +9280,60 @@ startAutoRefresh();
             google.script.run.withSuccessHandler(function(res){
                 if(!res||!res.success){window._homeAllUnavailable=true;loadHomeRebuildLegacy(dsr);return;}
                 window._homeHariIniCache=res.hariIni||{};window._homeBerandaCache=res.beranda||{};homeLastLoadedAt=Date.now();homeLastQueryKey=qkey;
+                try{ window._homeDsrCache=window._homeDsrCache||{}; window._homeDsrCache[qkey]={hi:window._homeHariIniCache,ber:window._homeBerandaCache,at:Date.now()}; }catch(e){}
                 applyHomeHariIni(window._homeHariIniCache);
                 if(homeHasCustomMonthYear())loadHomeWeeklyAndStatus();
                 else applyHomeBeranda(window._homeBerandaCache||{});
+                _prefetchHomeDsrOptions(dsr);
             }).withFailureHandler(function(){window._homeAllUnavailable=true;loadHomeRebuildLegacy(dsr);}).getDashboardBerandaAll(currentUser||'',currentUsernameInput||'',0,0,dsr,false);
+        }
+        // Task 37: ambil data satu DSR secara senyap (mengisi/menyegarkan cache per-DSR).
+        function _fetchHomeDsrData(dsr, rerenderIfCurrent){
+            try{
+                const user=String(currentUsernameInput||''), acct=String(currentUser||'');
+                const k=user+'|'+acct+'|'+dsr;
+                window._homeDsrFetching=window._homeDsrFetching||{};
+                if(window._homeDsrFetching[k])return;
+                window._homeDsrFetching[k]=true;
+                google.script.run.withSuccessHandler(function(res){
+                    window._homeDsrFetching[k]=false;
+                    if(res&&res.success){
+                        window._homeDsrCache=window._homeDsrCache||{};
+                        window._homeDsrCache[k]={hi:res.hariIni||{},ber:res.beranda||{},at:Date.now()};
+                        if(rerenderIfCurrent&&selectedHomeDsr()===dsr&&!window._appBootstrapInFlight){
+                            window._homeHariIniCache=res.hariIni||{};window._homeBerandaCache=res.beranda||{};
+                            homeLastLoadedAt=Date.now();homeLastQueryKey=k;
+                            applyHomeHariIni(window._homeHariIniCache);
+                            if(homeHasCustomMonthYear())loadHomeWeeklyAndStatus();
+                            else applyHomeBeranda(window._homeBerandaCache||{});
+                        }
+                    }
+                }).withFailureHandler(function(){window._homeDsrFetching[k]=false;}).getDashboardBerandaAll(acct,user,0,0,dsr,false);
+            }catch(e){}
+        }
+        // Task 37: prefetch senyap berantai data tiap opsi DSR/Sales setelah Beranda tampil,
+        // sehingga memilih filter tidak pernah menunggu proses server yang lambat.
+        function _prefetchHomeDsrOptions(activeDsr){
+            try{
+                if (!isHomeAdminView()) return;
+                const el = document.getElementById('homeDsrFilter');
+                const opts = el ? Array.prototype.slice.call(el.options||[]).map(function(o){return String(o.value||'').trim();}).filter(function(v){return v;}) : [];
+                if (!opts.length) return;
+                window._homeDsrCache = window._homeDsrCache || {};
+                const user=String(currentUsernameInput||''), acct=String(currentUser||'');
+                const chain = opts.filter(function(v){
+                    if (v === activeDsr) return false;
+                    const c = window._homeDsrCache[user+'|'+acct+'|'+v];
+                    return !c || (Date.now() - c.at > 60000);
+                });
+                let i = 0;
+                (function next(){
+                    if (i >= chain.length) return;
+                    const v = chain[i++];
+                    _fetchHomeDsrData(v, false);
+                    setTimeout(next, 200);
+                })();
+            }catch(e){}
         }
         // Fallback backend lama: getDashboardHariIni + getDashboardBerandaDetail
         // (keduanya tersedia di semua versi Code.gs) sehingga grafik mingguan,
@@ -9162,7 +9413,24 @@ startAutoRefresh();
             }).join('');
             const wrap=document.getElementById('homeStatusListWrap');if(wrap)wrap.classList.add('hidden');
         }
-        function showHomeStatusList(status){const wrap=document.getElementById('homeStatusListWrap'),title=document.getElementById('homeStatusListTitle'),body=document.getElementById('homeStatusListBody');if(!wrap||!body)return;const rows=homeStatusRows.filter(r=>String(r.status||'PENDING').toUpperCase()===status);if(title)title.textContent='Daftar Outlet — '+status+' ('+rows.length+' transaksi)';body.innerHTML=rows.length?rows.map(r=>{const idS=String(r.id||'').replace(/[^A-Za-z0-9_\-]/g,'');const stCls=status==='APPROVE'?'home-status-approve':(status==='DECLINE'?'home-status-decline':'home-status-pending');return '<tr class="cst-status-edit-row" title="Klik untuk Edit transaksi" onclick="editRiwayat(\''+idS+'\')">'+(isHomeAdminView()?'<td>'+escapeHtml(String(r.dsr||'-'))+'</td>':'')+'<td>'+escapeHtml(String(r.outlet||'-'))+'</td><td class="home-volume-cell">'+formatHomeNumber(r.volume,1)+'</td><td>Rp '+Math.round(Number(r.value)||0).toLocaleString('id-ID')+'</td><td class="'+stCls+'">'+status+'</td><td class="home-status-edit-cell"><button type="button" class="cst-status-edit-btn" title="Edit transaksi" aria-label="Edit transaksi" onclick="event.stopPropagation();editRiwayat(\''+idS+'\')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19.5 8.5a2.12 2.12 0 0 0-3-3L5 17v3Z"/><path d="M13.5 6.5l3 3"/></svg></button></td></tr>';}).join(''):'<tr><td colspan="'+(isHomeAdminView()?6:5)+'" class="home-rebuild-empty">Tidak ada transaksi dengan status '+status+' pada periode ini.</td></tr>';wrap.classList.remove('hidden');}
+        function showHomeStatusList(status){const wrap=document.getElementById('homeStatusListWrap'),title=document.getElementById('homeStatusListTitle'),body=document.getElementById('homeStatusListBody');if(!wrap||!body)return;const rows=homeStatusRows.filter(r=>String(r.status||'PENDING').toUpperCase()===status);if(title)title.textContent='Daftar Outlet — '+status+' ('+rows.length+' transaksi)';body.innerHTML=rows.length?rows.map(r=>{const idS=String(r.id||'').replace(/[^A-Za-z0-9_\-]/g,'');const stCls=status==='APPROVE'?'home-status-approve':(status==='DECLINE'?'home-status-decline':'home-status-pending');return '<tr class="cst-status-edit-row" title="Klik untuk lihat detail transaksi" onclick="openHomeStatusDetail(\''+idS+'\')">'+(isHomeAdminView()?'<td>'+escapeHtml(String(r.dsr||'-'))+'</td>':'')+'<td>'+escapeHtml(String(r.outlet||'-'))+'</td><td class="home-volume-cell">'+formatHomeNumber(r.volume,1)+'</td><td>Rp '+Math.round(Number(r.value)||0).toLocaleString('id-ID')+'</td><td class="'+stCls+'">'+status+'</td><td class="home-status-edit-cell"><button type="button" class="cst-status-edit-btn" title="Edit transaksi" aria-label="Edit transaksi" onclick="event.stopPropagation();editRiwayat(\''+idS+'\')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19.5 8.5a2.12 2.12 0 0 0-3-3L5 17v3Z"/><path d="M13.5 6.5l3 3"/></svg></button></td></tr>';}).join(''):'<tr><td colspan="'+(isHomeAdminView()?6:5)+'" class="home-rebuild-empty">Tidak ada transaksi dengan status '+status+' pada periode ini.</td></tr>';wrap.classList.remove('hidden');}
+        // Task 37: klik baris status Beranda -> modal detail (aksi Edit, Kirim WhatsApp, Hapus).
+        function openHomeStatusDetail(idInput){
+            const targetId=String(idInput==null?'':idInput).trim();
+            if(!targetId)return;
+            const cached=(globalRiwayatData||[]).find(function(item){return String(item.id||'').trim()===targetId;});
+            if(cached){lihatDetail(targetId);return;}
+            // Order belum ada di cache riwayat: muat senyap lalu buka detail.
+            showLoading(true);
+            google.script.run.withSuccessHandler(function(data){
+                showLoading(false);
+                if(Array.isArray(data)&&data.length)globalRiwayatData=data;
+                lihatDetail(targetId);
+            }).withFailureHandler(function(){
+                showLoading(false);
+                lihatDetail(targetId);
+            }).getRiwayatOrder(currentUser, currentUsernameInput);
+        }
 
         function getHomeRebuildImages(){return (Array.isArray(homeRebuildData)?homeRebuildData:[]).slice().sort(function(a,b){return Number(b&&b.rowNumber||0)-Number(a&&a.rowNumber||0);}).filter(function(x){return x&&String(x.gambar||'').trim()!=='';});}
         function renderHomeRebuildBanner(data){homeRebuildData=Array.isArray(data)?data.slice():[];const list=getHomeRebuildImages(),section=document.getElementById('homeRebuildBanner'),track=document.getElementById('homeRebuildTrack'),dots=document.getElementById('homeRebuildDots');if(!section||!track||!dots)return;if(!list.length){section.classList.remove('show');track.innerHTML='';dots.innerHTML='';stopHomeRebuildAuto();return;}homeRebuildIndex=Math.max(0,Math.min(homeRebuildIndex,list.length-1));section.classList.add('show');track.innerHTML=list.map(function(x,i){return '<div class="home-rebuild-slide" data-i="'+i+'" onclick="openHomeRebuildImage(this.dataset.i)"><img src="'+escapeHtml(String(x.gambar||''))+'" alt="Pengumuman" draggable="false">'+(String(x.keterangan||'').trim()?'<div class="home-rebuild-caption">'+escapeHtml(String(x.keterangan||''))+'</div>':'')+'</div>';}).join('');updateHomeRebuildPosition();bindHomeRebuildSwipe();startHomeRebuildAuto();}
@@ -9510,6 +9778,7 @@ startAutoRefresh();
             run(function(){ loadTambahCustomer(false, true); }, 1200);
             run(function(){ loadPesananOutlet(false, true); }, 1500);
             run(function(){ loadPencapaianSales(false, true); }, 1800);
+            if (canViewAllPencapaianSales()) run(function(){ loadPencapaianSalesFilter(); }, 1900);
 
             if (isAdmin) {
                 run(function(){ loadOutletBWSAdmin(false, true); }, 2100);
@@ -13288,8 +13557,8 @@ select.castrol-auth-input{height:auto;}
 /* ---------- 7. KOMPONEN LAIN ---------- */
 .view-toggle-btn:hover{border-color:#8fd6b0!important;background:#f3faf6!important;color:#008a45!important}
 .view-toggle-btn.is-active{border-color:#00a651!important;background:#eaf7f0!important;color:#008a45!important;box-shadow:0 2px 8px rgba(0,166,81,.14)!important}
-.riwayat-action-wa{background:#009b4d!important;border-color:#008a45!important}
-.riwayat-action-wa:hover{background:#008a45!important}
+.riwayat-action-wa{background:linear-gradient(160deg,#23c463 0%,#00a651 46%,#008a45 100%)!important;border:none!important}
+.riwayat-action-wa:hover{background:linear-gradient(160deg,#2fd06e 0%,#00b35a 46%,#00964e 100%)!important}
 .modal-spinner{border-top-color:#00a651!important}
 .modal-stat-value.is-main,.modal-product-qty{color:#008a45!important}
 .modal-id-chip{background:#eaf7f0!important;border-color:#bfe6d2!important;color:#008a45!important}
