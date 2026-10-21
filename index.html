@@ -4422,6 +4422,10 @@ body{background:
             let pencapaianSelectedCategory = 'value';
         let pencapaianRequestSeq = 0;
         let pencapaianCache = {};
+        // Task 42: status prefetch batch Pencapaian (semua periode / semua sales).
+        const pencapaianBatchInFlight_ = {};
+        const pencapaianBatchFailCount_ = {};
+        let pencapaianPersistTimer = null;
         let pencapaianDetailCache = {};
         let globalOutletBWSData = { headers: [], rows: [] };
         let outletBWSLoading = false;
@@ -7985,39 +7989,133 @@ startAutoRefresh();
             });
         }
 
-        // Prefetch semua periode pencapaian secara senyap agar pergantian filter
-        // menampilkan data INSTAN dari cache (tanpa tanda memuat).
-        function _prefetchAllPencapaianPeriods(res) {
+        // Task 42: kunci kuartal berjalan di sisi klien (mis. 2026-Q4) untuk tampilan awal.
+        function pencapaianCurrentQuarterKeyClient() {
             try {
-                const periods = Array.isArray(res && res.periods) ? res.periods : [];
-                if (!periods.length) return;
-                const salesFilter = document.getElementById('pencapaianSalesFilter');
-                const canViewAll = canViewAllPencapaianSales();
-                const selSales = canViewAll && salesFilter && salesFilter.value ? salesFilter.value : '';
-                const owner = canViewAll ? selSales : currentUser;
-                const flagKey = 'pencapaianPrefetchDone_' + String(currentUsernameInput||'').toLowerCase() + '|' + String(owner||'');
-                if (window[flagKey]) return;
-                window[flagKey] = true;
+                const now = new Date();
+                return now.getFullYear() + '-Q' + (Math.floor(now.getMonth() / 3) + 1);
+            } catch(e) { return ''; }
+        }
+        // Task 42: simpan cache Pencapaian ke localStorage secara tertunda (debounce)
+        // agar prefetch banyak periode/sales tidak menulis localStorage berulang-ulang.
+        function schedulePencapaianPersist() {
+            if (pencapaianPersistTimer) return;
+            pencapaianPersistTimer = setTimeout(function() {
+                pencapaianPersistTimer = null;
+                try { appLocalCacheSet('PENCAPAIAN_' + String(currentUsernameInput||'').toUpperCase(), pencapaianCache); } catch(e) {}
+            }, 1200);
+        }
+        // Task 42: daftar periode yang dikenal dari entri cache mana pun.
+        function pencapaianPeriodsKnownFromCache() {
+            for (var k in pencapaianCache) {
+                const v = pencapaianCache[k];
+                if (v && Array.isArray(v.periods) && v.periods.length) return v.periods;
+            }
+            return [];
+        }
+        // Task 42: gabungkan hasil batch (SEMUA periode untuk satu sales) ke cache browser.
+        // Setiap kuartal disimpan dengan bentuk yang sama seperti hasil getPencapaianSales
+        // sehingga jalur cache loadPencapaianSales & onPencapaianCategoryChange (termasuk
+        // kategori NOO/Reaktifasi) langsung menampilkan data tanpa memuat ulang.
+        function _mergePencapaianBatchToCache(keySales, batchRes) {
+            try {
+                if (!batchRes || !batchRes.success) return false;
+                const periods = Array.isArray(batchRes.periods) ? batchRes.periods : [];
+                const results = batchRes.results || {};
+                if (!periods.length) return false;
+                const userLow = (currentUsernameInput || 'admin').toLowerCase();
+                let merged = 0;
+                periods.forEach(function(p) {
+                    const r = results[p.value];
+                    if (!r) return;
+                    pencapaianCache[userLow + '|' + String(keySales || '') + '|' + p.value] = {
+                        success: true,
+                        periode: r.periode || p.label,
+                        selectedPeriod: p.value,
+                        volumeQuarter: r.volumeQuarter || r.periode || p.label,
+                        quarterMonths: Array.isArray(r.quarterMonths) ? r.quarterMonths : [],
+                        data: Array.isArray(r.data) ? r.data : [],
+                        periods: periods
+                    };
+                    merged++;
+                });
+                if (merged) schedulePencapaianPersist();
+                return merged > 0;
+            } catch(e) { return false; }
+        }
+        // Task 42: cadangan lama - muat per periode satu per satu (bila fungsi batch
+        // belum tersedia pada Code.gs yang terpasang). Tetap berjalan di latar belakang.
+        function _legacyPrefetchOwnerPeriods(keySales, requestOwner, periods) {
+            try {
+                const userLow = (currentUsernameInput || 'admin').toLowerCase();
                 let chain = Promise.resolve();
                 periods.forEach(function(p) {
-                    const key = (currentUsernameInput || 'admin').toLowerCase() + '|' + selSales + '|' + p.value;
+                    const key = userLow + '|' + String(keySales || '') + '|' + p.value;
                     if (pencapaianCache[key]) return;
                     chain = chain.then(function() {
                         return new Promise(function(resolve) {
                             google.script.run.withSuccessHandler(function(r2) {
                                 if (r2) {
                                     pencapaianCache[key] = r2;
-                                    try { appLocalCacheSet('PENCAPAIAN_' + String(currentUsernameInput||'').toUpperCase(), pencapaianCache); } catch(e) {}
+                                    schedulePencapaianPersist();
                                 }
                                 resolve();
-                            }).withFailureHandler(function(){ resolve(); }).getPencapaianSales(owner, currentUsernameInput, p.value, false);
+                            }).withFailureHandler(function(){ resolve(); }).getPencapaianSales(requestOwner, currentUsernameInput, p.value, false);
                         });
                     });
                 });
             } catch(e) {}
         }
-        // Task 37: prefetch senyap semua kombinasi sales x periode (Admin/akun Nama kosong)
-        // sehingga pergantian filter sales/periode tampil instan dari cache tanpa memuat.
+        // Task 42: prefetch SEMUA periode untuk satu owner dalam SATU panggilan batch
+        // (server membaca sheet satu kali untuk semua kuartal) sehingga proses pemanasan
+        // cache berjalan jauh lebih cepat dan tetap selesai di belakang layar.
+        function _prefetchPencapaianOwnerAllPeriods(keySales, requestOwner, forceRefresh) {
+            const ownerKey = String(keySales || '');
+            try {
+                const userLow = (currentUsernameInput || 'admin').toLowerCase();
+                const periods = pencapaianPeriodsKnownFromCache();
+                if (!periods.length) return;
+                const missing = periods.filter(function(p){ return !pencapaianCache[userLow + '|' + ownerKey + '|' + p.value]; });
+                if (!missing.length && forceRefresh !== true) return;
+                if (pencapaianBatchInFlight_[ownerKey]) return;
+                if ((pencapaianBatchFailCount_[ownerKey] || 0) >= 2 && forceRefresh !== true) {
+                    _legacyPrefetchOwnerPeriods(ownerKey, requestOwner, periods);
+                    return;
+                }
+                pencapaianBatchInFlight_[ownerKey] = true;
+                google.script.run.withSuccessHandler(function(r2) {
+                    pencapaianBatchInFlight_[ownerKey] = false;
+                    if (r2 && r2.success) {
+                        pencapaianBatchFailCount_[ownerKey] = 0;
+                        _mergePencapaianBatchToCache(ownerKey, r2);
+                    } else {
+                        pencapaianBatchFailCount_[ownerKey] = (pencapaianBatchFailCount_[ownerKey] || 0) + 1;
+                        _legacyPrefetchOwnerPeriods(ownerKey, requestOwner, periods);
+                    }
+                }).withFailureHandler(function() {
+                    pencapaianBatchInFlight_[ownerKey] = false;
+                    pencapaianBatchFailCount_[ownerKey] = (pencapaianBatchFailCount_[ownerKey] || 0) + 1;
+                    _legacyPrefetchOwnerPeriods(ownerKey, requestOwner, periods);
+                }).getPencapaianSalesAllPeriods(requestOwner, currentUsernameInput, forceRefresh === true);
+            } catch(e) { pencapaianBatchInFlight_[ownerKey] = false; }
+        }
+        // Prefetch semua periode pencapaian secara senyap agar pergantian filter
+        // Kuartal/Kategori/Sales menampilkan data INSTAN dari cache (tanpa tanda memuat).
+        // Task 42: memakai panggilan batch semua periode + melanjutkan pemanasan
+        // semua kombinasi sales x periode untuk Admin/akun Nama kosong.
+        function _prefetchAllPencapaianPeriods(res, forceRefresh) {
+            try {
+                const salesFilter = document.getElementById('pencapaianSalesFilter');
+                const canViewAll = canViewAllPencapaianSales();
+                const selSales = canViewAll && salesFilter && salesFilter.value ? salesFilter.value : '';
+                const owner = canViewAll ? selSales : currentUser;
+                _prefetchPencapaianOwnerAllPeriods(canViewAll ? selSales : '', owner, forceRefresh === true);
+                if (canViewAll) _prefetchAllPencapaianSalesPeriods(null);
+            } catch(e) {}
+        }
+        // Task 37/42: prefetch senyap semua kombinasi sales x periode (Admin/akun Nama
+        // kosong) memakai batch per sales (3 paralel, tanpa jeda buatan) sehingga
+        // pergantian filter sales/periode tampil instan dari cache tanpa memuat.
         function _prefetchAllPencapaianSalesPeriods(res) {
             try {
                 if (!canViewAllPencapaianSales()) return;
@@ -8025,26 +8123,39 @@ startAutoRefresh();
                 const salesList = salesFilter ? Array.prototype.slice.call(salesFilter.options || [])
                     .map(function(o){ return String(o.value || '').trim(); })
                     .filter(function(v){ return v && v !== ''; }) : [];
-                const periods = Array.isArray(res && res.periods) ? res.periods : (function(){ for (var k in pencapaianCache) { if (pencapaianCache[k] && Array.isArray(pencapaianCache[k].periods) && pencapaianCache[k].periods.length) return pencapaianCache[k].periods; } return []; })();
+                const periods = pencapaianPeriodsKnownFromCache();
                 if (!salesList.length || !periods.length) return;
-                const flagKey = 'pencapaianPrefetchAllDone_' + String(currentUsernameInput||'').toLowerCase();
-                if (window[flagKey]) return;
-                window[flagKey] = true;
-                const jobs = [];
-                salesList.forEach(function(s){ periods.forEach(function(p){ jobs.push({ s: s, p: p.value }); }); });
-                let i = 0;
-                (function next() {
-                    if (i >= jobs.length) return;
-                    const j = jobs[i++];
-                    const key = (currentUsernameInput || 'admin').toLowerCase() + '|' + j.s + '|' + j.p;
-                    if (pencapaianCache[key]) { next(); return; }
-                    google.script.run.withSuccessHandler(function(r2) {
-                        if (r2) {
-                            pencapaianCache[key] = r2;
-                            try { appLocalCacheSet('PENCAPAIAN_' + String(currentUsernameInput||'').toUpperCase(), pencapaianCache); } catch(e) {}
-                        }
-                        setTimeout(next, 150);
-                    }).withFailureHandler(function(){ setTimeout(next, 150); }).getPencapaianSales(j.s, currentUsernameInput, j.p, false);
+                const userLow = (currentUsernameInput || 'admin').toLowerCase();
+                const jobs = salesList.slice();
+                let i = 0, active = 0;
+                (function pump() {
+                    while (active < 3 && i < jobs.length) {
+                        const s = jobs[i++];
+                        const missing = periods.filter(function(p){ return !pencapaianCache[userLow + '|' + s + '|' + p.value]; });
+                        if (!missing.length) continue;
+                        if (pencapaianBatchInFlight_[s]) continue;
+                        if ((pencapaianBatchFailCount_[s] || 0) >= 2) continue;
+                        active++;
+                        pencapaianBatchInFlight_[s] = true;
+                        google.script.run.withSuccessHandler(function(r2) {
+                            pencapaianBatchInFlight_[s] = false;
+                            if (r2 && r2.success) {
+                                pencapaianBatchFailCount_[s] = 0;
+                                _mergePencapaianBatchToCache(s, r2);
+                            } else {
+                                pencapaianBatchFailCount_[s] = (pencapaianBatchFailCount_[s] || 0) + 1;
+                                _legacyPrefetchOwnerPeriods(s, s, periods);
+                            }
+                            active--;
+                            pump();
+                        }).withFailureHandler(function() {
+                            pencapaianBatchInFlight_[s] = false;
+                            pencapaianBatchFailCount_[s] = (pencapaianBatchFailCount_[s] || 0) + 1;
+                            _legacyPrefetchOwnerPeriods(s, s, periods);
+                            active--;
+                            pump();
+                        }).getPencapaianSalesAllPeriods(s, currentUsernameInput, false);
+                    }
                 })();
             } catch(e) {}
         }
@@ -8057,8 +8168,26 @@ startAutoRefresh();
             const selectedPeriod = periodSelect && periodSelect.value ? periodSelect.value : '';
             const selectedSales = canViewAll && salesFilter && salesFilter.value ? salesFilter.value : '';
             const cacheKey = (currentUsernameInput || 'admin').toLowerCase() + '|' + selectedSales + '|' + selectedPeriod;
-            if (!forceReloadPeriods && pencapaianCache[cacheKey]) {
-                const res = pencapaianCache[cacheKey];
+            // Task 42: tampilan awal (belum ada periode terpilih) selalu memakai periode
+            // berjalan (mis. 2026 Q4), meskipun cache berasal dari sesi sebelumnya.
+            let pencCacheHitKey = cacheKey;
+            if (!forceReloadPeriods && !selectedPeriod) {
+                const cachedRes0 = pencapaianCache[cacheKey];
+                const curQ = pencapaianCurrentQuarterKeyClient();
+                if (cachedRes0 && cachedRes0.selectedPeriod && curQ && cachedRes0.selectedPeriod !== curQ) {
+                    const altKey = (currentUsernameInput || 'admin').toLowerCase() + '|' + selectedSales + '|' + curQ;
+                    const altRes = pencapaianCache[altKey];
+                    if (altRes && Array.isArray(altRes.data) && altRes.data.length) {
+                        pencCacheHitKey = altKey;
+                    } else {
+                        // Tidak ada data periode berjalan di cache -> muat segar agar
+                        // tampilan awal tetap periode berjalan (server memilih kuartal berjalan).
+                        pencCacheHitKey = '';
+                    }
+                }
+            }
+            if (!forceReloadPeriods && pencCacheHitKey && pencapaianCache[pencCacheHitKey]) {
+                const res = pencapaianCache[pencCacheHitKey];
                 if (loading) loading.classList.add('hidden');
                 if (periodSelect && res.periods && res.periods.length) {
                     periodSelect.innerHTML = res.periods.map(function(p){return '<option value="'+escapeHtml(p.value)+'">'+escapeHtml(p.label)+'</option>';}).join('');
@@ -8069,7 +8198,7 @@ startAutoRefresh();
                 // agar caption tidak selamanya menampilkan 'Memuat periode...'.
                 const periodeElCached = document.getElementById('pencapaianPeriode');
                 if (periodeElCached) periodeElCached.textContent = 'Periode: ' + (res && res.periode ? res.periode : '-');
-                _prefetchAllPencapaianPeriods(res);
+                _prefetchAllPencapaianPeriods(res, forceReloadPeriods === true);
                 _prefetchAllPencapaianSalesPeriods(res);
                 prefetchPencapaianDetailData(canViewAll ? selectedSales : currentUser, res.selectedPeriod || selectedPeriod);
                 return;
@@ -8096,7 +8225,7 @@ startAutoRefresh();
                 if (!silentRefresh) showLoading(false);
                 pencapaianCache[cacheKey] = res || {};
                 try { appLocalCacheSet('PENCAPAIAN_' + String(currentUsernameInput||'').toUpperCase(), pencapaianCache); } catch(e) {}
-                _prefetchAllPencapaianPeriods(res);
+                _prefetchAllPencapaianPeriods(res, forceReloadPeriods === true);
                 _prefetchAllPencapaianSalesPeriods(res);
                 const periods = Array.isArray(res && res.periods) ? res.periods : [];
                 if (periodSelect && periods.length) {
