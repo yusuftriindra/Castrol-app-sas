@@ -3298,7 +3298,7 @@ body{background:
                 <button type="button" onclick="switchTab('input')" id="navInput"
                         class="sidebar-item sidebar-item-active" title="Input Order" aria-label="Input Order">
                     <span class="sidebar-icon">🛒</span>
-                    <span class="sidebar-text">Input</span>
+                    <span class="sidebar-text">Input Order</span>
                 </button>
 <button type="button" onclick="switchTab('riwayat')" id="navRiwayat"
                         class="sidebar-item" title="Riwayat Transaksi" aria-label="Riwayat Transaksi">
@@ -3306,11 +3306,17 @@ body{background:
                     <span class="sidebar-text">Riwayat Order</span>
                 </button>
 
+                <button type="button" onclick="switchTab('approval')" id="navApproval"
+                        class="sidebar-item hidden" title="Approval Status Order" aria-label="Approval Status Order">
+                    <span class="sidebar-icon">✅</span>
+                    <span class="sidebar-text">Approval</span>
+                </button>
+
                 <button type="button" onclick="switchTab('pencapaian')" id="navPencapaian"
                         class="sidebar-item sidebar-pencapaian-menu" title="Pencapaian Sales" aria-label="Pencapaian Sales"
                         style="display:flex !important; visibility:visible !important;">
                     <span class="sidebar-icon">🏆</span>
-                    <span class="sidebar-text">Pencapaian Anda</span>
+                    <span class="sidebar-text">Pencapaian Sales</span>
                 </button>
 
                 <button type="button" onclick="switchTab('monitoring')" id="navMonitoring"
@@ -3735,6 +3741,67 @@ body{background:
                     </div>
 
                     <div id="listRiwayat" class="space-y-2.5 text-xs">
+                        <p class="text-slate-400 text-center py-6">Memuat...</p>
+                    </div>
+                </div>
+
+                <!-- APPROVAL STATUS ORDER (Task 43: khusus admin / akun tanpa nama sales) -->
+                <div id="tabApproval" class="tab-content hidden space-y-3">
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-base font-bold text-slate-800">Approval Order</h2>
+                            <span id="approvalCount" class="text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">0 transaksi</span>
+                        </div>
+                        <p class="text-[9px] text-slate-400">Pilih status per transaksi Outlet lalu klik DONE — perubahan tersimpan langsung di server.</p>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-1.5 mb-1" role="group" aria-label="Tampilan Approval">
+                        <button type="button" id="approvalViewTableBtn" onclick="setApprovalView('table')" class="view-toggle-btn">▤ Tabel</button>
+                        <button type="button" id="approvalViewChartBtn" onclick="setApprovalView('chart')" class="view-toggle-btn is-active">▥ Chart</button>
+                    </div>
+
+                    <div class="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm">
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <div>
+                                <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Filter Approval</div>
+                                <div class="text-[9px] text-slate-400 mt-0.5">Order dikelola per Outlet — pilih outlet untuk menyetujui / menolak transaksinya.</div>
+                            </div>
+                            <button type="button" onclick="resetApprovalAllFilter()" class="shrink-0 text-[10px] font-bold text-slate-500 hover:text-emerald-700 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-emerald-50 transition">Reset</button>
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+                            <div class="col-span-2 lg:col-span-4 relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                </span>
+                                <input type="text" id="searchApprovalInput" oninput="filterApproval()" placeholder="Cari outlet atau ID..." class="w-full pl-9 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent shadow-sm transition">
+                                <button type="button" id="clearApprovalSearchBtn" onclick="clearApprovalSearch()" class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600 hidden">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <select id="filterApprovalOutlet" onchange="filterApproval()" class="min-h-[42px] border border-slate-200 rounded-xl px-3 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="">Semua Outlet</option>
+                            </select>
+                            <select id="filterApprovalDsr" onchange="filterApproval()" class="min-h-[42px] border border-slate-200 rounded-xl px-3 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="">Semua DSR / Sales</option>
+                            </select>
+                            <select id="filterApprovalStatus" onchange="filterApproval()" class="min-h-[42px] border border-slate-200 rounded-xl px-3 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="">Semua Status</option>
+                            </select>
+                            <select id="filterApprovalMonth" onchange="filterApproval()" class="min-h-[42px] border border-slate-200 rounded-xl px-3 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="">Semua Bulan</option>
+                                <option value="01">Januari</option><option value="02">Februari</option><option value="03">Maret</option><option value="04">April</option><option value="05">Mei</option><option value="06">Juni</option><option value="07">Juli</option><option value="08">Agustus</option><option value="09">September</option><option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
+                            </select>
+                            <select id="filterApprovalYear" onchange="filterApproval()" class="min-h-[42px] border border-slate-200 rounded-xl px-3 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="">Semua Tahun</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="listApproval" class="space-y-2.5 text-xs">
                         <p class="text-slate-400 text-center py-6">Memuat...</p>
                     </div>
                 </div>
@@ -4487,6 +4554,12 @@ body{background:
             const tabPengumumanAdmin = document.getElementById('tabPengumumanAdmin');
             if (navPengumumanAdmin) navPengumumanAdmin.classList.toggle('hidden', !isAdminLogin);
             if (tabPengumumanAdmin) tabPengumumanAdmin.classList.toggle('hidden', !isAdminLogin);
+            // Task 43: menu Approval untuk admin / akun tanpa nama sales.
+            const canApprovalMenu = isAdminLogin || String(currentUser || '').trim() === '';
+            const navApproval = document.getElementById('navApproval');
+            const tabApproval = document.getElementById('tabApproval');
+            if (navApproval) navApproval.classList.toggle('hidden', !canApprovalMenu);
+            if (tabApproval && !canApprovalMenu) tabApproval.classList.add('hidden');
             const filterOutletKontrakSales = document.getElementById('filterOutletKontrakSales');
             if (filterOutletKontrakSales) filterOutletKontrakSales.classList.toggle('hidden', !isAdminLogin);
         }
@@ -6360,7 +6433,7 @@ startAutoRefresh();
             filterRiwayat();
         }
 
-        function lihatDetail(idInput) {
+        function lihatDetail(idInput, detailCtx) {
             setDetailModalNoFooter();
             const modal=document.getElementById('customModal'), title=document.getElementById('modalTitle'),
                   subtitle=document.getElementById('modalSubtitle'), body=document.getElementById('modalBody'),
@@ -6369,10 +6442,10 @@ startAutoRefresh();
             document.getElementById('modalCancelBtn').style.display='none';
             document.getElementById('modalOkBtn').style.display='none';
             modal.style.display='flex';
-            const order=(globalRiwayatData||[]).find(function(item){return String(item.id||'').trim()===targetId;});
+            const order=(globalRiwayatData||[]).find(function(item){return String(item.id||'').trim()===targetId;}) || (Array.isArray(globalApprovalData)?(globalApprovalData||[]).find(function(item){return String(item.id||'').trim()===targetId;}):null);
             if(!order){body.innerHTML='<div class="modal-empty-state"><div class="modal-empty-icon">📦</div><div class="font-bold text-slate-700">Order tidak ditemukan</div></div>';return;}
             // Task 41: pilihan ubah status hanya untuk admin (atau sesi tanpa nama sales).
-            var canChangeStatus = String(currentUsernameInput||'').trim().toLowerCase()==='admin' || String(currentUser||'').trim()==='';
+            var canChangeStatus = (String(currentUsernameInput||'').trim().toLowerCase()==='admin' || String(currentUser||'').trim()==='') && String(detailCtx||'')!=='riwayat';
             const detail=Array.isArray(order.products)?order.products:[];
             const rows=detail.length?detail.map(function(p,i){return '<tr><td class="p-2.5 text-center text-slate-400 font-bold" style="width:48px;">'+(i+1)+'</td><td class="p-2.5 text-slate-800 font-semibold break-words">'+escapeHtml(p||'-')+'</td></tr>';}).join(''):
               '<tr><td colspan="2" class="p-5 text-center text-slate-400">Tidak ada rincian produk.</td></tr>';
@@ -6388,8 +6461,9 @@ startAutoRefresh();
         // karena galat sistem, perubahan diantrikan ke proses latar belakang.
         const statusDetailInFlight = {};
         function simpanStatusDetail(idInput) {
-            if (!currentUsernameInput || currentUsernameInput.toLowerCase() !== 'admin') {
-                showModal('Akses Ditolak', 'Hanya Admin yang dapat mengubah status.');
+            var canApprovalDetail = String(currentUsernameInput||'').trim().toLowerCase()==='admin' || String(currentUser||'').trim()==='';
+            if (!canApprovalDetail) {
+                showModal('Akses Ditolak', 'Hanya Admin atau akun tanpa nama sales yang dapat mengubah status.');
                 return;
             }
             const targetId = String(idInput == null ? '' : idInput).trim();
@@ -6412,15 +6486,20 @@ startAutoRefresh();
                     .withSuccessHandler(function(res) {
                         delete statusDetailInFlight[targetId];
                         try { window._homeDsrCache = {}; } catch (eHomeCache) {}
+                        if (!res || res.success === false) {
+                            showModal('Gagal Mengubah Status', (res && res.message) ? res.message : 'Perubahan status tidak tersimpan. Silakan coba lagi.');
+                            return;
+                        }
                         showModal((res && res.queued) ? 'Status Diproses' : 'Status Tersimpan', (res && res.message) || ('Status order ' + targetId + ' kini ' + newStatus + '.'));
                         try { loadRiwayat(true, true); } catch (eReloadRiwayat) {}
+                        try { loadApproval(true, true); } catch (eReloadApproval) {}
                         try { loadHomeRebuild(true); } catch (eReloadHome) {}
                     })
                     .withFailureHandler(function(err) {
                         delete statusDetailInFlight[targetId];
                         showModal('Gagal Mengubah Status', (err && err.message ? err.message : 'Terjadi kesalahan saat mengubah status.'));
                     })
-                    .updateOrderStatusSync(targetId, newStatus, currentUsernameInput);
+                    .updateOrderStatusSync(targetId, newStatus, currentUsernameInput, currentUser);
             });
         }
 
@@ -6536,7 +6615,7 @@ startAutoRefresh();
             if(!requestedEditId||requestedEditId==='-')return;
             if(editSaveInFlight[requestedEditId]){showModal('Edit Sedang Diproses','Order '+requestedEditId+' masih disimpan di server. Silakan tunggu sebelum mengedit order yang sama lagi.');return;}
             editingOrderId=requestedEditId;
-            const cached=(globalRiwayatData||[]).find(function(item){return String(item.id||'').trim()===editingOrderId;});
+            const cached=(globalRiwayatData||[]).find(function(item){return String(item.id||'').trim()===editingOrderId;}) || (Array.isArray(globalApprovalData)?(globalApprovalData||[]).find(function(item){return String(item.id||'').trim()===editingOrderId;}):null);
             if(!cached){editingOrderId='';showModal('Data Belum Termuat','Order '+requestedEditId+' tidak ditemukan pada data Riwayat yang sudah dimuat. Buka halaman Riwayat lalu coba lagi.');return;}
             editingOrderData=cached;
             document.getElementById('modalTitle').textContent='EDIT ORDER';
@@ -6784,6 +6863,14 @@ startAutoRefresh();
                             globalRiwayatData = (globalRiwayatData || []).filter(function(item) {
                                 return String(item && item.id || '') !== String(idInput);
                             });
+                            // Task 43: order dihapus juga hilang dari menu Approval.
+                            if (Array.isArray(globalApprovalData) && globalApprovalData.length) {
+                                globalApprovalData = globalApprovalData.filter(function(item) {
+                                    return String(item && item.id || '') !== String(idInput);
+                                });
+                                const apTabEl = document.getElementById('tabApproval');
+                                if (apTabEl && !apTabEl.classList.contains('hidden')) filterApproval();
+                            }
                             delete selectedRiwayatIds[String(idInput)];
                             filterRiwayat();
                         }
@@ -7575,8 +7662,10 @@ startAutoRefresh();
         function updateViewToggleButtons(section) {
             const modes = section === 'riwayat'
                 ? { table: 'riwayatViewTableBtn', chart: 'riwayatViewChartBtn' }
-                : { table: 'pencapaianViewTableBtn', chart: 'pencapaianViewChartBtn' };
-            const mode = section === 'riwayat' ? riwayatViewMode : pencapaianViewMode;
+                : section === 'approval'
+                    ? { table: 'approvalViewTableBtn', chart: 'approvalViewChartBtn' }
+                    : { table: 'pencapaianViewTableBtn', chart: 'pencapaianViewChartBtn' };
+            const mode = section === 'riwayat' ? riwayatViewMode : (section === 'approval' ? approvalViewMode : pencapaianViewMode);
             ['table', 'chart'].forEach(function(key) {
                 const btn = document.getElementById(modes[key]);
                 if (btn) btn.classList.toggle('is-active', mode === key);
@@ -7608,7 +7697,8 @@ startAutoRefresh();
                 const id = escapeHtml(item.id || '');
                 const status = String(item.status || 'PENDING').toUpperCase();
                 const selected = selectedRiwayatIds[String(item.id)] ? 'checked' : '';
-                const action = isAdmin ? '<select onclick="event.stopPropagation()" class="bulk-status-select w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[9px] font-bold bg-white" data-order-id="'+id+'" data-current-status="'+escapeHtml(status)+'"><option value="">'+escapeHtml(status)+'</option><option value="APPROVE">APPROVE</option><option value="DECLINE">DECLINE</option></select>' : statusBadge(status);
+                // Task 43: ubah status TIDAK lagi tersedia di halaman Riwayat (pindah ke menu Approval).
+                const action = statusBadge(status);
                 const number = startIndex + index + 1;
                 return '<tr class="border-b border-slate-100 hover:bg-emerald-50/50">' +
                     '<td class="px-3 py-2.5"><input type="checkbox" class="riwayat-select-checkbox w-4 h-4 accent-emerald-600 cursor-pointer" data-order-id="'+id+'" '+selected+' onclick="event.stopPropagation()" onchange="toggleRiwayatSelection(this)" title="Pilih transaksi"></td>' +
@@ -7624,7 +7714,7 @@ startAutoRefresh();
             }).join('');
 
             const pagination = isAdmin && totalPages > 1 ? '<div class="flex items-center justify-between gap-2 mt-3 px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 text-[10px]"><span class="text-slate-500">Menampilkan '+(startIndex+1)+'-'+Math.min(startIndex+RIWAYAT_PAGE_SIZE,data.length)+' dari '+data.length+' transaksi</span><div class="flex items-center gap-1"><button type="button" onclick="changeRiwayatPage(-1)" class="px-2.5 py-1.5 rounded-lg border bg-white">‹</button><span class="px-2 font-bold">Halaman '+riwayatPage+'/'+totalPages+'</span><button type="button" onclick="changeRiwayatPage(1)" class="px-2.5 py-1.5 rounded-lg border bg-white">›</button></div></div>' : '';
-            const bulkControls = isAdmin ? '<div class="flex flex-wrap items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl mb-3"><button type="button" onclick="toggleSelectAllRiwayatVisible(true)" class="px-3 py-1.5 rounded-md bg-white hover:bg-slate-100 text-slate-600 text-[10px] font-bold border border-slate-200">PILIH SEMUA</button><button type="button" onclick="clearPilihanRiwayat()" class="px-3 py-1.5 rounded-md bg-white hover:bg-slate-100 text-slate-600 text-[10px] font-bold border border-slate-200">RESET PILIHAN</button><button type="button" onclick="doneBulkStatusRiwayat()" class="px-4 py-1.5 rounded-md bg-slate-800 hover:bg-slate-900 text-white text-[10px] font-extrabold shadow-sm">DONE</button><span id="bulkStatusInfo" class="text-[10px] text-slate-500 font-semibold ml-auto">Pilih status pada masing-masing baris lalu klik DONE.</span></div>' : '';
+            const bulkControls = '';
             container.innerHTML = bulkControls + '<div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden"><div class="overflow-x-auto"><table class="w-full text-left text-[10px] min-w-[980px]"><thead><tr class="bg-slate-50 border-b border-slate-200 text-[9px] uppercase tracking-wide text-slate-500"><th class="px-3 py-2 w-9"><input type="checkbox" id="selectAllRiwayatVisible" class="riwayat-select-all w-4 h-4 accent-emerald-600 cursor-pointer" onchange="toggleSelectAllRiwayatVisible(true)" title="Pilih semua"></th><th class="px-3 py-2">No</th><th class="px-3 py-2">Tanggal</th><th class="px-3 py-2">Outlet</th><th class="px-3 py-2">Produk</th><th class="px-3 py-2 text-right">Volume</th><th class="px-3 py-2 text-right">Nilai</th><th class="px-3 py-2">Status</th><th class="px-3 py-2">Aksi</th></tr></thead><tbody>'+body+'</tbody></table></div></div>'+pagination;
             updateSelectedRiwayatUI();
         }
@@ -9244,6 +9334,7 @@ startAutoRefresh();
 
             const activeTabs = [
                 'tabRiwayat',
+                'tabApproval',
                 'tabPencapaian',
                 'tabMonitoring',
                 'tabOutletKontrak',
@@ -9271,6 +9362,8 @@ startAutoRefresh();
             // Semua tab lainnya diperbarui secara silent tanpa overlay/loading.
             if (activeTab === 'tabRiwayat') {
                 loadRiwayat(true, true);
+            } else if (activeTab === 'tabApproval') {
+                loadApproval(true, true);
             } else if (activeTab === 'tabPencapaian') {
                 loadPencapaianSales(true, true);
             } else if (activeTab === 'tabMonitoring') {
@@ -9547,18 +9640,25 @@ startAutoRefresh();
         function openHomeStatusDetail(idInput){
             const targetId=String(idInput==null?'':idInput).trim();
             if(!targetId)return;
-            const cached=(globalRiwayatData||[]).find(function(item){return String(item.id||'').trim()===targetId;});
+            // Task 43: sesi admin / tanpa nama sales memakai tampilan data admin
+            // agar detail order (dan ubah status Task 41) juga berfungsi utk mereka;
+            // data TIDAK menimpa cache Riwayat milik sesi tersebut.
+            const adminViewOpen=String(currentUsernameInput||'').trim().toLowerCase()==='admin' || String(currentUser||'').trim()==='';
+            const cached=(globalRiwayatData||[]).find(function(item){return String(item.id||'').trim()===targetId;}) || (adminViewOpen?(globalApprovalData||[]).find(function(item){return String(item.id||'').trim()===targetId;}):null);
             if(cached){lihatDetail(targetId);return;}
             // Order belum ada di cache riwayat: muat senyap lalu buka detail.
             showLoading(true);
             google.script.run.withSuccessHandler(function(data){
                 showLoading(false);
-                if(Array.isArray(data)&&data.length)globalRiwayatData=data;
+                if(Array.isArray(data)&&data.length){
+                    if(adminViewOpen && String(currentUsernameInput||'').trim().toLowerCase()!=='admin'){globalApprovalData=data;}
+                    else{globalRiwayatData=data;}
+                }
                 lihatDetail(targetId);
             }).withFailureHandler(function(){
                 showLoading(false);
                 lihatDetail(targetId);
-            }).getRiwayatOrder(currentUser, currentUsernameInput);
+            }).getRiwayatOrder(adminViewOpen?'':currentUser, adminViewOpen?'admin':currentUsernameInput);
         }
 
         function getHomeRebuildImages(){return (Array.isArray(homeRebuildData)?homeRebuildData:[]).slice().sort(function(a,b){return Number(b&&b.rowNumber||0)-Number(a&&a.rowNumber||0);}).filter(function(x){return x&&String(x.gambar||'').trim()!=='';});}
@@ -9906,6 +10006,8 @@ startAutoRefresh();
             run(function(){ loadOutletKontrak(false, true); }, 900);
             run(function(){ loadTambahCustomer(false, true); }, 1200);
             run(function(){ loadPesananOutlet(false, true); }, 1500);
+            // Task 43: panaskan data Approval di latar belakang (sesi privileged).
+            if (typeof canUseApprovalMenu === 'function' && canUseApprovalMenu()) run(function(){ loadApproval(false, true); }, 1650);
             run(function(){ loadPencapaianSales(false, true); }, 1800);
             if (canViewAllPencapaianSales()) run(function(){ loadPencapaianSalesFilter(); }, 1900);
 
@@ -9918,13 +10020,18 @@ startAutoRefresh();
         function switchTab(tab) {
             const isAdminLogin = String(currentUsernameInput || '').trim().toLowerCase() === 'admin';
             if (tab === 'pengumumanadmin' && !isAdminLogin) { applyRoleVisibility(); return; }
-            const tabMap = {home:'tabHome',input:'tabInput',riwayat:'tabRiwayat',pencapaian:'tabPencapaian',monitoring:'tabMonitoring',outletkontrak:'tabOutletKontrak',outletbws:'tabOutletBWS',tambahcustomer:'tabTambahCustomer',pricelist:'tabPricelist',harganett:'tabHargaNett',pesananoutlet:'tabPesananOutlet',pengumumanadmin:'tabPengumumanAdmin'};
-            const navMap = {home:'navHome',input:'navInput',riwayat:'navRiwayat',pencapaian:'navPencapaian',monitoring:'navMonitoring',outletkontrak:'navOutletKontrak',outletbws:'navOutletBWS',tambahcustomer:'navTambahCustomer',pricelist:'navPricelist',harganett:'navHargaNett',pesananoutlet:'navPesananOutlet',pengumumanadmin:'navPengumumanAdmin'};
+            // Task 43: Approval hanya untuk admin / akun tanpa nama sales.
+            const canApprovalMenu = isAdminLogin || String(currentUser || '').trim() === '';
+            if (tab === 'approval' && !canApprovalMenu) { applyRoleVisibility(); return; }
+            const tabMap = {home:'tabHome',input:'tabInput',riwayat:'tabRiwayat',approval:'tabApproval',pencapaian:'tabPencapaian',monitoring:'tabMonitoring',outletkontrak:'tabOutletKontrak',outletbws:'tabOutletBWS',tambahcustomer:'tabTambahCustomer',pricelist:'tabPricelist',harganett:'tabHargaNett',pesananoutlet:'tabPesananOutlet',pengumumanadmin:'tabPengumumanAdmin'};
+            const navMap = {home:'navHome',input:'navInput',riwayat:'navRiwayat',approval:'navApproval',pencapaian:'navPencapaian',monitoring:'navMonitoring',outletkontrak:'navOutletKontrak',outletbws:'navOutletBWS',tambahcustomer:'navTambahCustomer',pricelist:'navPricelist',harganett:'navHargaNett',pesananoutlet:'navPesananOutlet',pengumumanadmin:'navPengumumanAdmin'};
             Object.keys(tabMap).forEach(function(key){
                 const el=document.getElementById(tabMap[key]);
                 if(!el) return;
                 // Outlet BWS hanya boleh terlihat untuk Admin.
                 if(key==='outletbws' && !isAdminLogin){
+                    el.classList.add('hidden');
+                }else if(key==='approval' && !canApprovalMenu){
                     el.classList.add('hidden');
                 }else{
                     el.classList.toggle('hidden',key!==tab);
@@ -9935,6 +10042,8 @@ startAutoRefresh();
                 if(!el) return;
                 // Menu khusus Admin tidak boleh muncul untuk user non-admin.
                 if((key==='outletbws' || key==='pengumumanadmin') && !isAdminLogin){
+                    el.className='sidebar-item hidden';
+                }else if(key==='approval' && !canApprovalMenu){
                     el.className='sidebar-item hidden';
                 }else{
                     el.className=key===tab?'sidebar-item sidebar-item-active':'sidebar-item';
@@ -9951,6 +10060,7 @@ startAutoRefresh();
             if(window.matchMedia&&window.matchMedia('(max-width:1023px)').matches){setSidebarState(true);}
 if(tab==='home'){loadHomeRebuild();startHomeRebuildAuto();}
 if(tab==='riwayat')loadRiwayat(false, true);
+if(tab==='approval')loadApproval(false, true);
             if(tab==='pencapaian')loadPencapaianSales(false, true);
             if(tab==='monitoring')loadMonitoring(false, true);
             if(tab==='outletkontrak')loadOutletKontrak(false, true);
@@ -12196,12 +12306,7 @@ function renderRiwayatCards(data) {
         const statusDot = status === 'APPROVE' ? 'bg-emerald-500' : status === 'DECLINE' ? 'bg-red-500' : 'bg-amber-500';
         const products = Array.isArray(item.products) ? item.products.filter(function(p){ return String(p || '').trim() !== ''; }) : [];
         const productText = products.length ? products.map(function(p){ return escapeHtml(p); }).join('<br>') : '-';
-        const statusCell = isAdmin ? `
-            <select onclick="event.stopPropagation()" class="bulk-status-select w-full border border-slate-300 rounded-lg px-2.5 py-2 text-[10px] font-bold bg-white" data-order-id="${escapeHtml(item.id)}" data-current-status="${escapeHtml(status)}">
-                <option value="">${escapeHtml(status)} / TIDAK DIUBAH</option>
-                <option value="APPROVE" ${selectedRiwayatStatus[String(item.id)] === 'APPROVE' ? 'selected' : ''}>APPROVE</option>
-                <option value="DECLINE" ${selectedRiwayatStatus[String(item.id)] === 'DECLINE' ? 'selected' : ''}>DECLINE</option>
-            </select>` : `
+        const statusCell = `
             <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border text-[9px] font-extrabold ${statusClass}">
                 <span class="w-1.5 h-1.5 rounded-full ${statusDot}"></span>${escapeHtml(status)}
             </span>`;
@@ -12238,13 +12343,8 @@ function renderRiwayatCards(data) {
             </article>`;
     });
 
-    const bulkControls = isAdmin ? `
-        <div class="flex flex-wrap items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl mb-3">
-            <button type="button" onclick="toggleSelectAllRiwayatVisible(true)" class="px-3 py-1.5 rounded-md bg-white hover:bg-slate-100 text-slate-600 text-[10px] font-bold border border-slate-200">PILIH SEMUA</button>
-            <button type="button" onclick="resetPilihanStatusRiwayat()" class="px-3 py-1.5 rounded-md bg-white hover:bg-slate-100 text-slate-600 text-[10px] font-bold border border-slate-200">RESET</button>
-            <button type="button" onclick="doneBulkStatusRiwayat()" class="px-4 py-1.5 rounded-md bg-slate-800 hover:bg-slate-900 text-white text-[10px] font-extrabold shadow-sm">DONE</button>
-            <span id="bulkStatusInfo" class="text-[10px] text-slate-500 font-semibold ml-auto">Pilih status pada masing-masing card lalu klik DONE.</span>
-        </div>` : '';
+    // Task 43: ubah status TIDAK lagi tersedia di halaman Riwayat (pindah ke menu Approval).
+    const bulkControls = '';
     const pagination = isAdmin && totalPages > 1 ? `
         <div class="flex items-center justify-between gap-2 mt-3 px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 text-[10px]">
             <span class="text-slate-500">Menampilkan ${startIndex + 1}-${Math.min(startIndex + RIWAYAT_PAGE_SIZE, data.length)} dari ${data.length} transaksi</span>
@@ -12254,6 +12354,341 @@ function renderRiwayatCards(data) {
     updateSelectedRiwayatUI();
 }
 
+</script>
+
+<script id="approval-page-v1">
+/* Task 43: MENU APPROVAL - khusus admin / akun tanpa nama sales.
+   Skema sama dengan halaman Riwayat (cards + tabel + filter + pagination),
+   berisi order per Outlet dan dipakai untuk mengubah status (APPROVE/DECLINE).
+   Perubahan status disimpan SINKRON via updateOrderStatusBatchSync sehingga
+   pasti tersimpan di server sebelum aplikasi menampilkan konfirmasi. */
+var globalApprovalData = [];
+var approvalFilteredData = [];
+var approvalPage = 1;
+var approvalViewMode = 'chart';
+var approvalLoading = false;
+var approvalStatusInFlight = false;
+
+function canUseApprovalMenu() {
+    return String(currentUsernameInput||'').trim().toLowerCase()==='admin' || String(currentUser||'').trim()==='';
+}
+
+function loadApproval(forceReload, silentRefresh) {
+    if (!canUseApprovalMenu()) return;
+    const cacheKey = 'APPROVAL_' + String(currentUsernameInput||'').toUpperCase();
+    if (!Array.isArray(globalApprovalData) || globalApprovalData.length === 0) {
+        const cachedLocal = appLocalCacheGet(cacheKey);
+        if (Array.isArray(cachedLocal) && cachedLocal.length) globalApprovalData = cachedLocal;
+    }
+    const hasCached = Array.isArray(globalApprovalData) && globalApprovalData.length > 0;
+    if (!forceReload && hasCached) {
+        populateApprovalFilters();
+        filterApproval();
+        if (appLocalCacheIsFresh(cacheKey, 60000)) return;
+        silentRefresh = true;
+    }
+    if (approvalLoading) return;
+    approvalLoading = true;
+    const container = document.getElementById('listApproval');
+    if (forceReload && hasCached) filterApproval();
+    if (!silentRefresh) {
+        if (!hasCached && container) container.innerHTML = '<p class="text-slate-400 text-center py-6">Memuat...</p>';
+        showLoading(true);
+    }
+    google.script.run.withSuccessHandler(function(data) {
+        approvalLoading = false;
+        if (!silentRefresh) showLoading(false);
+        handleApprovalLoaded(data);
+    }).withFailureHandler(function(err) {
+        approvalLoading = false;
+        if (!silentRefresh) showLoading(false);
+        if (container) container.innerHTML = '<div class="text-red-500 text-center py-6 text-xs">Gagal memuat approval: ' + escapeHtml(err && err.message ? err.message : 'Terjadi kesalahan.') + '</div>';
+        const badge = document.getElementById('approvalCount');
+        if (badge) badge.textContent = '0 transaksi';
+    }).getRiwayatOrder('', 'admin');
+}
+
+function handleApprovalLoaded(data) {
+    globalApprovalData = Array.isArray(data) ? data : [];
+    appLocalCacheSet('APPROVAL_' + String(currentUsernameInput||'').toUpperCase(), globalApprovalData);
+    populateApprovalFilters();
+    filterApproval();
+}
+
+function populateApprovalFilters() {
+    const fill = function(sel, values, label) {
+        if (!sel) return;
+        const prev = String(sel.value || '');
+        sel.innerHTML = '<option value="">' + label + '</option>' + values.map(function(v){ return '<option value="' + escapeHtml(v) + '">' + escapeHtml(v) + '</option>'; }).join('');
+        if (values.indexOf(prev) !== -1) sel.value = prev;
+    };
+    const uniqSorted = function(arr, mapper) {
+        return [...new Set((arr || []).map(mapper).filter(Boolean))].sort(function(a,b){ return a.localeCompare(b, 'id'); });
+    };
+    fill(document.getElementById('filterApprovalOutlet'), uniqSorted(globalApprovalData, function(i){ return String(i.outlet || '').trim(); }), 'Semua Outlet');
+    fill(document.getElementById('filterApprovalDsr'), uniqSorted(globalApprovalData, function(i){ return String(i.dsr || '').trim(); }), 'Semua DSR / Sales');
+    fill(document.getElementById('filterApprovalStatus'), uniqSorted(globalApprovalData, function(i){ return String(i.status || 'PENDING').trim().toUpperCase(); }), 'Semua Status');
+    const yearSel = document.getElementById('filterApprovalYear');
+    if (yearSel) {
+        const years = {};
+        (globalApprovalData || []).forEach(function(item) {
+            const m = String(item.tanggal || '').match(/^(\d{4})-\d{2}-\d{2}$/);
+            if (m) years[m[1]] = true;
+        });
+        const list = Object.keys(years).sort().reverse();
+        const prev = String(yearSel.value || '');
+        yearSel.innerHTML = '<option value="">Semua Tahun</option>' + list.map(function(y){ return '<option value="' + escapeHtml(y) + '">' + escapeHtml(y) + '</option>'; }).join('');
+        if (list.indexOf(prev) !== -1) yearSel.value = prev;
+    }
+}
+
+function filterApproval() {
+    const searchEl = document.getElementById('searchApprovalInput');
+    const keyword = String(searchEl && searchEl.value || '').trim().toUpperCase();
+    const month = String((document.getElementById('filterApprovalMonth') || {}).value || '');
+    const year = String((document.getElementById('filterApprovalYear') || {}).value || '');
+    const outlet = String((document.getElementById('filterApprovalOutlet') || {}).value || '').trim().toUpperCase();
+    const dsr = String((document.getElementById('filterApprovalDsr') || {}).value || '').trim().toUpperCase();
+    const status = String((document.getElementById('filterApprovalStatus') || {}).value || '').trim().toUpperCase();
+    const clearBtn = document.getElementById('clearApprovalSearchBtn');
+    if (clearBtn) clearBtn.classList.toggle('hidden', !keyword);
+    const filtered = (globalApprovalData || []).filter(function(item) {
+        const tanggal = String(item.tanggal || '');
+        const ym = tanggal.match(/^(\d{4})-(\d{2})-/);
+        const text = [item.outlet, item.id, item.dsr, item.products].map(function(v){ return String(v == null ? '' : v).toUpperCase(); }).join(' ');
+        if (keyword && text.indexOf(keyword) === -1) return false;
+        if (outlet && String(item.outlet || '').trim().toUpperCase() !== outlet) return false;
+        if (dsr && String(item.dsr || '').trim().toUpperCase() !== dsr) return false;
+        if (status && String(item.status || 'PENDING').trim().toUpperCase() !== status) return false;
+        if (month && (!ym || ym[2] !== month)) return false;
+        if (year && (!ym || ym[1] !== year)) return false;
+        return true;
+    });
+    filtered.sort(function(a,b){ return new Date(String(b.tanggal || '')).getTime() - new Date(String(a.tanggal || '')).getTime(); });
+    approvalFilteredData = filtered;
+    approvalPage = 1;
+    renderApprovalList(filtered);
+}
+
+function clearApprovalSearch() {
+    const el = document.getElementById('searchApprovalInput');
+    if (el) el.value = '';
+    filterApproval();
+}
+
+function resetApprovalAllFilter() {
+    ['searchApprovalInput','filterApprovalOutlet','filterApprovalDsr','filterApprovalStatus','filterApprovalMonth','filterApprovalYear'].forEach(function(id) {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    filterApproval();
+}
+
+function setApprovalView(mode) {
+    approvalViewMode = mode === 'chart' ? 'chart' : 'table';
+    renderApprovalList(approvalFilteredData || []);
+}
+
+function changeApprovalPage(delta) {
+    const total = Math.max(1, Math.ceil((approvalFilteredData || []).length / RIWAYAT_PAGE_SIZE));
+    approvalPage = Math.max(1, Math.min(total, approvalPage + Number(delta || 0)));
+    renderApprovalList(approvalFilteredData || []);
+}
+
+function renderApprovalList(data) {
+    const container = document.getElementById('listApproval');
+    if (!container) return;
+    if (!Array.isArray(data)) data = [];
+    const countBadge = document.getElementById('approvalCount');
+    if (countBadge) countBadge.textContent = data.length + ' transaksi';
+    if (data.length === 0) {
+        container.innerHTML = '<div class="text-slate-400 text-center py-10 bg-white rounded-2xl border border-slate-100 shadow-sm"><div class="text-3xl mb-2">✅</div><p class="text-xs font-medium">Tidak ada order untuk di-approve.</p></div>';
+        return;
+    }
+    if (approvalViewMode === 'chart') { renderApprovalCards(data); updateViewToggleButtons('approval'); return; }
+    renderApprovalTable(data);
+    updateViewToggleButtons('approval');
+}
+
+function approvalBulkControlsHtml() {
+    return '<div class="flex flex-wrap items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl mb-3">' +
+        '<button type="button" onclick="resetPilihanStatusApproval()" class="px-3 py-1.5 rounded-md bg-white hover:bg-slate-100 text-slate-600 text-[10px] font-bold border border-slate-200">RESET</button>' +
+        '<button type="button" onclick="doneBulkStatusApproval()" class="px-4 py-1.5 rounded-md bg-slate-800 hover:bg-slate-900 text-white text-[10px] font-extrabold shadow-sm">DONE</button>' +
+        '<span id="bulkStatusInfo" class="text-[10px] text-slate-500 font-semibold ml-auto">Pilih status pada masing-masing order lalu klik DONE.</span>' +
+        '</div>';
+}
+
+function approvalPaginationHtml(totalShown, startIndex) {
+    const totalPages = Math.max(1, Math.ceil(totalShown / RIWAYAT_PAGE_SIZE));
+    if (totalPages <= 1) return '';
+    return '<div class="flex items-center justify-between gap-2 mt-3 px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 text-[10px]">' +
+        '<span class="text-slate-500">Menampilkan ' + (startIndex + 1) + '-' + Math.min(startIndex + RIWAYAT_PAGE_SIZE, totalShown) + ' dari ' + totalShown + ' transaksi</span>' +
+        '<div class="flex items-center gap-1">' +
+        '<button type="button" onclick="changeApprovalPage(-1)" class="px-2.5 py-1.5 rounded-lg border bg-white ' + (approvalPage <= 1 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-slate-100') + '" ' + (approvalPage <= 1 ? 'disabled' : '') + '>‹</button>' +
+        '<span class="px-2 font-bold">Halaman ' + approvalPage + '/' + totalPages + '</span>' +
+        '<button type="button" onclick="changeApprovalPage(1)" class="px-2.5 py-1.5 rounded-lg border bg-white ' + (approvalPage >= totalPages ? 'opacity-40 cursor-not-allowed' : 'hover:bg-slate-100') + '" ' + (approvalPage >= totalPages ? 'disabled' : '') + '>›</button>' +
+        '</div></div>';
+}
+
+function approvalDetailBtnHtml(idEsc) {
+    return '<button type="button" onclick="lihatDetail(\'' + idEsc + '\',\'approval\'); return false;" class="riwayat-action riwayat-action-edit" title="Detail order" aria-label="Detail order"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></button>';
+}
+
+function renderApprovalCards(data) {
+    const container = document.getElementById('listApproval');
+    if (!container) return;
+    const totalPages = Math.max(1, Math.ceil(data.length / RIWAYAT_PAGE_SIZE));
+    if (approvalPage > totalPages) approvalPage = totalPages;
+    const startIndex = (approvalPage - 1) * RIWAYAT_PAGE_SIZE;
+    const visibleData = data.slice(startIndex, startIndex + RIWAYAT_PAGE_SIZE);
+    let cards = '';
+    visibleData.forEach(function(item, index) {
+        const status = String(item.status || 'PENDING').toUpperCase();
+        const statusClass = status === 'APPROVE' ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : status === 'DECLINE' ? 'text-red-700 bg-red-50 border-red-200' : 'text-amber-700 bg-amber-50 border-amber-200';
+        const statusDot = status === 'APPROVE' ? 'bg-emerald-500' : status === 'DECLINE' ? 'bg-red-500' : 'bg-amber-500';
+        const products = Array.isArray(item.products) ? item.products.filter(function(p){ return String(p || '').trim() !== ''; }) : [];
+        const productText = products.length ? products.map(function(p){ return escapeHtml(p); }).join('<br>') : '-';
+        const statusCell = '<select onclick="event.stopPropagation()" class="bulk-status-select w-full border border-slate-300 rounded-lg px-2.5 py-2 text-[10px] font-bold bg-white" data-order-id="' + escapeHtml(item.id) + '" data-current-status="' + escapeHtml(status) + '">' +
+            '<option value="">' + escapeHtml(status) + ' / TIDAK DIUBAH</option>' +
+            '<option value="APPROVE" ' + (selectedRiwayatStatus[String(item.id)] === 'APPROVE' ? 'selected' : '') + '>APPROVE</option>' +
+            '<option value="DECLINE" ' + (selectedRiwayatStatus[String(item.id)] === 'DECLINE' ? 'selected' : '') + '>DECLINE</option>' +
+            '</select>';
+        const number = startIndex + index + 1;
+        const valueText = 'Rp ' + Number(item.value || 0).toLocaleString('id-ID');
+        const volumeText = escapeHtml(item.volume || '0') + ' L';
+        cards += '<article class="riwayat-card group">' +
+            '<div class="riwayat-card-top">' +
+            '<div class="flex items-start gap-2 min-w-0">' +
+            '<div class="min-w-0">' +
+            '<div class="flex flex-wrap items-center gap-2"><span class="riwayat-card-number">#' + number + '</span><span class="text-[10px] text-slate-400 font-medium">' + escapeHtml(item.tanggal || '-') + '</span></div>' +
+            '<div class="riwayat-card-outlet mt-1">' + escapeHtml(item.outlet || '-') + '</div>' +
+            '<div class="text-[9px] text-slate-400 mt-0.5">DSR: ' + escapeHtml(item.dsr || '-') + '</div>' +
+            '</div>' +
+            '</div>' +
+            '<div class="shrink-0" onclick="event.stopPropagation()">' + statusCell + '</div>' +
+            '</div>' +
+            '<div class="riwayat-card-products"><div class="riwayat-card-label">PRODUK</div><div class="riwayat-card-product-text">' + productText + '</div></div>' +
+            '<div class="riwayat-card-summary">' +
+            '<div class="riwayat-card-stat"><span class="riwayat-card-label">VOLUME</span><strong>' + volumeText + '</strong></div>' +
+            '<div class="riwayat-card-stat"><span class="riwayat-card-label">NILAI</span><strong>' + valueText + '</strong></div>' +
+            '</div>' +
+            '<div class="riwayat-card-footer" onclick="event.stopPropagation()">' +
+            '<span class="text-[9px] text-slate-400 font-medium">ID: ' + escapeHtml(item.id || '-') + '</span>' +
+            '<div class="flex items-center gap-1.5">' + approvalDetailBtnHtml(escapeHtml(item.id)) + '</div>' +
+            '</div>' +
+            '</article>';
+    });
+    container.innerHTML = '<div class="riwayat-cards-wrap">' + approvalBulkControlsHtml() + '<div class="riwayat-cards-grid">' + cards + '</div>' + approvalPaginationHtml(data.length, startIndex) + '</div>';
+}
+
+function renderApprovalTable(data) {
+    const container = document.getElementById('listApproval');
+    if (!container) return;
+    const totalPages = Math.max(1, Math.ceil(data.length / RIWAYAT_PAGE_SIZE));
+    if (approvalPage > totalPages) approvalPage = totalPages;
+    const startIndex = (approvalPage - 1) * RIWAYAT_PAGE_SIZE;
+    const rows = data.slice(startIndex, startIndex + RIWAYAT_PAGE_SIZE);
+    const statusSelect = function(item) {
+        const status = String(item.status || 'PENDING').toUpperCase();
+        return '<select onclick="event.stopPropagation()" class="bulk-status-select w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[9px] font-bold bg-white" data-order-id="' + escapeHtml(item.id) + '" data-current-status="' + escapeHtml(status) + '">' +
+            '<option value="">' + escapeHtml(status) + ' / TIDAK DIUBAH</option>' +
+            '<option value="APPROVE">APPROVE</option>' +
+            '<option value="DECLINE">DECLINE</option>' +
+            '</select>';
+    };
+    const body = rows.map(function(item, index) {
+        const products = Array.isArray(item.products) ? item.products.filter(function(p){ return String(p || '').trim() !== ''; }) : [];
+        const productText = products.length ? products.map(escapeHtml).join('<br>') : '-';
+        const id = escapeHtml(item.id || '');
+        const number = startIndex + index + 1;
+        return '<tr class="border-b border-slate-100 hover:bg-emerald-50/50">' +
+            '<td class="px-3 py-2.5 font-bold text-slate-500">#' + number + '</td>' +
+            '<td class="px-3 py-2.5 whitespace-nowrap">' + escapeHtml(item.tanggal || '-') + '</td>' +
+            '<td class="px-3 py-2.5 font-bold text-slate-700">' + escapeHtml(item.outlet || '-') + '<div class="text-[9px] text-slate-400 font-normal">DSR: ' + escapeHtml(item.dsr || '-') + '</div></td>' +
+            '<td class="px-3 py-2.5 text-slate-600">' + productText + '</td>' +
+            '<td class="px-3 py-2.5 text-right font-semibold">' + escapeHtml(item.volume || '0') + ' L</td>' +
+            '<td class="px-3 py-2.5 text-right font-semibold">Rp ' + Number(item.value || 0).toLocaleString('id-ID') + '</td>' +
+            '<td class="px-3 py-2.5">' + statusSelect(item) + '</td>' +
+            '<td class="px-3 py-2.5 whitespace-nowrap"><div class="flex gap-1">' + approvalDetailBtnHtml(id) + '</div></td>' +
+            '</tr>';
+    }).join('');
+    container.innerHTML = approvalBulkControlsHtml() +
+        '<div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden"><div class="overflow-x-auto"><table class="w-full text-left text-[10px] min-w-[980px]"><thead><tr class="bg-slate-50 border-b border-slate-200 text-[9px] uppercase tracking-wide text-slate-500"><th class="px-3 py-2">No</th><th class="px-3 py-2">Tanggal</th><th class="px-3 py-2">Outlet</th><th class="px-3 py-2">Produk</th><th class="px-3 py-2 text-right">Volume</th><th class="px-3 py-2 text-right">Nilai</th><th class="px-3 py-2">Status</th><th class="px-3 py-2">Aksi</th></tr></thead><tbody>' + body + '</tbody></table></div></div>' +
+        approvalPaginationHtml(data.length, startIndex);
+}
+
+function pilihSemuaStatusApproval(status) {
+    const st = String(status || '').toUpperCase() === 'DECLINE' ? 'DECLINE' : 'APPROVE';
+    document.querySelectorAll('#listApproval .bulk-status-select').forEach(function(select) {
+        const id = String(select.dataset.orderId || '').trim();
+        select.value = st;
+        if (id) selectedRiwayatStatus[id] = st;
+    });
+    updateBulkStatusInfo();
+}
+
+function resetPilihanStatusApproval() {
+    document.querySelectorAll('#listApproval .bulk-status-select').forEach(function(select) {
+        const id = String(select.dataset.orderId || '').trim();
+        select.value = '';
+        if (id) delete selectedRiwayatStatus[id];
+    });
+    updateBulkStatusInfo();
+}
+
+// Task 43: proses DONE — disimpan SINKRON lewat updateOrderStatusBatchSync
+// sehingga status benar-benar berubah di server (bukan hanya diantrikan).
+function doneBulkStatusApproval() {
+    if (!canUseApprovalMenu()) {
+        showModal('Akses Ditolak', 'Hanya Admin atau akun tanpa nama sales yang dapat mengubah status.');
+        return;
+    }
+    const changes = [];
+    document.querySelectorAll('#listApproval .bulk-status-select').forEach(function(select) {
+        const id = String(select.dataset.orderId || '').trim();
+        const newStatus = String(select.value || '').toUpperCase();
+        const oldStatus = String(select.dataset.currentStatus || '').toUpperCase();
+        if (id && (newStatus === 'APPROVE' || newStatus === 'DECLINE') && newStatus !== oldStatus) {
+            changes.push({ id: id, status: newStatus });
+        }
+    });
+    if (!changes.length) {
+        showModal('Tidak Ada Perubahan', 'Silakan pilih APPROVE atau DECLINE pada minimal satu transaksi.');
+        return;
+    }
+    const approve = changes.filter(function(x){ return x.status === 'APPROVE'; }).length;
+    const decline = changes.filter(function(x){ return x.status === 'DECLINE'; }).length;
+    showModal('Konfirmasi Status', 'Akan diproses ' + changes.length + ' transaksi. APPROVE: ' + approve + ' DECLINE: ' + decline + ' Lanjutkan?', true, function(isOk) {
+        if (!isOk || approvalStatusInFlight) return;
+        approvalStatusInFlight = true;
+        showLoading(true);
+        google.script.run
+            .withSuccessHandler(function(res) {
+                approvalStatusInFlight = false;
+                showLoading(false);
+                changes.forEach(function(ch) { delete selectedRiwayatStatus[String(ch.id)]; });
+                try { window._homeDsrCache = {}; } catch (eHomeCache) {}
+                try { loadApproval(true, true); } catch (eReloadApproval) {}
+                try { loadRiwayat(true, true); } catch (eReloadRiwayat) {}
+                try { loadHomeRebuild(true); } catch (eReloadHome) {}
+                if (!res || res.success === false) {
+                    showModal('Gagal Approval', (res && res.message) ? res.message : 'Perubahan status tidak tersimpan. Silakan coba lagi.');
+                    return;
+                }
+                if (res && res.queued) {
+                    showModal('Approval Diproses', (res && res.message) ? res.message : (changes.length + ' transaksi sedang diproses di latar belakang.'));
+                    return;
+                }
+                showModal((res && res.failed) ? 'Approval Selesai' : 'Approval Tersimpan', (res && res.message) ? res.message : (changes.length + ' transaksi berhasil diubah.'));
+            })
+            .withFailureHandler(function(err) {
+                approvalStatusInFlight = false;
+                showLoading(false);
+                showModal('Gagal Approval', (err && err.message ? err.message : 'Terjadi kesalahan saat mengubah status.'));
+            })
+            .updateOrderStatusBatchSync(changes, currentUsernameInput, currentUser);
+    });
+}
 </script>
 
 
