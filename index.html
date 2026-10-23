@@ -3311,7 +3311,7 @@ body{background:
                 <button type="button" onclick="switchTab('input')" id="navInput"
                         class="sidebar-item sidebar-item-active" title="Input Order" aria-label="Input Order">
                     <span class="sidebar-icon">🛒</span>
-                    <span class="sidebar-text">Input</span>
+                    <span class="sidebar-text">Input Order</span>
                 </button>
 <button type="button" onclick="switchTab('riwayat')" id="navRiwayat"
                         class="sidebar-item" title="Riwayat Transaksi" aria-label="Riwayat Transaksi">
@@ -3379,12 +3379,18 @@ body{background:
                 <button type="button" onclick="switchTab('tambahcustomer')" id="navTambahCustomer"
                         class="sidebar-item" title="Tambah Customer" aria-label="Tambah Customer">
                     <span class="sidebar-icon">👤</span>
-                    <span class="sidebar-text">Tambah Customer</span>
+                    <span class="sidebar-text">Customer</span>
                 </button>
                 <button type="button" onclick="switchTab('pesananoutlet')" id="navPesananOutlet"
                         class="sidebar-item" title="Pesanan Outlet" aria-label="Pesanan Outlet">
                     <span class="sidebar-icon">📦</span>
                     <span class="sidebar-text">Pesanan Outlet</span>
+                </button>
+
+                <button type="button" onclick="switchTab('produkbyoutlet')" id="navProdukOutlet"
+                        class="sidebar-item" title="Produk by Outlet" aria-label="Produk by Outlet">
+                    <span class="sidebar-icon">🧴</span>
+                    <span class="sidebar-text">Produk by Outlet</span>
                 </button>
 
 
@@ -3831,6 +3837,46 @@ body{background:
 
                     <div id="listApproval" class="space-y-2.5 text-xs">
                         <p class="text-slate-400 text-center py-6">Memuat...</p>
+                    </div>
+                </div>
+
+                <div id="tabProdukOutlet" class="tab-content hidden space-y-3">
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-base font-bold text-slate-800">Produk by Outlet</h2>
+                            <span id="produkOutletCount" class="text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">0 outlet</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm">
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Filter Produk</div>
+                            <button type="button" onclick="resetProdukOutletFilter()" class="shrink-0 text-[10px] font-bold text-slate-500 hover:text-emerald-700 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-emerald-50 transition">Reset</button>
+                        </div>
+                        <div class="relative" id="produkOutletDropdownRoot">
+                            <button type="button" id="filterProdukOutletBtn" onclick="toggleProdukOutletDropdown()" aria-expanded="false" aria-haspopup="true" aria-controls="produkOutletDropdownPanel" class="w-full flex items-center justify-between gap-2 py-2.5 px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 text-left hover:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition">
+                                <span id="filterProdukOutletLabel" class="truncate text-slate-400">- Pilih produk -</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                            </button>
+                            <div id="produkOutletDropdownPanel" class="hidden absolute z-40 left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden">
+                                <div class="p-2 border-b border-slate-100 bg-white">
+                                    <div class="relative">
+                                        <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                                        </span>
+                                        <input id="produkOutletSearch" type="text" placeholder="Cari produk..." oninput="renderProdukOutletOptions()" onkeydown="produkOutletSearchKeydown(event)" class="w-full py-2 pl-8 pr-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500">
+                                    </div>
+                                </div>
+                                <div id="produkOutletOptions" class="max-h-64 overflow-y-auto po-outlet-options"></div>
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-1.5"></p>
+                    </div>
+
+                    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                        <div id="produkOutletTableWrap" class="overflow-x-auto">
+                            <div class="p-6 text-center text-xs text-slate-400">Pilih produk di filter untuk melihat daftar outlet yang pernah bertransaksi.</div>
+                        </div>
                     </div>
                 </div>
 
@@ -4410,6 +4456,7 @@ body{background:
             run(function(){ loadTambahCustomer(true, true); });
             run(function(){ loadPricelist(true, true); });
             run(function(){ loadPesananOutlet(true, true); });
+            run(function(){ loadProdukByOutlet(true, true); });
             run(function(){ loadPencapaianSales(true, true); });
             run(function(){ loadPencapaianSalesFilter(); });
             run(function(){ loadInputMasterData(); });
@@ -10122,8 +10169,8 @@ startAutoRefresh();
             // Task 43: Approval hanya untuk admin / akun tanpa nama sales.
             const canApprovalMenu = isAdminLogin || String(currentUser || '').trim() === '';
             if (tab === 'approval' && !canApprovalMenu) { applyRoleVisibility(); return; }
-            const tabMap = {home:'tabHome',input:'tabInput',riwayat:'tabRiwayat',approval:'tabApproval',tagihan:'tabTagihan',pencapaian:'tabPencapaian',monitoring:'tabMonitoring',outletkontrak:'tabOutletKontrak',outletbws:'tabOutletBWS',tambahcustomer:'tabTambahCustomer',pricelist:'tabPricelist',harganett:'tabHargaNett',pesananoutlet:'tabPesananOutlet',pengumumanadmin:'tabPengumumanAdmin'};
-            const navMap = {home:'navHome',input:'navInput',riwayat:'navRiwayat',approval:'navApproval',tagihan:'navTagihan',pencapaian:'navPencapaian',monitoring:'navMonitoring',outletkontrak:'navOutletKontrak',outletbws:'navOutletBWS',tambahcustomer:'navTambahCustomer',pricelist:'navPricelist',harganett:'navHargaNett',pesananoutlet:'navPesananOutlet',pengumumanadmin:'navPengumumanAdmin'};
+            const tabMap = {home:'tabHome',input:'tabInput',riwayat:'tabRiwayat',approval:'tabApproval',tagihan:'tabTagihan',pencapaian:'tabPencapaian',monitoring:'tabMonitoring',outletkontrak:'tabOutletKontrak',outletbws:'tabOutletBWS',tambahcustomer:'tabTambahCustomer',pricelist:'tabPricelist',harganett:'tabHargaNett',pesananoutlet:'tabPesananOutlet',produkbyoutlet:'tabProdukOutlet',pengumumanadmin:'tabPengumumanAdmin'};
+            const navMap = {home:'navHome',input:'navInput',riwayat:'navRiwayat',approval:'navApproval',tagihan:'navTagihan',pencapaian:'navPencapaian',monitoring:'navMonitoring',outletkontrak:'navOutletKontrak',outletbws:'navOutletBWS',tambahcustomer:'navTambahCustomer',pricelist:'navPricelist',harganett:'navHargaNett',pesananoutlet:'navPesananOutlet',produkbyoutlet:'navProdukOutlet',pengumumanadmin:'navPengumumanAdmin'};
             Object.keys(tabMap).forEach(function(key){
                 const el=document.getElementById(tabMap[key]);
                 if(!el) return;
@@ -10178,6 +10225,8 @@ if(tab==='tagihan')loadTagihan(false, true);
             if(tab==='pricelist')loadPricelist(false, true);
             if(tab==='harganett')loadHargaNett(false);
             if(tab==='pesananoutlet')loadPesananOutlet(false, true);
+            // Task 53: halaman Produk by Outlet.
+            if(tab==='produkbyoutlet')loadProdukByOutlet(false);
             if(tab==='pengumumanadmin')loadPengumumanAdmin();
         }
 
@@ -13011,6 +13060,340 @@ function handleTagihanLoaded(res) {
     appLocalCacheSet(tagihanCacheKey(), globalTagihanData);
     populateTagihanFilters();
     filterTagihan();
+}
+
+// ===== Task 53: PRODUK BY OUTLET =====
+let produkOutletProdukList = null;
+let produkOutletRowsCache = {};
+let produkOutletSelected = '';
+let produkOutletLoading = false;
+
+function produkOutletSorted() {
+    return produkOutletProdukList.slice().sort(function(a, b) {
+        return String(a.nama || '').localeCompare(String(b.nama || ''), 'id', { sensitivity: 'base' });
+    });
+}
+
+function produkOutletGroupKey(p) {
+    return String(p && p.produkBy ? p.produkBy : (p && p.nama) || '').trim();
+}
+
+function produkOutletGroups() {
+    // Task 55: kelompokkan produk berdasarkan kolom T "Produk by" (fallback: nama produk).
+    if (!Array.isArray(produkOutletProdukList)) return [];
+    const map = {};
+    produkOutletSorted().forEach(function(p) {
+        const k = produkOutletGroupKey(p) || String(p.nama || '').trim();
+        if (!k) return;
+        if (!map[k]) map[k] = [];
+        map[k].push(p);
+    });
+    return Object.keys(map).sort(function(a, b) {
+        return a.localeCompare(b, 'id', { sensitivity: 'base' });
+    }).map(function(k) { return { label: k, members: map[k] }; });
+}
+
+function produkOutletFindGroup(lbl) {
+    const key = String(lbl || '').trim().toUpperCase().replace(/\s+/g, ' ');
+    return produkOutletGroups().find(function(g) {
+        return String(g.label || '').trim().toUpperCase().replace(/\s+/g, ' ') === key;
+    }) || null;
+}
+
+function produkOutletGroupAllOff(g) {
+    return !!g && g.members.length > 0 && g.members.every(function(p) { return p.aktif === false; });
+}
+
+function produkOutletUpdateLabel() {
+    const lbl = document.getElementById('filterProdukOutletLabel');
+    if (!lbl) return;
+    if (!produkOutletSelected) {
+        lbl.textContent = '- Pilih produk -';
+        lbl.className = 'truncate text-slate-400';
+        return;
+    }
+    const g = produkOutletFindGroup(produkOutletSelected);
+    let txt = produkOutletSelected;
+    if (g && g.members.length > 1) txt += ' (' + g.members.length + ' produk)';
+    if (produkOutletGroupAllOff(g)) txt += ' (non-aktif)';
+    lbl.textContent = txt;
+    lbl.className = 'truncate font-semibold text-slate-800';
+}
+
+function produkOutletOptionRow(g) {
+    const lbl = String(g.label || '').trim();
+    const off = produkOutletGroupAllOff(g) ? '<span class="shrink-0 text-[9px] font-bold text-red-500 uppercase tracking-wide border border-red-200 bg-red-50 rounded-full px-1.5 py-0.5">non-aktif</span>' : '';
+    return '<button type="button" data-po-name="' + escapeHtml(lbl) + '" onclick="selectProdukOutletOption(this.getAttribute(\'data-po-name\'))" class="w-full text-left px-3 py-2 hover:bg-emerald-50 border-b border-slate-50 transition">' +
+        '<div class="flex items-center justify-between gap-2">' +
+            '<span class="font-semibold text-slate-700 truncate text-xs">' + escapeHtml(lbl) + '</span>' + off +
+        '</div>' +
+    '</button>';
+}
+
+function renderProdukOutletOptions() {
+    const box = document.getElementById('produkOutletOptions');
+    if (!box) return;
+    if (!Array.isArray(produkOutletProdukList) || !produkOutletProdukList.length) {
+        box.innerHTML = '<div class="px-3 py-4 text-center text-xs text-slate-400">Memuat daftar produk...</div>';
+        return;
+    }
+    const qEl = document.getElementById('produkOutletSearch');
+    const term = String((qEl && qEl.value) || '').trim().toLowerCase();
+    const list = produkOutletGroups().filter(function(g) {
+        if (!term) return true;
+        if (String(g.label || '').toLowerCase().indexOf(term) !== -1) return true;
+        return g.members.some(function(p) {
+            return String(p.nama || '').toLowerCase().indexOf(term) !== -1 || String(p.kode || '').toLowerCase().indexOf(term) !== -1;
+        });
+    });
+    if (!list.length) {
+        box.innerHTML = '<div class="px-3 py-4 text-center text-xs text-slate-400">Produk tidak ditemukan.</div>';
+        return;
+    }
+    box.innerHTML = list.map(produkOutletOptionRow).join('');
+}
+
+function toggleProdukOutletDropdown() {
+    const panel = document.getElementById('produkOutletDropdownPanel');
+    if (!panel) return;
+    if (panel.classList.contains('hidden')) openProdukOutletDropdown();
+    else closeProdukOutletDropdown();
+}
+
+function openProdukOutletDropdown() {
+    const panel = document.getElementById('produkOutletDropdownPanel');
+    const btn = document.getElementById('filterProdukOutletBtn');
+    if (!panel) return;
+    panel.classList.remove('hidden');
+    if (btn) btn.setAttribute('aria-expanded', 'true');
+    // Task 55b: kosongkan pencarian sebelum render agar sisa filter tidak tertinggal.
+    const search = document.getElementById('produkOutletSearch');
+    if (search) search.value = '';
+    renderProdukOutletOptions();
+    if (search) { setTimeout(function(){ try { search.focus(); } catch (e) {} }, 30); }
+}
+
+function closeProdukOutletDropdown() {
+    const panel = document.getElementById('produkOutletDropdownPanel');
+    const btn = document.getElementById('filterProdukOutletBtn');
+    if (panel && !panel.classList.contains('hidden')) {
+        panel.classList.add('hidden');
+        if (btn) btn.setAttribute('aria-expanded', 'false');
+    }
+}
+
+function selectProdukOutletOption(nm) {
+    produkOutletSelected = String(nm == null ? '' : nm).trim();
+    produkOutletUpdateLabel();
+    closeProdukOutletDropdown();
+    if (!produkOutletSelected) { renderProdukOutlet(); return; }
+    if (produkOutletRowsCache[produkOutletSelected]) { renderProdukOutlet(); return; }
+    loadProdukByOutlet(false);
+}
+
+function produkOutletSearchKeydown(ev) {
+    if (ev && ev.key === 'Enter') {
+        ev.preventDefault();
+        const first = document.querySelector('#produkOutletOptions button[data-po-name]');
+        if (first) selectProdukOutletOption(first.getAttribute('data-po-name'));
+    }
+}
+
+function populateProdukOutletFilter() {
+    if (!Array.isArray(produkOutletProdukList)) return;
+    if (produkOutletSelected && !produkOutletFindGroup(produkOutletSelected)) produkOutletSelected = '';
+    produkOutletUpdateLabel();
+    renderProdukOutletOptions();
+}
+
+function resetProdukOutletFilter() {
+    produkOutletSelected = '';
+    const search = document.getElementById('produkOutletSearch');
+    if (search) search.value = '';
+    closeProdukOutletDropdown();
+    produkOutletUpdateLabel();
+    renderProdukOutlet();
+}
+
+// Task 54: tutup dropdown bila klik di luar komponen atau menekan Escape.
+(function() {
+    document.addEventListener('click', function(ev) {
+        const panel = document.getElementById('produkOutletDropdownPanel');
+        if (!panel || panel.classList.contains('hidden')) return;
+        const root = document.getElementById('produkOutletDropdownRoot');
+        if (root && !root.contains(ev.target)) closeProdukOutletDropdown();
+    });
+    document.addEventListener('keydown', function(ev) {
+        if (ev && ev.key === 'Escape') {
+            const panel = document.getElementById('produkOutletDropdownPanel');
+            if (panel && !panel.classList.contains('hidden')) closeProdukOutletDropdown();
+        }
+    });
+})();
+
+function loadProdukByOutlet(forceReload, silentRefresh) {
+    if (produkOutletLoading) return;
+    const needList53 = !Array.isArray(produkOutletProdukList) || produkOutletProdukList.length === 0;
+    const needRows = !!produkOutletSelected && (forceReload || !produkOutletRowsCache[produkOutletSelected]);
+    // Semua sudah tersedia di memori: cukup render ulang tanpa panggilan server.
+    if (!needList53 && !needRows) { renderProdukOutlet(); return; }
+    produkOutletLoading = true;
+    if (!silentRefresh) {
+        const wrap = document.getElementById('produkOutletTableWrap');
+        if (wrap && (!produkOutletSelected || needRows)) wrap.innerHTML = '<div class="p-6 text-center text-xs text-slate-400">Memuat data produk...</div>';
+        showLoading(true);
+    }
+    const salesArg = tagihanIsAdminScope() ? '' : String(currentUser || '').trim();
+    // Task 54: catat produk yang diminta saat request agar respons lama (produk lain)
+    // tidak menimpa cache maupun render produk yang sedang dipilih user.
+    const req = produkOutletSelected || '';
+    // Task 55: kirim semua nama produk anggota grup "Produk by" yang dipilih.
+    const reqGrp = req ? produkOutletFindGroup(req) : null;
+    const reqNames = req ? (reqGrp ? reqGrp.members.map(function(p) { return String(p.nama || '').trim(); }) : [req]) : '';
+    google.script.run.withSuccessHandler(function(res) {
+        produkOutletLoading = false;
+        if (!silentRefresh) showLoading(false);
+        if (!res || res.success === false) {
+            if (produkOutletSelected === req) {
+                const wrap = document.getElementById('produkOutletTableWrap');
+                if (wrap) wrap.innerHTML = '<div class="p-6 text-center text-xs text-red-500">Gagal memuat: ' + escapeHtml((res && res.message) || 'kesalahan tidak diketahui') + '</div>';
+            }
+            produkOutletSettleAntrean();
+            return;
+        }
+        if (Array.isArray(res.produkList) && res.produkList.length) {
+            produkOutletProdukList = res.produkList;
+            populateProdukOutletFilter();
+        }
+        if (req && Array.isArray(res.rows)) {
+            produkOutletRowsCache[req] = res.rows;
+        }
+        if (produkOutletSelected === req) renderProdukOutlet();
+        produkOutletSettleAntrean();
+    }).withFailureHandler(function(err) {
+        produkOutletLoading = false;
+        if (!silentRefresh) showLoading(false);
+        if (produkOutletSelected === req) {
+            const wrap = document.getElementById('produkOutletTableWrap');
+            if (wrap) wrap.innerHTML = '<div class="p-6 text-center text-xs text-red-500">Gagal memuat: ' + escapeHtml(err && err.message ? err.message : 'kesalahan jaringan') + '</div>';
+        }
+        produkOutletSettleAntrean();
+    }).getProdukByOutletData(reqNames, !!forceReload, salesArg, currentUsernameInput);
+}
+
+// Task 54: bila pilihan user berubah ketika request sebelumnya masih berjalan,
+// muat produk yang belum ter-cache setelah request selesai.
+function produkOutletSettleAntrean() {
+    if (produkOutletLoading) return;
+    if (produkOutletSelected && !produkOutletRowsCache[produkOutletSelected]) loadProdukByOutlet(false);
+}
+
+function produkOutletFormatVolume(dus, pcs) {
+    if (Number(dus) > 0) return (Math.round(Number(dus) * 10) / 10) + ' Dus';
+    return (Math.round(Number(pcs) * 10) / 10) + ' Pcs';
+}
+
+function renderProdukOutlet() {
+    const wrap = document.getElementById('produkOutletTableWrap');
+    const badge = document.getElementById('produkOutletCount');
+    if (!wrap) return;
+    if (!produkOutletSelected) {
+        if (badge) badge.textContent = '0 outlet';
+        wrap.innerHTML = '<div class="p-6 text-center text-xs text-slate-400">Pilih produk di filter untuk melihat daftar outlet yang pernah bertransaksi.</div>';
+        return;
+    }
+    const rows = produkOutletRowsCache[produkOutletSelected] || [];
+    // Task 54: satu baris per outlet (agregat volume); tanggal order tampil di modal detail.
+    const byOutlet = {};
+    const order = [];
+    let totalDus = 0, totalPcs = 0;
+    rows.forEach(function(r) {
+        const o = String(r.outlet || '').trim();
+        if (!o) return;
+        if (!byOutlet[o]) { byOutlet[o] = { dus: 0, pcs: 0, trx: [] }; order.push(o); }
+        byOutlet[o].dus += Number(r.dus) || 0;
+        byOutlet[o].pcs += Number(r.pcs) || 0;
+        byOutlet[o].trx.push(r);
+        totalDus += Number(r.dus) || 0; totalPcs += Number(r.pcs) || 0;
+    });
+    if (badge) badge.textContent = order.length + ' outlet - ' + rows.length + ' transaksi';
+    if (!order.length) {
+        wrap.innerHTML = '<div class="p-6 text-center text-xs text-slate-400">Tidak ada transaksi untuk produk <b>' + escapeHtml(produkOutletSelected) + '</b>.</div>';
+        return;
+    }
+    const body = order.map(function(o, i) {
+        const g = byOutlet[o];
+        return '<tr data-po-outlet="' + escapeHtml(o) + '" class="border-t border-slate-100 hover:bg-emerald-50/60 cursor-pointer transition" title="Klik untuk melihat detail transaksi">' +
+            '<td class="px-3 py-2.5 text-slate-400 text-center">' + (i + 1) + '</td>' +
+            '<td class="px-3 py-2.5 font-semibold text-slate-700">' + escapeHtml(o) + '</td>' +
+            '<td class="px-3 py-2.5 font-bold text-emerald-700 text-right whitespace-nowrap">' + escapeHtml(produkOutletFormatVolume(g.dus, g.pcs)) + '</td>' +
+        '</tr>';
+    }).join('');
+    const totalLabel = (totalDus > 0 ? (Math.round(totalDus * 10) / 10) + ' Dus' : '') + (totalDus > 0 && totalPcs > 0 ? ' / ' : '') + (totalPcs > 0 ? (Math.round(totalPcs * 10) / 10) + ' Pcs' : '');
+    wrap.innerHTML = '<table class="w-full text-xs min-w-[420px]">' +
+        '<thead><tr class="bg-emerald-50 text-emerald-800 uppercase tracking-wide text-[10px]">' +
+            '<th class="px-3 py-2.5 text-center w-10">No</th>' +
+            '<th class="px-3 py-2.5 text-left">Nama Outlet</th>' +
+            '<th class="px-3 py-2.5 text-right">Volume Order</th>' +
+        '</tr></thead><tbody>' + body +
+        '<tr class="border-t-2 border-emerald-200 bg-emerald-50/60 font-extrabold text-emerald-800">' +
+            '<td colspan="2" class="px-3 py-2.5 uppercase tracking-wide">Total</td>' +
+            '<td class="px-3 py-2.5 text-right whitespace-nowrap">' + escapeHtml(totalLabel || '0') + '</td>' +
+        '</tr></tbody></table>' +
+        '<div class="px-3 py-2 text-[10px] text-slate-400 bg-slate-50 border-t border-slate-100">Klik baris outlet untuk melihat rincian tanggal &amp; volume order.</div>';
+    const tb = wrap.querySelector('tbody');
+    if (tb) tb.addEventListener('click', function(ev) {
+        const tr = ev.target && ev.target.closest ? ev.target.closest('tr[data-po-outlet]') : null;
+        if (tr) openProdukOutletDetail(tr.getAttribute('data-po-outlet'));
+    });
+}
+
+function openProdukOutletDetail(outletName) {
+    const oName = String(outletName == null ? '' : outletName).trim();
+    if (!oName || !produkOutletSelected) return;
+    const rows = (produkOutletRowsCache[produkOutletSelected] || []).filter(function(r) {
+        return String(r.outlet || '').trim() === oName;
+    });
+    if (!rows.length) {
+        showModal('Detail Tidak Tersedia', 'Tidak ada transaksi untuk outlet ' + oName + ' pada ' + produkOutletSelected + '.');
+        return;
+    }
+    let tDus = 0, tPcs = 0;
+    const trHtml = rows.map(function(r, i) {
+        tDus += Number(r.dus) || 0; tPcs += Number(r.pcs) || 0;
+        return '<tr class="border-t border-slate-100">' +
+            '<td class="px-3 py-2.5 text-slate-400 text-center">' + (i + 1) + '</td>' +
+            '<td class="px-3 py-2.5 text-slate-700">' + escapeHtml(String(r.produk || '').trim() || '-') + '</td>' +
+            '<td class="px-3 py-2.5 text-slate-700">' + escapeHtml(tagihanFormatTanggalID(r.tanggal)) + '</td>' +
+            '<td class="px-3 py-2.5 font-bold text-emerald-700 text-right whitespace-nowrap">' + escapeHtml(produkOutletFormatVolume(r.dus, r.pcs)) + '</td>' +
+        '</tr>';
+    }).join('');
+    const totalLabel = (tDus > 0 ? (Math.round(tDus * 10) / 10) + ' Dus' : '') + (tDus > 0 && tPcs > 0 ? ' / ' : '') + (tPcs > 0 ? (Math.round(tPcs * 10) / 10) + ' Pcs' : '');
+    setDetailModalNoFooter();
+    const modal = document.getElementById('customModal');
+    if (!modal) return;
+    document.getElementById('modalTitle').textContent = 'Detail Transaksi Outlet';
+    document.getElementById('modalSubtitle').textContent = oName;
+    document.getElementById('modalCancelBtn').style.display = 'none';
+    document.getElementById('modalOkBtn').style.display = 'none';
+    modal.style.display = 'flex';
+    document.getElementById('modalBody').innerHTML =
+        '<div class="space-y-3 text-xs">' +
+            '<div>' +
+                '<div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 mb-1">Rincian Order - ' + escapeHtml(oName) + ' (' + rows.length + ' transaksi)</div>' +
+                '<div class="overflow-x-auto"><table class="w-full text-xs min-w-[420px]">' +
+                    '<thead><tr class="bg-emerald-50 text-emerald-800 uppercase tracking-wide text-[10px]">' +
+                        '<th class="px-3 py-2 text-center w-10">No</th>' +
+                        '<th class="px-3 py-2 text-left">Nama Produk</th>' +
+                        '<th class="px-3 py-2 text-left">Tanggal Order</th>' +
+                        '<th class="px-3 py-2 text-right">Volume Order</th>' +
+                    '</tr></thead><tbody>' + trHtml +
+                    '<tr class="border-t-2 border-emerald-200 bg-emerald-50/60 font-extrabold text-emerald-800">' +
+                        '<td colspan="3" class="px-3 py-2 uppercase tracking-wide">Total</td>' +
+                        '<td class="px-3 py-2 text-right whitespace-nowrap">' + escapeHtml(totalLabel || '0') + '</td>' +
+                    '</tr></tbody></table></div>' +
+            '</div>' +
+        '</div>';
 }
 
 function renderTagihanSummary() {
