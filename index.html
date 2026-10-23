@@ -3379,7 +3379,7 @@ body{background:
                 <button type="button" onclick="switchTab('tambahcustomer')" id="navTambahCustomer"
                         class="sidebar-item" title="Tambah Customer" aria-label="Tambah Customer">
                     <span class="sidebar-icon">👤</span>
-                    <span class="sidebar-text">Customer</span>
+                    <span class="sidebar-text">Tambah Customer</span>
                 </button>
                 <button type="button" onclick="switchTab('pesananoutlet')" id="navPesananOutlet"
                         class="sidebar-item" title="Pesanan Outlet" aria-label="Pesanan Outlet">
@@ -13310,10 +13310,14 @@ function renderProdukOutlet() {
     rows.forEach(function(r) {
         const o = String(r.outlet || '').trim();
         if (!o) return;
-        if (!byOutlet[o]) { byOutlet[o] = { dus: 0, pcs: 0, trx: [] }; order.push(o); }
+        if (!byOutlet[o]) { byOutlet[o] = { dus: 0, pcs: 0, trx: [], sales: {} }; order.push(o); }
         byOutlet[o].dus += Number(r.dus) || 0;
         byOutlet[o].pcs += Number(r.pcs) || 0;
         byOutlet[o].trx.push(r);
+        // Task 59: kumpulkan DSR/Sales unik per outlet (kolom pengganti No).
+        const skSales = String(r.sales || '').trim();
+        const skKey = skSales.toUpperCase();
+        if (skKey && !byOutlet[o].sales[skKey]) byOutlet[o].sales[skKey] = skSales;
         totalDus += Number(r.dus) || 0; totalPcs += Number(r.pcs) || 0;
     });
     if (badge) badge.textContent = order.length + ' outlet - ' + rows.length + ' transaksi';
@@ -13321,18 +13325,20 @@ function renderProdukOutlet() {
         wrap.innerHTML = '<div class="p-6 text-center text-xs text-slate-400">Tidak ada transaksi untuk produk <b>' + escapeHtml(produkOutletSelected) + '</b>.</div>';
         return;
     }
-    const body = order.map(function(o, i) {
+    const body = order.map(function(o) {
         const g = byOutlet[o];
+        // Task 59: kolom DSR/Sales menggantikan kolom No.
+        const salesTxt = Object.keys(g.sales).map(function(k) { return g.sales[k]; }).join(', ') || '-';
         return '<tr data-po-outlet="' + escapeHtml(o) + '" class="border-t border-slate-100 hover:bg-emerald-50/60 cursor-pointer transition" title="Klik untuk melihat detail transaksi">' +
-            '<td class="px-3 py-2.5 text-slate-400 text-center">' + (i + 1) + '</td>' +
+            '<td class="px-3 py-2.5 text-slate-600">' + escapeHtml(salesTxt) + '</td>' +
             '<td class="px-3 py-2.5 font-semibold text-slate-700">' + escapeHtml(o) + '</td>' +
             '<td class="px-3 py-2.5 font-bold text-emerald-700 text-right whitespace-nowrap">' + escapeHtml(produkOutletFormatVolume(g.dus, g.pcs)) + '</td>' +
         '</tr>';
     }).join('');
     const totalLabel = (totalDus > 0 ? (Math.round(totalDus * 10) / 10) + ' Dus' : '') + (totalDus > 0 && totalPcs > 0 ? ' / ' : '') + (totalPcs > 0 ? (Math.round(totalPcs * 10) / 10) + ' Pcs' : '');
-    wrap.innerHTML = '<table class="w-full text-xs min-w-[420px]">' +
+    wrap.innerHTML = '<table class="w-full text-xs min-w-[480px]">' +
         '<thead><tr class="bg-emerald-50 text-emerald-800 uppercase tracking-wide text-[10px]">' +
-            '<th class="px-3 py-2.5 text-center w-10">No</th>' +
+            '<th class="px-3 py-2.5 text-left">DSR/Sales</th>' +
             '<th class="px-3 py-2.5 text-left">Nama Outlet</th>' +
             '<th class="px-3 py-2.5 text-right">Volume Order</th>' +
         '</tr></thead><tbody>' + body +
@@ -13340,7 +13346,7 @@ function renderProdukOutlet() {
             '<td colspan="2" class="px-3 py-2.5 uppercase tracking-wide">Total</td>' +
             '<td class="px-3 py-2.5 text-right whitespace-nowrap">' + escapeHtml(totalLabel || '0') + '</td>' +
         '</tr></tbody></table>' +
-        '<div class="px-3 py-2 text-[10px] text-slate-400 bg-slate-50 border-t border-slate-100">Klik baris outlet untuk melihat rincian tanggal &amp; volume order.</div>';
+        '<div class="px-3 py-2 text-[10px] text-slate-400 bg-slate-50 border-t border-slate-100"></div>';
     const tb = wrap.querySelector('tbody');
     if (tb) tb.addEventListener('click', function(ev) {
         const tr = ev.target && ev.target.closest ? ev.target.closest('tr[data-po-outlet]') : null;
