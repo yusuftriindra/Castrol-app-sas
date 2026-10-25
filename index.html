@@ -8,7 +8,7 @@
   <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon">
   
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>Castrol</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -576,9 +576,8 @@
     .riwayat-card{padding:12px;border-radius:14px;}
     .riwayat-card-top{gap:8px;}
     .riwayat-card-outlet{font-size:12px;}
-    .riwayat-card-footer{align-items:flex-end;flex-direction:column;}
-    .riwayat-card-footer>div{width:100%;}
-    .riwayat-action{flex:1;}
+    /* Task 62: tombol aksi berukuran sama dengan desktop & tetap di kanan bawah
+       kartu (footer tidak lagi menjadi kolom, tombol tidak lagi diregangkan). */
 }
 
 /* ===== RIWAYAT TABLE ===== */
@@ -3183,6 +3182,63 @@ body{background:
 /* Sembunyikan menu dan halaman Pricelist tanpa menghapus sumber data/fungsi yang mungkin dipakai fitur lain. */
 #navPricelist, #tabPricelist { display: none !important; }
 </style>
+<style id="castrol-menu-submenu-distinct">
+/* Task 61: pembeda Menu induk vs Submenu — submenu menjorok dengan garis
+   vertikal hijau di kiri; menu induk (grup) diberi garis pemisah tipis di
+   bawahnya agar hierarki terlihat jelas. */
+.sidebar-submenu { border-left: 2px solid rgba(5,150,105,.28); margin-left: 16px; }
+.sidebar-group-menu::after { content: ''; position: absolute; left: 12px; right: 12px; bottom: -5px; height: 1px; background: rgba(15,23,42,.10); }
+.sidebar-group-menu .sidebar-text { letter-spacing: .02em; }
+</style>
+<style id="castrol-mobile-frame-fit-fix">
+/* Task 60 (lanjutan user: "masih terpotong, mungkin terpotong oleh frame") —
+   tabel ber-min-width besar di dalam wadah scroll-x terpotong di tepi kartu
+   (frame) tanpa indikasi bisa digeser; scrollbar di iOS tersembunyi. Solusi:
+   (1) halaman tidak boleh melebar dari layar; (2) select2 asli (tersembunyi)
+   kembali 1px agar kotak hantu tak memicu geser horizontal di halaman Input;
+   (3) di layar mobile tabel utama dibuat pas lebar kartu — teks kolom melipat
+   sehingga tidak ada kolom terpotong — dan tabel yang memang banyak kolom
+   tetap bisa digeser dengan scrollbar yang terlihat. Desktop tidak berubah. */
+html, body { max-width: 100%; overflow-x: hidden; }
+select.select2-hidden-accessible { width: 1px !important; max-width: 1px !important; min-width: 0 !important; }
+#tabInput select#inputOutlet.select2-hidden-accessible { width: 1px !important; max-width: 1px !important; }
+@media (max-width: 767px) {
+  /* Beranda — tabel outlet harian pas di kartu (padding ramping utk layar 320-360px) */
+  #tabHome .cst-outlet-table { min-width: 0 !important; }
+  #tabHome .cst-outlet-table th, #tabHome .cst-outlet-table td { white-space: normal !important; padding-left: 5px !important; padding-right: 5px !important; }
+  #tabHome .cst-outlet-table td.cst-td-nilai { white-space: nowrap !important; }
+  /* Produk by Outlet — tabel utama pas di kartu (desktop tetap min-w 480) */
+  #produkOutletTableWrap table { min-width: 0 !important; }
+  #produkOutletTableWrap th, #produkOutletTableWrap td { white-space: normal; }
+  #produkOutletTableWrap td.text-right { white-space: nowrap; }
+  /* Modal detail — tabel rincian pas di modal */
+  #modalBody table[class*="min-w-"] { min-width: 0 !important; }
+  #modalBody table[class*="min-w-"] th, #modalBody table[class*="min-w-"] td { white-space: normal; }
+  #modalBody table[class*="min-w-"] td.text-right { white-space: nowrap; }
+  /* Pencapaian — tabel bulanan pas di kartu (padding ramping di mobile) */
+  #tabPencapaian table[class*="min-w-"] { min-width: 0 !important; }
+  #tabPencapaian table[class*="min-w-"] th, #tabPencapaian table[class*="min-w-"] td { white-space: normal; padding-left: 6px !important; padding-right: 6px !important; }
+  /* Outlet (Monitoring) — bar judul+filter melipat agar tidak terpotong di tepi kartu */
+  #tabMonitoring > div:first-child { flex-wrap: wrap; row-gap: 8px; }
+  #tabMonitoring > div:first-child > div { flex-wrap: wrap; row-gap: 6px; }
+  /* Tabel banyak kolom tetap bisa digeser, dengan scrollbar yang terlihat */
+  .overflow-x-auto, .cst-table-scroll { scrollbar-width: thin; scrollbar-color: #9db4a6 #eef2ef; }
+  .overflow-x-auto::-webkit-scrollbar { height: 9px; }
+  .overflow-x-auto::-webkit-scrollbar-track { background: #eef2ef; border-radius: 9px; }
+  .overflow-x-auto::-webkit-scrollbar-thumb { background: #9db4a6; border-radius: 9px; }
+}
+</style>
+<style id="castrol-mobile-input-zoom-fix">
+/* Task 60-c: paksaan font-size 16px utk input/select/textarea di mobile DIHAPUS
+   (keluhan user: "ukuran font pada semua filter jadi membesar") — semua filter
+   & field kembali ke ukuran font sesuai desain. Anti auto-zoom iOS kini lewat
+   viewport maximum-scale=1.0 di <head> (auto-zoom saat fokus terblokir;
+   pinch zoom iOS >= 10 tetap berfungsi). */
+/* Task 60: pengaman panel dropdown Produk by Outlet — tidak pernah melebihi lebar
+   viewport; daftar opsi tanpa scroll horizontal. */
+#produkOutletDropdownPanel { max-width: calc(100vw - 24px); }
+.po-outlet-options { overflow-x: hidden; }
+</style>
 </head>
 <body class="bg-slate-50 font-sans">
 
@@ -3308,28 +3364,41 @@ body{background:
                     <span class="sidebar-text">Beranda</span>
                 </button>
 
-                <button type="button" onclick="switchTab('input')" id="navInput"
-                        class="sidebar-item sidebar-item-active" title="Input Order" aria-label="Input Order">
-                    <span class="sidebar-icon">🛒</span>
-                    <span class="sidebar-text">Input Order</span>
-                </button>
-<button type="button" onclick="switchTab('riwayat')" id="navRiwayat"
-                        class="sidebar-item" title="Riwayat Transaksi" aria-label="Riwayat Transaksi">
-                    <span class="sidebar-icon">📊</span>
-                    <span class="sidebar-text">Riwayat Order</span>
+                <button type="button" onclick="toggleSidebarGroup('submenuPemesanan', this.id)" id="navPemesananGroup"
+                        class="sidebar-item sidebar-group-menu" title="Pemesanan &amp; Riwayat" aria-label="Pemesanan &amp; Riwayat" aria-expanded="false" aria-controls="submenuPemesanan"
+                        style="display:flex !important; visibility:visible !important;">
+                    <span class="sidebar-icon">🗂️</span>
+                    <span class="sidebar-text">Pemesanan &amp; Riwayat</span>
+                    <svg class="sidebar-caret" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                 </button>
 
-                <button type="button" onclick="switchTab('tagihan')" id="navTagihan"
-                        class="sidebar-item" title="Tagihan" aria-label="Tagihan">
-                    <span class="sidebar-icon">🧾</span>
-                    <span class="sidebar-text">Tagihan</span>
-                </button>
-
-                <button type="button" onclick="switchTab('approval')" id="navApproval"
-                        class="sidebar-item hidden" title="Approval Status Order" aria-label="Approval Status Order">
-                    <span class="sidebar-icon">✅</span>
-                    <span class="sidebar-text">Approval</span>
-                </button>
+                <div id="submenuPemesanan" class="sidebar-submenu" role="menu" aria-label="Submenu Pemesanan dan Riwayat">
+                    <button type="button" role="menuitem" onclick="switchTab('input')" id="navInput"
+                            class="sidebar-item sidebar-submenu-item" title="Input Order" aria-label="Input Order">
+                        <span class="sidebar-icon">🛒</span>
+                        <span class="sidebar-text">Input Order</span>
+                    </button>
+                    <button type="button" role="menuitem" onclick="switchTab('riwayat')" id="navRiwayat"
+                            class="sidebar-item sidebar-submenu-item" title="Riwayat Order" aria-label="Riwayat Order">
+                        <span class="sidebar-icon">📊</span>
+                        <span class="sidebar-text">Riwayat Order</span>
+                    </button>
+                    <button type="button" role="menuitem" onclick="switchTab('tagihan')" id="navTagihan"
+                            class="sidebar-item sidebar-submenu-item" title="Tagihan" aria-label="Tagihan">
+                        <span class="sidebar-icon">🧾</span>
+                        <span class="sidebar-text">Tagihan</span>
+                    </button>
+                    <button type="button" role="menuitem" onclick="switchTab('pesananoutlet')" id="navPesananOutlet"
+                            class="sidebar-item sidebar-submenu-item" title="Pesanan Outlet" aria-label="Pesanan Outlet">
+                        <span class="sidebar-icon">📦</span>
+                        <span class="sidebar-text">Pesanan Outlet</span>
+                    </button>
+                    <button type="button" role="menuitem" onclick="switchTab('approval')" id="navApproval"
+                            class="sidebar-item sidebar-submenu-item hidden" title="Approval Status Order" aria-label="Approval Status Order">
+                        <span class="sidebar-icon">✅</span>
+                        <span class="sidebar-text">Approval</span>
+                    </button>
+                </div>
 
                 <button type="button" onclick="togglePencapaianSubmenu()" id="navPencapaianGroup"
                         class="sidebar-item sidebar-group-menu" title="Pencapaian" aria-label="Pencapaian" aria-expanded="false" aria-controls="submenuPencapaian"
@@ -3339,66 +3408,65 @@ body{background:
                     <svg class="sidebar-caret" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                 </button>
 
-                <div id="submenuPencapaian" class="sidebar-submenu" role="menu" aria-label="Submenu Pencapaian">
+<div id="submenuPencapaian" class="sidebar-submenu" role="menu" aria-label="Submenu Pencapaian">
                     <button type="button" role="menuitem" onclick="switchTab('monitoring')" id="navMonitoring"
                             class="sidebar-item sidebar-submenu-item" title="Monitoring Outlet" aria-label="Monitoring Outlet">
                         <span class="sidebar-icon">📈</span>
                         <span class="sidebar-text">Outlet</span>
                     </button>
                     <button type="button" role="menuitem" onclick="switchTab('pencapaian')" id="navPencapaian"
-                            class="sidebar-item sidebar-submenu-item sidebar-pencapaian-menu" title="Pencapaian Sales" aria-label="Pencapaian Sales"
-                            style="display:flex !important; visibility:visible !important;">
+                            class="sidebar-item sidebar-submenu-item sidebar-pencapaian-menu" title="Pencapaian Sales" aria-label="Pencapaian Sales">
                         <span class="sidebar-icon">🏆</span>
                         <span class="sidebar-text">Sales</span>
                     </button>
+                    <button type="button" role="menuitem" onclick="switchTab('outletkontrak')" id="navOutletKontrak"
+                            class="sidebar-item sidebar-submenu-item" title="Outlet Kontrak" aria-label="Outlet Kontrak">
+                        <span class="sidebar-icon">📋</span>
+                        <span class="sidebar-text">Outlet Kontrak</span>
+                    </button>
+                    <button type="button" role="menuitem" onclick="switchTab('outletbws')" id="navOutletBWS"
+                            class="sidebar-item sidebar-submenu-item hidden" title="Kelola Outlet BWS" aria-label="Kelola Outlet BWS">
+                        <span class="sidebar-icon">🏪</span>
+                        <span class="sidebar-text">Edit Outlet BWS</span>
+                    </button>
+                    <button type="button" role="menuitem" onclick="switchTab('pricelist')" id="navPricelist"
+                            class="sidebar-item sidebar-submenu-item" title="Pricelist" aria-label="Pricelist">
+                        <span class="sidebar-icon">💰</span>
+                        <span class="sidebar-text">Pricelist</span>
+                    </button>
                 </div>
 
-                <button type="button" onclick="switchTab('outletkontrak')" id="navOutletKontrak"
-                        class="sidebar-item" title="Outlet Kontrak" aria-label="Outlet Kontrak">
-                    <span class="sidebar-icon">📋</span>
-                    <span class="sidebar-text">Outlet Kontrak</span>
-                </button>
-
-                <button type="button" onclick="switchTab('outletbws')" id="navOutletBWS"
-                        class="sidebar-item hidden" title="Kelola Outlet BWS" aria-label="Kelola Outlet BWS">
-                    <span class="sidebar-icon">🏪</span>
-                    <span class="sidebar-text">Outlet BWS</span>
-                </button>
-
-                <button type="button" onclick="switchTab('pricelist')" id="navPricelist"
-                        class="sidebar-item" title="Pricelist" aria-label="Pricelist">
-                    <span class="sidebar-icon">💰</span>
-                    <span class="sidebar-text">Pricelist</span>
-                </button>
-                <button type="button" onclick="switchTab('harganett')" id="navHargaNett"
-                        class="sidebar-item" title="Harga Nett" aria-label="Harga Nett">
-                    <span class="sidebar-icon">🏷️</span>
-                    <span class="sidebar-text">Harga Nett</span>
-                </button>
-
                 <button type="button" onclick="switchTab('tambahcustomer')" id="navTambahCustomer"
-                        class="sidebar-item" title="Tambah Customer" aria-label="Tambah Customer">
+                        class="sidebar-item" title="Customer" aria-label="Customer">
                     <span class="sidebar-icon">👤</span>
-                    <span class="sidebar-text">Tambah Customer</span>
-                </button>
-                <button type="button" onclick="switchTab('pesananoutlet')" id="navPesananOutlet"
-                        class="sidebar-item" title="Pesanan Outlet" aria-label="Pesanan Outlet">
-                    <span class="sidebar-icon">📦</span>
-                    <span class="sidebar-text">Pesanan Outlet</span>
+                    <span class="sidebar-text">Customer</span>
                 </button>
 
-                <button type="button" onclick="switchTab('produkbyoutlet')" id="navProdukOutlet"
-                        class="sidebar-item" title="Produk by Outlet" aria-label="Produk by Outlet">
-                    <span class="sidebar-icon">🧴</span>
-                    <span class="sidebar-text">Produk by Outlet</span>
+                <button type="button" onclick="toggleSidebarGroup('submenuLainnya', this.id)" id="navLainnyaGroup"
+                        class="sidebar-item sidebar-group-menu" title="Lainnya" aria-label="Lainnya" aria-expanded="false" aria-controls="submenuLainnya"
+                        style="display:flex !important; visibility:visible !important;">
+                    <span class="sidebar-icon">🧩</span>
+                    <span class="sidebar-text">Lainnya</span>
+                    <svg class="sidebar-caret" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                 </button>
 
-
-                <button type="button" onclick="switchTab('pengumumanadmin')" id="navPengumumanAdmin"
-                        class="sidebar-item hidden" title="Buat Pengumuman" aria-label="Buat Pengumuman">
-                    <span class="sidebar-icon">📣</span>
-                    <span class="sidebar-text">Buat Pengumuman</span>
-                </button>
+                <div id="submenuLainnya" class="sidebar-submenu" role="menu" aria-label="Submenu Lainnya">
+                    <button type="button" role="menuitem" onclick="switchTab('harganett')" id="navHargaNett"
+                            class="sidebar-item sidebar-submenu-item" title="Harga Nett" aria-label="Harga Nett">
+                        <span class="sidebar-icon">🏷️</span>
+                        <span class="sidebar-text">Harga Nett</span>
+                    </button>
+                    <button type="button" role="menuitem" onclick="switchTab('produkbyoutlet')" id="navProdukOutlet"
+                            class="sidebar-item sidebar-submenu-item" title="Produk by Outlet" aria-label="Produk by Outlet">
+                        <span class="sidebar-icon">🧴</span>
+                        <span class="sidebar-text">Produk by Outlet</span>
+                    </button>
+                    <button type="button" role="menuitem" onclick="switchTab('pengumumanadmin')" id="navPengumumanAdmin"
+                            class="sidebar-item sidebar-submenu-item hidden" title="Buat Pengumuman" aria-label="Buat Pengumuman">
+                        <span class="sidebar-icon">📣</span>
+                        <span class="sidebar-text">Buat Pengumuman</span>
+                    </button>
+                </div>
 
                 <div class="sidebar-spacer"></div>
 
@@ -3786,7 +3854,7 @@ body{background:
                             <h2 class="text-base font-bold text-slate-800">Approval Order</h2>
                             <span id="approvalCount" class="text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">0 transaksi</span>
                         </div>
-                        <p class="text-[9px] text-slate-400">Pilih status per transaksi Outlet lalu klik DONE — perubahan tersimpan langsung di server.</p>
+                        <p class="text-[9px] text-slate-400">Pilih status per transaksi Outlet (Approve / Decline / Pending) — perubahan tersimpan langsung di server.</p>
                     </div>
 
                     <div class="flex items-center justify-end gap-1.5 mb-1" role="group" aria-label="Tampilan Approval">
@@ -3870,7 +3938,6 @@ body{background:
                                 <div id="produkOutletOptions" class="max-h-64 overflow-y-auto po-outlet-options"></div>
                             </div>
                         </div>
-                        <p class="text-[10px] text-slate-400 mt-1.5"></p>
                     </div>
 
                     <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
@@ -6071,6 +6138,86 @@ startAutoRefresh();
             container.innerHTML = html;
         }
 
+        // ===== Task 61: Pencapaian Kontrak pada Detail Outlet (hanya channel BWS) =====
+        let monitoringKontrakFetchedFor = '';
+        function monitoringKontrakRows(data) {
+            // Task 62: cocokkan berdasarkan CUST.CODE saja (bukan nama outlet) —
+            // jika outlet tidak ada di Outlet Kontrak, detail tampil seperti
+            // biasa (seksi Pencapaian Kontrak tidak dirender).
+            const src = Array.isArray(globalOutletKontrakData) ? globalOutletKontrakData : [];
+            const custKey = String(data.custCode || '').trim().toLowerCase();
+            if (!custKey) return [];
+            return src.filter(function(x) {
+                return String(x.custCode || '').trim().toLowerCase() === custKey;
+            });
+        }
+        function monitoringKontrakHtml(data) {
+            const rows = monitoringKontrakRows(data).filter(function(x) {
+                return String(x.channel || '').trim().toUpperCase() === 'BWS';
+            });
+            if (!rows.length) return '';
+            const blocks = rows.map(function(item) {
+                const pct = Number(item.percentage) || 0;
+                const gap = Number(item.gap) || 0;
+                const pctBar = pct >= 100 ? 'bg-emerald-600' : (pct >= 80 ? 'bg-amber-500' : 'bg-red-500');
+                let trip = '';
+                if (item.pointByCategory && item.pointByCategory.length > 0) {
+                    const trows = item.pointByCategory.map(function(row, idx) {
+                        const divText = row.divisor === 9.6 ? '/ 9,6' : (row.divisor === 12 ? '/ 12' : '-');
+                        return '<tr class="' + (idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/40') + ' border-b border-slate-100">' +
+                            '<td class="p-2 font-medium text-slate-700">' + escapeHtml(row.kategori) + '</td>' +
+                            '<td class="p-2 text-right text-slate-600">' + formatNumberID(row.volume, 1) + '</td>' +
+                            '<td class="p-2 text-right text-slate-600">' + formatNumberID(row.karton, 2) + ' <span class="text-[8px] text-slate-400">' + divText + '</span></td>' +
+                            '<td class="p-2 text-right font-bold text-indigo-700">' + formatNumberID(row.point, 2) + '</td></tr>';
+                    }).join('');
+                    trip = '<div class="mt-2 border border-slate-200 rounded-xl overflow-hidden">' +
+                        '<div class="px-3 py-2 bg-slate-50 border-b border-slate-200 text-[10px] font-bold text-slate-700">Point Trip Tahun Berjalan</div>' +
+                        '<div class="overflow-x-auto"><table class="w-full text-[10px]"><thead><tr class="bg-white border-b border-slate-200 text-slate-500">' +
+                        '<th class="p-2 text-left font-bold">Kategori</th><th class="p-2 text-right font-bold">Volume</th><th class="p-2 text-right font-bold">Karton</th><th class="p-2 text-right font-bold">Point</th>' +
+                        '</tr></thead><tbody>' + trows + '</tbody></table></div></div>';
+                }
+                return '<div class="mt-2 rounded-xl border border-slate-200 overflow-hidden">' +
+                    '<div class="px-3 py-2 bg-gradient-to-r from-slate-900 to-emerald-900 text-white">' +
+                    '<div class="text-[9px] uppercase tracking-wider text-emerald-300 font-bold">Periode Kontrak</div>' +
+                    '<div class="text-[11px] font-bold mt-0.5">' + escapeHtml(String(item.start || '-')) + ' s/d ' + escapeHtml(String(item.end || '-')) + '</div>' +
+                    '</div>' +
+                    '<div class="p-2.5">' +
+                    '<div class="grid grid-cols-4 gap-2">' +
+                    '<div class="rounded-lg border border-slate-200 p-2 bg-white"><div class="text-[8px] text-slate-400">Target</div><div class="text-[11px] font-bold text-slate-800">' + formatNumberID(item.target, 1) + '</div></div>' +
+                    '<div class="rounded-lg border border-emerald-200 p-2 bg-emerald-50"><div class="text-[8px] text-emerald-600">Actual</div><div class="text-[11px] font-bold text-emerald-800">' + formatNumberID(item.actual, 1) + '</div></div>' +
+                    '<div class="rounded-lg border border-slate-200 p-2 bg-white"><div class="text-[8px] text-slate-400">Gap</div><div class="text-[11px] font-bold ' + (gap <= 0 ? 'text-emerald-700' : 'text-red-600') + '">' + formatNumberID(gap, 1) + '</div></div>' +
+                    '<div class="rounded-lg border border-indigo-200 p-2 bg-indigo-50"><div class="text-[8px] text-indigo-600">Point</div><div class="text-[11px] font-bold text-indigo-800">' + formatNumberID(item.totalPoint, 2) + '</div></div>' +
+                    '</div>' +
+                    '<div class="mt-2"><div class="flex justify-between items-center mb-1"><span class="text-[9px] font-bold text-slate-500">Pencapaian Volume Kontrak</span><span class="text-[9px] font-bold text-slate-700">' + formatPercentID(pct) + '</span></div>' +
+                    '<div class="h-2 rounded-full bg-slate-100 overflow-hidden"><div class="h-full rounded-full ' + pctBar + '" style="width:' + Math.min(Math.max(pct, 0), 100) + '%"></div></div></div>' +
+                    trip +
+                    '</div></div>';
+            }).join('');
+            return '<div class="mt-3 rounded-xl border border-slate-200 bg-white p-3" id="monitoringDetailKontrakWrap">' +
+                '<div class="text-[10px] font-extrabold text-slate-700">Pencapaian Kontrak</div>' + blocks + '</div>';
+        }
+        function monitoringKontrakEnsure(data) {
+            if (monitoringKontrakRows(data).length) return;
+            const userKey = String(currentUsernameInput || '').trim();
+            if (monitoringKontrakFetchedFor === userKey) return;
+            monitoringKontrakFetchedFor = userKey;
+            try {
+                google.script.run
+                    .withSuccessHandler(function(res) {
+                        if (!res || !res.success) return;
+                        globalOutletKontrakData = res.data || [];
+                        const modalBody = document.getElementById('modalBody');
+                        if (!modalBody || modalBody.textContent.indexOf('Pencapaian Bulanan') === -1) return;
+                        const hist = document.getElementById('monitoringDetailHistoryChart');
+                        if (!hist || document.getElementById('monitoringDetailKontrakWrap')) return;
+                        const html = monitoringKontrakHtml(data);
+                        if (html) hist.insertAdjacentHTML('beforebegin', html);
+                    })
+                    .withFailureHandler(function() {})
+                    .getOutletKontrakData_BWS(currentUser || 'Admin', currentUsernameInput || 'admin');
+            } catch (eAny) {}
+        }
+
         function tampilkanDetailMonitoring(encodedData) {
             setDetailModalNoFooter();
             let data = JSON.parse(decodeURIComponent(encodedData));
@@ -6114,29 +6261,12 @@ startAutoRefresh();
             '</tr>';
 
             document.getElementById('modalBody').innerHTML = `
-                <div class="modal-detail-summary">
-                    <div class="modal-stat-card">
-                        <div class="modal-stat-label">Target</div>
-                        <div class="modal-stat-value">${initialTarget.toFixed(1)} dus</div>
-                    </div>
-                    <div class="modal-stat-card">
-                        <div class="modal-stat-label">Actual</div>
-                        <div class="modal-stat-value is-main">${initialActual.toFixed(1)} dus</div>
-                    </div>
-                    <div class="modal-stat-card">
-                        <div class="modal-stat-label">Gap</div>
-                        <div class="modal-stat-value">${initialGap.toFixed(1)} dus</div>
-                    </div>
-                    <div class="modal-stat-card">
-                        <div class="modal-stat-label">Ach.</div>
-                        <div class="modal-stat-value">${initialTarget > 0 ? initialAch.toFixed(1) + '%' : '-'}</div>
-                    </div>
-                </div>
                 <div class="mt-3 rounded-xl border border-slate-200 bg-white p-3">
                     <div class="text-[10px] font-extrabold text-slate-700">Pencapaian Bulanan — ${data.quarter || '-'}</div>
                     <div class="overflow-x-auto mt-2"><table class="w-full text-[10px]"><thead><tr class="text-slate-400"><th class="p-1.5 text-left font-bold">Bulan</th><th class="p-1.5 text-right font-bold">Target</th><th class="p-1.5 text-right font-bold">Actual</th><th class="p-1.5 text-right font-bold">Gap</th><th class="p-1.5 text-right font-bold">Ach%</th></tr></thead><tbody>${pencapaianRows}</tbody></table></div>
                     <div class="text-[8.5px] text-slate-400 mt-1.5">Target bulanan = target kuartal dibagi rata 3 bulan (dus).</div>
                 </div>
+                ${monitoringKontrakHtml(data)}
                 <div id="monitoringDetailHistoryChart" class="mt-3 rounded-xl border border-slate-200 bg-white p-3">
                     <div class="text-[10px] font-extrabold text-slate-700">History Pengambilan</div>
                     <div class="text-[9px] text-slate-400 mt-1">Memuat...</div>
@@ -6151,6 +6281,7 @@ startAutoRefresh();
 
             // Tampilkan chart History Pengambilan saja; tooltip chart tidak diubah.
             loadMonitoringHistoryChart(data);
+            monitoringKontrakEnsure(data);
         }
 
 
@@ -6582,7 +6713,7 @@ startAutoRefresh();
             body.innerHTML='<div class="modal-detail-headline"><div><div class="text-[9px] font-bold uppercase tracking-wider text-slate-400">Rincian Produk Terbeli</div><div class="text-[13px] font-extrabold text-slate-800 mt-0.5">'+detail.length+' item</div></div><div class="modal-id-chip">'+escapeHtml(targetId)+'</div></div>'+
               '<div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-3"><div class="rounded-xl border border-slate-200 bg-slate-50 p-3"><div class="text-[9px] font-bold uppercase tracking-wider text-slate-400">Nama Outlet</div><div class="text-[12px] font-extrabold text-slate-800 mt-1 break-words">'+escapeHtml(order.outlet||'-')+'</div></div><div class="rounded-xl border border-slate-200 bg-slate-50 p-3"><div class="text-[9px] font-bold uppercase tracking-wider text-slate-400">Volume</div><div class="text-[12px] font-extrabold text-slate-800 mt-1">'+Number(order.volume||0).toLocaleString('id-ID',{maximumFractionDigits:1})+' L</div></div></div>'+
               '<div class="mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">Produk dari DAMEN kolom M</div><div class="modal-table-wrap"><table class="modal-detail-table"><thead><tr><th style="width:48px;text-align:center;">No</th><th>Rincian Produk</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
-              (canChangeStatus?'<div class="mt-4 pt-3 border-t border-slate-200"><div class="text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Status Transaksi (Admin)</div><div class="flex flex-wrap items-center gap-2"><select id="detailStatusSelect" class="border border-slate-300 rounded-lg px-2.5 py-2 text-[11px] font-extrabold bg-white text-slate-800" data-order-id="'+escapeHtml(targetId)+'" data-current-status="'+escapeHtml(String(order.status||'').toUpperCase())+'"><option value="">'+escapeHtml(String(order.status||'PENDING').toUpperCase())+' / TIDAK DIUBAH</option><option value="APPROVE">APPROVE</option><option value="DECLINE">DECLINE</option></select><button type="button" onclick="simpanStatusDetail(\''+escapeHtml(targetId)+'\')" class="cst-act-wa py-2 px-4 rounded-xl text-[10px] font-extrabold" title="Simpan Status">Simpan Status</button></div></div>':'')+
+              (canChangeStatus?'<div class="mt-4 pt-3 border-t border-slate-200"><div class="text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Status Transaksi (Admin)</div><div class="flex flex-wrap items-center gap-2"><select id="detailStatusSelect" class="border border-slate-300 rounded-lg px-2.5 py-2 text-[11px] font-extrabold bg-white text-slate-800" data-order-id="'+escapeHtml(targetId)+'" data-current-status="'+escapeHtml(String(order.status||'').toUpperCase())+'"><option value="">'+escapeHtml(String(order.status||'PENDING').toUpperCase())+' / TIDAK DIUBAH</option><option value="APPROVE">APPROVE</option><option value="DECLINE">DECLINE</option><option value="PENDING">PENDING</option></select><button type="button" onclick="simpanStatusDetail(\''+escapeHtml(targetId)+'\')" class="cst-act-wa py-2 px-4 rounded-xl text-[10px] font-extrabold" title="Simpan Status">Simpan Status</button></div></div>':'')+
               '<div class="flex flex-wrap justify-end gap-2 mt-4 pt-3 border-t border-slate-200"><button type="button" onclick="editRiwayat(\''+escapeHtml(targetId)+'\')" class="cst-act-silver py-2 px-4 rounded-xl text-[10px] font-extrabold" title="Edit"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19.5 8.5a2.12 2.12 0 0 0-3-3L5 17v3Z"/><path d="M13.5 6.5l3 3"/></svg></button><button type="button" onclick="kirimUlangWA(\''+escapeHtml(targetId)+'\')" class="cst-act-wa py-2 px-4 rounded-xl text-[10px] font-extrabold" title="Kirim WhatsApp"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg></button><button type="button" onclick="hapusRiwayat(\''+escapeHtml(targetId)+'\')" class="cst-act-silver py-2 px-4 rounded-xl text-[10px] font-extrabold" title="Hapus"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V5h6v2"/><path d="M6.5 7l1 13h9l1-13"/><path d="M10 11v6M14 11v6"/></svg></button></div>';
         }
 
@@ -6602,7 +6733,7 @@ startAutoRefresh();
             const newStatus = String(sel.value || '').trim().toUpperCase();
             const oldStatus = String(sel.dataset.currentStatus || '').trim().toUpperCase();
             if (!newStatus) {
-                showModal('Tidak Ada Perubahan', 'Silakan pilih APPROVE atau DECLINE terlebih dahulu.');
+                showModal('Tidak Ada Perubahan', 'Silakan pilih APPROVE, DECLINE, atau PENDING terlebih dahulu.');
                 return;
             }
             if (newStatus === oldStatus) {
@@ -10148,9 +10279,11 @@ startAutoRefresh();
         }
 
         // Task 52: submenu Pencapaian — buka/tutup grup menu (Monitoring + Pencapaian Sales).
-        function setPencapaianSubmenu(open) {
-            const wrap = document.getElementById('submenuPencapaian');
-            const group = document.getElementById('navPencapaianGroup');
+        // Task 61: mekanisme submenu generik untuk semua grup menu sidebar.
+        function setSidebarGroupOpen(groupId, open) {
+            const group = document.getElementById(groupId);
+            const wrapId = group ? String(group.getAttribute('aria-controls') || '') : '';
+            const wrap = wrapId ? document.getElementById(wrapId) : null;
             if (wrap) wrap.classList.toggle('sidebar-submenu-open', !!open);
             if (group) {
                 group.classList.toggle('sidebar-group-open', !!open);
@@ -10158,12 +10291,29 @@ startAutoRefresh();
             }
         }
 
-        function togglePencapaianSubmenu() {
-            const wrap = document.getElementById('submenuPencapaian');
-            setPencapaianSubmenu(!(wrap && wrap.classList.contains('sidebar-submenu-open')));
+        function toggleSidebarGroup(wrapId, groupId) {
+            const wrap = document.getElementById(wrapId);
+            setSidebarGroupOpen(groupId, !(wrap && wrap.classList.contains('sidebar-submenu-open')));
         }
 
+        // Task 52 (dipertahankan): grup Pencapaian — pintasan ke fungsi generik.
+        function setPencapaianSubmenu(open) { setSidebarGroupOpen('navPencapaianGroup', open); }
+
+        function togglePencapaianSubmenu() {
+            const wrap = document.getElementById('submenuPencapaian');
+            setSidebarGroupOpen('navPencapaianGroup', !(wrap && wrap.classList.contains('sidebar-submenu-open')));
+        }
+
+        // Task 61: item nav yang berada di dalam submenu (kelas submenu wajib dipertahankan).
+        const SIDEBAR_SUBMENU_NAVS = {input:true,riwayat:true,tagihan:true,pesananoutlet:true,approval:true,pencapaian:true,monitoring:true,outletkontrak:true,outletbws:true,harganett:true,produkbyoutlet:true,pengumumanadmin:true};
+
+        // Task 62: dukungan tombol kembali browser / nav mobile — tiap perpindahan
+        // tab dicatat ke history; tombol kembali membuka tab sebelumnya (bukan
+        // keluar dari aplikasi). try/catch utk iframe sandbox Apps Script.
+        var __castrolTabFromPop = false;
+
         function switchTab(tab) {
+            const __castrolFromPop = __castrolTabFromPop; __castrolTabFromPop = false;
             const isAdminLogin = String(currentUsernameInput || '').trim().toLowerCase() === 'admin';
             if (tab === 'pengumumanadmin' && !isAdminLogin) { applyRoleVisibility(); return; }
             // Task 43: Approval hanya untuk admin / akun tanpa nama sales.
@@ -10186,13 +10336,13 @@ startAutoRefresh();
             Object.keys(navMap).forEach(function(key){
                 const el=document.getElementById(navMap[key]);
                 if(!el) return;
-                // Menu khusus Admin tidak boleh muncul untuk user non-admin.
+                // Menu khusus Admin tidak boleh muncul untuk user non-admin (kelas submenu dipertahankan).
                 if((key==='outletbws' || key==='pengumumanadmin') && !isAdminLogin){
-                    el.className='sidebar-item hidden';
+                    el.classList.add('hidden'); el.classList.remove('sidebar-item-active');
                 }else if(key==='approval' && !canApprovalMenu){
-                    el.className='sidebar-item hidden';
-                }else if(key==='pencapaian' || key==='monitoring'){
-                    // Task 52: item submenu Pencapaian — kelas submenu dipertahankan, cukup toggle aktif.
+                    el.classList.add('hidden'); el.classList.remove('sidebar-item-active');
+                }else if(SIDEBAR_SUBMENU_NAVS[key]){
+                    // Task 61: item submenu (semua grup) — kelas submenu dipertahankan, cukup toggle aktif.
                     el.classList.toggle('sidebar-item-active', key===tab);
                 }else{
                     el.className=key===tab?'sidebar-item sidebar-item-active':'sidebar-item';
@@ -10206,12 +10356,18 @@ startAutoRefresh();
                     if(adminNav){ adminNav.classList.add('hidden'); adminNav.classList.remove('sidebar-item-active'); }
                 });
             }
-            // Task 52: induk submenu Pencapaian ikut aktif & submenu terbuka saat Monitoring/Pencapaian Sales dipilih.
-            const grpNav52 = document.getElementById('navPencapaianGroup');
-            if (grpNav52) {
-                grpNav52.classList.toggle('sidebar-item-active', tab==='pencapaian' || tab==='monitoring');
-            }
-            if(tab==='pencapaian' || tab==='monitoring') setPencapaianSubmenu(true);
+            // Task 61: grup induk ikut aktif & submenu terbuka otomatis sesuai tab yang dipilih.
+            const SIDEBAR_GROUP_MAP = {
+                navPemesananGroup: ['input','riwayat','tagihan','pesananoutlet','approval'],
+                navPencapaianGroup: ['pencapaian','monitoring','outletkontrak','outletbws'],
+                navLainnyaGroup: ['harganett','produkbyoutlet','pengumumanadmin']
+            };
+            Object.keys(SIDEBAR_GROUP_MAP).forEach(function(gid){
+                const gEl = document.getElementById(gid);
+                const isActive = SIDEBAR_GROUP_MAP[gid].indexOf(tab) !== -1;
+                if (gEl) gEl.classList.toggle('sidebar-item-active', isActive);
+                if (isActive) setSidebarGroupOpen(gid, true);
+            });
             if(window.matchMedia&&window.matchMedia('(max-width:1023px)').matches){setSidebarState(true);}
 if(tab==='home'){loadHomeRebuild();startHomeRebuildAuto();}
 if(tab==='riwayat')loadRiwayat(false, true);
@@ -10228,7 +10384,19 @@ if(tab==='tagihan')loadTagihan(false, true);
             // Task 53: halaman Produk by Outlet.
             if(tab==='produkbyoutlet')loadProdukByOutlet(false);
             if(tab==='pengumumanadmin')loadPengumumanAdmin();
+            // Task 62: catat tab ke history agar tombol kembali browser membuka tab sebelumnya.
+            try { if (!__castrolFromPop && window.history && typeof history.pushState === 'function') { history.pushState({ castrolTab: tab }, '', location.href); } } catch (eCastrolHist) {}
         }
+
+        // Task 62: tombol kembali (browser / nav mobile) -> kembali ke tab sebelumnya.
+        try {
+            window.addEventListener('popstate', function(ev) {
+                const st = (ev && ev.state && ev.state.castrolTab) ? String(ev.state.castrolTab) : 'home';
+                __castrolTabFromPop = true;
+                switchTab(st);
+            });
+        } catch (eCastrolPop) {}
+        try { if (window.history && typeof history.replaceState === 'function') { history.replaceState({ castrolTab: 'home' }, '', location.href); } } catch (eCastrolRep) {}
 
         function setSidebarState(collapsed) {
             const app = document.getElementById('app');
@@ -12514,10 +12682,22 @@ function renderRiwayatCards(data) {
 
 </script>
 
+<style id="castrol-approval-status-btn">
+/* Task 62/63: tombol APPROVE/DECLINE/PENDING halaman Approval — gaya dasar
+   .tg-btn dari CSS Tagihan; APPROVE aktif = hijau, DECLINE aktif = merah,
+   PENDING aktif = kuning (amber). */
+.tg-btn-approve.is-active{background:#059669;border-color:#047857;color:#fff;box-shadow:0 2px 0 #047857,0 3px 4px rgba(4,120,87,.25);}
+.tg-btn-decline.is-active{background:#dc2626;border-color:#b91c1c;color:#fff;box-shadow:0 2px 0 #b91c1c,0 3px 4px rgba(185,28,28,.25);}
+.tg-btn-pending.is-active{background:#d97706;border-color:#b45309;color:#fff;box-shadow:0 2px 0 #b45309,0 3px 4px rgba(180,83,9,.25);}
+/* Task 63: 3 tombol status (Approve/Decline/Pending) tidak boleh memaksa
+   kartu/baris melebar di layar sempit — tombol boleh melipat ke baris kedua. */
+.tg-status-actions{flex-wrap:wrap;justify-content:flex-end;row-gap:4px;max-width:100%;}
+@media (max-width: 767px){.tg-card-status-wrap{max-width:62%;}}
+</style>
 <script id="approval-page-v1">
 /* Task 43: MENU APPROVAL - khusus admin / akun tanpa nama sales.
    Skema sama dengan halaman Riwayat (cards + tabel + filter + pagination),
-   berisi order per Outlet dan dipakai untuk mengubah status (APPROVE/DECLINE).
+   berisi order per Outlet dan dipakai untuk mengubah status (APPROVE/DECLINE/PENDING).
    Perubahan status disimpan SINKRON via updateOrderStatusBatchSync sehingga
    pasti tersimpan di server sebelum aplikasi menampilkan konfirmasi. */
 var globalApprovalData = [];
@@ -12669,11 +12849,9 @@ function renderApprovalList(data) {
 }
 
 function approvalBulkControlsHtml() {
-    return '<div class="flex flex-wrap items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl mb-3">' +
-        '<button type="button" onclick="resetPilihanStatusApproval()" class="px-3 py-1.5 rounded-md bg-white hover:bg-slate-100 text-slate-600 text-[10px] font-bold border border-slate-200">RESET</button>' +
-        '<button type="button" onclick="doneBulkStatusApproval()" class="px-4 py-1.5 rounded-md bg-slate-800 hover:bg-slate-900 text-white text-[10px] font-extrabold shadow-sm">DONE</button>' +
-        '<span id="bulkStatusInfo" class="text-[10px] text-slate-500 font-semibold ml-auto">Pilih status pada masing-masing order lalu klik DONE.</span>' +
-        '</div>';
+    // Task 62: bar RESET/DONE dihapus — APPROVE/DECLINE kini tombol per order
+    // yang langsung diproses secara optimistik (sama seperti halaman Tagihan).
+    return '';
 }
 
 function approvalPaginationHtml(totalShown, startIndex) {
@@ -12688,8 +12866,73 @@ function approvalPaginationHtml(totalShown, startIndex) {
         '</div></div>';
 }
 
-function approvalDetailBtnHtml(idEsc) {
-    return '<button type="button" onclick="lihatDetail(\'' + idEsc + '\',\'approval\'); return false;" class="riwayat-action riwayat-action-edit" title="Detail order" aria-label="Detail order"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></button>';
+// Task 62/63: tombol APPROVE/DECLINE/PENDING per order — gaya sama dengan
+// tombol status halaman Tagihan (.tg-btn). APPROVE aktif = hijau, DECLINE
+// aktif = merah, PENDING aktif = kuning (amber).
+function approvalStatusButtonsHtml(item, statusText) {
+    const st = String(statusText || item.status || 'PENDING').toUpperCase();
+    const id = escapeHtml(item.id || '');
+    return '<div class="inline-flex items-center gap-1 tg-status-actions" onclick="event.stopPropagation()">' +
+        '<button type="button" onclick="ubahStatusApprovalSatuan(\'' + id + '\',\'APPROVE\')" class="tg-btn tg-btn-approve' + (st === 'APPROVE' ? ' is-active' : '') + '" title="Setujui order">Approve</button>' +
+        '<button type="button" onclick="ubahStatusApprovalSatuan(\'' + id + '\',\'DECLINE\')" class="tg-btn tg-btn-decline' + (st === 'DECLINE' ? ' is-active' : '') + '" title="Tolak order">Decline</button>' +
+        '<button type="button" onclick="ubahStatusApprovalSatuan(\'' + id + '\',\'PENDING\')" class="tg-btn tg-btn-pending' + (st === 'PENDING' ? ' is-active' : '') + '" title="Jadikan pending">Pending</button>' +
+        '</div>';
+}
+
+// Task 62: terapkan perubahan status ke data lokal lalu render ulang (optimistik).
+function approvalTerapkanStatusLokal(changes) {
+    (changes || []).forEach(function(ch) {
+        const id = String((ch && ch.id) || '').trim();
+        const st = String((ch && ch.status) || '').trim().toUpperCase();
+        if (!id || (st !== 'APPROVE' && st !== 'DECLINE' && st !== 'PENDING')) return;
+        const it = (globalApprovalData || []).find(function(x){ return String(x.id || '').trim() === id; });
+        if (!it) return;
+        it.status = st;
+    });
+    try { renderApprovalList(approvalFilteredData || []); } catch (eLocalApproval) {}
+}
+
+// Task 62: ubah status SATU order lewat tombol — OPTIMISTIK seperti Tagihan:
+// tampilan langsung berpindah tanpa menunggu proses simpan (tanpa loading);
+// proses berjalan tetap sama di belakang layar (updateOrderStatusBatchSync),
+// dan bila gagal status lokal dikembalikan ke semula.
+function ubahStatusApprovalSatuan(idInput, statusBaru) {
+    if (!canUseApprovalMenu()) {
+        showModal('Akses Ditolak', 'Hanya Admin atau akun tanpa nama sales yang dapat mengubah status.');
+        return;
+    }
+    const id = String(idInput || '').trim();
+    const target = String(statusBaru || '').trim().toUpperCase();
+    if (!id || (target !== 'APPROVE' && target !== 'DECLINE' && target !== 'PENDING')) return;
+    if (approvalStatusInFlight) return;
+    const item = (globalApprovalData || []).find(function(x){ return String(x.id || '').trim() === id; });
+    const cur = String(item && item.status || 'PENDING').toUpperCase();
+    if (cur === target) {
+        showModal('Status Sudah Sama', 'Status order ini sudah ' + cur + '.');
+        return;
+    }
+    approvalTerapkanStatusLokal([{ id: id, status: target }]);
+    approvalStatusInFlight = true;
+    google.script.run
+        .withSuccessHandler(function(res) {
+            approvalStatusInFlight = false;
+            if (!res || res.success === false) {
+                approvalTerapkanStatusLokal([{ id: id, status: cur }]);
+                showModal('Gagal Approval', (res && res.message) ? res.message : 'Perubahan status tidak tersimpan. Silakan coba lagi.');
+                return;
+            }
+            delete selectedRiwayatStatus[id];
+            try { window._homeDsrCache = {}; } catch (eHomeCache) {}
+            try { loadRiwayat(true, true); } catch (eReloadRiwayat) {}
+            try { loadHomeRebuild(true); } catch (eReloadHome) {}
+            try { loadApproval(true, true); } catch (eReloadApproval) {}
+        })
+        .withFailureHandler(function(err) {
+            approvalStatusInFlight = false;
+            approvalTerapkanStatusLokal([{ id: id, status: cur }]);
+            showModal('Gagal Approval', (err && err.message ? err.message : 'Terjadi kesalahan saat mengubah status.'));
+        })
+        .updateOrderStatusBatchSync([{ id: id, status: target }], currentUsernameInput, currentUser);
 }
 
 function renderApprovalCards(data) {
@@ -12706,11 +12949,8 @@ function renderApprovalCards(data) {
         const statusDot = status === 'APPROVE' ? 'bg-emerald-500' : status === 'DECLINE' ? 'bg-red-500' : 'bg-amber-500';
         const products = Array.isArray(item.products) ? item.products.filter(function(p){ return String(p || '').trim() !== ''; }) : [];
         const productText = products.length ? products.map(function(p){ return escapeHtml(p); }).join('<br>') : '-';
-        const statusCell = '<select onclick="event.stopPropagation()" class="bulk-status-select w-full border border-slate-300 rounded-lg px-2.5 py-2 text-[10px] font-bold bg-white" data-order-id="' + escapeHtml(item.id) + '" data-current-status="' + escapeHtml(status) + '">' +
-            '<option value="">' + escapeHtml(status) + ' / TIDAK DIUBAH</option>' +
-            '<option value="APPROVE" ' + (selectedRiwayatStatus[String(item.id)] === 'APPROVE' ? 'selected' : '') + '>APPROVE</option>' +
-            '<option value="DECLINE" ' + (selectedRiwayatStatus[String(item.id)] === 'DECLINE' ? 'selected' : '') + '>DECLINE</option>' +
-            '</select>';
+        // Task 62: tombol APPROVE/DECLINE (gaya Tagihan) menggantikan dropdown.
+        const statusCell = approvalStatusButtonsHtml(item, status);
         const number = startIndex + index + 1;
         const valueText = 'Rp ' + Number(item.value || 0).toLocaleString('id-ID');
         const volumeText = escapeHtml(item.volume || '0') + ' L';
@@ -12723,16 +12963,18 @@ function renderApprovalCards(data) {
             '<div class="text-[9px] text-slate-400 mt-0.5">DSR: ' + escapeHtml(item.dsr || '-') + '</div>' +
             '</div>' +
             '</div>' +
-            '<div class="shrink-0" onclick="event.stopPropagation()">' + statusCell + '</div>' +
+            // Task 63: dibatasi lebar di mobile agar 3 tombol tidak mendorong
+            // nama outlet keluar kartu (tombol melipat ke baris kedua).
+            '<div class="shrink-0 tg-card-status-wrap" onclick="event.stopPropagation()">' + statusCell + '</div>' +
             '</div>' +
             '<div class="riwayat-card-products"><div class="riwayat-card-label">PRODUK</div><div class="riwayat-card-product-text">' + productText + '</div></div>' +
             '<div class="riwayat-card-summary">' +
             '<div class="riwayat-card-stat"><span class="riwayat-card-label">VOLUME</span><strong>' + volumeText + '</strong></div>' +
             '<div class="riwayat-card-stat"><span class="riwayat-card-label">NILAI</span><strong>' + valueText + '</strong></div>' +
             '</div>' +
-            '<div class="riwayat-card-footer" onclick="event.stopPropagation()">' +
+            // Task 62: tombol detail dihapus — card tidak memiliki akses detail.
+            '<div class="riwayat-card-footer">' +
             '<span class="text-[9px] text-slate-400 font-medium">ID: ' + escapeHtml(item.id || '-') + '</span>' +
-            '<div class="flex items-center gap-1.5">' + approvalDetailBtnHtml(escapeHtml(item.id)) + '</div>' +
             '</div>' +
             '</article>';
     });
@@ -12746,20 +12988,17 @@ function renderApprovalTable(data) {
     if (approvalPage > totalPages) approvalPage = totalPages;
     const startIndex = (approvalPage - 1) * RIWAYAT_PAGE_SIZE;
     const rows = data.slice(startIndex, startIndex + RIWAYAT_PAGE_SIZE);
+    // Task 62: tombol APPROVE/DECLINE (gaya Tagihan) menggantikan dropdown.
     const statusSelect = function(item) {
-        const status = String(item.status || 'PENDING').toUpperCase();
-        return '<select onclick="event.stopPropagation()" class="bulk-status-select w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[9px] font-bold bg-white" data-order-id="' + escapeHtml(item.id) + '" data-current-status="' + escapeHtml(status) + '">' +
-            '<option value="">' + escapeHtml(status) + ' / TIDAK DIUBAH</option>' +
-            '<option value="APPROVE">APPROVE</option>' +
-            '<option value="DECLINE">DECLINE</option>' +
-            '</select>';
+        return approvalStatusButtonsHtml(item, String(item.status || 'PENDING').toUpperCase());
     };
     const body = rows.map(function(item, index) {
         const products = Array.isArray(item.products) ? item.products.filter(function(p){ return String(p || '').trim() !== ''; }) : [];
         const productText = products.length ? products.map(escapeHtml).join('<br>') : '-';
         const id = escapeHtml(item.id || '');
         const number = startIndex + index + 1;
-        return '<tr class="border-b border-slate-100 hover:bg-emerald-50/50">' +
+        // Task 62: klik baris tabel membuka detail (tanpa tombol detail terpisah).
+        return '<tr onclick="lihatDetail(\'' + id + '\',\'approval\')" class="border-b border-slate-100 hover:bg-emerald-50/50 cursor-pointer" title="Klik untuk melihat detail order">' +
             '<td class="px-3 py-2.5 font-bold text-slate-500">#' + number + '</td>' +
             '<td class="px-3 py-2.5 whitespace-nowrap">' + escapeHtml(item.tanggal || '-') + '</td>' +
             '<td class="px-3 py-2.5 font-bold text-slate-700">' + escapeHtml(item.outlet || '-') + '<div class="text-[9px] text-slate-400 font-normal">DSR: ' + escapeHtml(item.dsr || '-') + '</div></td>' +
@@ -12767,11 +13006,10 @@ function renderApprovalTable(data) {
             '<td class="px-3 py-2.5 text-right font-semibold">' + escapeHtml(item.volume || '0') + ' L</td>' +
             '<td class="px-3 py-2.5 text-right font-semibold">Rp ' + Number(item.value || 0).toLocaleString('id-ID') + '</td>' +
             '<td class="px-3 py-2.5">' + statusSelect(item) + '</td>' +
-            '<td class="px-3 py-2.5 whitespace-nowrap"><div class="flex gap-1">' + approvalDetailBtnHtml(id) + '</div></td>' +
             '</tr>';
     }).join('');
     container.innerHTML = approvalBulkControlsHtml() +
-        '<div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden"><div class="overflow-x-auto"><table class="w-full text-left text-[10px] min-w-[980px]"><thead><tr class="bg-slate-50 border-b border-slate-200 text-[9px] uppercase tracking-wide text-slate-500"><th class="px-3 py-2">No</th><th class="px-3 py-2">Tanggal</th><th class="px-3 py-2">Outlet</th><th class="px-3 py-2">Produk</th><th class="px-3 py-2 text-right">Volume</th><th class="px-3 py-2 text-right">Nilai</th><th class="px-3 py-2">Status</th><th class="px-3 py-2">Aksi</th></tr></thead><tbody>' + body + '</tbody></table></div></div>' +
+        '<div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden"><div class="overflow-x-auto"><table class="w-full text-left text-[10px] min-w-[980px]"><thead><tr class="bg-slate-50 border-b border-slate-200 text-[9px] uppercase tracking-wide text-slate-500"><th class="px-3 py-2">No</th><th class="px-3 py-2">Tanggal</th><th class="px-3 py-2">Outlet</th><th class="px-3 py-2">Produk</th><th class="px-3 py-2 text-right">Volume</th><th class="px-3 py-2 text-right">Nilai</th><th class="px-3 py-2">Status</th></tr></thead><tbody>' + body + '</tbody></table></div></div>' +
         approvalPaginationHtml(data.length, startIndex);
 }
 
@@ -12872,7 +13110,10 @@ function doneBulkStatusApproval() {
         '.tg-badge-lunas{display:inline-flex;align-items:center;padding:3px 8px;border-radius:8px;font-weight:800;font-size:9px;background:#059669;color:#fff;border:1px solid #047857;box-shadow:0 2px 0 #047857;}' +
         '.tg-badge-cash{display:inline-flex;align-items:center;padding:3px 6px;border-radius:8px;font-weight:800;font-size:8px;background:#f1f5f9;color:#475569;border:1px solid #cbd5e1;}' +
         '.tagihan-row-selected td{background:#ecfdf5 !important;}' +
-        '.inv-head{background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;border-radius:12px 12px 0 0;}' +
+        '.inv-head{background:linear-gradient(135deg,#00a651,#047a3f);color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;border-radius:12px 12px 0 0;border-bottom:3px solid #02612f;}' +
+        '.inv-eyebrow{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.8);margin-bottom:3px;}' +
+        '.inv-company{font-size:15px;font-weight:800;letter-spacing:-.2px;}' +
+        '.inv-subtitle{font-size:8.5px;color:rgba(255,255,255,.85);margin-top:2px;}' +
         '.inv-title{font-size:16px;font-weight:900;letter-spacing:.1em;}' +
         '.inv-sub{font-size:9px;color:#94a3b8;font-weight:600;margin-top:2px;}' +
         '.inv-chip{display:inline-block;font-size:9px;font-weight:800;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);padding:3px 8px;border-radius:999px;white-space:nowrap;}' +
@@ -12884,6 +13125,8 @@ function doneBulkStatusApproval() {
         '.inv-table{width:100%;border-collapse:collapse;font-size:10px;}' +
         '.inv-table th{background:#f1f5f9;color:#475569;font-size:8px;text-transform:uppercase;letter-spacing:.06em;padding:6px 8px;border-bottom:1px solid #e2e8f0;text-align:left;}' +
         '.inv-table td{padding:6px 8px;border-bottom:1px solid #f1f5f9;color:#334155;}' +
+        '.inv-body .overflow-x-auto table.inv-table th{text-align:center;}' +
+        '.inv-body .overflow-x-auto table.inv-table td{text-align:center;}' +
         '.inv-totrow td{background:#f8fafc;font-weight:900;color:#0f172a;border-top:2px solid #e2e8f0;}' +
         '.inv-stamp{display:inline-block;padding:5px 14px;border:2.5px solid;border-radius:8px;font-weight:900;font-size:13px;letter-spacing:.12em;transform:rotate(-6deg);margin-top:8px;}' +
         '.inv-stamp-lunas{color:#059669;border-color:#059669;background:rgba(5,150,105,.06);}' +
@@ -13345,8 +13588,7 @@ function renderProdukOutlet() {
         '<tr class="border-t-2 border-emerald-200 bg-emerald-50/60 font-extrabold text-emerald-800">' +
             '<td colspan="2" class="px-3 py-2.5 uppercase tracking-wide">Total</td>' +
             '<td class="px-3 py-2.5 text-right whitespace-nowrap">' + escapeHtml(totalLabel || '0') + '</td>' +
-        '</tr></tbody></table>' +
-        '<div class="px-3 py-2 text-[10px] text-slate-400 bg-slate-50 border-t border-slate-100"></div>';
+        '</tr></tbody></table>';
     const tb = wrap.querySelector('tbody');
     if (tb) tb.addEventListener('click', function(ev) {
         const tr = ev.target && ev.target.closest ? ev.target.closest('tr[data-po-outlet]') : null;
@@ -13657,9 +13899,9 @@ function tagihanTerapkanStatusLokal(changes) {
     try { renderTagihanList(tagihanFilteredData || []); } catch (eLocal) {}
 }
 
-// Ubah status SATU tagihan lewat tombol — disimpan SINKRON lewat
-// updateStatusTagihanSync sehingga status benar-benar tersimpan di server
-// sebelum popup konfirmasi ditampilkan.
+// Ubah status SATU tagihan lewat tombol — OPTIMISTIK (Task 61): tampilan
+// langsung berpindah, simpan ke server tetap lewat updateStatusTagihanSync;
+// bila gagal, status lokal dikembalikan dan pesan error ditampilkan.
 function ubahStatusTagihanSatuan(idInput, statusBaru) {
     const id = String(idInput || '').trim();
     const target = String(statusBaru || '').trim().toUpperCase();
@@ -13675,23 +13917,24 @@ function ubahStatusTagihanSatuan(idInput, statusBaru) {
         showModal('Status Sudah Sama', 'Status tagihan ini sudah ' + (cur || '-') + '.');
         return;
     }
+    // Task 61: optimistik seperti Harga Nett — tombol langsung berpindah tanpa
+    // menunggu proses simpan (tanpa loading); proses berjalan tetap sama di
+    // belakang layar, dan bila gagal status dikembalikan ke semula.
+    tagihanTerapkanStatusLokal([{ id: id, status: target }]);
     tagihanStatusInFlight = true;
-    showLoading(true);
     google.script.run
         .withSuccessHandler(function(res) {
             tagihanStatusInFlight = false;
-            showLoading(false);
             if (!res || res.success === false) {
+                tagihanTerapkanStatusLokal([{ id: id, status: cur }]);
                 showModal('Gagal Simpan Tagihan', (res && res.message) ? res.message : 'Perubahan status tagihan tidak tersimpan. Silakan coba lagi.');
                 return;
             }
-            tagihanTerapkanStatusLokal([{ id: id, status: target }]);
-            showModal('Tagihan Tersimpan', (res && res.message) ? res.message : ('Status tagihan ' + id + ' kini ' + target + '.'));
             try { loadTagihan(true, true); } catch (eReload) {}
         })
         .withFailureHandler(function(err) {
             tagihanStatusInFlight = false;
-            showLoading(false);
+            tagihanTerapkanStatusLokal([{ id: id, status: cur }]);
             showModal('Gagal Simpan Tagihan', (err && err.message ? err.message : 'Terjadi kesalahan saat menyimpan status tagihan.'));
         })
         .updateStatusTagihanSync([{ id: id, status: target }], currentUsernameInput, currentUser);
@@ -13776,7 +14019,7 @@ function bukaInvoiceTagihan(idInput) {
     document.getElementById('modalBody').innerHTML =
         '<div id="invoicePrintArea">' +
         '<div class="inv-head">' +
-            '<div><div class="inv-title">INVOICE</div></div>' +
+            '<div><div class="inv-eyebrow">INVOICE</div><div class="inv-company">PT. Sukses Adi Surya</div><div class="inv-subtitle">Jl. Muncul II, Komplek Pergudangan Gedangan</div></div>' +
             '<div style="text-align:right;"><div class="inv-chip">' + escapeHtml(targetId) + '</div>' +
             '<div class="inv-stamp ' + (st === 'LUNAS' ? 'inv-stamp-lunas' : 'inv-stamp-belum') + '">' + escapeHtml(st) + '</div></div>' +
         '</div>' +
@@ -13785,8 +14028,7 @@ function bukaInvoiceTagihan(idInput) {
                 '<div class="inv-cell"><div class="inv-label">Outlet</div><div class="inv-val">' + escapeHtml(item.outlet || '-') + '</div></div>' +
                 '<div class="inv-cell"><div class="inv-label">DSR / Sales</div><div class="inv-val">' + escapeHtml(item.dsr || '-') + '</div></div>' +
                 '<div class="inv-cell"><div class="inv-label">Tanggal Order</div><div class="inv-val">' + escapeHtml(tagihanFormatTanggalID(item.tanggal)) + '</div></div>' +
-                '<div class="inv-cell"><div class="inv-label">Tanggal Invoice</div><div class="inv-val">' + escapeHtml(tagihanFormatTanggalID(tagihanTanggalHariIniStr())) + '</div></div>' +
-                '<div class="inv-cell"><div class="inv-label">Pembayaran</div><div class="inv-val">' + escapeHtml(item.isCash ? 'CASH' : (item.payment || 'CREDIT')) + '</div></div>' +
+                                '<div class="inv-cell"><div class="inv-label">Pembayaran</div><div class="inv-val">' + escapeHtml(item.isCash ? 'CASH' : (item.payment || 'CREDIT')) + '</div></div>' +
                 '<div class="inv-cell"><div class="inv-label">Usia Nota</div><div class="inv-val' + (merah ? ' inv-val-merah' : '') + '">' + usia + ' hari</div></div>' +
                 lunasInfo +
             '</div>' +
