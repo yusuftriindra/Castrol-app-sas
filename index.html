@@ -3312,7 +3312,11 @@ select.select2-hidden-accessible { width: 1px !important; max-width: 1px !import
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
                 </button>
-                <div class="castrol-greet">
+                <!-- Task 64: area sapaan header bisa diklik untuk membuka ACCOUNT
+                     (info akun + edit + Keluar/Logout digabung dalam satu tempat). -->
+                <div class="castrol-greet castrol-greet-clickable" id="headerGreetBtn" role="button" tabindex="0"
+                     onclick="openEditAccount()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openEditAccount();}"
+                     title="Buka Account" aria-label="Buka Account">
                     <span class="castrol-greet-hi">Selamat Datang,</span>
                     <h1 id="castrolGreetName" class="castrol-greet-name truncate">Castrol</h1>
                     <span id="castrolGreetRole" class="castrol-greet-role">Sales</span>
@@ -3470,18 +3474,11 @@ select.select2-hidden-accessible { width: 1px !important; max-width: 1px !import
 
                 <div class="sidebar-spacer"></div>
 
-                <div class="sidebar-bottom">
+                <div class="sidebar-bottom" style="display:none">
                     <span id="userBadge" class="hidden" aria-hidden="true" style="display:none"></span>
-                    <button type="button" onclick="openEditAccount()" id="headerAccountBtn"
-                            class="sidebar-item sidebar-account-item" title="Account" aria-label="Account">
-                        <span class="sidebar-icon">⚙️</span>
-                        <span class="sidebar-text">Account</span>
-                    </button>
-                    <button type="button" onclick="logout()" id="headerLogoutBtn"
-                            class="sidebar-item sidebar-item-danger" title="Logout" aria-label="Logout">
-                        <span class="sidebar-icon">↪️</span>
-                        <span class="sidebar-text">Logout</span>
-                    </button>
+                    <!-- Task 65: item "Account" dihilangkan dari menu sidebar — modal ACCOUNT
+                         kini dibuka lewat klik sapaan header (headerGreetBtn). userBadge
+                         dipertahankan karena masih dibaca JS (mirror sapaan header). -->
                 </div>
 
             </div>
@@ -3795,7 +3792,7 @@ select.select2-hidden-accessible { width: 1px !important; max-width: 1px !import
                         <div class="flex items-center justify-between gap-2 mb-2">
                             <div>
                                 <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Filter Riwayat</div>
-                                <div class="text-[9px] text-slate-400 mt-0.5"></div>
+                                <div class="text-[9px] text-slate-400 mt-0.5">Gunakan filter untuk menampilkan transaksi yang sesuai.</div>
                             </div>
                             <button type="button" onclick="resetRiwayatAllFilter()" class="shrink-0 text-[10px] font-bold text-slate-500 hover:text-emerald-700 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-emerald-50 transition">Reset</button>
                         </div>
@@ -4653,6 +4650,21 @@ select.select2-hidden-accessible { width: 1px !important; max-width: 1px !import
                 modalCallback = null;
             }
         }
+
+        // Task 66: klik di luar kartu modal (backdrop) atau tombol Escape
+        // menutup modal lewat jalur cancel (sama dengan tombol X / Batal),
+        // sehingga modalCallback(false) tetap dijalankan.
+        (function () {
+            const overlay = document.getElementById('customModal');
+            if (!overlay || overlay.dataset.castrolModalOutsideBound === '1') return;
+            overlay.dataset.castrolModalOutsideBound = '1';
+            overlay.addEventListener('mousedown', function (e) {
+                if (e.target === overlay && overlay.style.display === 'flex') closeModal(false);
+            });
+            document.addEventListener('keydown', function (e) {
+                if (e && e.key === 'Escape' && overlay.style.display === 'flex') closeModal(false);
+            });
+        })();
 
         let currentUser = "";
         let currentUsernameInput = "";
@@ -9967,6 +9979,17 @@ startAutoRefresh();
         }
         function resetHomeRebuildZoom(){homeLightboxScale=1;homeLightboxX=0;homeLightboxY=0;homeLightboxDragging=false;homeLightboxPinchStart=0;homeLightboxPinchScale=1;applyHomeRebuildZoom();}
         function closeHomeRebuildImage(){const o=document.getElementById('homeRebuildLightbox');if(o)o.classList.remove('open');document.body.style.overflow='';resetHomeRebuildZoom();startHomeRebuildAuto();}
+        // Task 66: tombol Escape menutup lightbox gambar Beranda (klik di luar
+        // sudah ditangani setupHomeRebuildLightbox).
+        if (!window.__homeRebuildLightboxEscBound) {
+            window.__homeRebuildLightboxEscBound = true;
+            document.addEventListener('keydown', function (e) {
+                if (e && e.key === 'Escape') {
+                    const lb = document.getElementById('homeRebuildLightbox');
+                    if (lb && lb.classList.contains('open')) closeHomeRebuildImage();
+                }
+            });
+        }
         function setupHomeRebuildLightbox(o){
             const img=document.getElementById('homeRebuildLightboxImg');
             if(!img)return;
@@ -10451,7 +10474,7 @@ if(tab==='tagihan')loadTagihan(false, true);
         function openEditAccount() {
             const modal = document.getElementById('customModal');
             const body = document.getElementById('modalBody');
-            document.getElementById('modalTitle').textContent = 'EDIT ACCOUNT';
+            document.getElementById('modalTitle').textContent = 'ACCOUNT';
             document.getElementById('modalSubtitle').textContent = currentUsernameInput ? '@' + currentUsernameInput : '';
             document.getElementById('modalCancelBtn').style.display = 'inline-block';
             document.getElementById('modalOkBtn').textContent = 'Simpan';
@@ -10476,6 +10499,12 @@ if(tab==='tagihan')loadTagihan(false, true);
                     <div>
                         <label class="block text-[10px] font-bold text-slate-600 mb-1">Password Baru <span class="font-normal text-slate-400">(kosong = tidak diubah)</span></label>
                         <input id="editAccountPassword" type="password" autocomplete="new-password" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Masukkan password baru">
+                    </div>
+                    <!-- Task 64: Logout digabung di sini — satu tempat untuk kelola akun + keluar aplikasi. -->
+                    <div class="pt-3 border-t border-slate-200">
+                        <button type="button" onclick="logoutFromAccount()" class="w-full flex items-center justify-center rounded-xl bg-red-50 border border-red-200 text-red-700 font-extrabold text-xs py-2.5 hover:bg-red-100" title="Keluar dari aplikasi">
+                            Keluar (Logout)
+                        </button>
                     </div>
                 </div>`;
             modalCallback = function(isOk) {
@@ -10505,20 +10534,33 @@ if(tab==='tagihan')loadTagihan(false, true);
             };
         }
 
+        // Task 64: inti proses logout dipisah agar bisa dipakai dari mana saja
+        // (modal Account maupun pemanggil lama).
+        function doLogout() {
+            clearAuthState();
+            currentUser = ""; currentUsernameInput = ""; shoppingCart = []; globalRiwayatData = []; rawMonitoringDataObject = {}; globalOutletKontrakData = []; pencapaianCache = {}; pencapaianDetailCache = {}; globalPricelistData = []; globalTambahCustomerData = { headers: [], rows: [] }; globalTambahCustomerFormMaster = { headers: [], dayVisits: [], channels: [], dsrs: [], today: '', salesName: '', isAdmin: false, newCustCode: '' }; tambahCustomerLoaded = false;
+            announcementDismissedThisSession = false;
+            closeAnnouncementPage(true);
+            document.getElementById('mainPage').classList.add('hidden');
+            document.getElementById('mainHeader').classList.add('hidden');
+            document.getElementById('leftNav').classList.add('hidden');
+            setSidebarState(false);
+            document.getElementById('loginPage').classList.remove('hidden');
+            document.getElementById('userBadge').classList.add('hidden');
+        }
+
         function logout() {
             showModal("Konfirmasi", "Keluar aplikasi?", true, function(isOk) {
-                if (isOk) {
-                    clearAuthState();
-                    currentUser = ""; currentUsernameInput = ""; shoppingCart = []; globalRiwayatData = []; rawMonitoringDataObject = {}; globalOutletKontrakData = []; pencapaianCache = {}; pencapaianDetailCache = {}; globalPricelistData = []; globalTambahCustomerData = { headers: [], rows: [] }; globalTambahCustomerFormMaster = { headers: [], dayVisits: [], channels: [], dsrs: [], today: '', salesName: '', isAdmin: false, newCustCode: '' }; tambahCustomerLoaded = false;
-                    announcementDismissedThisSession = false;
-                    closeAnnouncementPage(true);
-                    document.getElementById('mainPage').classList.add('hidden');
-                    document.getElementById('mainHeader').classList.add('hidden');
-                    document.getElementById('leftNav').classList.add('hidden');
-                    setSidebarState(false);
-                    document.getElementById('loginPage').classList.remove('hidden');
-                    document.getElementById('userBadge').classList.add('hidden');
-                }
+                if (isOk) doLogout();
+            });
+        }
+
+        // Task 64: Logout dari dalam modal Account — bila konfirmasi dibatalkan,
+        // modal Account dibuka kembali (form tidak hilang).
+        function logoutFromAccount() {
+            showModal("Konfirmasi", "Keluar aplikasi?", true, function(isOk) {
+                if (isOk) { doLogout(); return; }
+                try { openEditAccount(); } catch (eAccBack) {}
             });
         }
 
@@ -15371,6 +15413,12 @@ select.castrol-auth-input{height:auto;}
   .castrol-greet-role{font-size:8px}
 }
 @media(max-width:480px){#mainHeader h1.castrol-greet-name{max-width:120px}}
+/* Task 64: sapaan header bisa diklik -> buka ACCOUNT. Padding + margin negatif
+   memperluas area sentuh tanpa mengubah tata letak header. */
+.castrol-greet-clickable{cursor:pointer;border-radius:10px;padding:4px 6px;margin:-4px 0;transition:background .15s ease;outline:none;-webkit-tap-highlight-color:transparent}
+.castrol-greet-clickable:hover{background:rgba(255,255,255,.10)}
+.castrol-greet-clickable:active{background:rgba(255,255,255,.16)}
+.castrol-greet-clickable:focus-visible{box-shadow:0 0 0 2px rgba(255,255,255,.45)}
 .sidebar-toggle{background:#f3f6f4!important;border-color:#e5eaee!important;color:#123527!important}
 .sidebar-toggle:hover{background:#eaf7f0!important;border-color:#bfe6d2!important;color:#008a45!important}
 #mainHeader .notification-bell-btn,#mainHeader .global-refresh-btn{
