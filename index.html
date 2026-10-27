@@ -13651,7 +13651,7 @@ function shareGenWa() {
     const val = String(document.getElementById('genLinkInput').value || '');
     if (!val) return;
     const o = selectedGenOutlet || {};
-    const text = 'Berikut link Portal Outlet untuk ' + (o.outlet || 'outlet Anda') + '. Klik untuk input order, lihat riwayat order, dan pencapaian: ' + val;
+    const text = 'Berikut link Portal Outlet untuk ' + (o.outlet || 'outlet Anda') + '. Klik untuk input order dan cek pencapaian order anda: ' + val;
     window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
 }
 function loadGenerateOutlet() {
