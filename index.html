@@ -1506,6 +1506,7 @@ html,body{height:100%;}
 }
 </style>
 
+<script>window.__CASTROL_DEPLOY_URL__ = '<?!= ScriptApp.getService().getUrl() ?>';</script>
 <script id="castrol-github-bridge">
 (function () {
     // Jika HTML ini dijalankan di GitHub Pages, ganti google.script.run
@@ -1517,6 +1518,8 @@ html,body{height:100%;}
 
     var CASTROL_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx5dkNkseL2AXyP4T3vRATCQEnRC3Ft5ho29iUObmj-Y3H-vRunigrQheYt3jzoBq-p/exec';
     var BRIDGE_URL = CASTROL_APPS_SCRIPT_URL + (CASTROL_APPS_SCRIPT_URL.indexOf('?') >= 0 ? '&' : '?') + 'bridge=1';
+    // Task 67: URL deploy diekspos untuk fitur Generate Link Outlet.
+    window.__CASTROL_DEPLOY_URL__ = CASTROL_APPS_SCRIPT_URL;
     var seq = 0;
     var pending = Object.create(null);
 
@@ -3470,6 +3473,11 @@ select.select2-hidden-accessible { width: 1px !important; max-width: 1px !import
                         <span class="sidebar-icon">📣</span>
                         <span class="sidebar-text">Buat Pengumuman</span>
                     </button>
+                    <button type="button" role="menuitem" onclick="switchTab('generateoutlet')" id="navGenerateOutlet"
+                            class="sidebar-item sidebar-submenu-item" title="Generate Link Outlet" aria-label="Generate Link Outlet">
+                        <span class="sidebar-icon">🔗</span>
+                        <span class="sidebar-text">Generate Link Outlet</span>
+                    </button>
                 </div>
 
                 <div class="sidebar-spacer"></div>
@@ -3851,7 +3859,7 @@ select.select2-hidden-accessible { width: 1px !important; max-width: 1px !import
                             <h2 class="text-base font-bold text-slate-800">Approval Order</h2>
                             <span id="approvalCount" class="text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">0 transaksi</span>
                         </div>
-                        <p class="text-[9px] text-slate-400"></p>
+                        <p class="text-[9px] text-slate-400">Pilih status per transaksi Outlet (Approve / Decline / Pending) — perubahan tersimpan langsung di server.</p>
                     </div>
 
                     <div class="flex items-center justify-end gap-1.5 mb-1" role="group" aria-label="Tampilan Approval">
@@ -3863,7 +3871,7 @@ select.select2-hidden-accessible { width: 1px !important; max-width: 1px !import
                         <div class="flex items-center justify-between gap-2 mb-2">
                             <div>
                                 <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Filter Approval</div>
-                                <div class="text-[9px] text-slate-400 mt-0.5"></div>
+                                <div class="text-[9px] text-slate-400 mt-0.5">Order dikelola per Outlet — pilih outlet untuk menyetujui / menolak transaksinya.</div>
                             </div>
                             <button type="button" onclick="resetApprovalAllFilter()" class="shrink-0 text-[10px] font-bold text-slate-500 hover:text-emerald-700 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-emerald-50 transition">Reset</button>
                         </div>
@@ -4288,6 +4296,44 @@ select.select2-hidden-accessible { width: 1px !important; max-width: 1px !import
                             <div><label class="block text-[10px] font-bold text-slate-600 mb-1">Selesai</label><input id="pengumumanEnd" type="date" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-xs"></div>
                         </div>
                         <div class="flex justify-end gap-2 mt-4 pt-3 border-t border-slate-100"><button type="button" onclick="closePengumumanForm()" class="px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-600 text-[10px] font-bold">Batal</button><button type="button" onclick="savePengumumanForm()" class="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-[10px] font-extrabold">Simpan Pengumuman</button></div>
+                    </div>
+                </div>
+
+                <!-- Task 67: GENERATE LINK OUTLET — tautan login otomatis (CUST.CODE) Portal Outlet -->
+                <div id="tabGenerateOutlet" class="tab-content hidden space-y-3">
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
+                        <div class="flex items-start justify-between gap-2 flex-wrap">
+                            <div>
+                                <h2 class="text-sm font-extrabold text-slate-800">🔗 Generate Link Outlet</h2>
+                                <p class="text-[10px] text-slate-500 mt-0.5">Pilih outlet lalu buat tautan Portal Outlet — outlet yang mengklik link akan otomatis login dengan CUST.CODE-nya (menu: Input Order, Riwayat Order, Pencapaian).</p>
+                            </div>
+                        </div>
+                        <div class="mt-3 relative" id="genOutletDdRoot">
+                            <label class="block text-[10px] font-bold text-slate-600 mb-1">Pilih Outlet</label>
+                            <button type="button" id="genOutletBtn" aria-expanded="false" aria-haspopup="true" aria-controls="genOutletPanel" onclick="toggleGenOutletDd()"
+                                    class="w-full flex items-center justify-between gap-2 py-2.5 px-3 bg-white border border-slate-200 rounded-xl text-xs" style="min-height:42px;">
+                                <span id="genOutletLabel" class="truncate text-slate-400">- Pilih outlet -</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400"><path d="m6 9 6 6 6-6"/></svg>
+                            </button>
+                            <div id="genOutletPanel" class="hidden absolute z-40 left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden">
+                                <div class="p-2 border-b border-slate-100">
+                                    <input id="genOutletSearch" type="text" placeholder="Cari nama outlet / CUST.CODE..." oninput="renderGenOutletOptions()" class="w-full py-2 px-3 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                </div>
+                                <div id="genOutletOptions" class="max-h-64 overflow-y-auto"></div>
+                            </div>
+                        </div>
+                        <div id="genResultWrap" class="hidden mt-4 pt-3 border-t border-slate-100">
+                            <label class="block text-[10px] font-bold text-slate-600 mb-1">Link Portal Outlet</label>
+                            <div class="flex flex-col sm:flex-row gap-2">
+                                <input type="text" id="genLinkInput" readonly onclick="this.select()" class="flex-1 min-w-0 border border-slate-200 bg-slate-50 rounded-xl px-3 py-2.5 text-xs text-slate-700">
+                                <div class="flex gap-2">
+                                    <button type="button" onclick="copyGenLink()" class="rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-extrabold px-4 py-2.5">Salin</button>
+                                    <button type="button" onclick="openGenLink()" class="rounded-xl border border-slate-200 bg-white text-slate-600 text-xs font-extrabold px-3 py-2.5 hover:bg-slate-50">Buka</button>
+                                </div>
+                            </div>
+                            <button type="button" onclick="shareGenWa()" class="mt-2 w-full rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-extrabold py-2.5 hover:bg-emerald-100">Kirim via WhatsApp</button>
+                            <p class="text-[9px] text-slate-400 mt-2">Link otomatis login dengan CUST.CODE outlet terpilih — jangan dibagikan ke outlet lain.</p>
+                        </div>
                     </div>
                 </div>
 
@@ -10328,7 +10374,7 @@ startAutoRefresh();
         }
 
         // Task 61: item nav yang berada di dalam submenu (kelas submenu wajib dipertahankan).
-        const SIDEBAR_SUBMENU_NAVS = {input:true,riwayat:true,tagihan:true,pesananoutlet:true,approval:true,pencapaian:true,monitoring:true,outletkontrak:true,outletbws:true,harganett:true,produkbyoutlet:true,pengumumanadmin:true};
+        const SIDEBAR_SUBMENU_NAVS = {input:true,riwayat:true,tagihan:true,pesananoutlet:true,approval:true,pencapaian:true,monitoring:true,outletkontrak:true,outletbws:true,harganett:true,produkbyoutlet:true,pengumumanadmin:true,generateoutlet:true};
 
         // Task 62: dukungan tombol kembali browser / nav mobile — tiap perpindahan
         // tab dicatat ke history; tombol kembali membuka tab sebelumnya (bukan
@@ -10342,8 +10388,8 @@ startAutoRefresh();
             // Task 43: Approval hanya untuk admin / akun tanpa nama sales.
             const canApprovalMenu = isAdminLogin || String(currentUser || '').trim() === '';
             if (tab === 'approval' && !canApprovalMenu) { applyRoleVisibility(); return; }
-            const tabMap = {home:'tabHome',input:'tabInput',riwayat:'tabRiwayat',approval:'tabApproval',tagihan:'tabTagihan',pencapaian:'tabPencapaian',monitoring:'tabMonitoring',outletkontrak:'tabOutletKontrak',outletbws:'tabOutletBWS',tambahcustomer:'tabTambahCustomer',pricelist:'tabPricelist',harganett:'tabHargaNett',pesananoutlet:'tabPesananOutlet',produkbyoutlet:'tabProdukOutlet',pengumumanadmin:'tabPengumumanAdmin'};
-            const navMap = {home:'navHome',input:'navInput',riwayat:'navRiwayat',approval:'navApproval',tagihan:'navTagihan',pencapaian:'navPencapaian',monitoring:'navMonitoring',outletkontrak:'navOutletKontrak',outletbws:'navOutletBWS',tambahcustomer:'navTambahCustomer',pricelist:'navPricelist',harganett:'navHargaNett',pesananoutlet:'navPesananOutlet',produkbyoutlet:'navProdukOutlet',pengumumanadmin:'navPengumumanAdmin'};
+            const tabMap = {home:'tabHome',input:'tabInput',riwayat:'tabRiwayat',approval:'tabApproval',tagihan:'tabTagihan',pencapaian:'tabPencapaian',monitoring:'tabMonitoring',outletkontrak:'tabOutletKontrak',outletbws:'tabOutletBWS',tambahcustomer:'tabTambahCustomer',pricelist:'tabPricelist',harganett:'tabHargaNett',pesananoutlet:'tabPesananOutlet',produkbyoutlet:'tabProdukOutlet',pengumumanadmin:'tabPengumumanAdmin',generateoutlet:'tabGenerateOutlet'};
+            const navMap = {home:'navHome',input:'navInput',riwayat:'navRiwayat',approval:'navApproval',tagihan:'navTagihan',pencapaian:'navPencapaian',monitoring:'navMonitoring',outletkontrak:'navOutletKontrak',outletbws:'navOutletBWS',tambahcustomer:'navTambahCustomer',pricelist:'navPricelist',harganett:'navHargaNett',pesananoutlet:'navPesananOutlet',produkbyoutlet:'navProdukOutlet',pengumumanadmin:'navPengumumanAdmin',generateoutlet:'navGenerateOutlet'};
             Object.keys(tabMap).forEach(function(key){
                 const el=document.getElementById(tabMap[key]);
                 if(!el) return;
@@ -10383,7 +10429,7 @@ startAutoRefresh();
             const SIDEBAR_GROUP_MAP = {
                 navPemesananGroup: ['input','riwayat','tagihan','pesananoutlet','approval'],
                 navPencapaianGroup: ['pencapaian','monitoring','outletkontrak','outletbws'],
-                navLainnyaGroup: ['harganett','produkbyoutlet','pengumumanadmin']
+                navLainnyaGroup: ['harganett','produkbyoutlet','pengumumanadmin','generateoutlet']
             };
             Object.keys(SIDEBAR_GROUP_MAP).forEach(function(gid){
                 const gEl = document.getElementById(gid);
@@ -10407,6 +10453,8 @@ if(tab==='tagihan')loadTagihan(false, true);
             // Task 53: halaman Produk by Outlet.
             if(tab==='produkbyoutlet')loadProdukByOutlet(false);
             if(tab==='pengumumanadmin')loadPengumumanAdmin();
+            // Task 67: halaman Generate Link Outlet.
+            if(tab==='generateoutlet')loadGenerateOutlet();
             // Task 62: catat tab ke history agar tombol kembali browser membuka tab sebelumnya.
             try { if (!__castrolFromPop && window.history && typeof history.pushState === 'function') { history.pushState({ castrolTab: tab }, '', location.href); } } catch (eCastrolHist) {}
         }
@@ -13499,6 +13547,130 @@ function resetProdukOutletFilter() {
     produkOutletUpdateLabel();
     renderProdukOutlet();
 }
+
+// Task 67: Generate Link Outlet — sales memilih outlet, lalu dibuat tautan
+// Portal Outlet (?page=outlet&code=CUST.CODE) sehingga outlet otomatis
+// login dengan CUST.CODE-nya.
+let selectedGenOutlet = null;
+function genOutletBase() {
+    // Task 69: bila portal sales dibuka dari GitHub Pages (host bukan Apps Script),
+    // link outlet diarahkan ke file outlet.html pada GitHub Pages yang sama
+    // (pakai bridge). Bila dibuka dari Apps Script, tetap URL deploy (?page=outlet).
+    var host = String(window.location.hostname || '').toLowerCase();
+    var isAppsScriptHost = host === 'script.google.com' || host === 'script.googleusercontent.com';
+    if (!isAppsScriptHost) {
+        var origin = String(window.location.origin || '').replace(/\/+$/, '');
+        var dir = String(window.location.pathname || '/').replace(/[^/]*$/, '');
+        if (dir.charAt(0) !== '/') dir = '/' + dir;
+        return origin + dir + 'outlet.html';
+    }
+    return String(window.__CASTROL_DEPLOY_URL__ || '').trim();
+}
+function buildGenLink(custCode) {
+    var base = genOutletBase();
+    if (!base) return '';
+    var code = encodeURIComponent(String(custCode || '').trim());
+    if (/outlet\.html$/i.test(base)) return base + '?code=' + code; // GitHub Pages: file outlet.html
+    return base + (base.indexOf('?') >= 0 ? '&' : '?') + 'page=outlet&code=' + code; // Apps Script: doGet routing
+}
+function toggleGenOutletDd() {
+    const panel = document.getElementById('genOutletPanel');
+    if (panel.classList.contains('hidden')) openGenOutletDd(); else closeGenOutletDd();
+}
+function openGenOutletDd() {
+    document.getElementById('genOutletPanel').classList.remove('hidden');
+    document.getElementById('genOutletBtn').setAttribute('aria-expanded', 'true');
+    document.getElementById('genOutletSearch').value = '';
+    renderGenOutletOptions();
+    try { document.getElementById('genOutletSearch').focus(); } catch (eF) {}
+}
+function closeGenOutletDd() {
+    document.getElementById('genOutletPanel').classList.add('hidden');
+    document.getElementById('genOutletBtn').setAttribute('aria-expanded', 'false');
+}
+function renderGenOutletOptions() {
+    const q = String(document.getElementById('genOutletSearch').value || '').trim().toLowerCase();
+    const wrap = document.getElementById('genOutletOptions');
+    const list = (outletDataList || []).filter(function (o) {
+        if (!q) return true;
+        return String(o.outlet || '').toLowerCase().indexOf(q) >= 0 ||
+               String(o.custCode || '').toLowerCase().indexOf(q) >= 0;
+    });
+    if (!list.length) {
+        wrap.innerHTML = '<div class="px-3 py-4 text-[11px] text-slate-400 text-center">' + ((outletDataList && outletDataList.length) ? 'Outlet tidak ditemukan.' : 'Data outlet belum termuat.') + '</div>';
+        return;
+    }
+    wrap.innerHTML = list.map(function (o) {
+        return '<button type="button" class="gen-outlet-option w-full text-left px-3 py-2.5 border-b border-slate-100 hover:bg-emerald-50 transition" data-cust="' + escapeHtml(o.custCode || '') + '" data-outlet="' + escapeHtml(o.outlet || '') + '">' +
+            '<b class="text-xs text-slate-800">' + escapeHtml(o.outlet || '-') + '</b>' +
+            '<span class="block text-[10px] text-slate-500">' + escapeHtml(o.custCode || '-') + (o.channel ? ' • ' + escapeHtml(o.channel) : '') + '</span></button>';
+    }).join('');
+    Array.prototype.forEach.call(wrap.querySelectorAll('.gen-outlet-option'), function (btn) {
+        btn.addEventListener('click', function () {
+            selectGenOutlet(btn.getAttribute('data-cust'), btn.getAttribute('data-outlet'));
+        });
+    });
+}
+function selectGenOutlet(custCode, outletName) {
+    selectedGenOutlet = { custCode: custCode, outlet: outletName };
+    document.getElementById('genOutletLabel').textContent = outletName + ' (' + custCode + ')';
+    document.getElementById('genOutletLabel').classList.remove('text-slate-400');
+    closeGenOutletDd();
+    const link = buildGenLink(custCode);
+    const wrap = document.getElementById('genResultWrap');
+    const input = document.getElementById('genLinkInput');
+    if (!link) {
+        wrap.classList.remove('hidden');
+        input.value = '';
+        showModal('URL Tidak Tersedia', 'URL deploy belum diketahui. Buka aplikasi melalui link Apps Script / GitHub Pages yang biasa dipakai, lalu coba lagi.');
+        return;
+    }
+    input.value = link;
+    wrap.classList.remove('hidden');
+}
+function copyGenLink() {
+    const input = document.getElementById('genLinkInput');
+    const val = String(input.value || '');
+    if (!val) return;
+    const done = function () { showModal('Link Tersalin', 'Link Portal Outlet sudah disalin. Bagikan ke outlet terpilih.'); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(val).then(done).catch(function () {
+            try { input.select(); document.execCommand('copy'); } catch (eCopy1) {}
+            done();
+        });
+    } else {
+        try { input.select(); document.execCommand('copy'); } catch (eCopy2) {}
+        done();
+    }
+}
+function openGenLink() {
+    const val = String(document.getElementById('genLinkInput').value || '');
+    if (val) window.open(val, '_blank');
+}
+function shareGenWa() {
+    const val = String(document.getElementById('genLinkInput').value || '');
+    if (!val) return;
+    const o = selectedGenOutlet || {};
+    const text = 'Berikut link Portal Outlet untuk ' + (o.outlet || 'outlet Anda') + '. Klik untuk input order, lihat riwayat order, dan pencapaian: ' + val;
+    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+}
+function loadGenerateOutlet() {
+    renderGenOutletOptions();
+}
+(function () {
+    document.addEventListener('click', function (ev) {
+        const panel = document.getElementById('genOutletPanel');
+        if (!panel || panel.classList.contains('hidden')) return;
+        const root = document.getElementById('genOutletDdRoot');
+        if (root && !root.contains(ev.target)) closeGenOutletDd();
+    });
+    document.addEventListener('keydown', function (ev) {
+        if (ev && ev.key === 'Escape') {
+            const panel = document.getElementById('genOutletPanel');
+            if (panel && !panel.classList.contains('hidden')) closeGenOutletDd();
+        }
+    });
+})();
 
 // Task 54: tutup dropdown bila klik di luar komponen atau menekan Escape.
 (function() {
