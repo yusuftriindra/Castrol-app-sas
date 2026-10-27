@@ -4056,7 +4056,7 @@ select.select2-hidden-accessible { width: 1px !important; max-width: 1px !import
                             <h2 class="text-base font-bold text-slate-800">Approval Order</h2>
                             <span id="approvalCount" class="text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">0 transaksi</span>
                         </div>
-                        <p class="text-[9px] text-slate-400">Pilih status per transaksi Outlet (Approve / Decline / Pending) — perubahan tersimpan langsung di server.</p>
+                        <p class="text-[9px] text-slate-400"></p>
                     </div>
 
                     <div class="flex items-center justify-end gap-1.5 mb-1" role="group" aria-label="Tampilan Approval">
@@ -4068,7 +4068,7 @@ select.select2-hidden-accessible { width: 1px !important; max-width: 1px !import
                         <div class="flex items-center justify-between gap-2 mb-2">
                             <div>
                                 <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Filter Approval</div>
-                                <div class="text-[9px] text-slate-400 mt-0.5">Order dikelola per Outlet — pilih outlet untuk menyetujui / menolak transaksinya.</div>
+                                <div class="text-[9px] text-slate-400 mt-0.5"></div>
                             </div>
                             <button type="button" onclick="resetApprovalAllFilter()" class="shrink-0 text-[10px] font-bold text-slate-500 hover:text-emerald-700 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-emerald-50 transition">Reset</button>
                         </div>
@@ -13128,8 +13128,8 @@ function renderRiwayatCards(data) {
         const noteText = String(item.note || '').trim();
         const noteHtml = (noteText && noteText !== '-') ? '<div class="rw2-note"><span class="rw2-note-label">Note:</span> ' + escapeHtml(noteText) + '</div>' : '';
         const rw2Hint = rw2Key === 'pending'
-            ? 'Order belum diproses \u2014 masih dapat diedit atau dihapus.'
-            : 'Order sudah diproses sales/admin \u2014 hubungi admin bila ada perubahan.';
+            ? ''
+            : '';
         cards += `
             <article class="rw2-card rw2-${rw2Key}">
                 <div class="rw2-head">
@@ -14234,7 +14234,7 @@ function shareGenWa() {
     const val = String(document.getElementById('genLinkInput').value || '');
     if (!val) return;
     const o = selectedGenOutlet || {};
-    const text = 'Berikut link Portal Outlet untuk ' + (o.outlet || 'outlet Anda') + '. Klik untuk input order dan cek pencapaian order anda: ' + val;
+    const text = 'Hallo ' + (o.outlet || 'outlet Anda') + '. Klik link ini untuk input order dan cek Pencapaian Order anda: ' + val;
     window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
 }
 function loadGenerateOutlet() {
