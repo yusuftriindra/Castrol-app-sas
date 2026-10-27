@@ -4550,8 +4550,32 @@ select.select2-hidden-accessible { width: 1px !important; max-width: 1px !import
                         <div class="grid grid-cols-2 md:grid-cols-5 gap-2 mb-3 items-center">
                           <input id="searchHargaNett" oninput="renderHargaNett()" placeholder="Cari produk..." class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-xs">
                           <div class="flex items-center justify-center gap-1"><button type="button" id="filterProdukPCOHargaNett" onclick="setHargaNettProductType('PCO')" class="flex-1 px-2 py-2.5 border border-slate-200 rounded-xl text-xs">PCO</button><button type="button" id="filterProdukMCOHargaNett" onclick="setHargaNettProductType('MCO-4T')" class="flex-1 px-2 py-2.5 border border-slate-200 rounded-xl text-xs">MCO-4T</button><input type="hidden" id="filterProdukHargaNett" value=""></div>
-                          <input id="filterCashbackHargaNett" list="hargaNettCashbackOptions" oninput="renderHargaNett()" placeholder="Cari Cashback..." class="w-full min-w-0 px-3 py-2.5 border border-slate-200 rounded-xl text-xs"><datalist id="hargaNettCashbackOptions"></datalist>
-                          <input id="filterQuarterHargaNett" list="hargaNettQuarterOptions" oninput="renderHargaNett()" placeholder="Cari Quartal..." class="w-full min-w-0 px-3 py-2.5 border border-slate-200 rounded-xl text-xs"><datalist id="hargaNettQuarterOptions"></datalist>
+                          <div class="relative" id="hnCashbackDdRoot">
+                            <input type="hidden" id="filterCashbackHargaNett" value="">
+                            <button type="button" id="hnCashbackBtn" aria-expanded="false" aria-haspopup="true" aria-controls="hnCashbackPanel" onclick="toggleHnCashbackDd()" class="w-full flex items-center justify-between gap-2 py-2.5 px-3 bg-white border border-slate-200 rounded-xl text-xs" style="min-height:42px;">
+                              <span id="hnCashbackLabel" class="truncate text-slate-400">- Pilih Cashback -</span>
+                              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 text-slate-400"><path d="m6 9 6 6 6-6"/></svg>
+                            </button>
+                            <div id="hnCashbackPanel" class="hidden absolute z-40 left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden">
+                              <div class="p-2 border-b border-slate-100">
+                                <input id="hnCashbackSearch" type="text" placeholder="Cari Cashback..." oninput="renderHnCashbackOptions()" class="w-full py-2 px-3 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                              </div>
+                              <div id="hnCashbackOptions" class="max-h-64 overflow-y-auto"></div>
+                            </div>
+                          </div>
+                          <div class="relative" id="hnQuarterDdRoot">
+                            <input type="hidden" id="filterQuarterHargaNett" value="">
+                            <button type="button" id="hnQuarterBtn" aria-expanded="false" aria-haspopup="true" aria-controls="hnQuarterPanel" onclick="toggleHnQuarterDd()" class="w-full flex items-center justify-between gap-2 py-2.5 px-3 bg-white border border-slate-200 rounded-xl text-xs" style="min-height:42px;">
+                              <span id="hnQuarterLabel" class="truncate text-slate-400">- Pilih Quartal -</span>
+                              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 text-slate-400"><path d="m6 9 6 6 6-6"/></svg>
+                            </button>
+                            <div id="hnQuarterPanel" class="hidden absolute z-40 left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden">
+                              <div class="p-2 border-b border-slate-100">
+                                <input id="hnQuarterSearch" type="text" placeholder="Cari Quartal..." oninput="renderHnQuarterOptions()" class="w-full py-2 px-3 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                              </div>
+                              <div id="hnQuarterOptions" class="max-h-64 overflow-y-auto"></div>
+                            </div>
+                          </div>
                           <input id="discountHargaNett" type="number" min="0" max="100" step="0.01" oninput="renderHargaNett()" placeholder="Discount (%)" aria-label="Discount persen" class="w-full min-w-0 px-3 py-2.5 border border-slate-200 rounded-xl text-xs">
                         </div>
                         <div id="hargaNettTableView" class="overflow-x-auto rounded-lg border border-slate-200"><table class="text-[10px] border-collapse" style="width:max-content;min-width:0;table-layout:auto"><thead><tr class="bg-slate-100 text-slate-700">
@@ -8918,6 +8942,8 @@ startAutoRefresh();
         let hargaNettQuarterChoices = [];
         let hargaNettCashbackMap = {};
         let hargaNettExtraCashback = {};
+        let hargaNettCashbackFiltered = []; // Task 86: opsi dropdown Cashback (hasil filter PCO/MCO-4T)
+        let hargaNettQuarterFiltered = []; // Task 86: opsi dropdown Quartal
         function formatHargaNett(n) { return 'Rp ' + (Number(n)||0).toLocaleString('id-ID',{maximumFractionDigits:0}); }
         let hargaNettLoadedAt = 0, hargaNettLastUserKey = '';
         function loadHargaNett(forceRefresh) {
@@ -8926,8 +8952,7 @@ startAutoRefresh();
             // Cache klien 5 menit: berpindah tab tidak lagi memicu permintaan baru ke server.
             if (!forceRefresh && hargaNettData.length && hargaNettLastUserKey === hargaNettUserKey && (Date.now() - hargaNettLoadedAt < 300000)) {
                 renderHargaNettCashbackChoices();
-                const qselCached=document.getElementById('hargaNettQuarterOptions');
-                if(qselCached){qselCached.innerHTML=hargaNettQuarterChoices.map(c=>'<option value="'+escapeHtml(c.value)+'"></option>').join('');}
+                renderHargaNettQuarterChoices(); // Task 86: isi dropdown Quartal (menggantikan datalist)
                 renderHargaNett();
                 return;
             }
@@ -8940,24 +8965,30 @@ startAutoRefresh();
                 hargaNettQuarterChoices = Array.isArray(res.quarterChoices)?res.quarterChoices:[];
                 hargaNettCashbackMap = res.cashbackMap || {};
                 renderHargaNettCashbackChoices();
-                const qsel=document.getElementById('hargaNettQuarterOptions');
-                if(qsel){qsel.innerHTML=hargaNettQuarterChoices.map(c=>'<option value="'+escapeHtml(c.value)+'"></option>').join('');}
+                renderHargaNettQuarterChoices(); // Task 86: isi dropdown Quartal (menggantikan datalist)
                 renderHargaNett();
             }).withFailureHandler(function(err){ body.innerHTML='<tr><td colspan="6" class="p-5 text-center text-red-500">'+escapeHtml(err&&err.message||'Gagal memuat data.')+'</td></tr>'; }).getHargaNettData(!!forceRefresh);
         }
         function renderHargaNettCashbackChoices() {
-            const sel=document.getElementById('hargaNettCashbackOptions'); if(!sel)return;
+            // Task 86: isi dropdown Cashback (dulu: datalist hargaNettCashbackOptions).
             const type=String((document.getElementById('filterProdukHargaNett')||{}).value||'').trim().toUpperCase();
             let allowedTerms=null;
             if(type==='PCO') allowedTerms=['PCO','CAS'];
             else if(type==='MCO-4T') allowedTerms=['MCO-4T','BP'];
-            const choices=allowedTerms ? hargaNettCashbackChoices.filter(function(item){
+            hargaNettCashbackFiltered=allowedTerms ? hargaNettCashbackChoices.filter(function(item){
                 const value=String(item && item.value || '').toUpperCase();
                 return allowedTerms.some(function(term){return value.includes(term);});
-            }) : hargaNettCashbackChoices;
-            sel.innerHTML=choices.map(c=>'<option value="'+escapeHtml(c.value)+'"></option>').join('');
+            }) : hargaNettCashbackChoices.slice();
             const input=document.getElementById('filterCashbackHargaNett');
-            if(input && input.value && !choices.some(function(c){return String(c.value)===input.value;})) input.value='';
+            if(input && input.value && !hargaNettCashbackFiltered.some(function(c){return String(c.value)===input.value;})) setHnCashbackFilterValue('');
+            renderHnCashbackOptions();
+        }
+        function renderHargaNettQuarterChoices() {
+            // Task 86: isi dropdown Quartal (dulu: datalist hargaNettQuarterOptions).
+            hargaNettQuarterFiltered=hargaNettQuarterChoices.slice();
+            const input=document.getElementById('filterQuarterHargaNett');
+            if(input && input.value && hargaNettQuarterFiltered.length && !hargaNettQuarterFiltered.some(function(c){return String(c.value)===input.value;})) setHnQuarterFilterValue('');
+            renderHnQuarterOptions();
         }
         function renderHargaNett() {
             const body=document.getElementById('hargaNettBody'); if(!body)return;
@@ -9117,7 +9148,7 @@ startAutoRefresh();
             }).join('');
             const bonus=Math.max(0,Number((document.getElementById('hnBonus')||{}).value||0));
             const grand=Math.max(0,net-bonus);
-            const campaign=String((document.getElementById('filterCashbackHargaNett')||{}).selectedOptions?.[0]?.textContent||'').trim();
+            const campaign=String((document.getElementById('filterCashbackHargaNett')||{}).value||'').trim(); // Task 86: filter kini dropdown (hidden input), selectedOptions tidak ada pada input
             win.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Simulasi Invoice</title><style>'+
               '*{box-sizing:border-box}body{margin:0;background:#eef2f7;font-family:Arial,Helvetica,sans-serif;color:#172033;font-size:11px;-webkit-print-color-adjust:exact;print-color-adjust:exact}.sheet{max-width:1100px;margin:24px auto;background:#fff;padding:34px 38px;border-radius:14px;box-shadow:0 8px 30px #18243a14}.top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;padding-bottom:22px;border-bottom:3px solid #173b68}.eyebrow{font-size:10px;font-weight:700;letter-spacing:2px;color:#64748b;text-transform:uppercase;margin-bottom:8px}.title{font-size:27px;letter-spacing:-.5px;font-weight:800;color:#173b68;margin:0}.subtitle{color:#64748b;margin-top:7px;font-size:11px}.badge{background:#e8f1ff;color:#174a83;padding:9px 13px;border-radius:8px;font-size:10px;font-weight:700;white-space:nowrap}.meta{display:flex;gap:12px;margin:20px 0}.meta-card{flex:1;background:#f6f8fb;border:1px solid #e5eaf1;border-radius:9px;padding:12px 14px;min-width:0}.label{font-size:9px;color:#718096;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}.value{font-size:12px;font-weight:700;overflow-wrap:anywhere}.section-title{font-size:13px;font-weight:800;margin:24px 0 10px;color:#1c2c43}.table-wrap{border:1px solid #e3e8ef;border-radius:9px;overflow:hidden}table{width:100%;border-collapse:collapse;font-size:10px}thead{display:table-header-group}th{background:#173b68;color:#fff;text-align:left;font-size:9px;letter-spacing:.3px;padding:11px 8px;white-space:nowrap}td{padding:11px 8px;border-bottom:1px solid #e8edf3;vertical-align:top}tbody tr:nth-child(even){background:#f8fafc}tbody tr:last-child td{border-bottom:0}.num{color:#94a3b8;width:30px}.product{font-weight:700;color:#1e293b;line-height:1.4}.muted{font-size:9px;color:#94a3b8;margin-top:4px}.center{text-align:center;white-space:nowrap}.right{text-align:right;white-space:nowrap}.strong{font-weight:800;color:#173b68}.negative{color:#dc4b4b}.cashback{color:#0b896b}.star{font-size:9px;color:#b77905;white-space:nowrap}.bottom{display:flex;justify-content:flex-end;margin-top:18px}.summary{width:360px;border:1px solid #e3e8ef;border-radius:10px;padding:8px 15px;background:#fbfcfe}.sumrow{display:flex;justify-content:space-between;gap:18px;padding:8px 0;color:#596579;border-bottom:1px solid #edf0f4}.sumrow b{color:#25334a;white-space:nowrap}.sumrow.total{border:0;border-top:2px solid #173b68;margin-top:5px;padding-top:13px;color:#173b68;font-size:13px;font-weight:800}.sumrow.total b{font-size:17px;color:#173b68}.foot{display:flex;justify-content:space-between;gap:16px;border-top:1px solid #e5eaf1;margin-top:24px;padding-top:12px;color:#94a3b8;font-size:9px}.foot strong{color:#64748b}@page{size:A4 landscape;margin:9mm}@media print{body{background:#fff}.sheet{max-width:none;margin:0;padding:8px;border-radius:0;box-shadow:none}.meta{margin:14px 0}.section-title{margin-top:18px}th,td{padding:8px 6px}.summary{width:330px}.foot{margin-top:16px}}'+
               '</style></head><body><main class="sheet"><header class="top"><div><div class="eyebrow">INVOICE</div><h1 class="title">PT. Sukses Adi Surya</h1><div class="subtitle">Jl. Muncul II, Komplek Pergudangan Gedangan</div></div><div class="badge">Castrol</div></header><section class="meta"><div class="meta-card"><div class="label">Tanggal Cetak</div><div class="value">'+escapeHtml(new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'}))+'</div></div><div class="meta-card"><div class="label">Program</div><div class="value">'+escapeHtml(campaign||'-')+'</div></div><div class="meta-card"><div class="label">Jumlah Item</div><div class="value">'+hargaNettInvoiceCart.length+' produk</div></div></section><div class="section-title">Rincian Produk</div><div class="table-wrap"><table><thead><tr><th>No.</th><th>SKU / Produk</th><th>Qty</th><th>Harga Unit</th><th>Subtotal</th><th>Diskon</th><th>Cashback</th><th>Nett Subtotal</th></tr></thead><tbody>'+rows+'</tbody></table></div><section class="bottom"><div class="summary"><div class="sumrow"><span>Subtotal Pricelist</span><b>'+formatHargaNett(gross)+'</b></div><div class="sumrow"><span>Total Diskon Produk</span><b class="negative">-'+formatHargaNett(disc)+'</b></div><div class="sumrow"><span>Total Cashback</span><b class="cashback">-'+formatHargaNett(cashback)+'</b></div><div class="sumrow"><span>Total Extra Cashback</span><b class="cashback">-'+formatHargaNett(extra)+'</b></div><div class="sumrow"><span>Bonus Cashback</span><b>-'+formatHargaNett(bonus)+'</b></div><div class="sumrow total"><span>Grand Total Nett</span><b>'+formatHargaNett(grand)+'</b></div></div></section><footer class="foot"><span><strong>BCA</strong> 0102178899 a.n PT Sukses Adi Surya</span><span>Dicetak '+escapeHtml(new Date().toLocaleString('id-ID'))+'</span></footer></main></body></html>');
@@ -9164,6 +9195,115 @@ startAutoRefresh();
         }
         function setHargaNettProductType(type) { const el=document.getElementById('filterProdukHargaNett'); if(!el)return; el.value=(el.value===type?'':type); ['PCO','MCO-4T'].forEach(function(t){const b=document.getElementById(t==='PCO'?'filterProdukPCOHargaNett':'filterProdukMCOHargaNett');if(b){const active=el.value===t;b.classList.toggle('bg-emerald-700',active);b.classList.toggle('text-white',active);b.classList.toggle('border-emerald-700',active);}}); renderHargaNettCashbackChoices(); renderHargaNett(); }
         function setHargaNettExtraCashback(produk, value) { hargaNettExtraCashback[String(produk||'')] = Math.max(0, Number(value)||0); renderHargaNett(); }
+        // ===== Task 86: dropdown berpencarian Cashback & Quartal (meniru dropdown Generate Link Outlet) =====
+        function hnDdSetLabel(labelEl, value, placeholder) {
+            if (!labelEl) return;
+            labelEl.textContent = value ? value : placeholder;
+            labelEl.classList.toggle('text-slate-400', !value);
+        }
+        function setHnCashbackFilterValue(v) {
+            const input=document.getElementById('filterCashbackHargaNett');
+            if(input) input.value=String(v||'');
+            hnDdSetLabel(document.getElementById('hnCashbackLabel'), String(v||''), '- Pilih Cashback -');
+        }
+        function setHnQuarterFilterValue(v) {
+            const input=document.getElementById('filterQuarterHargaNett');
+            if(input) input.value=String(v||'');
+            hnDdSetLabel(document.getElementById('hnQuarterLabel'), String(v||''), '- Pilih Quartal -');
+        }
+        function toggleHnCashbackDd() { const p=document.getElementById('hnCashbackPanel'); if(!p)return; if(p.classList.contains('hidden')) openHnCashbackDd(); else closeHnCashbackDd(); }
+        function openHnCashbackDd() {
+            closeHnQuarterDd();
+            const p=document.getElementById('hnCashbackPanel'); if(!p)return;
+            p.classList.remove('hidden');
+            const b=document.getElementById('hnCashbackBtn'); if(b)b.setAttribute('aria-expanded','true');
+            const s=document.getElementById('hnCashbackSearch'); if(s)s.value='';
+            renderHnCashbackOptions();
+            try { if(s)s.focus(); } catch(eF1) {}
+        }
+        function closeHnCashbackDd() {
+            const p=document.getElementById('hnCashbackPanel'); if(!p)return;
+            p.classList.add('hidden');
+            const b=document.getElementById('hnCashbackBtn'); if(b)b.setAttribute('aria-expanded','false');
+        }
+        function renderHnCashbackOptions() {
+            const wrap=document.getElementById('hnCashbackOptions'); if(!wrap)return;
+            const q=String((document.getElementById('hnCashbackSearch')||{}).value||'').trim().toLowerCase();
+            const list=hargaNettCashbackFiltered.filter(function(c){const v=String(c&&c.value||'');return !q||v.toLowerCase().indexOf(q)>=0;});
+            const current=String((document.getElementById('filterCashbackHargaNett')||{}).value||'');
+            let html='<button type="button" class="hn-cb-option w-full text-left px-3 py-2.5 border-b border-slate-100 hover:bg-emerald-50 transition" data-v="">Semua Cashback<span class="block text-[10px] text-slate-400">Tanpa filter</span></button>';
+            if(!list.length){
+                html+='<div class="px-3 py-4 text-[11px] text-slate-400 text-center">'+((hargaNettCashbackChoices&&hargaNettCashbackChoices.length)?'Cashback tidak ditemukan.':'Belum ada pilihan Cashback.')+'</div>';
+            } else {
+                html+=list.map(function(c){
+                    const v=String(c.value||''); const active=v===current;
+                    return '<button type="button" class="hn-cb-option w-full text-left px-3 py-2.5 border-b border-slate-100 transition '+(active?'bg-emerald-50 font-bold text-emerald-800':'hover:bg-emerald-50')+'" data-v="'+escapeHtml(v)+'">'+escapeHtml(v)+(active?' <span class="text-[10px]">✓</span>':'')+'</button>';
+                }).join('');
+            }
+            wrap.innerHTML=html;
+            Array.prototype.forEach.call(wrap.querySelectorAll('.hn-cb-option'),function(btn){
+                btn.addEventListener('click',function(){
+                    setHnCashbackFilterValue(btn.getAttribute('data-v')||'');
+                    closeHnCashbackDd();
+                    renderHargaNett();
+                });
+            });
+        }
+        function toggleHnQuarterDd() { const p=document.getElementById('hnQuarterPanel'); if(!p)return; if(p.classList.contains('hidden')) openHnQuarterDd(); else closeHnQuarterDd(); }
+        function openHnQuarterDd() {
+            closeHnCashbackDd();
+            const p=document.getElementById('hnQuarterPanel'); if(!p)return;
+            p.classList.remove('hidden');
+            const b=document.getElementById('hnQuarterBtn'); if(b)b.setAttribute('aria-expanded','true');
+            const s=document.getElementById('hnQuarterSearch'); if(s)s.value='';
+            renderHnQuarterOptions();
+            try { if(s)s.focus(); } catch(eF2) {}
+        }
+        function closeHnQuarterDd() {
+            const p=document.getElementById('hnQuarterPanel'); if(!p)return;
+            p.classList.add('hidden');
+            const b=document.getElementById('hnQuarterBtn'); if(b)b.setAttribute('aria-expanded','false');
+        }
+        function renderHnQuarterOptions() {
+            const wrap=document.getElementById('hnQuarterOptions'); if(!wrap)return;
+            const q=String((document.getElementById('hnQuarterSearch')||{}).value||'').trim().toLowerCase();
+            const list=hargaNettQuarterFiltered.filter(function(c){const v=String(c&&c.value||'');return !q||v.toLowerCase().indexOf(q)>=0;});
+            const current=String((document.getElementById('filterQuarterHargaNett')||{}).value||'');
+            let html='<button type="button" class="hn-qt-option w-full text-left px-3 py-2.5 border-b border-slate-100 hover:bg-emerald-50 transition" data-v="">Semua Quartal<span class="block text-[10px] text-slate-400">Tanpa filter</span></button>';
+            if(!list.length){
+                html+='<div class="px-3 py-4 text-[11px] text-slate-400 text-center">'+((hargaNettQuarterChoices&&hargaNettQuarterChoices.length)?'Quartal tidak ditemukan.':'Belum ada pilihan Quartal.')+'</div>';
+            } else {
+                html+=list.map(function(c){
+                    const v=String(c.value||''); const active=v===current;
+                    return '<button type="button" class="hn-qt-option w-full text-left px-3 py-2.5 border-b border-slate-100 transition '+(active?'bg-emerald-50 font-bold text-emerald-800':'hover:bg-emerald-50')+'" data-v="'+escapeHtml(v)+'">'+escapeHtml(v)+(active?' <span class="text-[10px]">✓</span>':'')+'</button>';
+                }).join('');
+            }
+            wrap.innerHTML=html;
+            Array.prototype.forEach.call(wrap.querySelectorAll('.hn-qt-option'),function(btn){
+                btn.addEventListener('click',function(){
+                    setHnQuarterFilterValue(btn.getAttribute('data-v')||'');
+                    closeHnQuarterDd();
+                    renderHargaNett();
+                });
+            });
+        }
+        // Task 86: tutup dropdown Harga Nett bila klik di luar komponen atau menekan Escape (pola Generate Link Outlet).
+        (function(){
+            document.addEventListener('click',function(ev){
+                const p1=document.getElementById('hnCashbackPanel');
+                if(p1&&!p1.classList.contains('hidden')){const r1=document.getElementById('hnCashbackDdRoot');if(r1&&!r1.contains(ev.target))closeHnCashbackDd();}
+                const p2=document.getElementById('hnQuarterPanel');
+                if(p2&&!p2.classList.contains('hidden')){const r2=document.getElementById('hnQuarterDdRoot');if(r2&&!r2.contains(ev.target))closeHnQuarterDd();}
+            });
+            document.addEventListener('keydown',function(ev){
+                if(ev&&ev.key==='Escape'){
+                    const p1=document.getElementById('hnCashbackPanel');
+                    if(p1&&!p1.classList.contains('hidden'))closeHnCashbackDd();
+                    const p2=document.getElementById('hnQuarterPanel');
+                    if(p2&&!p2.classList.contains('hidden'))closeHnQuarterDd();
+                }
+            });
+        })();
         function loadPricelist(forceRefresh, silentRefresh) {
             const tbody = document.getElementById('listPricelistTableBody');
             if (!tbody) return;
@@ -12988,8 +13128,8 @@ function renderRiwayatCards(data) {
         const noteText = String(item.note || '').trim();
         const noteHtml = (noteText && noteText !== '-') ? '<div class="rw2-note"><span class="rw2-note-label">Note:</span> ' + escapeHtml(noteText) + '</div>' : '';
         const rw2Hint = rw2Key === 'pending'
-            ? ''
-            : '';
+            ? 'Order belum diproses \u2014 masih dapat diedit atau dihapus.'
+            : 'Order sudah diproses sales/admin \u2014 hubungi admin bila ada perubahan.';
         cards += `
             <article class="rw2-card rw2-${rw2Key}">
                 <div class="rw2-head">
@@ -13057,6 +13197,82 @@ var approvalViewMode = 'chart';
 var approvalLoading = false;
 var approvalStatusInFlight = false;
 
+// Task 84: sama seperti Tagihan — tombol Approve/Decline/Pending tetap aktif
+// meskipun data approval dimuat ulang di latar belakang (override per ID
+// sampai server mengonfirmasi / TTL berakhir).
+var approvalStatusOverride = {};
+var APPROVAL_STATUS_OVERRIDE_TTL = 300000;
+function approvalSetStatusOverride(idInput, status) {
+    const key = String(idInput || '').trim();
+    const st = String(status || '').trim().toUpperCase();
+    if (!key || (st !== 'APPROVE' && st !== 'DECLINE' && st !== 'PENDING')) return;
+    approvalStatusOverride[key] = { status: st, ts: Date.now() };
+}
+function approvalClearStatusOverride(idInput) {
+    delete approvalStatusOverride[String(idInput || '').trim()];
+}
+function approvalApplyStatusOverrides(data) {
+    const now = Date.now();
+    Object.keys(approvalStatusOverride).forEach(function(key) {
+        const ov = approvalStatusOverride[key];
+        if (!ov || (now - Number(ov.ts || 0)) > APPROVAL_STATUS_OVERRIDE_TTL) { delete approvalStatusOverride[key]; return; }
+        const it = (data || []).find(function(x){ return String(x.id || '').trim() === key; });
+        if (!it) return;
+        const srv = String(it.status || 'PENDING').trim().toUpperCase();
+        if (srv === ov.status) { delete approvalStatusOverride[key]; return; }
+        it.status = ov.status;
+    });
+}
+
+// ===== Task 85: antrean perubahan status Approval (sama seperti Tagihan) =====
+// Klik tombol Approve/Decline/Pending LAIN tetap bisa dilakukan meski
+// simpan/muat data masih berjalan di latar belakang: perubahan baru ditandai
+// optimistik lalu masuk antrean dan dikirim satu per satu setelah proses
+// berjalan selesai. Sebelumnya klik lain dibuang diam-diam selama simpan.
+var approvalStatusQueue = [];
+var approvalStatusInFlightChange = null;
+var approvalReloadQueued = false;
+function approvalStatusSend(change) {
+    approvalStatusInFlight = true;
+    approvalStatusInFlightChange = change;
+    google.script.run
+        .withSuccessHandler(function(res) {
+            approvalStatusInFlight = false;
+            approvalStatusInFlightChange = null;
+            if (!res || res.success === false) {
+                approvalStatusGagalKirim(change, (res && res.message) ? res.message : 'Perubahan status tidak tersimpan. Silakan coba lagi.');
+                return;
+            }
+            delete selectedRiwayatStatus[change.id];
+            approvalStatusLanjut();
+        })
+        .withFailureHandler(function(err) {
+            approvalStatusInFlight = false;
+            approvalStatusInFlightChange = null;
+            approvalStatusGagalKirim(change, (err && err.message ? err.message : 'Terjadi kesalahan saat mengubah status.'));
+        })
+        .updateOrderStatusBatchSync([{ id: change.id, status: change.target }], currentUsernameInput, currentUser);
+}
+function approvalStatusGagalKirim(change, msg) {
+    approvalClearStatusOverride(change.id);
+    // Perubahan lain untuk ID yang sama yang masih mengantre mengikuti status
+    // sebelum proses gagal ini supaya rantai perubahan tetap konsisten.
+    approvalStatusQueue.forEach(function(q){ if (q.id === change.id) q.cur = change.cur; });
+    approvalTerapkanStatusLokal([{ id: change.id, status: change.cur }]);
+    showModal('Gagal Approval', msg);
+    approvalStatusLanjut();
+}
+function approvalStatusLanjut() {
+    if (approvalStatusInFlight) return;
+    const next = approvalStatusQueue.shift();
+    if (next) { approvalStatusSend(next); return; }
+    // Antrean kosong: segarkan halaman terkait di latar belakang.
+    try { window._homeDsrCache = {}; } catch (eHomeCache) {}
+    try { loadRiwayat(true, true); } catch (eReloadRiwayat) {}
+    try { loadHomeRebuild(true); } catch (eReloadHome) {}
+    try { loadApproval(true, true); } catch (eReloadApproval) {}
+}
+
 function canUseApprovalMenu() {
     return String(currentUsernameInput||'').trim().toLowerCase()==='admin' || String(currentUser||'').trim()==='';
 }
@@ -13075,7 +13291,7 @@ function loadApproval(forceReload, silentRefresh) {
         if (appLocalCacheIsFresh(cacheKey, 60000)) return;
         silentRefresh = true;
     }
-    if (approvalLoading) return;
+    if (approvalLoading) { approvalReloadQueued = true; return; }
     approvalLoading = true;
     const container = document.getElementById('listApproval');
     if (forceReload && hasCached) filterApproval();
@@ -13087,18 +13303,24 @@ function loadApproval(forceReload, silentRefresh) {
         approvalLoading = false;
         if (!silentRefresh) showLoading(false);
         handleApprovalLoaded(data);
+        // Task 85: muat ulang yang diminta saat masih memuat dijadwalkan ulang
+        // (tidak dibuang) supaya data akhir selalu yang terbaru.
+        if (approvalReloadQueued) { approvalReloadQueued = false; loadApproval(true, true); }
     }).withFailureHandler(function(err) {
         approvalLoading = false;
         if (!silentRefresh) showLoading(false);
         if (container) container.innerHTML = '<div class="text-red-500 text-center py-6 text-xs">Gagal memuat approval: ' + escapeHtml(err && err.message ? err.message : 'Terjadi kesalahan.') + '</div>';
         const badge = document.getElementById('approvalCount');
         if (badge) badge.textContent = '0 transaksi';
+        if (approvalReloadQueued) { approvalReloadQueued = false; loadApproval(true, true); }
     }).getRiwayatOrder('', 'admin');
 }
 
 function handleApprovalLoaded(data) {
     globalApprovalData = Array.isArray(data) ? data : [];
     appLocalCacheSet('APPROVAL_' + String(currentUsernameInput||'').toUpperCase(), globalApprovalData);
+    // Task 84: paksa status pilihan user ke data segar sebelum di-render.
+    approvalApplyStatusOverrides(globalApprovalData);
     populateApprovalFilters();
     filterApproval();
 }
@@ -13107,8 +13329,13 @@ function populateApprovalFilters() {
     const fill = function(sel, values, label) {
         if (!sel) return;
         const prev = String(sel.value || '');
-        sel.innerHTML = '<option value="">' + label + '</option>' + values.map(function(v){ return '<option value="' + escapeHtml(v) + '">' + escapeHtml(v) + '</option>'; }).join('');
-        if (values.indexOf(prev) !== -1) sel.value = prev;
+        let html = '<option value="">' + label + '</option>' + values.map(function(v){ return '<option value="' + escapeHtml(v) + '">' + escapeHtml(v) + '</option>'; }).join('');
+        // Task 84: pilihan filter dipertahankan meski data dimuat ulang di
+        // latar belakang — opsi yang tidak ada di data terbaru tetap
+        // ditampilkan agar select tidak melompat kembali ke "Semua ...".
+        if (prev && values.indexOf(prev) === -1) html += '<option value="' + escapeHtml(prev) + '">' + escapeHtml(prev) + '</option>';
+        sel.innerHTML = html;
+        if (prev) sel.value = prev;
     };
     const uniqSorted = function(arr, mapper) {
         return [...new Set((arr || []).map(mapper).filter(Boolean))].sort(function(a,b){ return a.localeCompare(b, 'id'); });
@@ -13254,35 +13481,27 @@ function ubahStatusApprovalSatuan(idInput, statusBaru) {
     const id = String(idInput || '').trim();
     const target = String(statusBaru || '').trim().toUpperCase();
     if (!id || (target !== 'APPROVE' && target !== 'DECLINE' && target !== 'PENDING')) return;
-    if (approvalStatusInFlight) return;
     const item = (globalApprovalData || []).find(function(x){ return String(x.id || '').trim() === id; });
     const cur = String(item && item.status || 'PENDING').toUpperCase();
+    // Task 85: dobel klik / klik berulang untuk perubahan yang sama saat
+    // proses masih berjalan diabaikan diam-diam (perilaku lama).
+    if (approvalStatusInFlightChange && approvalStatusInFlightChange.id === id && approvalStatusInFlightChange.target === target) return;
+    const qSame = approvalStatusQueue.find(function(q){ return q.id === id; });
+    if (qSame && qSame.target === target) return;
     if (cur === target) {
         showModal('Status Sudah Sama', 'Status order ini sudah ' + cur + '.');
         return;
     }
+    // Task 85: klik LAIN saat ada proses berjalan TIDAK dibuang lagi; masuk
+    // antrean dan dikirim otomatis setelah proses berjalan selesai
+    // (tampilan tetap langsung berpindah / optimistik).
     approvalTerapkanStatusLokal([{ id: id, status: target }]);
-    approvalStatusInFlight = true;
-    google.script.run
-        .withSuccessHandler(function(res) {
-            approvalStatusInFlight = false;
-            if (!res || res.success === false) {
-                approvalTerapkanStatusLokal([{ id: id, status: cur }]);
-                showModal('Gagal Approval', (res && res.message) ? res.message : 'Perubahan status tidak tersimpan. Silakan coba lagi.');
-                return;
-            }
-            delete selectedRiwayatStatus[id];
-            try { window._homeDsrCache = {}; } catch (eHomeCache) {}
-            try { loadRiwayat(true, true); } catch (eReloadRiwayat) {}
-            try { loadHomeRebuild(true); } catch (eReloadHome) {}
-            try { loadApproval(true, true); } catch (eReloadApproval) {}
-        })
-        .withFailureHandler(function(err) {
-            approvalStatusInFlight = false;
-            approvalTerapkanStatusLokal([{ id: id, status: cur }]);
-            showModal('Gagal Approval', (err && err.message ? err.message : 'Terjadi kesalahan saat mengubah status.'));
-        })
-        .updateOrderStatusBatchSync([{ id: id, status: target }], currentUsernameInput, currentUser);
+    approvalSetStatusOverride(id, target);
+    if (approvalStatusInFlight) {
+        if (qSame) qSame.target = target; else approvalStatusQueue.push({ id: id, target: target, cur: cur });
+        return;
+    }
+    approvalStatusSend({ id: id, target: target, cur: cur });
 }
 
 function renderApprovalCards(data) {
@@ -13405,7 +13624,24 @@ function doneBulkStatusApproval() {
     const approve = changes.filter(function(x){ return x.status === 'APPROVE'; }).length;
     const decline = changes.filter(function(x){ return x.status === 'DECLINE'; }).length;
     showModal('Konfirmasi Status', 'Akan diproses ' + changes.length + ' transaksi. APPROVE: ' + approve + ' DECLINE: ' + decline + ' Lanjutkan?', true, function(isOk) {
-        if (!isOk || approvalStatusInFlight) return;
+        if (!isOk) return;
+        // Task 85: bila ada simpan lain yang sedang berjalan, perubahan massal
+        // masuk antrean per item (tampilan tetap langsung berpindah/optimistik).
+        if (approvalStatusInFlight) {
+            const queuedChanges = [];
+            changes.forEach(function(ch) {
+                const it = (globalApprovalData || []).find(function(x){ return String(x.id || '').trim() === String(ch.id); });
+                const curIt = String(it && it.status || 'PENDING').toUpperCase();
+                const qSame = approvalStatusQueue.find(function(q){ return q.id === ch.id; });
+                if (qSame) { qSame.target = ch.status; }
+                else approvalStatusQueue.push({ id: ch.id, target: ch.status, cur: curIt });
+                queuedChanges.push(ch);
+            });
+            approvalTerapkanStatusLokal(queuedChanges);
+            queuedChanges.forEach(function(ch) { approvalSetStatusOverride(ch.id, ch.status); });
+            showModal('Approval Diproses', changes.length + ' perubahan masuk antrean dan diproses otomatis setelah proses berjalan selesai.');
+            return;
+        }
         approvalStatusInFlight = true;
         showLoading(true);
         google.script.run
@@ -13413,10 +13649,8 @@ function doneBulkStatusApproval() {
                 approvalStatusInFlight = false;
                 showLoading(false);
                 changes.forEach(function(ch) { delete selectedRiwayatStatus[String(ch.id)]; });
-                try { window._homeDsrCache = {}; } catch (eHomeCache) {}
-                try { loadApproval(true, true); } catch (eReloadApproval) {}
-                try { loadRiwayat(true, true); } catch (eReloadRiwayat) {}
-                try { loadHomeRebuild(true); } catch (eReloadHome) {}
+                // Task 85: proses antrean (dan muat ulang) lewat approvalStatusLanjut.
+                approvalStatusLanjut();
                 if (!res || res.success === false) {
                     showModal('Gagal Approval', (res && res.message) ? res.message : 'Perubahan status tidak tersimpan. Silakan coba lagi.');
                     return;
@@ -13431,6 +13665,7 @@ function doneBulkStatusApproval() {
                 approvalStatusInFlight = false;
                 showLoading(false);
                 showModal('Gagal Approval', (err && err.message ? err.message : 'Terjadi kesalahan saat mengubah status.'));
+                approvalStatusLanjut();
             })
             .updateOrderStatusBatchSync(changes, currentUsernameInput, currentUser);
     });
@@ -13477,6 +13712,11 @@ function doneBulkStatusApproval() {
         '.inv-table td{padding:6px 8px;border-bottom:1px solid #f1f5f9;color:#334155;}' +
         '.inv-body .overflow-x-auto table.inv-table th{text-align:center;}' +
         '.inv-body .overflow-x-auto table.inv-table td{text-align:center;}' +
+        // Task 84: hanya kolom Produk (kolom ke-2) rata kiri; No/Qty/Satuan tetap tengah,
+        // baris kosong (colspan) tetap di tengah.
+        '.inv-body .overflow-x-auto table.inv-table th:nth-child(2){text-align:left;}' +
+        '.inv-body .overflow-x-auto table.inv-table td:nth-child(2){text-align:left;}' +
+        '.inv-body .overflow-x-auto table.inv-table td[colspan]{text-align:center;}' +
         '.inv-totrow td{background:#f8fafc;font-weight:900;color:#0f172a;border-top:2px solid #e2e8f0;}' +
         '.inv-stamp{display:inline-block;padding:5px 14px;border:2.5px solid;border-radius:8px;font-weight:900;font-size:13px;letter-spacing:.12em;transform:rotate(-6deg);margin-top:8px;}' +
         '.inv-stamp-lunas{color:#059669;border-color:#059669;background:rgba(5,150,105,.06);}' +
@@ -13519,6 +13759,83 @@ var tagihanLoading = false;
 var tagihanStatusInFlight = false;
 var tagihanSelectedIds = {};
 var TAGIHAN_UMUR_MERAH = 45;
+
+// Task 84: pilihan tombol Lunas/Belum TETAP tampil aktif meskipun data
+// dimuat ulang di latar belakang. Status terpilih dicatat sebagai override
+// per ID dan dipaksa ke data terbaru dari server sampai server mengonfirmasi
+// status yang sama (atau sampai TTL berakhir) — reload senyap tidak lagi
+// mengembalikan tampilan ke status lama (pembacaan sheet bisa stale sekejap
+// setelah tulis).
+var tagihanStatusOverride = {};
+var TAGIHAN_STATUS_OVERRIDE_TTL = 300000;
+function tagihanSetStatusOverride(idInput, status) {
+    const key = String(idInput || '').trim();
+    const st = String(status || '').trim().toUpperCase();
+    if (!key || (st !== 'LUNAS' && st !== 'BELUM LUNAS')) return;
+    tagihanStatusOverride[key] = { status: st, ts: Date.now() };
+}
+function tagihanClearStatusOverride(idInput) {
+    delete tagihanStatusOverride[String(idInput || '').trim()];
+}
+function tagihanApplyStatusOverrides(data) {
+    const now = Date.now();
+    Object.keys(tagihanStatusOverride).forEach(function(key) {
+        const ov = tagihanStatusOverride[key];
+        if (!ov || (now - Number(ov.ts || 0)) > TAGIHAN_STATUS_OVERRIDE_TTL) { delete tagihanStatusOverride[key]; return; }
+        const it = (data || []).find(function(x){ return String(x.id || '').trim() === key; });
+        if (!it) return;
+        const srv = String(it.statusTagihan || 'BELUM LUNAS').trim().toUpperCase();
+        if (srv === ov.status) { delete tagihanStatusOverride[key]; return; }
+        it.statusTagihan = ov.status;
+        it.tanggalLunas = (ov.status === 'LUNAS') ? tagihanTanggalHariIniStr() : '';
+    });
+}
+
+// ===== Task 85: antrean perubahan status Tagihan =====
+// Klik tombol Lunas/Belum LAIN tetap bisa dilakukan meski simpan/muat data
+// masih berjalan di latar belakang: perubahan baru ditandai optimistik lalu
+// masuk antrean dan dikirim satu per satu setelah proses berjalan selesai.
+// Sebelumnya klik lain dibuang diam-diam selama simpan masih berjalan.
+var tagihanStatusQueue = [];
+var tagihanStatusInFlightChange = null;
+var tagihanReloadQueued = false;
+function tagihanStatusSend(change) {
+    tagihanStatusInFlight = true;
+    tagihanStatusInFlightChange = change;
+    google.script.run
+        .withSuccessHandler(function(res) {
+            tagihanStatusInFlight = false;
+            tagihanStatusInFlightChange = null;
+            if (!res || res.success === false) {
+                tagihanStatusGagalKirim(change, (res && res.message) ? res.message : 'Perubahan status tagihan tidak tersimpan. Silakan coba lagi.');
+                return;
+            }
+            tagihanStatusLanjut();
+        })
+        .withFailureHandler(function(err) {
+            tagihanStatusInFlight = false;
+            tagihanStatusInFlightChange = null;
+            tagihanStatusGagalKirim(change, (err && err.message ? err.message : 'Terjadi kesalahan saat menyimpan status tagihan.'));
+        })
+        .updateStatusTagihanSync([{ id: change.id, status: change.target }], currentUsernameInput, currentUser);
+}
+function tagihanStatusGagalKirim(change, msg) {
+    tagihanClearStatusOverride(change.id);
+    // Perubahan lain untuk ID yang sama yang masih mengantre mengikuti status
+    // sebelum proses gagal ini supaya rantai perubahan tetap konsisten.
+    tagihanStatusQueue.forEach(function(q){ if (q.id === change.id) q.cur = change.cur; });
+    tagihanTerapkanStatusLokal([{ id: change.id, status: change.cur }]);
+    showModal('Gagal Simpan Tagihan', msg);
+    tagihanStatusLanjut();
+}
+function tagihanStatusLanjut() {
+    if (tagihanStatusInFlight) return;
+    const next = tagihanStatusQueue.shift();
+    if (next) { tagihanStatusSend(next); return; }
+    // Antrean kosong: segarkan data di latar belakang (override Task 84
+    // menjaga pilihan user tetap tampil meski data server masih lama).
+    try { loadTagihan(true, true); } catch (eReload) {}
+}
 
 function tagihanIsAdminScope() {
     return String(currentUsernameInput||'').trim().toLowerCase()==='admin' || String(currentUser||'').trim()==='';
@@ -13626,7 +13943,7 @@ function loadTagihan(forceReload, silentRefresh) {
         if (appLocalCacheIsFresh(cacheKey, 60000)) return;
         silentRefresh = true;
     }
-    if (tagihanLoading) return;
+    if (tagihanLoading) { tagihanReloadQueued = true; return; }
     tagihanLoading = true;
     const container = document.getElementById('listTagihan');
     if (forceReload && hasCached) filterTagihan();
@@ -13639,18 +13956,24 @@ function loadTagihan(forceReload, silentRefresh) {
         tagihanLoading = false;
         if (!silentRefresh) showLoading(false);
         handleTagihanLoaded(res);
+        // Task 85: muat ulang yang diminta saat masih memuat dijadwalkan ulang
+        // (tidak dibuang) supaya data akhir selalu yang terbaru.
+        if (tagihanReloadQueued) { tagihanReloadQueued = false; loadTagihan(true, true); }
     }).withFailureHandler(function(err) {
         tagihanLoading = false;
         if (!silentRefresh) showLoading(false);
         if (container) container.innerHTML = '<div class="text-red-500 text-center py-6 text-xs">Gagal memuat tagihan: ' + escapeHtml(err && err.message ? err.message : 'Terjadi kesalahan.') + '</div>';
         const badge = document.getElementById('tagihanCount');
         if (badge) badge.textContent = '0 tagihan';
+        if (tagihanReloadQueued) { tagihanReloadQueued = false; loadTagihan(true, true); }
     }).getTagihanData(salesArg, currentUsernameInput);
 }
 
 function handleTagihanLoaded(res) {
     globalTagihanData = (res && Array.isArray(res.data)) ? res.data : [];
     appLocalCacheSet(tagihanCacheKey(), globalTagihanData);
+    // Task 84: paksa status pilihan user ke data segar sebelum di-render.
+    tagihanApplyStatusOverrides(globalTagihanData);
     populateTagihanFilters();
     filterTagihan();
 }
@@ -14143,8 +14466,13 @@ function populateTagihanFilters() {
     const fill = function(sel, values, label) {
         if (!sel) return;
         const prev = String(sel.value || '');
-        sel.innerHTML = '<option value="">' + label + '</option>' + values.map(function(v){ return '<option value="' + escapeHtml(v) + '">' + escapeHtml(v) + '</option>'; }).join('');
-        if (values.indexOf(prev) !== -1) sel.value = prev;
+        let html = '<option value="">' + label + '</option>' + values.map(function(v){ return '<option value="' + escapeHtml(v) + '">' + escapeHtml(v) + '</option>'; }).join('');
+        // Task 84: pilihan filter dipertahankan meski data dimuat ulang di
+        // latar belakang — opsi yang tidak ada di data terbaru tetap
+        // ditampilkan agar select tidak melompat kembali ke "Semua ...".
+        if (prev && values.indexOf(prev) === -1) html += '<option value="' + escapeHtml(prev) + '">' + escapeHtml(prev) + '</option>';
+        sel.innerHTML = html;
+        if (prev) sel.value = prev;
     };
     const uniqSorted = function(arr, mapper) {
         return [...new Set((arr || []).map(mapper).filter(Boolean))].sort(function(a,b){ return a.localeCompare(b, 'id'); });
@@ -14380,13 +14708,17 @@ function ubahStatusTagihanSatuan(idInput, statusBaru) {
     const id = String(idInput || '').trim();
     const target = String(statusBaru || '').trim().toUpperCase();
     if (!id || (target !== 'LUNAS' && target !== 'BELUM LUNAS')) return;
-    if (tagihanStatusInFlight) return;
     const item = (globalTagihanData || []).find(function(x){ return String(x.id || '').trim() === id; });
     if (item && item.isCash) {
         showModal('Tagihan CASH', 'Transaksi CASH otomatis berstatus LUNAS dan tidak perlu diubah.');
         return;
     }
     const cur = String(item && item.statusTagihan || '').toUpperCase();
+    // Task 85: dobel klik / klik berulang untuk perubahan yang sama saat
+    // proses masih berjalan diabaikan diam-diam (perilaku lama).
+    if (tagihanStatusInFlightChange && tagihanStatusInFlightChange.id === id && tagihanStatusInFlightChange.target === target) return;
+    const qSame = tagihanStatusQueue.find(function(q){ return q.id === id; });
+    if (qSame && qSame.target === target) return;
     if (cur === target) {
         showModal('Status Sudah Sama', 'Status tagihan ini sudah ' + (cur || '-') + '.');
         return;
@@ -14394,38 +14726,48 @@ function ubahStatusTagihanSatuan(idInput, statusBaru) {
     // Task 61: optimistik seperti Harga Nett — tombol langsung berpindah tanpa
     // menunggu proses simpan (tanpa loading); proses berjalan tetap sama di
     // belakang layar, dan bila gagal status dikembalikan ke semula.
+    // Task 85: klik LAIN saat ada proses berjalan TIDAK dibuang lagi; masuk
+    // antrean dan dikirim otomatis setelah proses berjalan selesai
+    // (tampilan tetap langsung berpindah / optimistik).
     tagihanTerapkanStatusLokal([{ id: id, status: target }]);
-    tagihanStatusInFlight = true;
-    google.script.run
-        .withSuccessHandler(function(res) {
-            tagihanStatusInFlight = false;
-            if (!res || res.success === false) {
-                tagihanTerapkanStatusLokal([{ id: id, status: cur }]);
-                showModal('Gagal Simpan Tagihan', (res && res.message) ? res.message : 'Perubahan status tagihan tidak tersimpan. Silakan coba lagi.');
-                return;
-            }
-            try { loadTagihan(true, true); } catch (eReload) {}
-        })
-        .withFailureHandler(function(err) {
-            tagihanStatusInFlight = false;
-            tagihanTerapkanStatusLokal([{ id: id, status: cur }]);
-            showModal('Gagal Simpan Tagihan', (err && err.message ? err.message : 'Terjadi kesalahan saat menyimpan status tagihan.'));
-        })
-        .updateStatusTagihanSync([{ id: id, status: target }], currentUsernameInput, currentUser);
+    tagihanSetStatusOverride(id, target);
+    if (tagihanStatusInFlight) {
+        if (qSame) qSame.target = target; else tagihanStatusQueue.push({ id: id, target: target, cur: cur });
+        return;
+    }
+    tagihanStatusSend({ id: id, target: target, cur: cur });
 }
 
 // Pilihan massal: terapkan satu status ke SEMUA tagihan yang dicentang.
 function terapkanStatusTagihanMassal(statusBaru) {
     const target = String(statusBaru || '').trim().toUpperCase();
     if (target !== 'LUNAS' && target !== 'BELUM LUNAS') return;
-    if (tagihanStatusInFlight) return;
+    // Task 85: pengaman in-flight dipindah ke callback konfirmasi; saat ada
+    // proses berjalan, perubahan massal masuk antrean (tidak dibuang diam-diam).
     const changes = Object.keys(tagihanSelectedIds).filter(function(k){ return tagihanSelectedIds[k]; }).map(function(id){ return { id: id, status: target }; });
     if (!changes.length) {
         showModal('Tidak Ada Pilihan', 'Centang minimal satu tagihan terlebih dahulu.');
         return;
     }
     showModal('Konfirmasi Status Tagihan', 'Ubah status ' + changes.length + ' tagihan terpilih menjadi ' + target + '?', true, function(isOk) {
-        if (!isOk || tagihanStatusInFlight) return;
+        if (!isOk) return;
+        // Task 85: bila ada simpan lain yang sedang berjalan, perubahan massal
+        // masuk antrean per item (tampilan tetap langsung berpindah/optimistik).
+        if (tagihanStatusInFlight) {
+            const queuedChanges = [];
+            changes.forEach(function(ch) {
+                const it = (globalTagihanData || []).find(function(x){ return String(x.id || '').trim() === String(ch.id); });
+                const curIt = String(it && it.statusTagihan || '').toUpperCase();
+                const qSame = tagihanStatusQueue.find(function(q){ return q.id === ch.id; });
+                if (qSame) { qSame.target = ch.status; }
+                else tagihanStatusQueue.push({ id: ch.id, target: ch.status, cur: curIt });
+                queuedChanges.push(ch);
+            });
+            tagihanTerapkanStatusLokal(queuedChanges);
+            queuedChanges.forEach(function(ch) { tagihanSetStatusOverride(ch.id, ch.status); });
+            resetPilihanStatusTagihan();
+            return;
+        }
         tagihanStatusInFlight = true;
         showLoading(true);
         google.script.run
@@ -14434,17 +14776,21 @@ function terapkanStatusTagihanMassal(statusBaru) {
                 showLoading(false);
                 if (!res || res.success === false) {
                     showModal('Gagal Simpan Tagihan', (res && res.message) ? res.message : 'Perubahan status tagihan tidak tersimpan. Silakan coba lagi.');
+                    tagihanStatusLanjut();
                     return;
                 }
                 tagihanTerapkanStatusLokal(changes);
+                // Task 84: pilihan massal juga tetap aktif saat reload senyap berjalan.
+                changes.forEach(function(ch) { tagihanSetStatusOverride(ch.id, target); });
                 showModal('Tagihan Tersimpan', (res && res.message) ? res.message : (changes.length + ' tagihan diperbarui.'));
                 resetPilihanStatusTagihan();
-                try { loadTagihan(true, true); } catch (eReload) {}
+                tagihanStatusLanjut();
             })
             .withFailureHandler(function(err) {
                 tagihanStatusInFlight = false;
                 showLoading(false);
                 showModal('Gagal Simpan Tagihan', (err && err.message ? err.message : 'Terjadi kesalahan saat menyimpan status tagihan.'));
+                tagihanStatusLanjut();
             })
             .updateStatusTagihanSync(changes, currentUsernameInput, currentUser);
     });
