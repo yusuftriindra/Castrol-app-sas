@@ -1,0 +1,1933 @@
+<!doctype html>
+<html lang="id">
+<head>
+    <base target="_top">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Castrol Outlet</title>
+    <script id="castrol-github-bridge">
+/* Task 69: GitHub Pages bridge — mekanisme sama dengan portal sales (Index.html).
+   Bila file ini dibuka dari GitHub Pages (host bukan script.google.com),
+   google.script.run diganti bridge POST -> Apps Script (allowlist Code.gs sudah
+   mencakup outletPortal*). Bila dibuka dari Apps Script, native API tetap dipakai. */
+(function () {
+    var host = String(window.location.hostname || '').toLowerCase();
+    var isAppsScriptHost = host === 'script.google.com' || host === 'script.googleusercontent.com';
+    if (isAppsScriptHost) return;
+
+    var CASTROL_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx5dkNkseL2AXyP4T3vRATCQEnRC3Ft5ho29iUObmj-Y3H-vRunigrQheYt3jzoBq-p/exec';
+    var BRIDGE_URL = CASTROL_APPS_SCRIPT_URL + (CASTROL_APPS_SCRIPT_URL.indexOf('?') >= 0 ? '&' : '?') + 'bridge=1';
+    var seq = 0;
+    var pending = Object.create(null);
+
+    function cleanup(p) {
+        if (!p) return;
+        if (p.frame && p.frame.parentNode) p.frame.parentNode.removeChild(p.frame);
+        if (p.form && p.form.parentNode) p.form.parentNode.removeChild(p.form);
+    }
+
+    function hiddenInput(name, value) {
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = value == null ? '' : String(value);
+        return input;
+    }
+
+    window.addEventListener('message', function (event) {
+        var msg = event.data || {};
+        if (!msg || typeof msg !== 'object') return;
+        if (msg.type !== 'castrol-gas-response' || !msg.id) return;
+        var p = pending[msg.id];
+        if (!p) return;
+        delete pending[msg.id];
+        cleanup(p);
+
+        if (msg.ok) {
+            if (p.success) p.success(msg.data, p.userObject);
+        } else {
+            if (p.failure) p.failure(new Error(
+                msg.error && msg.error.message ? msg.error.message : 'Permintaan tidak dapat diproses.'
+            ), p.userObject);
+        }
+    });
+
+    function call(method, args, success, failure, userObject) {
+        var id = 'gas_' + Date.now() + '_' + (++seq);
+        var frame = document.createElement('iframe');
+        var frameName = 'castrolReq_' + Date.now() + '_' + seq;
+        frame.name = frameName;
+        frame.setAttribute('aria-hidden', 'true');
+        frame.style.cssText = 'position:fixed;width:1px;height:1px;left:-10000px;top:-10000px;border:0;opacity:0;pointer-events:none;';
+        document.body.appendChild(frame);
+
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = BRIDGE_URL;
+        form.target = frameName;
+        form.style.display = 'none';
+        form.appendChild(hiddenInput('bridge', '1'));
+        form.appendChild(hiddenInput('id', id));
+        form.appendChild(hiddenInput('method', method));
+        form.appendChild(hiddenInput('args', JSON.stringify(Array.isArray(args) ? args : [])));
+        document.body.appendChild(form);
+
+        var p = pending[id] = {
+            frame: frame,
+            form: form,
+            success: typeof success === 'function' ? success : null,
+            failure: typeof failure === 'function' ? failure : null,
+            userObject: userObject
+        };
+
+        try {
+            form.submit();
+        } catch (err) {
+            delete pending[id];
+            cleanup(p);
+            if (p.failure) p.failure(err, p.userObject);
+        }
+    }
+
+    function runner(state) {
+        state = state || { success: null, failure: null, userObject: null };
+        return new Proxy({}, {
+            get: function (_target, prop) {
+                if (prop === 'withSuccessHandler') {
+                    return function (fn) {
+                        return runner({
+                            success: typeof fn === 'function' ? fn : null,
+                            failure: state.failure,
+                            userObject: state.userObject
+                        });
+                    };
+                }
+                if (prop === 'withFailureHandler') {
+                    return function (fn) {
+                        return runner({
+                            success: state.success,
+                            failure: typeof fn === 'function' ? fn : null,
+                            userObject: state.userObject
+                        });
+                    };
+                }
+                if (prop === 'withUserObject') {
+                    return function (obj) {
+                        return runner({
+                            success: state.success,
+                            failure: state.failure,
+                            userObject: obj
+                        });
+                    };
+                }
+                if (prop === 'then' || prop === 'catch' || prop === 'toString' || prop === Symbol.toPrimitive) return undefined;
+                return function () {
+                    var args = Array.prototype.slice.call(arguments);
+                    call(String(prop), args, state.success, state.failure, state.userObject);
+                };
+            }
+        });
+    }
+
+    window.google = window.google || {};
+    window.google.script = window.google.script || {};
+    window.google.script.run = runner({ success: null, failure: null, userObject: null });
+})();
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* ===== Task 70: tema/layout/UI identik dengan portal Sales =====
+           Header putih + saputangan Castrol, sidebar gelap gradien,
+           kartu radius 20, judul seksi dengan bar hijau, modal & login sales. */
+        :root{
+            --castrol-green:#007a3d;
+            --castrol-green-2:#00a651;
+            --castrol-dark:#052b1a;
+            --castrol-red:#e31837;
+            --castrol-lime:#b7d433;
+            --castrol-ink:#12221a;
+            --castrol-muted:#6b7a71;
+            --castrol-line:#dfe8e2;
+            --castrol-soft:#f3f8f4;
+            --castrol-card:#ffffff;
+            --ui-green:#008a45;
+            --ui-bg:#f3f6f4;
+        }
+        *{ -webkit-tap-highlight-color:transparent; }
+        html,body{ margin:0; padding:0; }
+        body{
+            font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+            -webkit-font-smoothing:antialiased;
+            overflow-x:hidden;
+            color:#10241b;
+            background:#f3f6f4 !important;
+            min-height:100vh; min-height:100dvh;
+        }
+        .hidden{ display:none !important; }
+
+        /* ===== Loading overlay ===== */
+        #loadingOverlay{
+            position:fixed; inset:0; z-index:100000; display:none;
+            align-items:center; justify-content:center;
+            background:rgba(4,26,15,.35); backdrop-filter:blur(2px);
+        }
+        #loadingOverlay.on{ display:flex; }
+        .op-spinner{
+            width:46px; height:46px; border-radius:50%;
+            border:4px solid rgba(255,255,255,.35); border-top-color:#fff;
+            animation:opspin .8s linear infinite;
+        }
+        @keyframes opspin{ to{ transform:rotate(360deg); } }
+
+        /* ===== Modal — gaya #customModal portal Sales ===== */
+        .op-modal-overlay{
+            display:none; position:fixed; inset:0; z-index:9999;
+            padding:12px; align-items:center; justify-content:center;
+            background:rgba(2,28,16,.62); backdrop-filter:blur(10px);
+        }
+        .op-modal-card{
+            width:440px; max-width:calc(100vw - 20px); max-height:min(88vh,800px);
+            background:#fff; border-radius:21px; overflow:hidden;
+            box-shadow:0 28px 90px rgba(2,32,18,.25);
+            display:flex; flex-direction:column;
+            border:1px solid rgba(216,229,220,.95);
+        }
+        .op-modal-header{
+            padding:14px 16px; border-bottom:1px solid #e2ebe5;
+            background:linear-gradient(135deg,#ffffff,#f5faf7);
+            font-weight:800; font-size:14px; color:#123527;
+        }
+        .op-modal-body{ padding:16px 18px; overflow-y:auto; -webkit-overflow-scrolling:touch; font-size:13px; color:#24352c; }
+        .op-modal-footer{
+            padding:12px 16px; border-top:1px solid #e2ebe5; background:#fbfdfc;
+            display:flex; justify-content:flex-end; gap:8px;
+        }
+        .op-btn{
+            border:0; cursor:pointer; border-radius:11px; font-weight:800; font-size:12px;
+            padding:9px 16px; transition:filter .15s ease, transform .08s ease, background .15s ease;
+        }
+        .op-btn:active{ transform:scale(.98); }
+        .op-btn-ok{ background:linear-gradient(180deg,#00b85c,#009b4d) !important; color:#fff; border:1px solid #008a45; box-shadow:0 6px 14px rgba(0,140,74,.20); }
+        .op-btn-cancel{ background:#fff; color:#475569; border:1px solid #e5eaee; }
+        .op-btn-cancel:hover{ background:#f3f6f4; }
+        .op-btn-danger{ background:#dc2626; color:#fff; }
+
+        /* ===== Login layar penuh hijau — identik portal Sales ===== */
+        #loginPage{
+            position:fixed; inset:0; z-index:60; overflow-y:auto;
+            background-color:#0b2e1d;
+            background-image:
+                radial-gradient(circle at 18% 14%, rgba(0,166,81,.20) 0%, rgba(0,166,81,0) 44%),
+                radial-gradient(circle at 82% 80%, rgba(0,166,81,.17) 0%, rgba(0,166,81,0) 48%),
+                linear-gradient(160deg,#123f28 0%,#0c3120 52%,#071f14 100%) !important;
+            display:flex; flex-direction:column; align-items:center;
+            padding:0 20px max(18px, env(safe-area-inset-bottom));
+            box-sizing:border-box;
+        }
+        .castrol-auth-brand{
+            width:100%; max-width:430px;
+            display:flex; align-items:center; justify-content:center; gap:10px;
+            padding-top:34px;
+        }
+        .castrol-auth-roundel{
+            width:44px; height:44px; object-fit:contain;
+            background:#fff; border-radius:9999px; padding:5px; box-sizing:content-box;
+            box-shadow:0 6px 18px rgba(0,0,0,.28);
+        }
+        .castrol-auth-wordmark{ color:#fff; font-weight:800; font-style:italic; font-size:26px; letter-spacing:.4px; line-height:1; text-shadow:0 2px 10px rgba(0,0,0,.25); }
+        .castrol-auth-body{ flex:1 1 auto; width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:26px 0; }
+        .castrol-auth-card{
+            width:100%; max-width:400px; background:#fff; border-radius:18px;
+            box-shadow:0 18px 44px rgba(4,24,15,.35); padding:26px 22px; box-sizing:border-box;
+        }
+        .castrol-auth-portal-tag{
+            display:inline-block; font-size:9px; font-weight:900; letter-spacing:2px;
+            color:#047f42; background:#e7f7ee; border:1px solid #c5ebd5;
+            padding:4px 10px; border-radius:999px; margin-bottom:12px;
+        }
+        .castrol-auth-title{ font-size:18px; font-weight:900; color:#10241b; margin:0 0 14px; }
+        .castrol-auth-label{ display:block; font-size:11px; font-weight:700; color:#3f5a4c; margin-bottom:5px; letter-spacing:.3px; }
+        .castrol-auth-input{
+            width:100%; box-sizing:border-box;
+            border:1px solid #dbe5df; border-radius:11px;
+            padding:11px 13px; font-size:14px; color:#10241b; background:#fff;
+            outline:none; transition:border-color .15s ease, box-shadow .15s ease; height:42px;
+        }
+        .castrol-auth-input::placeholder{ color:#9ab0a4; }
+        .castrol-auth-input:focus{ border-color:#00a651; box-shadow:0 0 0 3px rgba(0,166,81,.14); }
+        .castrol-auth-submit{
+            width:100%; border:0; cursor:pointer;
+            background:linear-gradient(180deg,#00a651,#047f42);
+            color:#fff; font-weight:800; font-size:15px;
+            padding:12px 14px; border-radius:12px; margin-top:14px;
+            box-shadow:0 8px 18px rgba(0,120,60,.30);
+            transition:filter .15s ease, transform .08s ease;
+        }
+        .castrol-auth-submit:hover{ filter:brightness(1.06); }
+        .castrol-auth-submit:active{ transform:translateY(1px); }
+        .castrol-auth-submit:disabled{ opacity:.7; cursor:progress; }
+        .castrol-auth-error{
+            display:none; margin-top:12px; font-size:11.5px; font-weight:700;
+            color:#b91c1c; background:#fef2f2; border:1px solid #fecaca;
+            border-radius:10px; padding:9px 12px;
+        }
+        .castrol-auth-error.on{ display:block; }
+        .castrol-auth-footer{ width:100%; max-width:520px; text-align:center; padding-bottom:6px; }
+        .castrol-auth-tagline{
+            margin:0; color:#ffffff;
+            font-weight:800; font-style:italic;
+            font-size:17px; line-height:1.35;
+            text-shadow:0 2px 10px rgba(0,0,0,.30);
+        }
+        .castrol-auth-sub{ margin:7px 0 0; color:rgba(255,255,255,.62); font-size:12px; font-weight:600; }
+        .castrol-auth-copy{ margin:12px 0 0; color:rgba(255,255,255,.38); font-size:10.5px; }
+        @media (min-width:768px){
+            .castrol-auth-brand{ padding-top:44px; }
+            .castrol-auth-card{ padding:30px 28px; }
+            .castrol-auth-tagline{ font-size:21px; }
+        }
+
+        /* ===== App shell ===== */
+        #app{ min-height:100vh; min-height:100dvh; display:flex; flex-direction:column; }
+
+        /* ===== Header PUTIH + saputangan Castrol ===== */
+        #mainHeader{
+            position:sticky; top:0; z-index:60; height:62px; min-height:62px; box-sizing:border-box;
+            background:#ffffff !important;
+            border-bottom:1px solid #e5eaee !important;
+            box-shadow:0 2px 12px rgba(16,36,27,.06) !important;
+            display:flex; justify-content:space-between; align-items:center;
+            padding:11px 20px; color:#123527;
+        }
+        #mainHeader:before{ content:none !important; }
+        #mainHeader:after{
+            content:"" !important;
+            position:absolute; top:0; left:auto; right:0;
+            width:138px; height:100%;
+            background:linear-gradient(115deg,#00a651 0 30%,#0d8a46 30% 55%,#e60012 55% 78%,#123527 78% 100%);
+            clip-path:polygon(36% 0,100% 0,100% 100%,10% 100%);
+            opacity:.94 !important;
+            pointer-events:none;
+            z-index:0;
+        }
+        #mainHeader > *{ position:relative; z-index:1; }
+        .castrol-greet{ display:flex; flex-direction:column; justify-content:center; line-height:1.18; min-width:0; }
+        .castrol-greet-hi{ font-size:9px; font-weight:600; color:#6b7f74; letter-spacing:.02em; white-space:nowrap; }
+        h1.castrol-greet-name{
+            font-size:14px !important; font-weight:900 !important; font-style:normal !important;
+            color:#123527 !important; letter-spacing:0 !important; text-shadow:none !important;
+            max-width:190px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+            margin:0;
+        }
+        .castrol-greet-role{ font-size:8.5px; font-weight:800; color:#008a45; letter-spacing:.05em; text-transform:uppercase; white-space:nowrap; }
+        /* Task 76: badge Online jadi item flex biasa di grup tombol kanan (samping tombol refresh) — tidak lagi absolute */
+        .cst-header-online{
+            display:inline-flex; align-items:center; gap:6px;
+            background:#e8f5ee; color:#008a45; border:1px solid #c9e8d6;
+            font-size:10.5px; font-weight:800; border-radius:999px; padding:5px 11px; white-space:nowrap;
+        }
+        .cst-header-online i{ width:7px; height:7px; border-radius:50%; background:#00c853; box-shadow:0 0 0 3px rgba(0,200,83,.18); animation:cstOnlinePulse 2s ease-in-out infinite; }
+        @keyframes cstOnlinePulse{ 0%,100%{ box-shadow:0 0 0 3px rgba(0,200,83,.18); } 50%{ box-shadow:0 0 0 6px rgba(0,200,83,.08); } }
+        #sidebarToggle{
+            width:40px; height:40px; border-radius:13px;
+            border:1px solid rgba(255,255,255,.16); background:rgba(255,255,255,.075);
+            color:#123527; cursor:pointer;
+            display:flex; align-items:center; justify-content:center;
+            transition:background .15s ease, border-color .15s ease, color .15s ease;
+        }
+        #sidebarToggle:hover{ background:#eaf7f0 !important; border-color:#bfe6d2 !important; color:#008a45 !important; }
+        .header-btn{
+            width:34px; height:34px; border-radius:10px;
+            border:1px solid #e5eaee; background:#f3f6f4; color:#123527; cursor:pointer;
+            display:flex; align-items:center; justify-content:center;
+            transition:background .15s ease, border-color .15s ease, color .15s ease;
+        }
+        .header-btn:hover{ background:#eaf7f0; border-color:#bfe6d2; color:#008a45; }
+        .header-btn.spinning svg{ animation:opspin 1s linear infinite; }
+
+        /* ===== Sidebar gelap Castrol (item teks-saja, ikon disembunyikan) ===== */
+        #leftNav{
+            position:fixed; left:0; top:62px; bottom:0; width:184px; z-index:900;
+            background:linear-gradient(180deg,#10402a 0%,#0c3120 55%,#082417 100%) !important;
+            border-right:1px solid rgba(255,255,255,.08) !important;
+            box-shadow:6px 0 22px rgba(4,24,15,.35) !important;
+            display:flex; flex-direction:column; padding:12px 8px; box-sizing:border-box;
+            transition:transform .22s ease; overflow-y:auto;
+        }
+        .sidebar-inner{ display:flex; flex-direction:column; gap:6px; flex:1; min-height:0; }
+        .castrol-sidebar-logo{
+            display:flex !important; align-items:center !important; justify-content:flex-start !important;
+            gap:9px !important; min-height:40px !important;
+            padding:6px 13px 8px !important;
+            border-bottom:1px solid rgba(255,255,255,.10); margin-bottom:8px;
+        }
+        .castrol-logo-img{ width:38px; height:38px; object-fit:contain; background:#fff; border-radius:9999px; padding:4px; box-sizing:content-box; box-shadow:0 4px 12px rgba(0,0,0,.28); flex:none; display:block; }
+        .castrol-logo-word{ color:#ffffff !important; font-size:21px; font-weight:900; font-style:italic; letter-spacing:-.3px; line-height:1; white-space:nowrap; text-shadow:0 1px 6px rgba(0,0,0,.3); }
+        .sidebar-item{
+            display:flex; align-items:center; gap:10px; width:100%; text-align:left;
+            min-height:42px; height:42px; padding:0 10px 0 14px;
+            border-radius:10px; border:1px solid transparent; background:transparent;
+            cursor:pointer; color:rgba(255,255,255,.78) !important;
+            font-size:10.5px; font-weight:750; letter-spacing:.2px;
+            transition:color .15s ease, background .15s ease, border-color .15s ease, transform .15s ease;
+        }
+        .sidebar-item:hover{ color:#ffffff !important; background:rgba(255,255,255,.09) !important; border-color:rgba(255,255,255,.16) !important; transform:translateX(2px); }
+        .sidebar-item-active{
+            color:#ffffff !important;
+            background:linear-gradient(180deg,rgba(0,166,81,.42) 0%,rgba(0,166,81,.20) 100%) !important;
+            border-color:rgba(0,166,81,.55) !important;
+            box-shadow:inset 3px 0 0 #00a651, 0 6px 16px rgba(0,0,0,.22) !important;
+        }
+        .sidebar-icon{ display:none !important; }
+        .sidebar-text{
+            display:block; width:100%; text-align:left;
+            font-size:11px; font-weight:700; letter-spacing:.01em;
+            white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+        }
+        .sidebar-spacer{ flex:1; }
+        .sidebar-bottom{
+            border-top:1px solid rgba(255,255,255,.14); padding-top:10px; margin-top:10px;
+            display:flex; flex-direction:column; gap:6px;
+            display:none !important; /* sama dengan sales: bagian bawah sidebar disembunyikan */
+        }
+        #outletBadge{
+            font-size:9px; font-weight:900; letter-spacing:1.2px; color:#a7f3d0;
+            background:rgba(0,166,81,.20); border:1px solid rgba(0,166,81,.45); border-radius:999px;
+            padding:6px 10px; text-align:center;
+        }
+        #sidebarOverlay{
+            position:fixed; inset:0; z-index:890; background:rgba(5,25,15,.42);
+            display:none;
+        }
+        #sidebarOverlay.on{ display:block; }
+        #appContent{ flex:1; padding:24px 28px; transition:margin-left .25s ease; }
+        @media (min-width:1101px){
+            #appContent{ margin-left:184px; }
+            #app.sidebar-closed #leftNav{ transform:translateX(-100%); }
+            #app.sidebar-closed #appContent{ margin-left:0; }
+        }
+        @media (min-width:768px) and (max-width:1100px){
+            #leftNav{ width:200px; }
+            #appContent{ margin-left:200px; padding:20px; }
+            #app.sidebar-closed #leftNav{ transform:translateX(-100%); }
+            #app.sidebar-closed #appContent{ margin-left:0; }
+        }
+        @media (max-width:767px){
+            #leftNav{
+                transform:translateX(-105%); width:220px; top:58px; padding:11px 10px;
+                border-radius:0 18px 18px 0;
+                box-shadow:16px 0 40px rgba(4,35,20,.16), 6px 0 22px rgba(4,24,15,.35);
+            }
+            #app.drawer-open #leftNav{ transform:translateX(0); }
+            #appContent{ margin-left:0 !important; padding:10px; }
+            .sidebar-item{ min-height:44px; height:44px; padding:0 12px; }
+        }
+
+        /* ===== Konten umum ===== */
+        .tab-content{ animation:fadein .18s ease; }
+        @keyframes fadein{ from{ opacity:0; transform:translateY(4px);} to{ opacity:1; transform:none;} }
+        .op-card{
+            background:var(--castrol-card); border:1px solid #e4ebe7;
+            border-radius:20px; box-shadow:0 10px 34px rgba(15,23,42,.055);
+        }
+        .op-input{
+            width:100%; box-sizing:border-box; min-height:42px;
+            border:1px solid #d5e0d9; border-radius:11px;
+            padding:9px 12px; font-size:12.5px; color:#17251d; background:#fff; outline:none;
+            box-shadow:0 1px 2px rgba(18,50,31,.025);
+            transition:border-color .15s ease, box-shadow .15s ease;
+        }
+        .op-input:focus{ border-color:#00a651 !important; box-shadow:0 0 0 3px rgba(0,166,81,.13) !important; }
+        .op-label{ display:block; font-size:11px; font-weight:700; color:#3f5a4c; margin-bottom:5px; letter-spacing:.3px; }
+        .op-section-title{
+            position:relative; padding-left:12px;
+            font-size:18px; font-weight:900; letter-spacing:-.01em;
+            color:#10241b !important; margin:0 0 2px;
+        }
+        .op-section-title:before{
+            content:""; position:absolute; left:0; top:3px; bottom:3px;
+            width:4px; border-radius:4px;
+            background:linear-gradient(180deg,#00b85c,#008a45);
+        }
+        .op-section-sub{ font-size:12px; color:#5b6f64; margin:0 0 8px; }
+        .op-btn-primary{
+            border:0; cursor:pointer; color:#fff; font-weight:800; font-size:12.5px;
+            background:linear-gradient(180deg,#00b85c,#009b4d); border-radius:10px;
+            padding:11px 16px; box-shadow:0 6px 14px rgba(0,140,74,.20);
+            transition:filter .15s ease, transform .08s ease;
+        }
+        .op-btn-primary:hover{ filter:brightness(1.05); }
+        .op-btn-primary:active{ transform:scale(.99); }
+        .op-btn-primary:disabled{ opacity:.65; cursor:wait; }
+        .op-btn-ghost{
+            border:1px solid #e5eaee; cursor:pointer; color:#475569; font-weight:800; font-size:12px;
+            background:#fff; border-radius:10px; padding:9px 14px;
+            transition:background .15s ease, border-color .15s ease, color .15s ease;
+        }
+        .op-btn-ghost:hover{ background:#f3faf6; border-color:#8fd6b0; color:#008a45; }
+        #btnKirimOrder{
+            min-height:48px; border-radius:16px;
+            background:linear-gradient(135deg,#ed252b,#c9141c) !important;
+            box-shadow:0 8px 22px rgba(16,36,27,.05) !important;
+        }
+        #btnKirimOrder:hover{ transform:translateY(-1px); }
+        .payment-btn{ cursor:pointer; font-weight:800; }
+        .payment-btn.on{ background:linear-gradient(180deg,#00b85c,#009b4d) !important; color:#fff !important; border-color:#008a45 !important; }
+        .status-pill{
+            display:inline-flex; align-items:center; gap:4px;
+            font-size:9px; font-weight:900; letter-spacing:.6px; text-transform:uppercase;
+            padding:4px 9px; border-radius:999px; border:1px solid transparent; white-space:nowrap;
+        }
+        .status-PENDING{ color:#92400e; background:#fef3c7; border-color:#fde68a; }
+        .status-APPROVE{ color:#008a45; background:#eaf7f0; border-color:#bfe6d2; }
+        .status-DECLINE{ color:#b91c1c; background:#fee2e2; border-color:#fecaca; }
+        .status-PROSES{ color:#334155; background:#f1f5f9; border-color:#e2e8f0; }
+
+        /* Dropdown pencarian produk / pola Task 54 */
+        .op-dd-panel{
+            position:absolute; z-index:40; left:0; right:0; margin-top:6px;
+            background:#fff; border:1px solid #e5eaee; border-radius:14px;
+            box-shadow:0 14px 34px rgba(16,36,27,.14); overflow:hidden;
+        }
+        .op-dd-options{ max-height:240px; overflow-y:auto; }
+        .op-dd-options::-webkit-scrollbar{ width:8px; }
+        .op-dd-options::-webkit-scrollbar-thumb{ background:#c7e3d4; border-radius:8px; }
+        .op-dd-option{
+            display:block; width:100%; text-align:left; border:0; background:#fff; cursor:pointer;
+            padding:9px 12px; border-bottom:1px solid #f1f5f3;
+            font-size:12px; color:#1f2937; transition:background .12s ease;
+        }
+        .op-dd-option:hover{ background:#eaf7f0; }
+        .op-dd-option:last-child{ border-bottom:0; }
+
+        /* ===== Pencapaian: TANPA tabel/card — baris langsung ===== */
+        .qtr-row{ padding:14px 2px; border-bottom:1px solid #e6efe9; }
+        .qtr-row:last-child{ border-bottom:0; }
+        .qtr-top{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; }
+        .qtr-name{ font-size:14px; font-weight:900; color:#10241b; }
+        .qtr-pct{ font-size:22px; font-weight:900; color:#008a45; font-variant-numeric:tabular-nums; }
+        .qtr-pct.muted{ color:#94a3b8; }
+        .qtr-sub{ font-size:10.5px; color:#5b6f64; margin-top:3px; }
+        .op-progress{
+            height:10px; border-radius:999px; background:#e8f1eb; overflow:hidden; margin-top:8px;
+            border:1px solid #dcebe2;
+        }
+        .op-progress > i{
+            display:block; height:100%; border-radius:999px;
+            background:linear-gradient(90deg,#00b85c,#008a45);
+            transition:width .5s ease; min-width:0;
+        }
+        .op-progress > i.over{ background:linear-gradient(90deg,#b7d433,#00a651); }
+        .current-pill{
+            display:inline-block; margin-left:6px; font-size:8.5px; font-weight:900; letter-spacing:.8px;
+            color:#008a45; background:#eaf7f0; border:1px solid #bfe6d2; border-radius:999px; padding:2px 8px;
+            vertical-align:middle;
+        }
+        .point-row{ display:flex; justify-content:space-between; gap:10px; padding:9px 2px; border-bottom:1px dashed #e0eae3; font-size:12px; }
+        .point-row:last-child{ border-bottom:0; }
+        /* Task 73: tombol aksi Riwayat (edit / WhatsApp / hapus) — gaya sama portal sales */
+        .riw-actions{ display:flex; align-items:center; gap:6px; }
+        .riw-action{ display:inline-flex; align-items:center; justify-content:center; width:30px; min-height:30px; padding:0; border-radius:8px; font-size:9px; font-weight:800; transition:.15s ease; border:none; cursor:pointer; }
+        .riw-action svg{ width:15px; height:15px; display:block; }
+        .riw-action-edit,.riw-action-delete{ background:linear-gradient(160deg,#fafbfd 0%,#e4e8ec 38%,#c9cdd4 74%,#aeb5be 100%); color:#59636f; box-shadow:0 3px 6px rgba(15,23,42,.22),0 1px 2px rgba(15,23,42,.15),inset 0 1.5px 0 rgba(255,255,255,.85),inset 0 -2px 3px rgba(15,23,42,.16); }
+        .riw-action-edit:hover,.riw-action-delete:hover{ background:linear-gradient(160deg,#ffffff 0%,#edf0f3 38%,#d3d8dd 74%,#bcc2ca 100%); color:#49535e; }
+        .riw-action-edit:active,.riw-action-delete:active{ transform:translateY(1px); box-shadow:0 1px 2px rgba(15,23,42,.18),inset 0 2px 4px rgba(15,23,42,.22); }
+        .riw-action-wa{ background:linear-gradient(160deg,#23c463 0%,#00a651 46%,#008a45 100%); color:#fff; box-shadow:0 3px 6px rgba(0,138,69,.34),0 1px 2px rgba(0,109,55,.28),inset 0 1.5px 0 rgba(255,255,255,.5),inset 0 -2px 3px rgba(0,77,39,.36); }
+        .riw-action-wa:hover{ background:linear-gradient(160deg,#2fd06e 0%,#00b35a 46%,#00964e 100%); }
+        .riw-action-wa:active{ transform:translateY(1px); box-shadow:0 1px 2px rgba(0,109,55,.28),inset 0 2px 4px rgba(0,77,39,.32); }
+        .edit-error{ display:none; color:#dc2626; font-size:11px; font-weight:700; margin-top:8px; }
+        .edit-error.on{ display:block; }
+        .point-val{ font-weight:900; color:#10241b; font-variant-numeric:tabular-nums; }
+
+        /* Kartu riwayat */
+        .riw-card{ border-left:4px solid #cbd5e1; }
+        .riw-card.st-PENDING{ border-left-color:#f59e0b; }
+        .riw-card.st-APPROVE{ border-left-color:#00a651; }
+        .riw-card.st-DECLINE{ border-left-color:#dc2626; }
+        .riw-card.st-PROSES{ border-left-color:#64748b; }
+
+        /* Task 75: strip bulan pencapaian pada Input — layout ke samping, bisa digeser kiri/kanan */
+        .op-ach-strip{ display:flex; gap:8px; overflow-x:auto; scroll-snap-type:x proximity; -webkit-overflow-scrolling:touch; padding-bottom:2px; }
+        .op-ach-strip > div{ flex:0 0 auto; width:210px; scroll-snap-align:start; }
+        .op-ach-nav{ width:24px; height:24px; border:1px solid #dbe5df; background:#fff; color:#51625a; border-radius:999px; font-size:14px; line-height:1; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; font-weight:700; padding:0; }
+        .op-ach-nav:active{ background:#eef5f1; }
+        /* Task 76: desktop — kartu bulan memenuhi lebar kontainer (pas dgn layar, tanpa ruang kosong);
+           mobile tetap strip horizontal yg bisa digeser (tidak diubah). */
+        @media (min-width:1024px){
+            .op-ach-strip{ overflow-x:visible; padding-bottom:0; }
+            .op-ach-strip > div{ flex:1 1 0; width:auto; }
+            .op-ach-nav{ display:none; }
+        }
+
+        /* Scrollbar gaya sales */
+        #app ::-webkit-scrollbar, #appContent ::-webkit-scrollbar{ width:9px; height:9px; }
+        #app ::-webkit-scrollbar-track, #appContent ::-webkit-scrollbar-track{ background:transparent; }
+        #app ::-webkit-scrollbar-thumb, #appContent ::-webkit-scrollbar-thumb{ background:#c7e3d4; border-radius:999px; border:2px solid #f3f6f4; }
+        #app ::-webkit-scrollbar-thumb:hover, #appContent ::-webkit-scrollbar-thumb:hover{ background:#00a651; }
+
+        /* ===== Media header ===== */
+        @media (max-width:767px){
+            #mainHeader{ height:58px; min-height:58px; padding:8px 10px; }
+            #sidebarToggle{ width:36px; height:36px; }
+            h1.castrol-greet-name{ max-width:150px; }
+            .castrol-greet-hi{ font-size:8px; }
+            .castrol-greet-role{ font-size:8px; }
+            /* Task 76: badge Online TIDAK disembunyikan di mobile — tampil di kanan, samping tombol refresh */
+        }
+        @media (max-width:480px){
+            h1.castrol-greet-name{ max-width:105px; }
+        }
+        @media (max-width:768px){
+            #mainHeader:after{ width:86px !important; clip-path:polygon(30% 0,100% 0,100% 100%,6% 100%) !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Loading -->
+    <div id="loadingOverlay" aria-hidden="true"><div class="op-spinner"></div></div>
+
+    <!-- Modal -->
+    <div id="customModal" class="op-modal-overlay" role="dialog" aria-modal="true">
+        <div class="op-modal-card">
+            <div class="op-modal-header" id="modalTitle">Informasi</div>
+            <div class="op-modal-body" id="modalBody"></div>
+            <div class="op-modal-footer">
+                <button type="button" id="modalCancelBtn" class="op-btn op-btn-cancel">Batal</button>
+                <button type="button" id="modalOkBtn" class="op-btn op-btn-ok">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOGIN — CUST.CODE -->
+    <div id="loginPage">
+        <header class="castrol-auth-brand">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQjbF9zjGOOADFZIb2DyNfdj-3wi3z5cqLroA&s" alt="Logo Castrol" class="castrol-auth-roundel">
+            <span class="castrol-auth-wordmark">Castrol</span>
+        </header>
+        <div class="castrol-auth-body">
+            <div class="castrol-auth-card">
+                <span class="castrol-auth-portal-tag">OUTLET PORTAL</span>
+                <h1 class="castrol-auth-title">Masuk dengan CUST.CODE</h1>
+                <form onsubmit="handleLogin(event)" autocomplete="off">
+                    <label class="castrol-auth-label" for="loginCustCode">CUST.CODE</label>
+                    <input type="text" id="loginCustCode" class="castrol-auth-input" placeholder="CUST.CODE"
+                           autocomplete="off" autocapitalize="characters" spellcheck="false" required>
+                    <div id="loginError" class="castrol-auth-error"></div>
+                    <button type="submit" id="loginSubmitBtn" class="castrol-auth-submit">Masuk</button>
+                </form>
+            </div>
+            <footer class="castrol-auth-footer">
+                <p class="castrol-auth-tagline">IT'S MORE THAN JUST OIL.<br>IT'S LIQUID ENGINEERING.</p>
+                <p class="castrol-auth-sub">PT Sukses Adi Surya &mdash; Distributor Resmi Castrol</p>
+                <p class="castrol-auth-copy">&copy; 2026 PT Sukses Adi Surya</p>
+            </footer>
+        </div>
+    </div>
+
+    <!-- APP -->
+    <div id="app" class="hidden">
+        <header id="mainHeader">
+            <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+                <button type="button" id="sidebarToggle" class="header-btn" aria-label="Buka menu" aria-expanded="false" title="Menu">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+                </button>
+                <div class="castrol-greet" id="greetBox">
+                    <span class="castrol-greet-hi">Selamat Datang,</span>
+                    <h1 id="greetName" class="castrol-greet-name">Outlet</h1>
+                    <span id="greetRole" class="castrol-greet-role">OUTLET</span>
+                </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <!-- Task 76: badge Online dipindah ke grup tombol kanan — sejajar samping tombol refresh (desktop & mobile) -->
+                <span class="cst-header-online" aria-hidden="true"><i></i>Online</span>
+                <button type="button" id="btnRefresh" class="header-btn" aria-label="Muat ulang data" title="Muat ulang data">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+                </button>
+                <button type="button" id="btnLogout" class="header-btn" aria-label="Keluar" title="Keluar">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>
+                </button>
+            </div>
+        </header>
+
+        <nav id="leftNav" aria-label="Navigasi outlet">
+            <div class="sidebar-inner">
+                <div class="castrol-sidebar-logo" role="img" aria-label="Castrol"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQjbF9zjGOOADFZIb2DyNfdj-3wi3z5cqLroA&s" alt="" aria-hidden="true" class="castrol-logo-img"><span class="castrol-logo-word">Castrol</span></div>
+                <button type="button" onclick="switchTab('input')" id="navInput" class="sidebar-item" title="Input Order">
+                    <span class="sidebar-icon">🛒</span>
+                    <span class="sidebar-text">Input Order</span>
+                </button>
+                <button type="button" onclick="switchTab('riwayat')" id="navRiwayat" class="sidebar-item" title="Riwayat Order">
+                    <span class="sidebar-icon">📊</span>
+                    <span class="sidebar-text">Riwayat Order</span>
+                </button>
+                <button type="button" onclick="switchTab('pencapaian')" id="navPencapaian" class="sidebar-item" title="Pencapaian">
+                    <span class="sidebar-icon">🎯</span>
+                    <span class="sidebar-text">Pencapaian</span>
+                </button>
+                <div class="sidebar-spacer"></div>
+                <div class="sidebar-bottom">
+                    <div id="outletBadge">—</div>
+                </div>
+            </div>
+        </nav>
+        <div id="sidebarOverlay"></div>
+
+        <div id="appContent">
+            <div id="mainPage" class="hidden space-y-4" style="max-width:1240px; margin:0 auto;">
+
+                <!-- ================= INPUT ORDER ================= -->
+                <section id="tabInput" class="tab-content space-y-4">
+                    <!-- Task 74: kartu Target & Pencapaian kuartal berjalan — gaya Input Order step 2 portal sales. Task 75: bulan disusun KE SAMPING dlm strip horizontal yg bisa digeser kiri/kanan -->
+                    <div class="op-card" style="padding:16px;">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="min-w-0 flex-1">
+                                <div id="opAchOutletName" class="text-[12px] font-extrabold text-emerald-800 leading-tight">-</div>
+                                <div class="text-[9px] text-slate-400 mt-1">CUST.CODE: <span id="opAchCustCode" class="font-bold text-slate-600">-</span></div>
+                            </div>
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <!-- Task 76: tombol "Edit informasi" dihapus sesuai permintaan -->
+                                <button type="button" id="opAchRefresh" onclick="refreshAchInput(this)" class="rounded-lg border border-emerald-200 px-2 py-1 text-[9px] font-bold text-emerald-700 inline-flex items-center justify-center gap-1">↻ Refresh</button>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between gap-2 mt-2 mb-2">
+                            <div id="opAchQuarterLabel" class="text-[9px] text-slate-400">Memuat target &amp; pencapaian...</div>
+                            <div class="flex items-center gap-1">
+                                <button type="button" aria-label="Geser kiri" onclick="scrollAchStrip(-1)" class="op-ach-nav">‹</button>
+                                <button type="button" aria-label="Geser kanan" onclick="scrollAchStrip(1)" class="op-ach-nav">›</button>
+                            </div>
+                        </div>
+                        <div class="op-ach-strip" id="opAchMonths">
+                            <div class="rounded-xl border border-slate-200 p-2.5"><div id="opAchMTitle1" class="text-[10px] font-extrabold text-slate-700">Bulan 1</div><div class="grid grid-cols-2 gap-2 mt-2"><div><div class="text-[8px] text-slate-400">Target</div><div id="opAchTargetM1" class="text-xs font-extrabold">-</div></div><div><div class="text-[8px] text-slate-400">Actual</div><div id="opAchActualM1" class="text-xs font-extrabold text-emerald-700">0,0 dus</div></div></div><div class="border-t mt-2 pt-2 flex justify-between text-[8px]"><span class="text-slate-400">Gap <b id="opAchGapM1" class="text-red-500">-</b></span><span class="text-slate-400">Ach <b id="opAchPctM1">0,0%</b></span></div></div>
+                            <div class="rounded-xl border border-slate-200 p-2.5"><div id="opAchMTitle2" class="text-[10px] font-extrabold text-slate-700">Bulan 2</div><div class="grid grid-cols-2 gap-2 mt-2"><div><div class="text-[8px] text-slate-400">Target</div><div id="opAchTargetM2" class="text-xs font-extrabold">-</div></div><div><div class="text-[8px] text-slate-400">Actual</div><div id="opAchActualM2" class="text-xs font-extrabold text-emerald-700">0,0 dus</div></div></div><div class="border-t mt-2 pt-2 flex justify-between text-[8px]"><span class="text-slate-400">Gap <b id="opAchGapM2" class="text-red-500">-</b></span><span class="text-slate-400">Ach <b id="opAchPctM2">0,0%</b></span></div></div>
+                            <div class="rounded-xl border border-slate-200 p-2.5"><div id="opAchMTitle3" class="text-[10px] font-extrabold text-slate-700">Bulan 3</div><div class="grid grid-cols-2 gap-2 mt-2"><div><div class="text-[8px] text-slate-400">Target</div><div id="opAchTargetM3" class="text-xs font-extrabold">-</div></div><div><div class="text-[8px] text-slate-400">Actual</div><div id="opAchActualM3" class="text-xs font-extrabold text-emerald-700">0,0 dus</div></div></div><div class="border-t mt-2 pt-2 flex justify-between text-[8px]"><span class="text-slate-400">Gap <b id="opAchGapM3" class="text-red-500">-</b></span><span class="text-slate-400">Ach <b id="opAchPctM3">0,0%</b></span></div></div>
+                        </div>
+                        <div class="mt-2 rounded-xl border border-emerald-200 bg-emerald-50/40 p-2.5">
+                            <div class="flex items-center justify-between gap-2">
+                                <div class="text-[10px] font-extrabold text-emerald-800">TOTAL KUARTAL</div>
+                                <div id="opAchQuarterTotalLabel" class="text-[9px] font-bold text-slate-400">Q berjalan</div>
+                            </div>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2">
+                                <div class="rounded-lg bg-white p-2"><div class="text-[8px] text-slate-400">Target</div><div id="opAchTargetQ" class="text-xs font-extrabold">-</div></div>
+                                <div class="rounded-lg bg-emerald-50 p-2"><div class="text-[8px] text-slate-400">Actual</div><div id="opAchActualQ" class="text-xs font-extrabold text-emerald-700">0,0 dus</div></div>
+                                <div class="rounded-lg bg-white p-2"><div class="text-[8px] text-slate-400">Gap</div><div id="opAchGapQ" class="text-xs font-extrabold text-red-500">-</div></div>
+                                <div class="rounded-lg bg-white p-2"><div class="text-[8px] text-slate-400">Ach</div><div id="opAchPctQ" class="text-xs font-extrabold">0,0%</div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Task 68: kartu info order disembunyikan (permintaan user) — outlet langsung pilih produk; input tetap ada utk JS: tanggal=hari ini, payment=CASH, disc=0%, cashback kosong, note="-". Task 74: bisa dibuka lewat tombol "Edit informasi" -->
+                    <div class="op-card" id="opInfoCard" style="padding:16px; display:none;">
+                        <div class="flex items-center justify-between gap-2 flex-wrap">
+                            <div>
+                                <p class="op-section-title">Input Order</p>
+                                <p class="op-section-sub">Order langsung tercatat atas nama outlet Anda — tinggal pilih produk.</p>
+                            </div>
+                            <span id="inputBwsPill" class="status-pill status-APPROVE hidden">BWS</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
+                            <div>
+                                <label class="op-label">Outlet</label>
+                                <input type="text" id="opOutletName" class="op-input" readonly disabled style="background:#f4f8f5; color:#51625a; font-weight:800;">
+                            </div>
+                            <div>
+                                <label class="op-label">CUST.CODE</label>
+                                <input type="text" id="opOutletCode" class="op-input" readonly disabled style="background:#f4f8f5; color:#51625a; font-weight:800;">
+                            </div>
+                            <div>
+                                <label class="op-label">Channel</label>
+                                <input type="text" id="opOutletChannel" class="op-input" readonly disabled style="background:#f4f8f5; color:#51625a;">
+                            </div>
+                            <div>
+                                <label class="op-label">Sales / DSR</label>
+                                <input type="text" id="opOutletSales" class="op-input" readonly disabled style="background:#f4f8f5; color:#51625a;">
+                            </div>
+                            <div>
+                                <label class="op-label">Tanggal <span style="color:#dc2626;">*</span></label>
+                                <input type="date" id="opTanggal" class="op-input" onchange="renderInputAch()">
+                            </div>
+                            <div>
+                                <label class="op-label">Payment</label>
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                                    <button type="button" id="opPayCash" class="payment-btn rounded-xl border-2 px-3 py-2.5 text-xs bg-white text-slate-600 border-slate-200 on" onclick="setPayment('CASH')">CASH</button>
+                                    <button type="button" id="opPayCredit" class="payment-btn rounded-xl border-2 px-3 py-2.5 text-xs bg-white text-slate-600 border-slate-200" onclick="setPayment('CREDIT')">CREDIT</button>
+                                </div>
+                                <input type="hidden" id="opPayment" value="CASH">
+                            </div>
+                            <div>
+                                <label class="op-label">Disc (%)</label>
+                                <input type="text" id="opDisc" value="0%" class="op-input" inputmode="decimal">
+                            </div>
+                            <div>
+                                <label class="op-label">Cashback</label>
+                                <select id="opCashback" class="op-input"><option value="">-- Pilih Cashback --</option></select>
+                            </div>
+                            <div style="grid-column:1/-1;">
+                                <label class="op-label">Note Order</label>
+                                <input type="text" id="opNote" value="-" class="op-input">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="op-card" style="padding:16px;">
+                        <p class="op-section-title">Tambah Produk</p>
+                        <p class="op-section-sub">Cari produk lalu tentukan jumlah — Pcs atau Dus.</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 mt-2 items-end">
+                            <div class="sm:col-span-6" id="opProdukDdRoot" style="position:relative;">
+                                <label class="op-label">Produk</label>
+                                <button type="button" id="opProdukBtn" aria-expanded="false" aria-haspopup="true" aria-controls="opProdukPanel"
+                                        onclick="toggleProdukDd()" class="w-full flex items-center justify-between gap-2 py-2.5 px-3 bg-white border border-slate-200 rounded-xl text-xs" style="min-height:42px;">
+                                    <span id="opProdukLabel" class="truncate text-slate-400">- Pilih produk -</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400"><path d="m6 9 6 6 6-6"/></svg>
+                                </button>
+                                <div id="opProdukPanel" class="op-dd-panel hidden">
+                                    <div style="padding:8px; border-bottom:1px solid #f1f5f3;">
+                                        <input type="text" id="opProdukSearch" placeholder="Cari produk..." oninput="renderProdukOptions()"
+                                               class="op-input" style="background:#f8faf9;">
+                                    </div>
+                                    <div id="opProdukOptions" class="op-dd-options"></div>
+                                </div>
+                            </div>
+                            <div class="sm:col-span-3">
+                                <label class="op-label">Qty</label>
+                                <input type="number" id="opQty" min="1" step="1" value="1" class="op-input" inputmode="numeric">
+                            </div>
+                            <div class="sm:col-span-3">
+                                <label class="op-label">Satuan</label>
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                                    <button type="button" id="opSatPcs" class="payment-btn rounded-xl border-2 px-2 py-2.5 text-xs bg-white text-slate-600 border-slate-200 on" onclick="setSatuan('Pcs')">Pcs</button>
+                                    <button type="button" id="opSatDus" class="payment-btn rounded-xl border-2 px-2 py-2.5 text-xs bg-white text-slate-600 border-slate-200" onclick="setSatuan('Dus')">Dus</button>
+                                </div>
+                                <input type="hidden" id="opSatuan" value="Pcs">
+                            </div>
+                            <div class="sm:col-span-12">
+                                <button type="button" onclick="tambahKeKeranjang()" class="op-btn-primary w-full sm:w-auto">+ Tambah ke Keranjang</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="op-card" style="padding:16px;">
+                        <div class="flex items-center justify-between gap-2">
+                            <p class="op-section-title" style="margin:0;">Keranjang Order</p>
+                            <span id="cartCount" class="text-[10px] font-extrabold text-slate-500">0 item</span>
+                        </div>
+                        <div id="cartList" class="mt-3 space-y-2"></div>
+                        <div class="mt-3 pt-3 border-t border-slate-200 flex flex-wrap items-center justify-end gap-x-6 gap-y-1 text-xs">
+                            <div class="text-slate-500">Total Volume: <b id="grandVol" class="text-emerald-700">0</b> L</div>
+                            <div class="text-slate-500">Total Nilai: <b id="grandVal" class="text-emerald-700">Rp 0</b></div>
+                        </div>
+                        <div class="mt-4">
+                            <button type="button" id="btnKirimOrder" onclick="kirimOrder()" class="op-btn-primary w-full">Kirim Order</button>
+                            <p class="text-[10px] text-slate-400 mt-2 text-center">Order masuk ke daftar Pesanan Outlet sales Anda untuk diproses.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= RIWAYAT ORDER ================= -->
+                <section id="tabRiwayat" class="tab-content hidden space-y-4">
+                    <div class="op-card" style="padding:16px;">
+                        <div class="flex items-center justify-between gap-2 flex-wrap">
+                            <div>
+                                <p class="op-section-title">Riwayat Order</p>
+                                <p class="op-section-sub">Semua order outlet Anda beserta status prosesnya.</p>
+                            </div>
+                            <button type="button" onclick="loadRiwayat(true)" class="op-btn-ghost">⟳ Muat Ulang</button>
+                        </div>
+                        <input type="text" id="riwayatSearch" class="op-input mt-3" placeholder="Cari ID order / produk..." oninput="renderRiwayat()">
+                    </div>
+
+                    <!-- Task 75: kartu "Pencapaian per Kuartal" dipindah ke halaman Pencapaian -->
+                    <div id="riwayatList" class="space-y-3"></div>
+                </section>
+
+                <!-- ================= PENCAPAIAN (tanpa tabel/card) ================= -->
+                <section id="tabPencapaian" class="tab-content hidden space-y-4">
+                    <!-- Task 75: Pencapaian per Kuartal — pindahan dari halaman Riwayat (Task 74); gaya detail Monitoring portal sales + filter Tahun/Kuartal -->
+                    <div class="op-card" style="padding:16px;">
+                        <div class="flex items-center justify-between gap-2 flex-wrap">
+                            <p class="op-section-title" style="margin:0;">Pencapaian per Kuartal</p>
+                            <div class="flex items-center gap-3">
+                                <label class="text-[10px] font-bold text-slate-500" style="display:flex; align-items:center; gap:6px;">Tahun
+                                    <select id="pencAchYear" class="op-input" style="width:auto; padding-top:6px; padding-bottom:6px;" aria-label="Filter tahun pencapaian" onchange="renderPencAch()"></select>
+                                </label>
+                                <label class="text-[10px] font-bold text-slate-500" style="display:flex; align-items:center; gap:6px;">Kuartal
+                                    <select id="pencAchQuarter" class="op-input" style="width:auto; padding-top:6px; padding-bottom:6px;" aria-label="Pilih kuartal pencapaian" onchange="renderPencAch()">
+                                        <option value="1">Q1</option>
+                                        <option value="2">Q2</option>
+                                        <option value="3">Q3</option>
+                                        <option value="4">Q4</option>
+                                    </select>
+                                </label>
+                            </div>
+                        </div>
+                        <div id="pencAchBody" class="mt-3"></div>
+                    </div>
+                    <!-- Task 76: kartu "Pencapaian <tahun>" (bar kuartal) DIHAPUS sesuai permintaan — halaman Pencapaian kini: Pencapaian per Kuartal + Outlet Kontrak -->
+
+                    <div id="pencBwsWrap" class="hidden space-y-4">
+                        <!-- Task 73: tampilan sama dengan DETAIL OUTLET KONTRAK di portal sales -->
+                        <div class="op-card" style="padding:16px;">
+                            <p class="op-section-title">Outlet Kontrak</p>
+                            <p class="op-section-sub">Detail kontrak BWS outlet Anda beserta point trip tahun berjalan.</p>
+                            <div id="pencKontrak" class="mt-3 space-y-4"></div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+    </div>
+
+<script>
+    // =====================================================================
+    // Task 67: OUTLET PORTAL — frontend (native google.script.run).
+    // Semua data terikat pada CUST.CODE yang berhasil login.
+    // =====================================================================
+
+    var profile = null;          // {outlet, custCode, channel, sales, dayVisit, isBWS}
+    var produkList = [];
+    var shoppingCart = [];
+    var riwayatRows = [];
+    var riwayatLoading = false;
+    var pencapaianLoading = false;
+    var submitInFlight = false;
+    var pencData = null;         // Task 74: respons outletPortalPencapaian (quarters + months + byYear/years)
+    var pencAchInit = false;     // Task 74/75: filter tahun/kuartal Pencapaian sudah diinisialisasi (pindahan dari Riwayat)
+    var AUTH_KEY = 'castrolOutletAuth';
+
+    // ---------- Util ----------
+    function $(id) { return document.getElementById(id); }
+    function esc(v) {
+        return String(v == null ? '' : v)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+    function showLoading(on) { $('loadingOverlay').classList.toggle('on', !!on); }
+    function fmtRp(n) {
+        var num = Number(n) || 0;
+        return 'Rp ' + Math.round(num).toLocaleString('id-ID');
+    }
+    function todayIso() {
+        var d = new Date();
+        var m = String(d.getMonth() + 1).padStart(2, '0');
+        var day = String(d.getDate()).padStart(2, '0');
+        return d.getFullYear() + '-' + m + '-' + day;
+    }
+    function produkPackFromName(nama) {
+        var m = String(nama || '').match(/(\d+)\s*x/i);
+        if (m) return parseInt(m[1], 10) || 1;
+        if (/activ\s*matic\s*10w-30\s*0[.,]8\s*ctm/i.test(String(nama || ''))) return 12;
+        return 1;
+    }
+    // Task 73: format angka/persen gaya portal sales (id-ID).
+    function formatNumberID(v, digits) {
+        var n = Number(v) || 0;
+        var d = isNaN(Number(digits)) ? 1 : Number(digits);
+        return n.toLocaleString('id-ID', { minimumFractionDigits: d, maximumFractionDigits: d });
+    }
+    function formatPercentID(v) {
+        var n = Number(v) || 0;
+        return n.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
+    }
+    // Task 73: ikon tombol aksi (SVG sama dengan portal sales).
+    var SVG_EDIT = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19.5 8.5a2.12 2.12 0 0 0-3-3L5 17v3Z"/><path d="M13.5 6.5l3 3"/></svg>';
+    var SVG_WA = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>';
+    var SVG_TRASH = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V5h6v2"/><path d="M6.5 7l1 13h9l1-13"/><path d="M10 11v6M14 11v6"/></svg>';
+    // Task 73: parse teks tanggal PO OUTLET ("12 October 2026" / "12 Oktober 2026" /
+    // "12/10/2026" / "2026-10-12") menjadi ISO utk input date form edit.
+    function parseTanggalDisplay(s) {
+        var sIn = String(s || '').trim();
+        if (!sIn) return todayIso();
+        var m = sIn.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+        if (m) return m[1] + '-' + String(Number(m[2])).padStart(2, '0') + '-' + String(Number(m[3])).padStart(2, '0');
+        m = sIn.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);
+        if (m) return m[3] + '-' + String(Number(m[2])).padStart(2, '0') + '-' + String(Number(m[1])).padStart(2, '0');
+        var MN = { januari: 0, februari: 1, maret: 2, april: 3, mei: 4, juni: 5, juli: 6, agustus: 7, september: 8, oktober: 9, november: 10, desember: 11,
+            january: 0, february: 1, march: 2, may: 4, june: 5, july: 6, august: 7, october: 9, december: 11 };
+        m = sIn.match(/^(\d{1,2})\s+([A-Za-z]+)\.?\s+(\d{4})$/);
+        if (m && MN[m[2].toLowerCase()] !== undefined) {
+            return m[3] + '-' + String(MN[m[2].toLowerCase()] + 1).padStart(2, '0') + '-' + String(Number(m[1])).padStart(2, '0');
+        }
+        return todayIso();
+    }
+
+    // ---------- Server bridge (google.script.run -> Promise) ----------
+    function gsRun(method, args) {
+        return new Promise(function (resolve) {
+            try {
+                var runner = google.script.run
+                    .withSuccessHandler(function (res) { resolve(res); })
+                    .withFailureHandler(function (err) {
+                        resolve({ success: false, message: (err && err.message) ? err.message : 'Terjadi kesalahan koneksi.' });
+                    });
+                runner[method].apply(runner, Array.isArray(args) ? args : []);
+            } catch (e) {
+                resolve({ success: false, message: (e && e.message) ? e.message : String(e) });
+            }
+        });
+    }
+
+    // ---------- Modal (dengan tutup via backdrop & Escape — konsisten Task 66) ----------
+    var modalCallback = null;
+    function showModal(title, html, opts) {
+        opts = opts || {};
+        $('modalTitle').textContent = title;
+        $('modalBody').innerHTML = html || '';
+        $('modalOkBtn').textContent = opts.okText || 'OK';
+        $('modalOkBtn').className = 'op-btn ' + (opts.danger ? 'op-btn-danger' : 'op-btn-ok');
+        $('modalOkBtn').style.display = 'inline-block'; // Task 73: pulihkan footer bila sebelumnya disembunyikan form edit
+        $('modalCancelBtn').style.display = opts.showCancel ? 'inline-block' : 'none';
+        $('customModal').style.display = 'flex';
+    }
+    // Task 73: sembunyikan tombol footer standar (form edit memakai tombol sendiri di dalam body).
+    function hideModalFooter() {
+        $('modalOkBtn').style.display = 'none';
+        $('modalCancelBtn').style.display = 'none';
+    }
+    function closeModal(isOk) {
+        $('customModal').style.display = 'none';
+        var cb = modalCallback;
+        modalCallback = null;
+        if (typeof cb === 'function') cb(!!isOk);
+    }
+    (function () {
+        var overlay = $('customModal');
+        $('modalOkBtn').addEventListener('click', function () { closeModal(true); });
+        $('modalCancelBtn').addEventListener('click', function () { closeModal(false); });
+        overlay.addEventListener('mousedown', function (e) {
+            if (e.target === overlay && overlay.style.display === 'flex') closeModal(false);
+        });
+        document.addEventListener('keydown', function (e) {
+            if (e && e.key === 'Escape' && overlay.style.display === 'flex') closeModal(false);
+        });
+    })();
+
+    function confirmModal(title, message, onYes, danger) {
+        // message berupa HTML tepercaya yang dibangun aplikasi (bukan input mentah).
+        showModal(title, '<p style="margin:0;">' + message + '</p>', { showCancel: true, okText: 'Ya, Kirim', danger: !!danger });
+        modalCallback = function (isOk) { if (isOk) onYes(); };
+    }
+
+    // ---------- Login ----------
+    function setLoginError(msg) {
+        var el = $('loginError');
+        if (!msg) { el.classList.remove('on'); el.textContent = ''; return; }
+        el.textContent = msg;
+        el.classList.add('on');
+    }
+
+    function handleLogin(e) {
+        e.preventDefault();
+        var code = String($('loginCustCode').value || '').trim();
+        if (!code) { setLoginError('Masukkan CUST.CODE terlebih dahulu.'); return; }
+        doLogin(code, false);
+    }
+
+    function doLogin(code, silent) {
+        var btn = $('loginSubmitBtn');
+        if (!silent && btn) { btn.disabled = true; btn.textContent = 'Memproses...'; }
+        setLoginError('');
+        if (!silent) showLoading(true);
+        gsRun('outletPortalLogin', [code]).then(function (res) {
+            showLoading(false);
+            if (btn) { btn.disabled = false; btn.textContent = 'Masuk'; }
+            if (res && res.success && res.outlet) {
+                enterApp(res.outlet);
+            } else {
+                try { localStorage.removeItem(AUTH_KEY); } catch (eStore) {}
+                if (!silent) setLoginError((res && res.message) || 'CUST.CODE tidak dikenal.');
+            }
+        });
+    }
+
+    function enterApp(prof) {
+        profile = prof;
+        try { localStorage.setItem(AUTH_KEY, JSON.stringify({ custCode: prof.custCode })); } catch (eStore) {}
+        $('loginPage').classList.add('hidden');
+        $('app').classList.remove('hidden');
+        $('mainPage').classList.remove('hidden');
+        $('greetName').textContent = prof.outlet || '-';
+        $('greetRole').textContent = prof.custCode || 'OUTLET';
+        $('outletBadge').textContent = (prof.custCode || '-') + (prof.channel ? ' • ' + prof.channel : '');
+        $('opOutletName').value = prof.outlet || '';
+        $('opOutletCode').value = prof.custCode || '';
+        $('opOutletChannel').value = prof.channel || '-';
+        $('opOutletSales').value = prof.sales || '-';
+        $('inputBwsPill').classList.toggle('hidden', !prof.isBWS);
+        // Task 74: kartu Target & Pencapaian pada Input
+        $('opAchOutletName').textContent = prof.outlet || '-';
+        $('opAchCustCode').textContent = prof.custCode || '-';
+        switchTab('input');
+        loadProduk(true);
+        loadRiwayat(true);
+        loadPencapaian(false);
+    }
+
+    function logoutOutlet() {
+        showModal('Keluar', '<p style="margin:0;">Keluar dari portal outlet?</p>', { showCancel: true, okText: 'Keluar', danger: true });
+        modalCallback = function (isOk) {
+            if (!isOk) return;
+            try { localStorage.removeItem(AUTH_KEY); } catch (eStore) {}
+            profile = null; produkList = []; shoppingCart = []; riwayatRows = [];
+            pencData = null; pencAchInit = false;
+            $('opAchOutletName').textContent = '-';
+            $('opAchCustCode').textContent = '-';
+            $('opAchQuarterLabel').textContent = 'Memuat target & pencapaian...';
+            $('opAchQuarterTotalLabel').textContent = 'Q berjalan';
+            $('pencAchYear').innerHTML = '';
+            $('pencAchBody').innerHTML = '';
+            $('app').classList.add('hidden');
+            $('loginPage').classList.remove('hidden');
+            $('loginCustCode').value = '';
+        };
+    }
+
+    // ---------- Sidebar / navigasi ----------
+    function switchTab(tab) {
+        var tabMap = { input: 'tabInput', riwayat: 'tabRiwayat', pencapaian: 'tabPencapaian' };
+        var navMap = { input: 'navInput', riwayat: 'navRiwayat', pencapaian: 'navPencapaian' };
+        Object.keys(tabMap).forEach(function (k) {
+            var el = $(tabMap[k]);
+            if (el) el.classList.toggle('hidden', k !== tab);
+            var nv = $(navMap[k]);
+            if (nv) nv.classList.toggle('sidebar-item-active', k === tab);
+        });
+        closeDrawer();
+        // Task 75: Riwayat tidak lagi memuat data pencapaian (kartu pindah ke halaman Pencapaian).
+        if (tab === 'riwayat') loadRiwayat(false);
+        if (tab === 'pencapaian') loadPencapaian(false);
+    }
+    function toggleDrawer() {
+        var app = $('app');
+        var open = app.classList.contains('drawer-open');
+        setDrawer(!open);
+    }
+    function setDrawer(open) {
+        var app = $('app');
+        var isMobile = window.matchMedia('(max-width:1023.9px)').matches;
+        if (isMobile) {
+            app.classList.toggle('drawer-open', open);
+            $('sidebarOverlay').classList.toggle('on', open);
+            app.classList.remove('sidebar-closed');
+        } else {
+            app.classList.toggle('sidebar-closed', !open);
+            app.classList.remove('drawer-open');
+            $('sidebarOverlay').classList.remove('on');
+        }
+        $('sidebarToggle').setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    function closeDrawer() {
+        var app = $('app');
+        app.classList.remove('drawer-open');
+        $('sidebarOverlay').classList.remove('on');
+    }
+    $('sidebarToggle').addEventListener('click', toggleDrawer);
+    $('sidebarOverlay').addEventListener('click', closeDrawer);
+
+    // ---------- Dropdown produk (pola Task 54: klik luar + Escape) ----------
+    var selectedProduk = null;
+    function toggleProdukDd() {
+        var panel = $('opProdukPanel');
+        if (panel.classList.contains('hidden')) openProdukDd(); else closeProdukDd();
+    }
+    function openProdukDd() {
+        $('opProdukPanel').classList.remove('hidden');
+        $('opProdukBtn').setAttribute('aria-expanded', 'true');
+        $('opProdukSearch').value = '';
+        renderProdukOptions();
+        try { $('opProdukSearch').focus(); } catch (eFocus) {}
+    }
+    function closeProdukDd() {
+        $('opProdukPanel').classList.add('hidden');
+        $('opProdukBtn').setAttribute('aria-expanded', 'false');
+    }
+    function renderProdukOptions() {
+        var q = String($('opProdukSearch').value || '').trim().toLowerCase();
+        var wrap = $('opProdukOptions');
+        var list = produkList.filter(function (p) {
+            if (!q) return true;
+            return String(p.nama || '').toLowerCase().indexOf(q) >= 0 ||
+                   String(p.kode || '').toLowerCase().indexOf(q) >= 0;
+        });
+        if (!list.length) {
+            wrap.innerHTML = '<div style="padding:12px; font-size:11.5px; color:#94a3b8; text-align:center;">Produk tidak ditemukan.</div>';
+            return;
+        }
+        wrap.innerHTML = list.map(function (p) {
+            return '<button type="button" class="op-dd-option" data-kode="' + esc(p.kode) + '">' +
+                '<b>' + esc(p.nama) + '</b>' +
+                '<span style="display:block; color:#64766c; font-size:10.5px; margin-top:2px;">' +
+                esc(p.kode || '-') + ' • ' + (Number(p.liter) || 0) + 'L • ' + fmtRp(p.harga) + '</span></button>';
+        }).join('');
+        Array.prototype.forEach.call(wrap.querySelectorAll('.op-dd-option'), function (btn) {
+            btn.addEventListener('click', function () {
+                var kode = btn.getAttribute('data-kode');
+                selectedProduk = produkList.filter(function (p) { return String(p.kode) === String(kode); })[0] || null;
+                $('opProdukLabel').textContent = selectedProduk ? selectedProduk.nama : '- Pilih produk -';
+                $('opProdukLabel').classList.remove('text-slate-400');
+                closeProdukDd();
+            });
+        });
+    }
+    (function () {
+        document.addEventListener('click', function (ev) {
+            var panel = $('opProdukPanel');
+            if (!panel || panel.classList.contains('hidden')) return;
+            var root = $('opProdukDdRoot');
+            if (root && !root.contains(ev.target)) closeProdukDd();
+        });
+        document.addEventListener('keydown', function (ev) {
+            if (ev && ev.key === 'Escape') {
+                var panel = $('opProdukPanel');
+                if (panel && !panel.classList.contains('hidden')) closeProdukDd();
+            }
+        });
+    })();
+
+    function setPayment(v) {
+        $('opPayment').value = v;
+        $('opPayCash').classList.toggle('on', v === 'CASH');
+        $('opPayCredit').classList.toggle('on', v === 'CREDIT');
+        renderCart();
+    }
+    function setSatuan(v) {
+        $('opSatuan').value = v;
+        $('opSatPcs').classList.toggle('on', v === 'Pcs');
+        $('opSatDus').classList.toggle('on', v === 'Dus');
+    }
+
+    // ---------- Keranjang (rumus identik dengan portal sales) ----------
+    function cartPcs(item) {
+        var pack = Number(item.pack) || 1;
+        return String(item.satuan).toUpperCase() === 'DUS' ? (item.qty * pack) : item.qty;
+    }
+    function tambahKeKeranjang() {
+        if (!selectedProduk) { showModal('Peringatan', 'Pilih produk terlebih dahulu.'); return; }
+        var qty = parseInt($('opQty').value, 10) || 0;
+        if (qty <= 0) { showModal('Peringatan', 'Qty minimal 1.'); return; }
+        var satuan = $('opSatuan').value;
+        var existing = shoppingCart.filter(function (it) {
+            return it.kode === selectedProduk.kode && it.satuan === satuan;
+        })[0];
+        if (existing) {
+            existing.qty += qty;
+        } else {
+            shoppingCart.push({
+                kode: selectedProduk.kode, produk: selectedProduk.nama,
+                qty: qty, satuan: satuan, pack: produkPackFromName(selectedProduk.nama),
+                harga: Number(selectedProduk.harga) || 0, liter: Number(selectedProduk.liter) || 1
+            });
+        }
+        $('opQty').value = '1';
+        setSatuan('Pcs');
+        renderCart();
+    }
+    function hapusItemCart(index) {
+        shoppingCart.splice(index, 1);
+        renderCart();
+    }
+    function renderCart() {
+        var wrap = $('cartList');
+        $('cartCount').textContent = shoppingCart.length + ' item';
+        if (!shoppingCart.length) {
+            wrap.innerHTML = '<p class="text-xs text-slate-400 text-center py-3 border rounded bg-slate-50">Belum ada item.</p>';
+            $('grandVol').textContent = '0';
+            $('grandVal').textContent = 'Rp 0';
+            renderInputAch();
+            return;
+        }
+        var html = '';
+        var totalVol = 0, subtotal = 0;
+        shoppingCart.forEach(function (item, index) {
+            var pcs = cartPcs(item);
+            var subVol = pcs * item.liter;
+            var subVal = pcs * item.harga;
+            totalVol += subVol;
+            subtotal += subVal;
+            html += '<div class="flex justify-between items-center bg-white border-l-4 border-l-emerald-600 border rounded-lg p-2.5 text-xs shadow-sm">' +
+                '<div><b>' + esc(item.produk) + '</b><br>' +
+                '<span class="text-slate-500">Qty: ' + item.qty + ' ' + esc(item.satuan) + ' (' + pcs + ' Pcs) | ' + item.liter + 'L/pcs</span> | Vol: <b class="text-emerald-700">' + subVol.toFixed(1) + 'L</b> | ' + fmtRp(subVal) + '</div>' +
+                '<button type="button" onclick="hapusItemCart(' + index + ')" class="text-red-500 hover:text-red-700 font-bold p-1 rounded-md hover:bg-red-50 transition">✕</button>' +
+                '</div>';
+        });
+        var discStr = String($('opDisc').value || '').replace('%', '').trim();
+        var discPct = parseFloat(discStr.replace(',', '.')) || 0;
+        var totalVal = subtotal - (subtotal * (discPct / 100));
+        wrap.innerHTML = html;
+        $('grandVol').textContent = totalVol.toFixed(1);
+        $('grandVal').textContent = fmtRp(totalVal);
+        renderInputAch();
+    }
+
+    // ---------- Kirim order ----------
+    function kirimOrder() {
+        if (submitInFlight) return;
+        if (!profile) { showModal('Sesi Berakhir', 'Sesi login berakhir. Muat ulang halaman.'); return; }
+        if (!shoppingCart.length) { showModal('Keranjang Kosong', 'Tambahkan minimal satu produk.'); return; }
+        var tanggal = $('opTanggal').value || todayIso();
+        var ringkas = shoppingCart.map(function (it) { return '• ' + esc(it.produk) + ' — ' + it.qty + ' ' + esc(it.satuan); }).join('<br>');
+        confirmModal('Kirim Order?', '<b>' + esc(profile.outlet) + '</b><br>' + ringkas +
+            '<br><br>Total: <b>' + $('grandVal').textContent + '</b> (' + $('grandVol').textContent + ' L)', function () {
+            doKirimOrder(tanggal);
+        });
+    }
+    function doKirimOrder(tanggal) {
+        submitInFlight = true;
+        var btn = $('btnKirimOrder');
+        btn.disabled = true; btn.textContent = 'Mengirim...';
+        showLoading(true);
+        var payload = {
+            custCode: profile.custCode,
+            tanggal: tanggal,
+            payment: $('opPayment').value || 'CASH',
+            disc: String($('opDisc').value || '0%'),
+            note: String($('opNote').value || '-'),
+            cashback: String($('opCashback').value || ''),
+            items: shoppingCart.map(function (it) {
+                return { kode: it.kode, produk: it.produk, qty: it.qty, satuan: it.satuan };
+            }),
+            requestId: 'REQ-' + Date.now() + '-' + Math.random().toString(36).slice(2, 14)
+        };
+        gsRun('outletPortalSubmitOrder', [payload]).then(function (res) {
+            showLoading(false);
+            submitInFlight = false;
+            btn.disabled = false; btn.textContent = 'Kirim Order';
+            if (res && res.success) {
+                shoppingCart = [];
+                renderCart();
+                showModal('Order Terkirim', '<p style="margin:0;">' + esc(res.message || 'Order berhasil dikirim.') +
+                    '<br><br>ID Order: <b>' + esc(res.idInput || '-') + '</b></p>');
+                loadRiwayat(true);
+            } else {
+                showModal('Gagal', esc((res && res.message) || 'Order gagal dikirim.'));
+            }
+        });
+    }
+
+    // ---------- Produk & cashback ----------
+    function loadProduk(force) {
+        if (!profile) return Promise.resolve();
+        return gsRun('outletPortalProduk', [profile.custCode]).then(function (res) {
+            if (res && res.success && Array.isArray(res.data)) {
+                produkList = res.data;
+            }
+            if (!res || !res.success) {
+                // Coba jalur master yang sama dengan portal sales bila khusus outlet gagal.
+                return gsRun('getListProduk', []).then(function (r2) {
+                    if (r2 && Array.isArray(r2)) produkList = r2;
+                });
+            }
+        }).then(function () {
+            return gsRun('getListCashback', []).then(function (cb) {
+                var list = Array.isArray(cb) ? cb : (cb && cb.data) || [];
+                var sel = $('opCashback');
+                var current = sel.value;
+                sel.innerHTML = '<option value="">-- Pilih Cashback --</option>' + list.map(function (c) {
+                    var v = typeof c === 'string' ? c : (c && (c.nama || c.cashback)) || '';
+                    return '<option value="' + esc(v) + '">' + esc(v) + '</option>';
+                }).join('');
+                if (current) sel.value = current;
+            });
+        });
+    }
+
+    // ---------- Riwayat ----------
+    function loadRiwayat(force) {
+        if (!profile || riwayatLoading) return;
+        riwayatLoading = true;
+        if (force) showLoading(true);
+        gsRun('outletPortalRiwayat', [profile.custCode, !!force]).then(function (res) {
+            riwayatLoading = false;
+            showLoading(false);
+            if (res && res.success) {
+                riwayatRows = Array.isArray(res.rows) ? res.rows : [];
+                renderRiwayat();
+            } else if (!res || res.message) {
+                riwayatRows = [];
+                renderRiwayat();
+            }
+        });
+    }
+    function statusClass(st) {
+        var s = String(st || '').trim().toUpperCase();
+        if (s === 'APPROVE') return 'st-APPROVE';
+        if (s === 'DECLINE') return 'st-DECLINE';
+        if (s === 'PENDING') return 'st-PENDING';
+        return 'st-PROSES';
+    }
+    function renderRiwayat() {
+        var wrap = $('riwayatList');
+        var q = String($('riwayatSearch').value || '').trim().toLowerCase();
+        var list = riwayatRows.filter(function (r) {
+            if (!q) return true;
+            var hay = [r.id, r.tanggal, r.status, r.note]
+                .concat((r.items || []).map(function (it) { return it.produk; })).join(' ').toLowerCase();
+            return hay.indexOf(q) >= 0;
+        });
+        if (!list.length) {
+            wrap.innerHTML = '<div class="op-card" style="padding:26px; text-align:center; color:#94a3b8; font-size:12px;">' +
+                (riwayatRows.length ? 'Tidak ada order yang cocok dengan pencarian.' : 'Belum ada order. Mulai dari menu Input Order.') + '</div>';
+            return;
+        }
+        wrap.innerHTML = list.map(function (r) {
+            var itemsHtml = (r.items || []).map(function (it) {
+                return '<div style="font-size:11.5px; color:#475569;">• ' + esc(it.produk) +
+                    (it.qty ? ' — <b>' + it.qty + ' ' + esc(it.satuan || '') + '</b>' : '') + '</div>';
+            }).join('') || '<div style="font-size:11.5px; color:#94a3b8;">(detail tidak tersedia)</div>';
+            var st = String(r.status || '').toUpperCase();
+            var stText = st.indexOf('SEDANG DI PROSES') >= 0 ? 'SEDANG DI PROSES ADMIN' : (st || 'PENDING');
+            var isPending = st === 'PENDING';
+            var safeId = esc(r.id || '');
+            var actions = '<div class="riw-actions">' +
+                (isPending ? '<button type="button" class="riw-action riw-action-edit" title="Edit order" aria-label="Edit order" onclick=\'openEditOrder("' + safeId + '")\'>' + SVG_EDIT + '</button>' : '') +
+                '<button type="button" class="riw-action riw-action-wa" title="Kirim WhatsApp" aria-label="Kirim WhatsApp" onclick=\'kirimWaOrder("' + safeId + '")\'>' + SVG_WA + '</button>' +
+                (isPending ? '<button type="button" class="riw-action riw-action-delete" title="Hapus order" aria-label="Hapus order" onclick=\'hapusOrder("' + safeId + '")\'>' + SVG_TRASH + '</button>' : '') +
+                '</div>';
+            return '<div class="op-card riw-card ' + statusClass(r.status) + '" style="padding:14px;">' +
+                '<div class="flex items-start justify-between gap-2 flex-wrap">' +
+                '<div><b style="font-size:12.5px;">' + esc(r.id || '-') + '</b>' +
+                '<div style="font-size:10.5px; color:#64766c; margin-top:2px;">' + esc(r.tanggal || '-') + ' • ' + esc(r.payment || '-') + '</div></div>' +
+                '<span class="status-pill ' + statusClass(r.status) + '">' + esc(stText) + '</span></div>' +
+                '<div class="mt-2">' + itemsHtml + '</div>' +
+                '<div class="mt-2 pt-2 border-t border-slate-100 flex flex-wrap gap-x-5 gap-y-1 text-[11px] text-slate-500">' +
+                '<span>Volume: <b class="text-emerald-700">' + esc(r.volume || '-') + '</b> L</span>' +
+                '<span>Nilai: <b class="text-emerald-700">' + (r.value ? fmtRp(String(r.value).replace(/[^0-9.-]/g, '')) : '-') + '</b></span>' +
+                (r.note && r.note !== '-' ? '<span>Note: ' + esc(r.note) + '</span>' : '') +
+                '</div>' +
+                '<div class="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between gap-2 flex-wrap">' +
+                '<span class="text-[9.5px] text-slate-400">' +
+                (isPending ? 'Order masih PENDING — dapat diedit atau dihapus sebelum diproses sales/admin.' : 'Order sudah diproses sales/admin — hubungi sales Anda bila ada perubahan.') +
+                '</span>' + actions + '</div>' +
+                '</div>';
+        }).join('');
+    }
+
+    // ---------- Task 73: aksi Riwayat — EDIT / WHATSAPP / HAPUS ----------
+    var editOrderId = '';
+    var editOrderItems = [];
+    var editInFlight = false;
+
+    function kirimWaOrder(id) {
+        if (!profile) { showModal('Sesi Berakhir', 'Sesi login berakhir. Muat ulang halaman.'); return; }
+        showLoading(true);
+        gsRun('outletPortalWhatsAppUrl', [id, profile.custCode]).then(function (res) {
+            showLoading(false);
+            if (res && res.success && res.whatsappUrl) {
+                window.open(res.whatsappUrl, '_blank');
+            } else {
+                showModal('Informasi', esc((res && res.message) || 'Gagal membuat link WhatsApp untuk order ' + id + '.'));
+            }
+        });
+    }
+
+    function hapusOrder(id) {
+        if (!profile) { showModal('Sesi Berakhir', 'Sesi login berakhir. Muat ulang halaman.'); return; }
+        showModal('Hapus Order', '<p style="margin:0;">Hapus order <b>' + esc(id) + '</b>?\nOrder akan dihilangkan dari daftar Pesanan Outlet sales Anda. Tindakan ini tidak dapat dibatalkan.</p>',
+            { showCancel: true, okText: 'Ya, Hapus', danger: true });
+        modalCallback = function (isOk) {
+            if (!isOk) return;
+            showLoading(true);
+            gsRun('outletPortalDeleteOrder', [id, profile.custCode]).then(function (res) {
+                showLoading(false);
+                if (res && res.success) {
+                    showModal('Berhasil', esc(res.message || 'Order berhasil dihapus.'));
+                    loadRiwayat(true);
+                } else {
+                    showModal('Gagal', esc((res && res.message) || 'Order gagal dihapus.'));
+                }
+            });
+        };
+    }
+
+    function getEditProductOptions(selected, selectedKode) {
+        var html = '<option value="">-- Pilih Produk --</option>';
+        var selName = String(selected || '').trim();
+        var selKode = String(selectedKode || '').trim();
+        var found = false;
+        (produkList || []).forEach(function (p) {
+            var n = String(p.nama || '').trim();
+            if (!n) return;
+            var kode = String(p.kode || '').trim();
+            var isSel = (selName && n === selName) || (selKode && kode === selKode);
+            if (isSel) found = true;
+            html += '<option value="' + esc(n) + '" ' + (isSel ? 'selected' : '') + '>' + esc(n) +
+                ' (' + Number(p.liter || 0) + 'L | Rp ' + Number(p.harga || 0).toLocaleString('id-ID') + ')</option>';
+        });
+        if (selName && !found) {
+            html = '<option value="' + esc(selName) + '" selected>' + esc(selName) + ' (Produk saat ini)</option>' + html;
+        }
+        return html;
+    }
+
+    function renderEditProducts() {
+        var box = $('editProducts');
+        if (!box) return;
+        if (!editOrderItems.length) {
+            box.innerHTML = '<div class="text-xs text-slate-400 text-center py-3 border rounded bg-slate-50">Belum ada produk.</div>';
+            return;
+        }
+        box.innerHTML = editOrderItems.map(function (it, i) {
+            return '<div class="border border-slate-200 rounded-lg p-2 bg-slate-50"><div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center">' +
+                '<select id="editProd' + i + '" class="sm:col-span-7 w-full border rounded p-2 bg-white text-xs">' + getEditProductOptions(it.produk, it.kode) + '</select>' +
+                '<input id="editQty' + i + '" type="number" min="1" value="' + Number(it.qty || 1) + '" class="sm:col-span-2 w-full border rounded p-2 text-xs">' +
+                '<select id="editUnit' + i + '" class="sm:col-span-2 w-full border rounded p-2 bg-white text-xs">' +
+                '<option value="Pcs" ' + (String(it.satuan).toUpperCase() === 'PCS' ? 'selected' : '') + '>Pcs</option>' +
+                '<option value="Dus" ' + (String(it.satuan).toUpperCase() === 'DUS' ? 'selected' : '') + '>Dus</option></select>' +
+                '<button type="button" onclick="removeEditProduct(' + i + ')" class="sm:col-span-1 text-red-600 bg-red-50 border border-red-200 rounded p-2">✕</button>' +
+                '</div></div>';
+        }).join('');
+    }
+
+    function syncEditProductsFromForm() {
+        if (!Array.isArray(editOrderItems)) editOrderItems = [];
+        for (var i = 0; i < editOrderItems.length; i++) {
+            var p = $('editProd' + i), q = $('editQty' + i), u = $('editUnit' + i);
+            if (!editOrderItems[i]) editOrderItems[i] = { produk: '', kode: '', qty: 1, satuan: 'Pcs' };
+            if (p) editOrderItems[i].produk = p.value;
+            if (q) editOrderItems[i].qty = Number(q.value) || 1;
+            if (u) editOrderItems[i].satuan = u.value;
+            var sel = (produkList || []).filter(function (x) { return String(x.nama || '').trim() === String(editOrderItems[i].produk || '').trim(); })[0];
+            if (sel && sel.kode) editOrderItems[i].kode = String(sel.kode).trim();
+        }
+    }
+
+    function addEditProduct() {
+        syncEditProductsFromForm();
+        editOrderItems.push({ produk: '', kode: '', qty: 1, satuan: 'Pcs' });
+        renderEditProducts();
+    }
+
+    function removeEditProduct(i) {
+        syncEditProductsFromForm();
+        editOrderItems.splice(i, 1);
+        renderEditProducts();
+    }
+
+    function setEditPayment(v) {
+        $('editPayment').value = v;
+        $('editPayCash').classList.toggle('on', v === 'CASH');
+        $('editPayCredit').classList.toggle('on', v === 'CREDIT');
+    }
+
+    function showEditError(msg) {
+        var el = $('editError');
+        if (!el) return;
+        el.textContent = msg;
+        el.classList.add('on');
+    }
+
+    function openEditOrder(id) {
+        if (editInFlight) { showModal('Edit Sedang Diproses', 'Perubahan order masih disimpan di server. Tunggu sebentar lalu coba lagi.'); return; }
+        var row = null;
+        for (var i = 0; i < riwayatRows.length; i++) {
+            if (String(riwayatRows[i].id || '') === String(id || '')) { row = riwayatRows[i]; break; }
+        }
+        if (!row) { showModal('Data Belum Termuat', 'Order tidak ditemukan pada data Riwayat. Muat ulang Riwayat lalu coba lagi.'); return; }
+        if (String(row.status || '').toUpperCase() !== 'PENDING') {
+            showModal('Tidak Dapat Diubah', 'Order ini sudah diproses sales/admin dan tidak dapat diedit.');
+            return;
+        }
+        editOrderId = String(id || '');
+        editOrderItems = (row.items || []).map(function (it) {
+            return {
+                produk: String(it.produk || '').trim(),
+                kode: String(it.kode || '').trim(),
+                qty: Number(it.qty) || 1,
+                satuan: String(it.satuan || 'Pcs').toUpperCase() === 'DUS' ? 'Dus' : 'Pcs'
+            };
+        });
+        if (!editOrderItems.length) editOrderItems = [{ produk: '', kode: '', qty: 1, satuan: 'Pcs' }];
+        var pay = String(row.payment || 'CASH').toUpperCase() === 'CREDIT' ? 'CREDIT' : 'CASH';
+        var iso = parseTanggalDisplay(row.tanggal);
+        var html = '<div style="text-align:left;">' +
+            '<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">' +
+            '<div><label class="op-label">Tanggal</label><input type="date" id="editTanggal" class="op-input" value="' + esc(iso) + '"></div>' +
+            '<div><label class="op-label">Payment</label><div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">' +
+            '<button type="button" id="editPayCash" class="payment-btn rounded-xl border-2 px-3 py-2.5 text-xs bg-white text-slate-600 border-slate-200' + (pay === 'CASH' ? ' on' : '') + '" onclick="setEditPayment(\'CASH\')">CASH</button>' +
+            '<button type="button" id="editPayCredit" class="payment-btn rounded-xl border-2 px-3 py-2.5 text-xs bg-white text-slate-600 border-slate-200' + (pay === 'CREDIT' ? ' on' : '') + '" onclick="setEditPayment(\'CREDIT\')">CREDIT</button>' +
+            '</div><input type="hidden" id="editPayment" value="' + pay + '"></div>' +
+            '</div>' +
+            '<div class="mt-2"><label class="op-label">Note Order</label><input type="text" id="editNote" class="op-input" value="' + esc(row.note && row.note !== '-' ? row.note : '') + '" placeholder="-"></div>' +
+            '<div class="mt-3"><label class="op-label">Produk</label><div id="editProducts" class="space-y-2"></div>' +
+            '<button type="button" onclick="addEditProduct()" class="op-btn-ghost mt-2">+ Tambah Produk</button></div>' +
+            '<p id="editError" class="edit-error"></p>' +
+            '<div class="mt-4 flex items-center justify-end gap-2">' +
+            '<button type="button" class="op-btn op-btn-cancel" onclick="closeModal(false)">Batal</button>' +
+            '<button type="button" id="editSaveBtn" class="op-btn op-btn-ok" onclick="saveEditOrder()">Simpan Perubahan</button>' +
+            '</div></div>';
+        showModal('Edit Order', html);
+        hideModalFooter();
+        renderEditProducts();
+    }
+
+    function saveEditOrder() {
+        if (editInFlight || !editOrderId) return;
+        if (!profile) { showModal('Sesi Berakhir', 'Sesi login berakhir. Muat ulang halaman.'); return; }
+        syncEditProductsFromForm();
+        var valid = [];
+        for (var i = 0; i < editOrderItems.length; i++) {
+            var it = editOrderItems[i];
+            if (!String(it.produk || '').trim()) continue;
+            if (!(Number(it.qty) > 0)) { showEditError('Qty untuk "' + it.produk + '" minimal 1.'); return; }
+            valid.push({ kode: it.kode, produk: it.produk, qty: Number(it.qty), satuan: it.satuan });
+        }
+        if (!valid.length) { showEditError('Tambahkan minimal satu produk.'); return; }
+        editInFlight = true;
+        var btn = $('editSaveBtn');
+        if (btn) { btn.disabled = true; btn.textContent = 'Menyimpan...'; }
+        showLoading(true);
+        gsRun('outletPortalUpdateOrder', [editOrderId, profile.custCode, {
+            tanggal: $('editTanggal') ? $('editTanggal').value : todayIso(),
+            payment: $('editPayment') ? $('editPayment').value : 'CASH',
+            disc: '0%',
+            note: $('editNote') ? $('editNote').value : '-',
+            items: valid
+        }]).then(function (res) {
+            showLoading(false);
+            editInFlight = false;
+            if (btn) { btn.disabled = false; btn.textContent = 'Simpan Perubahan'; }
+            if (res && res.success) {
+                var msg = res.message || 'Order berhasil diperbarui.';
+                modalCallback = null;
+                closeModal(false);
+                showModal('Berhasil', esc(msg));
+                loadRiwayat(true);
+            } else {
+                showEditError((res && res.message) || 'Gagal memperbarui order.');
+            }
+        });
+    }
+
+    // ---------- Pencapaian (TANPA tabel/card — tampilan langsung) ----------
+    function loadPencapaian(force) {
+        if (!profile || pencapaianLoading) return Promise.resolve();
+        pencapaianLoading = true;
+        if (force) showLoading(true);
+        return gsRun('outletPortalPencapaian', [profile.custCode, !!force]).then(function (res) {
+            pencapaianLoading = false;
+            showLoading(false);
+            pencData = (res && res.success) ? res : null;
+            renderPencapaian(res && res.success ? res : null);
+            renderInputAch();
+            renderPencAch();
+        });
+    }
+
+    // ---------- Task 74: Target & Pencapaian kuartal berjalan (gaya Input Order step 2 portal sales) ----------
+    function achFmt(v) {
+        return (Number(v) || 0).toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    }
+    // Total dus dalam keranjang — rumus sama dengan getInputCartDusTotal pada portal sales.
+    function inputCartDusTotal() {
+        var channel = profile ? String(profile.channel || '').trim().toUpperCase() : '';
+        var totalVolume = shoppingCart.reduce(function (sum, item) {
+            var qty = Number(item.qty) || 0, pack = Number(item.pack) || 1;
+            var totalPcs = String(item.satuan || '').toUpperCase() === 'DUS' ? qty * pack : qty;
+            return sum + totalPcs * (Number(item.liter) || 0);
+        }, 0);
+        if (channel === 'PCO') return totalVolume / 12;
+        if (channel === 'MCO-4T') return totalVolume / 9.6;
+        return shoppingCart.reduce(function (sum, item) {
+            var qty = Number(item.qty) || 0, pack = Number(item.pack) || 1;
+            return sum + (String(item.satuan || '').toUpperCase() === 'DUS' ? qty : qty / pack);
+        }, 0);
+    }
+    // Task 74: "Edit informasi" membuka kartu info order (tanggal/payment/disc/cashback/note)
+    // yang disembunyikan sejak Task 68 — meniru tombol "Edit informasi" pada step 2 sales.
+    // Task 76: tombol "Edit informasi" dihapus dari kartu Input — fungsi disimpan dgn guard
+    // (kartu info opInfoCard tetap tersembunyi seperti sejak Task 68) bila suatu saat dipakai lagi.
+    function toggleInfoOrder() {
+        var card = $('opInfoCard');
+        if (!card) return;
+        var willShow = (!card.style.display || card.style.display === 'none');
+        card.style.display = willShow ? '' : 'none';
+        var btn = $('opAchEditInfo');
+        if (btn) btn.textContent = willShow ? 'Tutup informasi' : 'Edit informasi';
+    }
+    function refreshAchInput(btn) {
+        if (!profile) return;
+        var orig = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '⟳ Memuat...';
+        Promise.resolve(loadPencapaian(true)).then(function () {
+            btn.disabled = false;
+            btn.innerHTML = orig;
+        }, function () {
+            btn.disabled = false;
+            btn.innerHTML = orig;
+        });
+    }
+    // Task 75: geser strip bulan pencapaian ke kiri/kanan (tombol ‹ ›; swipe sentuh lewat overflow-x).
+    function scrollAchStrip(dir) {
+        var strip = $('opAchMonths');
+        if (!strip) return;
+        try { strip.scrollBy({ left: dir * 218, behavior: 'smooth' }); }
+        catch (eScroll) { strip.scrollLeft += dir * 218; }
+    }
+    function currentQuarterObj() {
+        if (!pencData || !Array.isArray(pencData.quarters)) return null;
+        var arr = pencData.quarters;
+        return arr.filter(function (q) { return q.isCurrent; })[0] ||
+               arr.filter(function (q) { return (Number(q.target) || 0) > 0 || (Number(q.actual) || 0) > 0; })[0] || null;
+    }
+    function renderInputAch() {
+        var labelEl = $('opAchQuarterLabel');
+        if (!labelEl) return;
+        if (!pencData) { labelEl.textContent = 'Memuat target & pencapaian...'; return; }
+        var q = currentQuarterObj();
+        labelEl.textContent = q ? q.label : 'Target kuartal belum tersedia.';
+        var months = (q && Array.isArray(q.months)) ? q.months : [];
+        var dateVal = String($('opTanggal').value || '');
+        var dm = dateVal.match(/^\d{4}-(\d{1,2})-/);
+        var inputMonth = dm ? Number(dm[1]) : 0;
+        var cartDus = profile ? inputCartDusTotal() : 0;
+        var qActual = 0;
+        for (var i = 1; i <= 3; i++) {
+            var m = months[i - 1] || null;
+            if (m) {
+                $('opAchMTitle' + i).textContent = m.label || ('Bulan ' + i);
+                var target = Number(m.target) || 0;
+                var actual = (Number(m.actual) || 0) + (Number(m.month) === inputMonth ? cartDus : 0);
+                var gap = actual - target;
+                var ach = target > 0 ? (actual / target * 100) : 0;
+                $('opAchTargetM' + i).textContent = achFmt(target) + ' dus';
+                $('opAchActualM' + i).textContent = achFmt(actual) + ' dus';
+                $('opAchGapM' + i).textContent = achFmt(gap) + ' dus';
+                $('opAchPctM' + i).textContent = achFmt(ach) + '%';
+                qActual += actual;
+            } else {
+                $('opAchMTitle' + i).textContent = 'Bulan ' + i;
+                $('opAchTargetM' + i).textContent = '-';
+                $('opAchActualM' + i).textContent = '0,0 dus';
+                $('opAchGapM' + i).textContent = '-';
+                $('opAchPctM' + i).textContent = '0,0%';
+            }
+        }
+        $('opAchQuarterTotalLabel').textContent = q ? q.label : 'Q berjalan';
+        var qTarget = q ? (Number(q.target) || 0) : 0;
+        var qGap = qActual - qTarget;
+        var qAch = qTarget > 0 ? (qActual / qTarget * 100) : 0;
+        $('opAchTargetQ').textContent = achFmt(qTarget) + ' dus';
+        $('opAchActualQ').textContent = achFmt(qActual) + ' dus';
+        $('opAchGapQ').textContent = achFmt(qGap) + ' dus';
+        $('opAchPctQ').textContent = achFmt(qAch) + '%';
+    }
+
+    // ---------- Task 74/75: Pencapaian Bulanan per kuartal pada halaman Pencapaian (pindahan dari Riwayat; gaya detail Monitoring portal sales) ----------
+    var MONTH_NAMES_ID = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    // Fallback bila respons belum memuat months (cache lama): target dibagi rata 3 bulan, actual di bulan pertama.
+    function pencAchEnsureMonths(q) {
+        if (q && Array.isArray(q.months) && q.months.length === 3) return;
+        var label = String((q && q.label) || '');
+        var ym = label.match(/(\d{4})/);
+        var year = ym ? Number(ym[1]) : ((pencData && pencData.year) || new Date().getFullYear());
+        var qn = q ? (Number(String(q.q || '').replace(/\D/g, '')) || 1) : 1;
+        var target = q ? (Number(q.target) || 0) : 0;
+        var actual = q ? (Number(q.actual) || 0) : 0;
+        var monthly = target > 0 ? target / 3 : 0;
+        q.months = [0, 1, 2].map(function (i) {
+            var mNo = (qn - 1) * 3 + i + 1;
+            return { month: mNo, year: year, label: MONTH_NAMES_ID[mNo - 1] + ' ' + year, target: monthly, actual: i === 0 ? actual : 0 };
+        });
+    }
+    function renderPencAch() {
+        var yearSel = $('pencAchYear'), qSel = $('pencAchQuarter'), body = $('pencAchBody');
+        if (!yearSel || !qSel || !body) return;
+        if (!pencData || !pencData.byYear) {
+            body.innerHTML = '<p style="font-size:11px; color:#94a3b8; padding:4px 0;">Memuat pencapaian...</p>';
+            return;
+        }
+        if (!pencAchInit) {
+            pencAchInit = true;
+            var years = (Array.isArray(pencData.years) && pencData.years.length) ? pencData.years : [pencData.year];
+            yearSel.innerHTML = years.map(function (y) { return '<option value="' + esc(y) + '">' + esc(y) + '</option>'; }).join('');
+            var curQ = currentQuarterObj();
+            var cur = pencData.currentQuarter || (curQ ? Number(String(curQ.q || '').replace(/\D/g, '')) : 0) || 1;
+            qSel.value = String(cur);
+        }
+        var yKey = String(yearSel.value || pencData.year);
+        var qArr = pencData.byYear[yKey] || [];
+        var qn = parseInt(qSel.value, 10) || 1;
+        var title = 'Q' + qn + ' ' + yKey;
+        var q = null;
+        for (var i = 0; i < qArr.length; i++) {
+            if (Number(String(qArr[i].q || '').replace(/\D/g, '')) === qn) { q = qArr[i]; break; }
+        }
+        if (!q) {
+            body.innerHTML = '<p style="font-size:11px; color:#94a3b8; padding:4px 0;">Data pencapaian ' + esc(title) + ' belum tersedia.</p>';
+            return;
+        }
+        pencAchEnsureMonths(q);
+        var rows = '';
+        var tT = 0, aT = 0;
+        q.months.forEach(function (m) {
+            var tgt = Number(m.target) || 0, act = Number(m.actual) || 0, gap = act - tgt;
+            var ach = tgt > 0 ? (act / tgt * 100) : 0;
+            tT += tgt; aT += act;
+            var achCls = ach >= 100 ? 'text-emerald-700' : (ach >= 80 ? 'text-amber-600' : 'text-red-600');
+            rows += '<tr>' +
+                '<td class="p-1.5 text-left font-semibold text-slate-600 whitespace-nowrap">' + esc(m.label) + '</td>' +
+                '<td class="p-1.5 text-right text-slate-600">' + tgt.toFixed(1) + '</td>' +
+                '<td class="p-1.5 text-right text-slate-700 font-semibold">' + act.toFixed(1) + '</td>' +
+                '<td class="p-1.5 text-right ' + (gap >= 0 ? 'text-emerald-700' : 'text-red-600') + '">' + gap.toFixed(1) + '</td>' +
+                '<td class="p-1.5 text-right font-extrabold ' + achCls + '">' + (tgt > 0 ? ach.toFixed(1) + '%' : '-') + '</td>' +
+                '</tr>';
+        });
+        var tGap = aT - tT, tAch = tT > 0 ? (aT / tT * 100) : 0;
+        rows += '<tr class="bg-emerald-50/60 font-bold">' +
+            '<td class="p-1.5 text-left text-slate-700">Total ' + esc(title) + '</td>' +
+            '<td class="p-1.5 text-right text-slate-700">' + tT.toFixed(1) + '</td>' +
+            '<td class="p-1.5 text-right text-slate-800">' + aT.toFixed(1) + '</td>' +
+            '<td class="p-1.5 text-right ' + (tGap >= 0 ? 'text-emerald-700' : 'text-red-600') + '">' + tGap.toFixed(1) + '</td>' +
+            '<td class="p-1.5 text-right font-extrabold text-slate-800">' + (tT > 0 ? tAch.toFixed(1) + '%' : '-') + '</td>' +
+            '</tr>';
+        body.innerHTML = '<div class="rounded-xl border border-slate-200 bg-white p-3">' +
+            '<div class="text-[10px] font-extrabold text-slate-700">Pencapaian Bulanan — ' + esc(title) + '</div>' +
+            '<div class="overflow-x-auto mt-2"><table class="w-full text-[10px]"><thead><tr class="text-slate-400">' +
+            '<th class="p-1.5 text-left font-bold">Bulan</th><th class="p-1.5 text-right font-bold">Target</th><th class="p-1.5 text-right font-bold">Actual</th><th class="p-1.5 text-right font-bold">Gap</th><th class="p-1.5 text-right font-bold">Ach%</th>' +
+            '</tr></thead><tbody>' + rows + '</tbody></table></div>' +
+            '<div class="text-[8.5px] text-slate-400 mt-1.5">Target bulanan = target kuartal dibagi rata 3 bulan (dus).</div>' +
+            '</div>';
+    }
+    function barHtml(pct) {
+        var w = Math.max(0, Math.min(100, pct));
+        return '<div class="op-progress"><i class="' + (pct >= 100 ? 'over' : '') + '" style="width:' + w + '%"></i></div>';
+    }
+    function renderPencapaian(res) {
+        // Task 76: markup kuartal (pencQuarters/pencYear/pencSub) dihapus — guard null bila markup tak ada.
+        var wrap = $('pencQuarters');
+        if (!res || !Array.isArray(res.quarters)) {
+            if (wrap) wrap.innerHTML = '<p style="font-size:12px; color:#94a3b8; padding:18px 0;">Gagal memuat pencapaian. Coba muat ulang.</p>';
+            $('pencBwsWrap').classList.add('hidden');
+            return;
+        }
+        var yearEl = $('pencYear'); if (yearEl) yearEl.textContent = res.year || '-';
+        var subEl = $('pencSub'); if (subEl) subEl.textContent = 'Pencapaian volume per quartal' +
+            (res.outlet && res.outlet.channel ? ' — channel ' + res.outlet.channel : '') + '.';
+        if (wrap) wrap.innerHTML = res.quarters.map(function (q) {
+            var hasTarget = Number(q.target) > 0;
+            var pct = hasTarget ? q.pct : null;
+            var pctHtml = pct === null
+                ? '<span class="qtr-pct muted">—</span>'
+                : '<span class="qtr-pct">' + pct + '%</span>';
+            return '<div class="qtr-row">' +
+                '<div class="qtr-top"><div><span class="qtr-name">' + esc(q.label) + '</span>' +
+                (q.isCurrent ? '<span class="current-pill">SEDANG BERJALAN</span>' : '') + '</div>' + pctHtml + '</div>' +
+                (hasTarget
+                    ? barHtml(pct) +
+                      '<div class="qtr-sub">' + q.actual + ' / ' + q.target + ' karton' +
+                      (q.actualLiter || q.targetLiter ? ' • ' + q.actualLiter + ' / ' + q.targetLiter + ' L' : '') + '</div>'
+                    : '<div class="qtr-sub">' + (q.actual > 0 ? ('Realisasi ' + q.actual + ' karton (' + q.actualLiter + ' L) — target belum diatur.') : 'Target belum diatur.') + '</div>') +
+                '</div>';
+        }).join('');
+
+        var bws = res.bws;
+        var bwsWrap = $('pencBwsWrap');
+        if (bws && Array.isArray(bws.contracts) && bws.contracts.length) {
+            bwsWrap.classList.remove('hidden');
+            // Task 73: tampilan identik dengan DETAIL OUTLET KONTRAK pada portal sales
+            // (tampilkanDetailOutletKontrak): hero gradasi, grid Target/Actual/Gap/Point,
+            // progress "Pencapaian Volume Kontrak", tabel Point Trip per kategori.
+            var profName = profile ? (profile.outlet || '-') : '-';
+            var profChan = profile ? (profile.channel || '') : '';
+            var blocks = bws.contracts.map(function (c) {
+                var pct = Number(c.percentage) || 0;
+                var gap = Number(c.gap) || 0;
+                var pctBar = pct >= 100 ? 'bg-emerald-600' : (pct >= 80 ? 'bg-amber-500' : 'bg-red-500');
+                var trip = '';
+                if (bws.pointByCategory && bws.pointByCategory.length > 0) {
+                    var trows = bws.pointByCategory.map(function (row, idx) {
+                        var divText = row.divisor === 9.6 ? '/ 9,6' : (row.divisor === 12 ? '/ 12' : '-');
+                        return '<tr class="' + (idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/40') + ' border-b border-slate-100">' +
+                            '<td class="p-2 font-medium text-slate-700">' + esc(row.kategori) + '</td>' +
+                            '<td class="p-2 text-right text-slate-600">' + formatNumberID(row.volume, 1) + '</td>' +
+                            '<td class="p-2 text-right text-slate-600">' + formatNumberID(row.karton, 2) + ' <span class="text-[8px] text-slate-400">' + divText + '</span></td>' +
+                            '<td class="p-2 text-right font-bold text-indigo-700">' + formatNumberID(row.point, 2) + '</td></tr>';
+                    }).join('');
+                    trip = '<div class="mt-3 border border-slate-200 rounded-xl overflow-hidden">' +
+                        '<div class="px-3 py-2.5 bg-slate-50 border-b border-slate-200"><div class="font-bold text-slate-700 text-xs">Point Trip Tahun Berjalan</div></div>' +
+                        '<div class="overflow-x-auto"><table class="w-full text-[10px]"><thead><tr class="bg-white border-b border-slate-200 text-slate-500">' +
+                        '<th class="p-2 text-left font-bold">Kategori</th><th class="p-2 text-right font-bold">Volume</th><th class="p-2 text-right font-bold">Karton</th><th class="p-2 text-right font-bold">Point</th>' +
+                        '</tr></thead><tbody>' + trows + '</tbody></table></div></div>';
+                } else {
+                    trip = '<div class="mt-3 p-3 rounded-xl bg-slate-50 border border-slate-200 text-[10px] text-slate-400 text-center">Belum ada Point Trip untuk tahun berjalan.</div>';
+                }
+                return '<div class="rounded-xl border border-slate-200 overflow-hidden bg-white">' +
+                    '<div class="bg-gradient-to-r from-slate-900 to-emerald-900 text-white p-3">' +
+                    '<div class="text-[9px] uppercase tracking-wider text-emerald-300 font-bold">Outlet Kontrak</div>' +
+                    '<div class="text-sm font-bold mt-1">' + esc(profName) + '</div>' +
+                    '<div class="text-[9px] text-slate-300 mt-1">' + esc(c.start || '-') + ' s/d ' + esc(c.end || '-') +
+                    (profChan ? ' • Channel ' + esc(profChan) : '') + '</div>' +
+                    '</div>' +
+                    '<div class="p-3 space-y-3">' +
+                    '<div class="grid grid-cols-2 gap-2">' +
+                    '<div class="rounded-xl border border-slate-200 p-2.5 bg-white"><div class="text-[9px] text-slate-400">Target</div>' +
+                    '<div class="text-sm font-bold text-slate-800 mt-1">' + formatNumberID(c.target, 1) + '</div></div>' +
+                    '<div class="rounded-xl border border-emerald-200 p-2.5 bg-emerald-50"><div class="text-[9px] text-emerald-600">Actual</div>' +
+                    '<div class="text-sm font-bold text-emerald-800 mt-1">' + formatNumberID(c.actual, 1) + '</div></div>' +
+                    '<div class="rounded-xl border border-slate-200 p-2.5 bg-white"><div class="text-[9px] text-slate-400">Gap</div>' +
+                    '<div class="text-sm font-bold ' + (gap <= 0 ? 'text-emerald-700' : 'text-red-600') + ' mt-1">' + formatNumberID(gap, 1) + '</div></div>' +
+                    '<div class="rounded-xl border border-indigo-200 p-2.5 bg-indigo-50"><div class="text-[9px] text-indigo-600">Point Trip</div>' +
+                    '<div class="text-sm font-bold text-indigo-800 mt-1">' + formatNumberID(bws.totalPoint, 2) + '</div></div>' +
+                    '</div>' +
+                    '<div><div class="flex justify-between items-center mb-1.5">' +
+                    '<span class="text-[10px] font-bold text-slate-600">Pencapaian Volume Kontrak berdasarkan Periode Mulai sampai Akhir</span>' +
+                    '<span class="text-[10px] font-bold text-slate-700">' + formatPercentID(pct) + '</span></div>' +
+                    '<div class="h-2.5 rounded-full bg-slate-100 overflow-hidden"><div class="h-full rounded-full ' + pctBar + '" style="width:' + Math.min(Math.max(pct, 0), 100) + '%"></div></div></div>' +
+                    trip +
+                    '</div></div>';
+            }).join('');
+            $('pencKontrak').innerHTML = blocks;
+        } else if (bws) {
+            bwsWrap.classList.remove('hidden');
+            $('pencKontrak').innerHTML = '<p style="font-size:12px; color:#94a3b8; padding:10px 0;">Belum ada kontrak BWS aktif untuk outlet Anda.</p>';
+        } else {
+            bwsWrap.classList.add('hidden');
+        }
+    }
+
+    // ---------- Refresh global ----------
+    $('btnRefresh').addEventListener('click', function () {
+        if (!profile) return;
+        var btn = $('btnRefresh');
+        btn.classList.add('spinning');
+        Promise.all([loadProduk(true), loadRiwayat(true), loadPencapaian(true)]).then(function () {
+            btn.classList.remove('spinning');
+        });
+    });
+    $('btnLogout').addEventListener('click', logoutOutlet);
+
+    // ---------- Auto login: ?code=... (link dari sales) atau sesi tersimpan ----------
+    function getCodeParam(cb) {
+        try {
+            if (window.google && google.script && google.script.url && google.script.url.getLocation) {
+                google.script.url.getLocation(function (loc) {
+                    cb(String((loc && loc.parameter && loc.parameter.code) || '').trim());
+                });
+                return;
+            }
+        } catch (eGs) {}
+        var m = String(window.location.search || '').match(/[?&]code=([^&]*)/);
+        cb(m ? decodeURIComponent(m[1].replace(/\+/g, ' ')) : '');
+    }
+
+    (function init() {
+        $('opTanggal').value = todayIso();
+        setPayment('CASH');
+        setSatuan('Pcs');
+        getCodeParam(function (code) {
+            if (code) {
+                doLogin(code, false);
+                return;
+            }
+            var saved = null;
+            try { saved = JSON.parse(localStorage.getItem(AUTH_KEY) || 'null'); } catch (eParse) { saved = null; }
+            if (saved && saved.custCode) {
+                doLogin(String(saved.custCode), true);
+            }
+        });
+    })();
+</script>
+</body>
+</html>
