@@ -3242,6 +3242,203 @@ select.select2-hidden-accessible { width: 1px !important; max-width: 1px !import
 #produkOutletDropdownPanel { max-width: calc(100vw - 24px); }
 .po-outlet-options { overflow-x: hidden; }
 </style>
+<style id="castrol-mobile-filter-dropdown-fit-fix">
+/* ============================================================================
+   Task 70: PERBAIKAN TAMPILAN MOBILE — tombol filter (dropdown kustom) pada
+   halaman "Produk by Outlet" (#tabProdukOutlet) dan "Generate Link Outlet"
+   (#tabGenerateOutlet) tampak terpotong di layar HP.
+   Latar belakang: kedua halaman memakai tombol dropdown kustom (bukan <select>
+   bawaan seperti halaman lain). Isi tombol berupa flex (label + ikon panah)
+   dan panel dropdown-nya absolute; tanpa batas min-width/max-width, pada layar
+   sempit teks/ikon dapat mendorong tombol maupun panel melebihi tepi kartu/
+   layar sehingga tampak terpotong (di desktop tidak terlihat karena lebarnya
+   cukup). Perbaikan di bawah ini murni CSS tampilan — tidak mengubah fungsi,
+   JS, maupun tampilan desktop.
+   ============================================================================ */
+
+/* 1) Tombol dropdown tidak pernah lebih lebar dari kartu penampungnya */
+#filterProdukOutletBtn,
+#genOutletBtn {
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* 2) Label di dalam tombol: boleh menyusut; teks panjang dipotong rapi
+      (elipsis) agar tidak mendorong ikon panah keluar tepi tombol */
+#filterProdukOutletLabel,
+#genOutletLabel {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 3) Ikon panah tidak ikut mengecil / terdorong keluar dari tombol */
+#filterProdukOutletBtn > svg,
+#genOutletBtn > svg {
+  flex: 0 0 auto;
+}
+
+/* 4) Akar & panel dropdown tidak pernah melebihi lebar kartu/layar.
+      Panel Generate Link Outlet kini mendapat pengaman yang sama dengan
+      panel Produk by Outlet (Task 60). */
+#produkOutletDropdownRoot,
+#genOutletDdRoot {
+  min-width: 0;
+  max-width: 100%;
+}
+#produkOutletDropdownPanel,
+#genOutletPanel {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* 5) Khusus layar mobile: kartu filter pas di layar, panel dropdown selalu
+      muat secara vertikal (sisa daftar digulir di dalam, bukan terpotong) */
+@media (max-width: 767px) {
+  #tabProdukOutlet > div.bg-white,
+  #tabGenerateOutlet > div.bg-white {
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+  #produkOutletDropdownPanel,
+  #genOutletPanel {
+    max-height: 62vh;
+    max-height: 62dvh;
+    overflow: hidden;
+  }
+  #produkOutletDropdownPanel #produkOutletOptions,
+  #genOutletPanel #genOutletOptions {
+    max-height: calc(62vh - 110px);
+    max-height: calc(62dvh - 110px);
+  }
+  /* Scrollbar daftar opsi dibuat terlihat agar jelas daftar bisa digulung */
+  #produkOutletOptions,
+  #genOutletOptions {
+    scrollbar-width: thin;
+    scrollbar-color: #9db4a6 #eef2ef;
+    overscroll-behavior: contain;
+  }
+  #produkOutletOptions::-webkit-scrollbar,
+  #genOutletOptions::-webkit-scrollbar {
+    width: 8px;
+  }
+  #produkOutletOptions::-webkit-scrollbar-thumb,
+  #genOutletOptions::-webkit-scrollbar-thumb {
+    background: #9db4a6;
+    border-radius: 8px;
+  }
+  #produkOutletOptions::-webkit-scrollbar-track,
+  #genOutletOptions::-webkit-scrollbar-track {
+    background: #eef2ef;
+  }
+}
+</style>
+<style id="castrol-mainpage-dropdown-clip-fix">
+/* ============================================================================
+   Task 71: PENYEBAB ASLI panel dropdown terpotong di tengah layar (mobile).
+   "Pembungkus" yang menutupi = #mainPage - div pembungkus SEMUA halaman tab.
+   Pada layar mobile #mainPage diberi aturan lama `overflow-x:hidden`, dan
+   menurut spesifikasi CSS kombinasi overflow-x:hidden + overflow-y:visible
+   tidak diizinkan: overflow-y otomatis dihitung menjadi `auto`, sehingga
+   #mainPage diam-diam menjadi scroll container vertikal. Tingginya hanya
+   sebatas isi halaman (tidak full ke bawah layar), sedangkan panel dropdown
+   halaman "Produk by Outlet" & "Generate Link Outlet" adalah position:absolute
+   yang menggantung MELEWATI batas bawah #mainPage. Akibatnya bagian panel di
+   bawah batas itu terpotong garis lurus (seolah ditutup bingkai), padahal
+   ruang di bawahnya hanyalah area kosong wrapper konten + background body.
+   Solusi: jadikan #mainPage BUKAN scroll container di mobile dengan
+   overflow-x:clip - memotong overflow horizontal TANPA menciptakan scroll
+   container (overflow-y tetap visible, panel tidak dipotong lagi). Browser
+   lama yang belum mendukung `clip` di-fallback ke overflow terlihat; pemotongan
+   horizontal tetap dijaga oleh body (overflow-x:hidden) dan wrapper konten
+   utama (#app > .p-4.flex-1.overflow-y-auto, overflow-x:hidden!important).
+   Murni CSS - tidak mengubah fungsi, JS, maupun tampilan desktop.
+   ============================================================================ */
+@media (max-width:767px){
+  #mainPage{
+    overflow-x: clip;
+    overflow-y: visible;
+  }
+}
+@supports not (overflow-x: clip){
+  @media (max-width:767px){
+    #mainPage{
+      overflow-x: visible;
+      overflow-y: visible;
+    }
+  }
+}
+
+/* Tambahan Task 71: mode LANDSCAPE (layar pendek) - panel dibatasi agar
+   tetap berakhir di dalam layar; sisa daftar tetap bisa digulir di dalam
+   panel (angka 228px = tinggi terukur header+judul+kartu filter di atas
+   panel pada posisi scroll paling atas). */
+@media (max-width:767px) and (orientation: landscape){
+  #produkOutletDropdownPanel,
+  #genOutletPanel{
+    max-height: calc(100dvh - 228px);
+  }
+  #produkOutletDropdownPanel #produkOutletOptions,
+  #genOutletPanel #genOutletOptions{
+    max-height: calc(100dvh - 288px);
+  }
+}
+</style>
+<style id="castrol-riwayat-card-v2">
+/* Task 82: desain ulang card Riwayat Order (portal Sales) - border kiri warna status,
+   ID order sebagai judul, status teks tebal berwarna, item bullet dengan qty tebal,
+   baris Volume/Nilai + Note, footer hint + tombol aksi (edit/WA/hapus tetap sama).
+   Class rw2-* dedikasi untuk #listRiwayat agar halaman Approval (.riwayat-card) tidak terpengaruh. */
+#listRiwayat .rw2-card{position:relative;background:#fff;border:1px solid #e5eaf1;border-left:5px solid #f59e0b;border-radius:18px;padding:14px 16px 12px;box-shadow:0 2px 10px rgba(15,23,42,.05);transition:transform .16s ease,box-shadow .16s ease;}
+#listRiwayat .rw2-card:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(15,23,42,.09);}
+#listRiwayat .rw2-card.rw2-approve{border-left-color:#059669;}
+#listRiwayat .rw2-card.rw2-decline{border-left-color:#dc2626;}
+#listRiwayat .rw2-card.rw2-pending{border-left-color:#f59e0b;}
+#listRiwayat .rw2-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+#listRiwayat .rw2-head-main{flex:1 1 auto;min-width:0;}
+#listRiwayat .rw2-check{flex:0 0 auto;width:15px;height:15px;margin-top:2px;cursor:pointer;}
+#listRiwayat .rw2-id{font-size:13.5px;line-height:1.35;font-weight:800;color:#0f172a;word-break:break-word;}
+#listRiwayat .rw2-outlet{font-size:12px;line-height:1.4;font-weight:700;color:#243b53;margin-top:4px;word-break:break-word;}
+#listRiwayat .rw2-dsr{font-size:9px;color:#94a3b8;margin-top:2px;}
+#listRiwayat .rw2-sub{font-size:10.5px;line-height:1.45;color:#8a97a8;margin-top:3px;}
+#listRiwayat .rw2-status{flex:0 0 auto;max-width:46%;font-size:10.5px;line-height:1.4;font-weight:800;letter-spacing:.05em;text-transform:uppercase;text-align:right;word-break:break-word;}
+#listRiwayat .rw2-status.rw2-approve{color:#047857;}
+#listRiwayat .rw2-status.rw2-decline{color:#b91c1c;}
+#listRiwayat .rw2-status.rw2-pending{color:#b45309;}
+#listRiwayat .rw2-items{margin-top:11px;padding:10px 2px;border-top:1px solid #eef2f7;border-bottom:1px solid #eef2f7;display:flex;flex-direction:column;gap:6px;}
+#listRiwayat .rw2-item{display:flex;align-items:baseline;gap:7px;font-size:11px;line-height:1.55;color:#334155;word-break:break-word;}
+#listRiwayat .rw2-dot{flex:0 0 auto;color:#94a3b8;}
+#listRiwayat .rw2-item-text{min-width:0;}
+#listRiwayat .rw2-item-text b{color:#0f172a;font-weight:800;white-space:nowrap;}
+#listRiwayat .rw2-sep{color:#94a3b8;}
+#listRiwayat .rw2-meta{display:flex;flex-wrap:wrap;gap:4px 24px;padding-top:10px;font-size:10.5px;color:#64748b;}
+#listRiwayat .rw2-meta b{color:#0f172a;font-weight:800;font-size:11.5px;white-space:nowrap;}
+#listRiwayat .rw2-note{margin-top:7px;font-size:10.5px;line-height:1.5;color:#334155;word-break:break-word;}
+#listRiwayat .rw2-note-label{color:#64748b;}
+#listRiwayat .rw2-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:11px;padding-top:11px;border-top:1px solid #eef2f7;}
+#listRiwayat .rw2-hint{font-size:10px;line-height:1.45;color:#8a97a8;min-width:0;}
+#listRiwayat .rw2-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto;}
+#listRiwayat .rw2-act{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;padding:0!important;border:none;border-radius:11px!important;cursor:pointer;transition:transform .15s ease,box-shadow .15s ease,background .15s ease;}
+#listRiwayat .rw2-act svg{width:15px;height:15px;display:block;}
+#listRiwayat .rw2-act-edit,#listRiwayat .rw2-act-delete{background:linear-gradient(160deg,#fafbfd 0%,#e4e8ec 38%,#c9cdd4 74%,#aeb5be 100%);color:#59636f;box-shadow:0 3px 6px rgba(15,23,42,.22),0 1px 2px rgba(15,23,42,.15),inset 0 1.5px 0 rgba(255,255,255,.85),inset 0 -2px 3px rgba(15,23,42,.16);}
+#listRiwayat .rw2-act-edit:hover,#listRiwayat .rw2-act-delete:hover{background:linear-gradient(160deg,#ffffff 0%,#edf0f3 38%,#d3d8dd 74%,#bcc2ca 100%);color:#49535e;}
+#listRiwayat .rw2-act-edit:active,#listRiwayat .rw2-act-delete:active{transform:translateY(1px);box-shadow:0 1px 2px rgba(15,23,42,.18),inset 0 2px 4px rgba(15,23,42,.22);}
+#listRiwayat .rw2-act-edit svg,#listRiwayat .rw2-act-delete svg{filter:drop-shadow(0 1px 1px rgba(15,23,42,.3)) drop-shadow(0 -0.5px 0 rgba(255,255,255,.55));}
+#listRiwayat .rw2-act-wa{width:42px;height:42px;padding:0!important;border-radius:999px!important;background:linear-gradient(160deg,#23c463 0%,#00a651 46%,#008a45 100%);color:#fff;box-shadow:0 3px 8px rgba(0,138,69,.38),0 1px 2px rgba(0,109,55,.3),inset 0 1.5px 0 rgba(255,255,255,.5),inset 0 -2px 3px rgba(0,77,39,.36);}
+#listRiwayat .rw2-act-wa:hover{background:linear-gradient(160deg,#2fd06e 0%,#00b35a 46%,#00964e 100%);}
+#listRiwayat .rw2-act-wa:active{transform:translateY(1px);box-shadow:0 1px 2px rgba(0,109,55,.28),inset 0 2px 4px rgba(0,77,39,.32);}
+#listRiwayat .rw2-act-wa svg{width:20px;height:20px;display:block;filter:drop-shadow(0 1px 1px rgba(0,60,30,.42)) drop-shadow(0 -0.5px 0 rgba(255,255,255,.35));}
+@media (max-width:767px){
+  #listRiwayat .rw2-card{padding:13px 14px 11px;border-radius:16px;}
+  #listRiwayat .rw2-foot{flex-wrap:wrap;}
+  #listRiwayat .rw2-hint{flex:1 1 100%;}
+  #listRiwayat .rw2-actions{margin-left:auto;}
+}
+</style>
 </head>
 <body class="bg-slate-50 font-sans">
 
@@ -6960,7 +7157,48 @@ startAutoRefresh();
         }
         function getEditOutletOptions(selected){let html='<option value="">-- Pilih Outlet --</option>',seen={};(outletDataList||[]).forEach(function(o){let n=String(o.outlet||'').trim();if(n&&!seen[n]){seen[n]=1;html+='<option value="'+escapeHtml(n)+'" '+(n===String(selected||'')?'selected':'')+'>'+escapeHtml(n)+'</option>';}});if(selected&&!seen[String(selected)])html='<option value="'+escapeHtml(selected)+'" selected>'+escapeHtml(selected)+'</option>'+html.slice(html.indexOf('</option>')+9);return html;}
         function getEditProductOptions(selected,selectedKode){let html='<option value="">-- Pilih Produk --</option>';let selectedText=String(selected||'').trim();let selectedCode=String(selectedKode||'').trim();let found=false;(produkDataList||[]).forEach(function(p){let n=String(p.nama||'').trim();if(!n)return;let kode=String(p.kode||'').trim();let isSelected=(selectedText&&n===selectedText)||(selectedCode&&kode===selectedCode);if(isSelected)found=true;html+='<option value="'+escapeHtml(n)+'" '+(isSelected?'selected':'')+'>'+escapeHtml(n)+' ('+Number(p.liter||0)+'L | Rp '+Number(p.harga||0).toLocaleString('id-ID')+')</option>';});if(selectedText&&!found){html+='<option value="'+escapeHtml(selectedText)+'" selected>'+escapeHtml(selectedText)+' (Produk saat ini)</option>';}return html;}
-        function renderEditOrderProducts(){let b=document.getElementById('editProducts');if(!b)return;if(!editOrderItems.length){b.innerHTML='<div class="text-xs text-slate-400 text-center py-3">Belum ada produk.</div>';return;}b.innerHTML=editOrderItems.map(function(it,i){return '<div class="border border-slate-200 rounded-lg p-2 mb-2 bg-slate-50"><div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center"><select id="editProd'+i+'" class="sm:col-span-7 w-full border rounded p-2 bg-white text-xs">'+getEditProductOptions(it.produk,it.kode)+'</select><input id="editQty'+i+'" type="number" min="1" value="'+Number(it.qty||1)+'" class="sm:col-span-2 w-full border rounded p-2 text-xs"><select id="editUnit'+i+'" class="sm:col-span-2 w-full border rounded p-2 bg-white text-xs"><option value="Pcs" '+(String(it.satuan).toUpperCase()==='PCS'?'selected':'')+'>Pcs</option><option value="Dus" '+(String(it.satuan).toUpperCase()==='DUS'?'selected':'')+'>Dus</option></select><button type="button" onclick="removeEditProduct('+i+')" class="sm:col-span-1 text-red-600 bg-red-50 border border-red-200 rounded p-2">✕</button></div></div>';}).join('');}
+        // Task 83: baris produk Edit Order dirapikan (kartu per item, Qty & Satuan sejajar).
+        // Satuan memakai tombol Pcs/Dus (seperti pemilihan PCO/MCO-4T); nilai tetap disimpan pada
+        // input hidden #editUnit{i} sehingga syncEditOrderProductsFromForm & simpanEditOrder yang
+        // membaca .value tidak perlu diubah (perilaku simpan tidak berubah).
+        function renderEditOrderProducts(){
+            let b=document.getElementById('editProducts');if(!b)return;
+            // Hancurkan instance select2 lama agar rapi saat daftar dirender ulang.
+            try{if(window.jQuery&&window.jQuery.fn&&window.jQuery.fn.select2){window.jQuery(b).find('select.searchable-select').each(function(){const $el=window.jQuery(this);if($el.hasClass('select2-hidden-accessible')){$el.select2('destroy');}});}}catch(eDes2){}
+            if(!editOrderItems.length){b.innerHTML='<div class="text-xs text-slate-400 text-center py-3 border border-dashed border-slate-200 rounded-xl bg-white">Belum ada produk.</div>';return;}
+            b.innerHTML=editOrderItems.map(function(it,i){
+                const satuanNorm=String(it.satuan==null?'':it.satuan).trim().toUpperCase();
+                const isPcs=satuanNorm!=='DUS';
+                return '<div class="border border-slate-200 rounded-xl p-2.5 mb-2 bg-slate-50">'
+                    +'<div class="flex items-center justify-between mb-1.5">'
+                        +'<span class="text-[9px] font-extrabold uppercase tracking-wider text-slate-400">Item '+(i+1)+'</span>'
+                        +'<button type="button" onclick="removeEditProduct('+i+')" title="Hapus item ini" aria-label="Hapus item '+(i+1)+'" class="w-7 h-7 inline-flex items-center justify-center rounded-lg border border-red-200 bg-white text-red-500 hover:bg-red-50 transition text-xs leading-none">&#10005;</button>'
+                    +'</div>'
+                    +'<select id="editProd'+i+'" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 bg-white text-xs searchable-select">'+getEditProductOptions(it.produk,it.kode)+'</select>'
+                    +'<div class="grid grid-cols-2 gap-2 mt-2">'
+                        +'<div><label class="block text-[10px] font-bold text-slate-600 mb-1">Qty</label><input id="editQty'+i+'" type="number" min="1" value="'+Number(it.qty||1)+'" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 bg-white text-xs"></div>'
+                        +'<div><label class="block text-[10px] font-bold text-slate-600 mb-1">Satuan</label>'
+                            +'<div class="flex rounded-xl border border-slate-200 bg-white overflow-hidden" style="height:38px">'
+                                +'<button type="button" id="editUnitPcs'+i+'" onclick="setEditUnitSatuan('+i+',\'Pcs\')" class="flex-1 '+(isPcs?'bg-emerald-700 text-white':'bg-transparent text-slate-700')+' font-semibold text-xs transition">Pcs</button>'
+                                +'<button type="button" id="editUnitDus'+i+'" onclick="setEditUnitSatuan('+i+',\'Dus\')" class="flex-1 '+(!isPcs?'bg-emerald-700 text-white':'bg-transparent text-slate-700')+' font-semibold text-xs transition">Dus</button>'
+                            +'</div>'
+                            +'<input type="hidden" id="editUnit'+i+'" value="'+(isPcs?'Pcs':'Dus')+'">'
+                        +'</div>'
+                    +'</div>'
+                +'</div>';
+            }).join('');
+            // Task 83: dropdown produk diberi pencarian (select2) seperti Input Order step 2.
+            try{
+                if(window.jQuery&&window.jQuery.fn&&window.jQuery.fn.select2){
+                    const $modal=window.jQuery('#customModal');
+                    window.jQuery(b).find('select.searchable-select').each(function(){
+                        const $el=window.jQuery(this);
+                        if($el.hasClass('select2-hidden-accessible'))return;
+                        $el.select2({width:'100%',dropdownParent:$modal,placeholder:'-- Pilih Produk --'});
+                    });
+                }
+            }catch(eSel2){console.warn('Select2 edit order tidak tersedia, memakai select biasa.',eSel2);}
+        }
         // Simpan nilai yang sedang diketik pada form sebelum daftar produk dirender ulang.
         function syncEditOrderProductsFromForm(){
             if(!Array.isArray(editOrderItems)) editOrderItems=[];
@@ -6989,6 +7227,15 @@ startAutoRefresh();
             }).getListProduk();
         }
         function removeEditProduct(i){syncEditOrderProductsFromForm();editOrderItems.splice(i,1);renderEditOrderProducts();}
+        // Task 83: toggle tombol Pcs/Dus per item pada Edit Order (visual seperti pemilihan PCO/MCO-4T).
+        function setEditUnitSatuan(i,satuan){
+            const hidden=document.getElementById('editUnit'+i);
+            if(hidden)hidden.value=(satuan==='Dus'?'Dus':'Pcs');
+            const isPcs=satuan!=='Dus';
+            const bP=document.getElementById('editUnitPcs'+i),bD=document.getElementById('editUnitDus'+i);
+            if(bP)bP.className='flex-1 '+(isPcs?'bg-emerald-700 text-white':'bg-transparent text-slate-700')+' font-semibold text-xs transition';
+            if(bD)bD.className='flex-1 '+(!isPcs?'bg-emerald-700 text-white':'bg-transparent text-slate-700')+' font-semibold text-xs transition';
+        }
         function renderEditOrderForm(o){
             var discValue = o && o.disc != null ? String(o.disc).trim() : '0%';
             // Nilai DISC dari sheet tersimpan sebagai desimal persen (2% = 0.02).
@@ -7017,7 +7264,7 @@ startAutoRefresh();
                     '<div><label class="block text-[10px] font-bold text-slate-600 mb-1">Disc</label><input type="text" id="editDisc" value="'+escapeHtml(discValue)+'" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 bg-white text-xs"></div>'+
                     '<div><label class="block text-[10px] font-bold text-slate-600 mb-1">Cashback</label><select id="editCashback" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 bg-white text-xs">'+cashbackOptions+'</select></div>'+
                 '</div>'+
-                '<div class="border-t pt-3"><div class="flex justify-between items-center mb-2"><b>Produk</b><button type="button" onclick="addEditProduct()" class="bg-emerald-600 text-white rounded px-3 py-1.5 text-[10px] font-bold">+ Tambah Produk</button></div><div id="editProducts"></div></div></div>';
+                '<div class="border-t pt-3"><div class="flex justify-between items-center mb-2"><div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Produk</div><button type="button" onclick="addEditProduct()" class="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full px-3.5 py-2 text-[10px] font-bold shadow-sm transition">+ Tambah Produk</button></div><div id="editProducts" class="mt-2"></div></div></div>';
             renderEditOrderProducts();
         }
         function simpanEditOrder(){
@@ -12712,48 +12959,61 @@ function renderRiwayatCards(data) {
     const visibleData = isAdmin ? data.slice(startIndex, startIndex + RIWAYAT_PAGE_SIZE) : data;
 
     let cards = '';
+    // Task 82: desain ulang card riwayat (border kiri warna status, ID sebagai judul,
+    // status teks tebal berwarna, item bullet dengan qty tebal, Volume/Nilai + Note,
+    // footer hint + aksi edit/WA/hapus tetap sama seperti sebelumnya).
+    const RW2_MONTHS = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
     visibleData.forEach(function(item, index) {
         const status = String(item.status || 'PENDING').toUpperCase();
-        const statusClass = status === 'APPROVE'
-            ? 'text-emerald-700 bg-emerald-50 border-emerald-200'
-            : status === 'DECLINE'
-                ? 'text-red-700 bg-red-50 border-red-200'
-                : 'text-amber-700 bg-amber-50 border-amber-200';
-        const statusDot = status === 'APPROVE' ? 'bg-emerald-500' : status === 'DECLINE' ? 'bg-red-500' : 'bg-amber-500';
-        const products = Array.isArray(item.products) ? item.products.filter(function(p){ return String(p || '').trim() !== ''; }) : [];
-        const productText = products.length ? products.map(function(p){ return escapeHtml(p); }).join('<br>') : '-';
-        const statusCell = `
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border text-[9px] font-extrabold ${statusClass}">
-                <span class="w-1.5 h-1.5 rounded-full ${statusDot}"></span>${escapeHtml(status)}
-            </span>`;
+        const rw2Key = status === 'APPROVE' ? 'approve' : status === 'DECLINE' ? 'decline' : 'pending';
         const selected = selectedRiwayatIds[String(item.id)] ? 'checked' : '';
-        const number = startIndex + index + 1;
         const valueText = 'Rp ' + Number(item.value || 0).toLocaleString('id-ID');
-        const volumeText = escapeHtml(item.volume || '0') + ' L';
+        const volumeText = String(item.volume || '0').replace('.', ',') + ' L';
+        // Task 82: tanggal yyyy-MM-dd dari server -> "27 Oktober 2026" (bulan Indonesia).
+        const tglRaw = String(item.tanggal || '-');
+        const mTgl = tglRaw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+        const tanggalText = mTgl ? (Number(mTgl[3]) + ' ' + (RW2_MONTHS[Number(mTgl[2]) - 1] || mTgl[2]) + ' ' + mTgl[1]) : tglRaw;
+        const paymentText = String(item.payment || '').trim();
+        const subText = escapeHtml(tanggalText) + (paymentText ? ' \u2022 ' + escapeHtml(paymentText) : '');
+        // Task 82: pecah format produk DAMEN "Nama - qty Unit" -> nama + qty tebal.
+        const products = Array.isArray(item.products) ? item.products.filter(function(p){ return String(p || '').trim() !== ''; }) : [];
+        const itemsHtml = products.length ? products.map(function(p) {
+            const text = String(p == null ? '' : p).trim();
+            const m = text.match(/^(.*?)(?:\s+-\s*)([0-9]+(?:[.,][0-9]+)?)\s*(PCS|Pcs|DUS|Dus|UNIT|Unit)$/i);
+            if (m) {
+                return '<div class="rw2-item"><span class="rw2-dot">\u2022</span><span class="rw2-item-text">' + escapeHtml(String(m[1] || '').trim()) + '<span class="rw2-sep"> \u2014 </span><b>' + escapeHtml(String(m[2])) + ' ' + escapeHtml(String(m[3] || '')) + '</b></span></div>';
+            }
+            return '<div class="rw2-item"><span class="rw2-dot">\u2022</span><span class="rw2-item-text">' + escapeHtml(text) + '</span></div>';
+        }).join('') : '<div class="rw2-item"><span class="rw2-dot">\u2022</span><span class="rw2-item-text">-</span></div>';
+        const noteText = String(item.note || '').trim();
+        const noteHtml = (noteText && noteText !== '-') ? '<div class="rw2-note"><span class="rw2-note-label">Note:</span> ' + escapeHtml(noteText) + '</div>' : '';
+        const rw2Hint = rw2Key === 'pending'
+            ? ''
+            : '';
         cards += `
-            <article class="riwayat-card group">
-                <div class="riwayat-card-top">
-                    <div class="flex items-start gap-2 min-w-0">
-                        <input type="checkbox" class="riwayat-select-checkbox w-4 h-4 mt-0.5 accent-emerald-600 cursor-pointer shrink-0" data-order-id="${escapeHtml(item.id)}" ${selected} onclick="event.stopPropagation()" onchange="toggleRiwayatSelection(this)" title="Pilih transaksi">
-                        <div class="min-w-0">
-                            <div class="flex flex-wrap items-center gap-2"><span class="riwayat-card-number">#${number}</span><span class="text-[10px] text-slate-400 font-medium">${escapeHtml(item.tanggal || '-')}</span></div>
-                            <div class="riwayat-card-outlet mt-1">${escapeHtml(item.outlet || '-')}</div>
-                            ${isAdmin ? `<div class="text-[9px] text-slate-400 mt-0.5">DSR: ${escapeHtml(item.dsr || '-')}</div>` : ''}
-                        </div>
+            <article class="rw2-card rw2-${rw2Key}">
+                <div class="rw2-head">
+                    <input type="checkbox" class="riwayat-select-checkbox rw2-check accent-emerald-600 cursor-pointer shrink-0" data-order-id="${escapeHtml(item.id)}" ${selected} onclick="event.stopPropagation()" onchange="toggleRiwayatSelection(this)" title="Pilih transaksi">
+                    <div class="rw2-head-main">
+                        <div class="rw2-id">${escapeHtml(item.id || '-')}</div>
+                        <div class="rw2-outlet">${escapeHtml(item.outlet || '-')}</div>
+                        ${isAdmin ? `<div class="rw2-dsr">DSR: ${escapeHtml(item.dsr || '-')}</div>` : ''}
+                        <div class="rw2-sub">${subText}</div>
                     </div>
-                    <div class="shrink-0" onclick="event.stopPropagation()">${statusCell}</div>
+                    <span class="rw2-status rw2-${rw2Key}" onclick="event.stopPropagation()">${escapeHtml(status)}</span>
                 </div>
-                <div class="riwayat-card-products"><div class="riwayat-card-label">PRODUK</div><div class="riwayat-card-product-text">${productText}</div></div>
-                <div class="riwayat-card-summary">
-                    <div class="riwayat-card-stat"><span class="riwayat-card-label">VOLUME</span><strong>${volumeText}</strong></div>
-                    <div class="riwayat-card-stat"><span class="riwayat-card-label">NILAI</span><strong>${valueText}</strong></div>
+                <div class="rw2-items">${itemsHtml}</div>
+                <div class="rw2-meta">
+                    <span>Volume: <b>${escapeHtml(volumeText)}</b></span>
+                    <span>Nilai: <b>${valueText}</b></span>
                 </div>
-                <div class="riwayat-card-footer" onclick="event.stopPropagation()">
-                    <span class="text-[9px] text-slate-400 font-medium">ID: ${escapeHtml(item.id || '-')}</span>
-                    <div class="flex items-center gap-1.5">
-                        <button type="button" onclick="editRiwayat('${escapeHtml(item.id)}'); return false;" class="riwayat-action riwayat-action-edit" title="Edit order" aria-label="Edit order"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19.5 8.5a2.12 2.12 0 0 0-3-3L5 17v3Z"/><path d="M13.5 6.5l3 3"/></svg></button>
-                        <button type="button" onclick="kirimUlangWA('${escapeHtml(item.id)}')" class="riwayat-action riwayat-action-wa" title="Kirim ulang WhatsApp" aria-label="Kirim WhatsApp"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg></button>
-                        <button type="button" onclick="hapusRiwayat('${escapeHtml(item.id)}')" class="riwayat-action riwayat-action-delete" title="Hapus" aria-label="Hapus order"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V5h6v2"/><path d="M6.5 7l1 13h9l1-13"/><path d="M10 11v6M14 11v6"/></svg></button>
+                ${noteHtml}
+                <div class="rw2-foot" onclick="event.stopPropagation()">
+                    <span class="rw2-hint">${rw2Hint}</span>
+                    <div class="rw2-actions">
+                        <button type="button" onclick="editRiwayat('${escapeHtml(item.id)}'); return false;" class="rw2-act rw2-act-edit" title="Edit order" aria-label="Edit order"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19.5 8.5a2.12 2.12 0 0 0-3-3L5 17v3Z"/><path d="M13.5 6.5l3 3"/></svg></button>
+                        <button type="button" onclick="kirimUlangWA('${escapeHtml(item.id)}')" class="rw2-act rw2-act-wa" title="Kirim ulang WhatsApp" aria-label="Kirim WhatsApp"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg></button>
+                        <button type="button" onclick="hapusRiwayat('${escapeHtml(item.id)}')" class="rw2-act rw2-act-delete" title="Hapus" aria-label="Hapus order"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V5h6v2"/><path d="M6.5 7l1 13h9l1-13"/><path d="M10 11v6M14 11v6"/></svg></button>
                     </div>
                 </div>
             </article>`;
