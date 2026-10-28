@@ -1008,6 +1008,25 @@
         modalCallback = function (isOk) { if (isOk) onYes(); };
     }
 
+    // Task 92: judul tab browser menampilkan NAMA OUTLET sesuai Cust.Code yang login.
+    // Default tetap 'Castrol Outlet' (sebelum login, sesudah logout, atau nama kosong).
+    // Berfungsi penuh saat halaman adalah dokumen teratas (GitHub Pages / bridge).
+    // Di Apps Script (iframe) dicoba lewat parent & google.script.host; bila sandbox
+    // memblokir, judul tab tetap seperti semula tanpa error.
+    function applyTabTitle(name) {
+        var t = String(name == null ? '' : name).replace(/\u00A0/g, ' ').trim();
+        if (!t) t = 'Castrol Outlet';
+        try { document.title = t; } catch (eT1) {}
+        try {
+            if (window.parent && window.parent !== window) window.parent.document.title = t;
+        } catch (eT2) {}
+        try {
+            if (window.google && window.google.script && window.google.script.host &&
+                typeof window.google.script.host.setTitle === 'function') {
+                window.google.script.host.setTitle(t);
+            }
+        } catch (eT3) {}
+    }
     // ---------- Login ----------
     function setLoginError(msg) {
         var el = $('loginError');
@@ -1043,6 +1062,8 @@
     function enterApp(prof) {
         profile = prof;
         try { localStorage.setItem(AUTH_KEY, JSON.stringify({ custCode: prof.custCode })); } catch (eStore) {}
+        // Task 92: judul tab = nama outlet milik Cust.Code yang login.
+        applyTabTitle(prof.outlet);
         $('loginPage').classList.add('hidden');
         $('app').classList.remove('hidden');
         $('mainPage').classList.remove('hidden');
@@ -1069,6 +1090,8 @@
             if (!isOk) return;
             try { localStorage.removeItem(AUTH_KEY); } catch (eStore) {}
             profile = null; produkList = []; shoppingCart = []; riwayatRows = [];
+            // Task 92: judul tab kembali ke default setelah logout.
+            applyTabTitle('');
             pencData = null; pencAchInit = false;
             $('opAchOutletName').textContent = '-';
             $('opAchCustCode').textContent = '-';
