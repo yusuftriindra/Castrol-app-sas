@@ -4023,25 +4023,17 @@ select.select2-hidden-accessible { width: 1px !important; max-width: 1px !import
                                 <option value="">Semua Tahun</option>
                             </select>
                             <div id="riwayatAdminFilterFields" class="contents">
-                                <select id="filterRiwayatDsr" onchange="filterRiwayat()" class="min-h-[42px] border border-slate-200 rounded-xl px-3 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <select id="filterRiwayatDsr" onchange="filterRiwayat()" class="min-h-[42px] border border-slate-200 rounded-xl px-3 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 hidden">
                                     <option value="">Semua DSR / Sales</option>
                                 </select>
-                                <select id="filterRiwayatStatus" onchange="filterRiwayat()" class="min-h-[42px] border border-slate-200 rounded-xl px-3 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 hidden">
-                                    <option value="">Semua Status</option>
-                                </select>
                             </div>
+                            <select id="filterRiwayatStatus" onchange="filterRiwayat()" class="min-h-[42px] border border-slate-200 rounded-xl px-3 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="">Semua Status</option>
+                                <option value="APPROVE">APPROVE</option>
+                                <option value="DECLINE">DECLINE</option>
+                                <option value="PENDING">PENDING</option>
+                            </select>
                         </div>
-                    </div>
-
-                    <div id="riwayatSelectionActions" class="hidden flex items-center justify-end gap-2 mb-2">
-                        <button type="button" onclick="hapusRiwayatTerpilih()" id="btnHapusRiwayatTerpilih"
-                            class="px-3 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-[10px] font-extrabold border border-red-700 transition">
-                            🗑️ HAPUS TERPILIH (<span id="selectedRiwayatCount">0</span>)
-                        </button>
-                        <button type="button" onclick="clearPilihanRiwayat()"
-                            class="px-3 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-500 text-[10px] font-bold border border-slate-200 transition">
-                            BATAL PILIHAN
-                        </button>
                     </div>
 
                     <div id="listRiwayat" class="space-y-2.5 text-xs">
@@ -4056,7 +4048,7 @@ select.select2-hidden-accessible { width: 1px !important; max-width: 1px !import
                             <h2 class="text-base font-bold text-slate-800">Approval Order</h2>
                             <span id="approvalCount" class="text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">0 transaksi</span>
                         </div>
-                        <p class="text-[9px] text-slate-400"></p>
+                        <p class="text-[9px] text-slate-400">Pilih status per transaksi Outlet (Approve / Decline / Pending) — perubahan tersimpan langsung di server.</p>
                     </div>
 
                     <div class="flex items-center justify-end gap-1.5 mb-1" role="group" aria-label="Tampilan Approval">
@@ -4068,7 +4060,7 @@ select.select2-hidden-accessible { width: 1px !important; max-width: 1px !import
                         <div class="flex items-center justify-between gap-2 mb-2">
                             <div>
                                 <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Filter Approval</div>
-                                <div class="text-[9px] text-slate-400 mt-0.5"></div>
+                                <div class="text-[9px] text-slate-400 mt-0.5">Order dikelola per Outlet — pilih outlet untuk menyetujui / menolak transaksinya.</div>
                             </div>
                             <button type="button" onclick="resetApprovalAllFilter()" class="shrink-0 text-[10px] font-bold text-slate-500 hover:text-emerald-700 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-emerald-50 transition">Reset</button>
                         </div>
@@ -4389,6 +4381,7 @@ select.select2-hidden-accessible { width: 1px !important; max-width: 1px !import
                                 <input type="text" id="searchTambahCustomer" oninput="filterTambahCustomer()" placeholder="Cari customer, outlet, sales, kode..."
                                        class="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm transition">
                             </div>
+                            <button type="button" onclick="exportTambahCustomerExcel()" title="Export seluruh data customer ke Excel" class="shrink-0 px-3 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 text-[10px] font-extrabold shadow-sm transition">⬇ Export Excel</button>
                         </div>
                     </div>
 
@@ -4405,6 +4398,15 @@ select.select2-hidden-accessible { width: 1px !important; max-width: 1px !import
                     <p id="tambahCustomerCount" class="text-[10px] text-slate-400 text-center">0 customer</p>
                     <p class="text-[9px] text-slate-400 text-center">Klik salah satu baris untuk melihat detail, Edit, atau Hapus customer.</p>
                 </div>
+
+                <style id="task89-customer-table">
+                /* Task 89: kolom Outlet (kolom pertama) menyesuaikan isi terpanjang;
+                   teks sangat panjang wrap agar tidak menumpuk/menekan kolom lain di mobile. */
+                #tableTambahCustomer th:first-child,#tableTambahCustomer td:first-child{max-width:240px;}
+                #tableTambahCustomer td:first-child{white-space:normal;}
+                #tableTambahCustomer td:first-child .cst89-outlet{max-width:240px;}
+                @media (max-width:640px){ #tableTambahCustomer{min-width:0 !important;} }
+                </style>
 
                 <!-- PESANAN OUTLET -->
                 <div id="tabPesananOutlet" class="tab-content hidden space-y-3">
@@ -4807,7 +4809,13 @@ select.select2-hidden-accessible { width: 1px !important; max-width: 1px !import
 
         // Cache browser untuk membuat tab utama langsung tampil saat dibuka kembali.
         function appLocalCacheSet(key, value) {
-            try { localStorage.setItem('CASTROL_FAST_' + key, JSON.stringify({t:Date.now(),v:value})); } catch(e) {}
+            // Task 89: payload sangat besar (riwayat ribuan order) tidak disimpan ke
+            // localStorage agar tidak terjadi jank stringify/parse berulang & kuota penuh.
+            try {
+                const text = JSON.stringify({t:Date.now(),v:value});
+                if (text.length > 1500000) { try { localStorage.removeItem('CASTROL_FAST_' + key); } catch(e2) {} return; }
+                localStorage.setItem('CASTROL_FAST_' + key, text);
+            } catch(e) {}
         }
         function appLocalCacheGet(key) {
             try {
@@ -5807,7 +5815,7 @@ startAutoRefresh();
         function handleRiwayatLoaded(data) {
             globalRiwayatData = Array.isArray(data) ? data : [];
             appLocalCacheSet('RIWAYAT_' + String(currentUsernameInput||'').toUpperCase(), globalRiwayatData);
-            if (currentUsernameInput && currentUsernameInput.toLowerCase() === 'admin') { populateRiwayatDsrFilter(); populateRiwayatStatusFilter(); }
+            populateRiwayatDsrFilter(); populateRiwayatStatusFilter();
             populateRiwayatYearFilter(globalRiwayatData);
             filterRiwayat();
         }
@@ -5816,7 +5824,7 @@ startAutoRefresh();
             const riwayatCacheKey = 'RIWAYAT_' + String(currentUsernameInput||'').toUpperCase();
             const hasCached = Array.isArray(globalRiwayatData) && globalRiwayatData.length > 0;
             if (!forceReload && hasCached) {
-                if (currentUsernameInput && currentUsernameInput.toLowerCase() === 'admin') { populateRiwayatDsrFilter(); populateRiwayatStatusFilter(); }
+                populateRiwayatDsrFilter(); populateRiwayatStatusFilter();
                 populateRiwayatYearFilter(globalRiwayatData);
                 filterRiwayat();
                 if (appLocalCacheIsFresh(riwayatCacheKey, 60000)) return;
@@ -5870,9 +5878,9 @@ startAutoRefresh();
 
             const isAdmin = currentUsernameInput &&
                 currentUsernameInput.toLowerCase() === 'admin';
-            const totalPages = isAdmin ? Math.max(1, Math.ceil(data.length / RIWAYAT_PAGE_SIZE)) : 1;
+            const totalPages = Math.max(1, Math.ceil(data.length / RIWAYAT_PAGE_SIZE));
             if (riwayatPage > totalPages) riwayatPage = totalPages;
-            const startIndex = isAdmin ? (riwayatPage - 1) * RIWAYAT_PAGE_SIZE : 0;
+            const startIndex = (riwayatPage - 1) * RIWAYAT_PAGE_SIZE;
             const visibleData = isAdmin ? data.slice(startIndex, startIndex + RIWAYAT_PAGE_SIZE) : data;
 
             let cards = '';
@@ -5916,7 +5924,6 @@ startAutoRefresh();
                         ${escapeHtml(status)}
                     </span>`;
 
-                const selected = selectedRiwayatIds[String(item.id)] ? 'checked' : '';
                 const number = startIndex + index + 1;
                 const valueText = `Rp ${Number(item.value || 0).toLocaleString('id-ID')}`;
                 const volumeText = `${escapeHtml(item.volume || '0')} L`;
@@ -5999,7 +6006,7 @@ startAutoRefresh();
                     </span>
                 </div>` : '';
 
-            const pagination = isAdmin && totalPages > 1 ? `
+            const pagination = totalPages > 1 ? `
                 <div class="flex items-center justify-between gap-2 mt-3 px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 text-[10px]">
                     <span class="text-slate-500">Menampilkan ${startIndex + 1}-${Math.min(startIndex + RIWAYAT_PAGE_SIZE, data.length)} dari ${data.length} transaksi</span>
                     <div class="flex items-center gap-1">
@@ -6871,6 +6878,10 @@ startAutoRefresh();
         function populateRiwayatDsrFilter() {
             const select = document.getElementById('filterRiwayatDsr');
             if (!select) return;
+            const isAdmin = String(currentUsernameInput || '').trim().toLowerCase() === 'admin';
+            // Task 89: login selain admin tidak memakai filter DSR/Sales (data selalu milik sendiri).
+            select.classList.toggle('hidden', !isAdmin);
+            if (!isAdmin) { select.innerHTML = '<option value="">Semua DSR / Sales</option>'; return; }
             const previous = select.value;
             const values = [...new Set((globalRiwayatData || []).map(item => String(item.dsr || '').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'id'));
             select.innerHTML = '<option value="">Semua DSR / Sales</option>' + values.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
@@ -6881,14 +6892,10 @@ startAutoRefresh();
             const select = document.getElementById('filterRiwayatStatus');
             if (!select) return;
             const previous = String(select.value || '');
-            const values = [...new Set((globalRiwayatData || []).map(function(item) {
-                return String(item.status || 'PENDING').trim();
-            }).filter(Boolean))].sort(function(a,b){ return a.localeCompare(b,'id'); });
-            select.innerHTML = '<option value="">Semua Status</option>' + values.map(function(v) {
-                return '<option value="' + escapeHtml(v) + '">' + escapeHtml(v) + '</option>';
-            }).join('');
-            if (values.includes(previous)) select.value = previous;
-            select.classList.toggle('hidden', !(currentUsernameInput && currentUsernameInput.toLowerCase() === 'admin'));
+            // Task 89: filter Status tampil untuk SEMUA user dengan opsi tetap.
+            select.innerHTML = '<option value="">Semua Status</option><option value="APPROVE">APPROVE</option><option value="DECLINE">DECLINE</option><option value="PENDING">PENDING</option>';
+            if (['', 'APPROVE', 'DECLINE', 'PENDING'].indexOf(previous) !== -1) select.value = previous;
+            select.classList.remove('hidden');
         }
 
         function populateRiwayatYearFilter(data) {
@@ -7340,107 +7347,10 @@ startAutoRefresh();
             }).queueEditOrder(saveOrderId,payload,currentUser,currentUsernameInput);
         }
 
-        function updateSelectedRiwayatUI() {
-            const count = Object.keys(selectedRiwayatIds).length;
-            const countEl = document.getElementById('selectedRiwayatCount');
-            const actionBar = document.getElementById('riwayatSelectionActions');
-            if (countEl) countEl.textContent = count;
-            if (actionBar) actionBar.classList.toggle('hidden', count === 0);
-
-            const visibleBoxes = Array.from(document.querySelectorAll('.riwayat-select-checkbox'));
-            const checkedVisible = visibleBoxes.filter(function(cb){ return cb.checked; }).length;
-            const selectAll = document.getElementById('selectAllRiwayatVisible');
-            if (selectAll) {
-                selectAll.checked = visibleBoxes.length > 0 && checkedVisible === visibleBoxes.length;
-                selectAll.indeterminate = checkedVisible > 0 && checkedVisible < visibleBoxes.length;
-            }
-        }
-
-        function toggleRiwayatSelection(checkbox) {
-            const id = String(checkbox && checkbox.dataset ? checkbox.dataset.orderId : '').trim();
-            if (!id) return;
-            if (checkbox.checked) selectedRiwayatIds[id] = true;
-            else delete selectedRiwayatIds[id];
-            updateSelectedRiwayatUI();
-        }
-
-        function toggleSelectAllRiwayatVisible(fromHeader) {
-            const boxes = Array.from(document.querySelectorAll('.riwayat-select-checkbox'));
-            if (!boxes.length) return;
-
-            let selectAll = document.getElementById('selectAllRiwayatVisible');
-            let shouldCheck = fromHeader && selectAll
-                ? selectAll.checked
-                : boxes.some(function(cb){ return !cb.checked; });
-
-            boxes.forEach(function(cb){
-                cb.checked = shouldCheck;
-                const id = String(cb.dataset.orderId || '').trim();
-                if (!id) return;
-                if (shouldCheck) selectedRiwayatIds[id] = true;
-                else delete selectedRiwayatIds[id];
-            });
-
-            updateSelectedRiwayatUI();
-        }
-
-        function clearPilihanRiwayat() {
-            selectedRiwayatIds = {};
-            renderRiwayatList(globalRiwayatData || []);
-        }
-
         function refreshRiwayat() {
             selectedRiwayatIds = {};
             riwayatPage = 1;
             loadRiwayat(true, false);
-        }
-
-        function hapusRiwayatTerpilih() {
-            const ids = Object.keys(selectedRiwayatIds);
-            if (!ids.length) {
-                showModal('Peringatan', 'Silakan pilih minimal satu transaksi.');
-                return;
-            }
-
-            const preview = ids.length <= 5
-                ? ids.join(', ')
-                : ids.slice(0, 5).join(', ') + ' dan ' + (ids.length - 5) + ' lainnya';
-
-            showModal(
-                'Konfirmasi Hapus',
-                'Hapus ' + ids.length + ' transaksi terpilih secara permanen?\n\n' + preview,
-                true,
-                function(isOk) {
-                    if (!isOk) return;
-
-                    showLoading(true);
-                    google.script.run
-                        .withSuccessHandler(function(res) {
-                            showLoading(false);
-                            if (res && res.success) {
-                                // Jangan reload seluruh riwayat dari server setelah hapus.
-                                // Hapus langsung dari data lokal agar tabel terasa instan.
-                                const deletedMap = {};
-                                ids.forEach(function(id) { deletedMap[String(id)] = true; });
-                                globalRiwayatData = (globalRiwayatData || []).filter(function(item) {
-                                    return !deletedMap[String(item && item.id || '')];
-                                });
-                                selectedRiwayatIds = {};
-                                riwayatPage = 1;
-                                filterRiwayat();
-                            }
-                            showModal(
-                                res && res.success ? 'Berhasil' : 'Gagal',
-                                res && res.message ? res.message : 'Tidak ada respons server.'
-                            );
-                        })
-                        .withFailureHandler(function(err) {
-                            showLoading(false);
-                            showModal('Error Sistem', err && err.message ? err.message : 'Gagal menghapus transaksi terpilih.');
-                        })
-                        .hapusOrderByIds(ids, currentUsernameInput);
-                }
-            );
         }
 
         function hapusRiwayat(idInput) {
@@ -8271,10 +8181,10 @@ startAutoRefresh();
             const container = document.getElementById('listRiwayat');
             if (!container) return;
             const isAdmin = String(currentUsernameInput || '').toLowerCase() === 'admin';
-            const totalPages = isAdmin ? Math.max(1, Math.ceil(data.length / RIWAYAT_PAGE_SIZE)) : 1;
+            const totalPages = Math.max(1, Math.ceil(data.length / RIWAYAT_PAGE_SIZE));
             if (riwayatPage > totalPages) riwayatPage = totalPages;
-            const startIndex = isAdmin ? (riwayatPage - 1) * RIWAYAT_PAGE_SIZE : 0;
-            const rows = isAdmin ? data.slice(startIndex, startIndex + RIWAYAT_PAGE_SIZE) : data;
+            const startIndex = (riwayatPage - 1) * RIWAYAT_PAGE_SIZE;
+            const rows = data.slice(startIndex, startIndex + RIWAYAT_PAGE_SIZE);
 
             const statusBadge = function(status) {
                 const s = String(status || 'PENDING').toUpperCase();
@@ -8286,12 +8196,10 @@ startAutoRefresh();
                 const productText = products.length ? products.map(escapeHtml).join('<br>') : '-';
                 const id = escapeHtml(item.id || '');
                 const status = String(item.status || 'PENDING').toUpperCase();
-                const selected = selectedRiwayatIds[String(item.id)] ? 'checked' : '';
                 // Task 43: ubah status TIDAK lagi tersedia di halaman Riwayat (pindah ke menu Approval).
                 const action = statusBadge(status);
                 const number = startIndex + index + 1;
                 return '<tr class="border-b border-slate-100 hover:bg-emerald-50/50">' +
-                    '<td class="px-3 py-2.5"><input type="checkbox" class="riwayat-select-checkbox w-4 h-4 accent-emerald-600 cursor-pointer" data-order-id="'+id+'" '+selected+' onclick="event.stopPropagation()" onchange="toggleRiwayatSelection(this)" title="Pilih transaksi"></td>' +
                     '<td class="px-3 py-2.5 font-bold text-slate-500">#'+number+'</td>' +
                     '<td class="px-3 py-2.5 whitespace-nowrap">'+escapeHtml(item.tanggal || '-')+'</td>' +
                     '<td class="px-3 py-2.5 font-bold text-slate-700">'+escapeHtml(item.outlet || '-')+(isAdmin ? '<div class="text-[9px] text-slate-400 font-normal">DSR: '+escapeHtml(item.dsr || '-')+'</div>' : '')+'</td>' +
@@ -8303,10 +8211,8 @@ startAutoRefresh();
                     '</tr>';
             }).join('');
 
-            const pagination = isAdmin && totalPages > 1 ? '<div class="flex items-center justify-between gap-2 mt-3 px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 text-[10px]"><span class="text-slate-500">Menampilkan '+(startIndex+1)+'-'+Math.min(startIndex+RIWAYAT_PAGE_SIZE,data.length)+' dari '+data.length+' transaksi</span><div class="flex items-center gap-1"><button type="button" onclick="changeRiwayatPage(-1)" class="px-2.5 py-1.5 rounded-lg border bg-white">‹</button><span class="px-2 font-bold">Halaman '+riwayatPage+'/'+totalPages+'</span><button type="button" onclick="changeRiwayatPage(1)" class="px-2.5 py-1.5 rounded-lg border bg-white">›</button></div></div>' : '';
-            const bulkControls = '';
-            container.innerHTML = bulkControls + '<div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden"><div class="overflow-x-auto"><table class="w-full text-left text-[10px] min-w-[980px]"><thead><tr class="bg-slate-50 border-b border-slate-200 text-[9px] uppercase tracking-wide text-slate-500"><th class="px-3 py-2 w-9"><input type="checkbox" id="selectAllRiwayatVisible" class="riwayat-select-all w-4 h-4 accent-emerald-600 cursor-pointer" onchange="toggleSelectAllRiwayatVisible(true)" title="Pilih semua"></th><th class="px-3 py-2">No</th><th class="px-3 py-2">Tanggal</th><th class="px-3 py-2">Outlet</th><th class="px-3 py-2">Produk</th><th class="px-3 py-2 text-right">Volume</th><th class="px-3 py-2 text-right">Nilai</th><th class="px-3 py-2">Status</th><th class="px-3 py-2">Aksi</th></tr></thead><tbody>'+body+'</tbody></table></div></div>'+pagination;
-            updateSelectedRiwayatUI();
+            const pagination = totalPages > 1 ? '<div class="flex items-center justify-between gap-2 mt-3 px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 text-[10px]"><span class="text-slate-500">Menampilkan '+(startIndex+1)+'-'+Math.min(startIndex+RIWAYAT_PAGE_SIZE,data.length)+' dari '+data.length+' transaksi</span><div class="flex items-center gap-1"><button type="button" onclick="changeRiwayatPage(-1)" class="px-2.5 py-1.5 rounded-lg border bg-white">‹</button><span class="px-2 font-bold">Halaman '+riwayatPage+'/'+totalPages+'</span><button type="button" onclick="changeRiwayatPage(1)" class="px-2.5 py-1.5 rounded-lg border bg-white">›</button></div></div>' : '';
+            container.innerHTML = '<div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden"><div class="overflow-x-auto"><table class="w-full text-left text-[10px] min-w-[980px]"><thead><tr class="bg-slate-50 border-b border-slate-200 text-[9px] uppercase tracking-wide text-slate-500"><th class="px-3 py-2">No</th><th class="px-3 py-2">Tanggal</th><th class="px-3 py-2">Outlet</th><th class="px-3 py-2">Produk</th><th class="px-3 py-2 text-right">Volume</th><th class="px-3 py-2 text-right">Nilai</th><th class="px-3 py-2">Status</th><th class="px-3 py-2">Aksi</th></tr></thead><tbody>'+body+'</tbody></table></div></div>'+pagination;
         }
 
         function renderRiwayatChart(data) {
@@ -11167,13 +11073,49 @@ if(tab==='tagihan')loadTagihan(false, true);
                 const safeRowNumber = Number(item.rowNumber);
                 return '<tr data-customer-row="' + safeRowNumber + '" tabindex="0" role="button" onclick="lihatDetailTambahCustomer(' + safeRowNumber + ')" onkeydown="if(event.key===&quot;Enter&quot; || event.key===&quot; &quot;){event.preventDefault();lihatDetailTambahCustomer(' + safeRowNumber + ')}" class="border-b border-slate-100 hover:bg-emerald-50/50 focus:bg-emerald-50 transition cursor-pointer" title="Klik untuk melihat detail customer">' +
                     displayCols.map(function(c) {
-                        return '<td class="p-2.5 align-top whitespace-nowrap text-slate-700">' +
-                            _customerEscape(c.idx >= 0 && values[c.idx] != null ? values[c.idx] : '') +
+                        // Task 89: kolom Outlet dibungkus div ber-max-width agar lebar kolom
+                        // menyesuaikan isi terpanjang & teks sangat panjang wrap (tidak menumpuk).
+                        const isOutlet = c.label === 'OUTLET';
+                        const rawVal = c.idx >= 0 && values[c.idx] != null ? values[c.idx] : '';
+                        return '<td class="p-2.5 align-top' + (isOutlet ? '' : ' whitespace-nowrap') + ' text-slate-700">' +
+                            (isOutlet ? '<div class="cst89-outlet">' + _customerEscape(rawVal) + '</div>' : _customerEscape(rawVal)) +
                         '</td>';
                     }).join('') +
                 '</tr>';
             }).join('');
             if (count) count.textContent = rows.length.toLocaleString('id-ID') + ' customer';
+        }
+
+        // Task 89: Export Excel seluruh data customer (.xls berbasis tabel HTML, tanpa dependensi;
+        // urutan & nama kolom mengikuti header sheet OUTLET sehingga kolom tambahan ikut terbawa).
+        function exportTambahCustomerExcel() {
+            const headers = (globalTambahCustomerData && globalTambahCustomerData.headers) || [];
+            const rows = (globalTambahCustomerData && globalTambahCustomerData.rows) || [];
+            if (!headers.length) { showModal('Informasi', 'Data customer belum dimuat. Buka halaman ini sampai data tampil lalu coba lagi.'); return; }
+            if (!rows.length) { showModal('Informasi', 'Belum ada data customer untuk diexport.'); return; }
+            let html = '<html><head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Customer</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body>';
+            html += '<table border="1"><thead><tr>' + headers.map(function(h) {
+                return '<th style="background:#059669;color:#ffffff;font-weight:bold;">' + _customerEscape(String(h == null ? '' : h)) + '</th>';
+            }).join('') + '</tr></thead><tbody>';
+            rows.forEach(function(item) {
+                const values = Array.isArray(item.values) ? item.values : [];
+                html += '<tr>' + headers.map(function(h, i) {
+                    const v = values[i] == null ? '' : String(values[i]);
+                    return '<td>' + _customerEscape(v) + '</td>';
+                }).join('') + '</tr>';
+            });
+            html += '</tbody></table></body></html>';
+            try {
+                const blob = new Blob(['\ufeff' + html], { type: 'application/vnd.ms-excel;charset=utf-8' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'Customer_' + new Date().toISOString().slice(0, 10) + '.xls';
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(function() { try { URL.revokeObjectURL(a.href); if (a.parentNode) a.parentNode.removeChild(a); } catch (eRev) {} }, 1000);
+            } catch (eExp) {
+                showModal('Gagal', 'Export tidak dapat dijalankan pada browser ini.');
+            }
         }
 
         // DETAIL CUSTOMER: seluruh field customer ditampilkan di modal, dengan aksi Edit dan Hapus.
@@ -11417,7 +11359,7 @@ if(tab==='tagihan')loadTagihan(false, true);
                 <div class="space-y-3">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-[9px] font-extrabold uppercase tracking-wider text-slate-500 mb-1">DAY VISIT</label>
+                            <label class="block text-[9px] font-extrabold uppercase tracking-wider text-slate-500 mb-1">DAY VISIT <span class="text-[8px] font-semibold text-slate-400 normal-case">(opsional)</span></label>
                             <select id="tambahCustomerField_${idxDayVisit}" class="w-full min-h-[40px] border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
                                 ${_renderCustomerSelectOptions(globalTambahCustomerFormMaster.dayVisits, currentDay, 'Pilih Day Visit')}
                             </select>
@@ -13093,10 +13035,10 @@ function renderRiwayatCards(data) {
     const container = document.getElementById('listRiwayat');
     if (!container) return;
     const isAdmin = String(currentUsernameInput || '').toLowerCase() === 'admin';
-    const totalPages = isAdmin ? Math.max(1, Math.ceil(data.length / RIWAYAT_PAGE_SIZE)) : 1;
+    const totalPages = Math.max(1, Math.ceil(data.length / RIWAYAT_PAGE_SIZE));
     if (riwayatPage > totalPages) riwayatPage = totalPages;
-    const startIndex = isAdmin ? (riwayatPage - 1) * RIWAYAT_PAGE_SIZE : 0;
-    const visibleData = isAdmin ? data.slice(startIndex, startIndex + RIWAYAT_PAGE_SIZE) : data;
+    const startIndex = (riwayatPage - 1) * RIWAYAT_PAGE_SIZE;
+    const visibleData = data.slice(startIndex, startIndex + RIWAYAT_PAGE_SIZE);
 
     let cards = '';
     // Task 82: desain ulang card riwayat (border kiri warna status, ID sebagai judul,
@@ -13106,7 +13048,6 @@ function renderRiwayatCards(data) {
     visibleData.forEach(function(item, index) {
         const status = String(item.status || 'PENDING').toUpperCase();
         const rw2Key = status === 'APPROVE' ? 'approve' : status === 'DECLINE' ? 'decline' : 'pending';
-        const selected = selectedRiwayatIds[String(item.id)] ? 'checked' : '';
         const valueText = 'Rp ' + Number(item.value || 0).toLocaleString('id-ID');
         const volumeText = String(item.volume || '0').replace('.', ',') + ' L';
         // Task 82: tanggal yyyy-MM-dd dari server -> "27 Oktober 2026" (bulan Indonesia).
@@ -13133,7 +13074,6 @@ function renderRiwayatCards(data) {
         cards += `
             <article class="rw2-card rw2-${rw2Key}">
                 <div class="rw2-head">
-                    <input type="checkbox" class="riwayat-select-checkbox rw2-check accent-emerald-600 cursor-pointer shrink-0" data-order-id="${escapeHtml(item.id)}" ${selected} onclick="event.stopPropagation()" onchange="toggleRiwayatSelection(this)" title="Pilih transaksi">
                     <div class="rw2-head-main">
                         <div class="rw2-id">${escapeHtml(item.id || '-')}</div>
                         <div class="rw2-outlet">${escapeHtml(item.outlet || '-')}</div>
@@ -13160,14 +13100,12 @@ function renderRiwayatCards(data) {
     });
 
     // Task 43: ubah status TIDAK lagi tersedia di halaman Riwayat (pindah ke menu Approval).
-    const bulkControls = '';
-    const pagination = isAdmin && totalPages > 1 ? `
+    const pagination = totalPages > 1 ? `
         <div class="flex items-center justify-between gap-2 mt-3 px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 text-[10px]">
             <span class="text-slate-500">Menampilkan ${startIndex + 1}-${Math.min(startIndex + RIWAYAT_PAGE_SIZE, data.length)} dari ${data.length} transaksi</span>
             <div class="flex items-center gap-1"><button type="button" onclick="changeRiwayatPage(-1)" class="px-2.5 py-1.5 rounded-lg border bg-white ${riwayatPage <= 1 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-slate-100'}" ${riwayatPage <= 1 ? 'disabled' : ''}>‹</button><span class="px-2 font-bold">Halaman ${riwayatPage}/${totalPages}</span><button type="button" onclick="changeRiwayatPage(1)" class="px-2.5 py-1.5 rounded-lg border bg-white ${riwayatPage >= totalPages ? 'opacity-40 cursor-not-allowed' : 'hover:bg-slate-100'}" ${riwayatPage >= totalPages ? 'disabled' : ''}>›</button></div>
         </div>` : '';
-    container.innerHTML = `<div class="riwayat-cards-wrap">${bulkControls}<div class="riwayat-cards-grid">${cards}</div>${pagination}</div>`;
-    updateSelectedRiwayatUI();
+    container.innerHTML = `<div class="riwayat-cards-wrap"><div class="riwayat-cards-grid">${cards}</div>${pagination}</div>`;
 }
 
 </script>
@@ -14234,7 +14172,7 @@ function shareGenWa() {
     const val = String(document.getElementById('genLinkInput').value || '');
     if (!val) return;
     const o = selectedGenOutlet || {};
-    const text = 'Hallo ' + (o.outlet || 'outlet Anda') + '. Klik link ini untuk input order dan cek Pencapaian Order anda: ' + val;
+    const text = 'Berikut link Portal Outlet untuk ' + (o.outlet || 'outlet Anda') + '. Klik untuk input order dan cek pencapaian order anda: ' + val;
     window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
 }
 function loadGenerateOutlet() {
