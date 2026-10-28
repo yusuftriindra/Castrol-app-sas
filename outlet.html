@@ -1307,6 +1307,12 @@
     // ---------- Produk & cashback ----------
     // Task 78: filter pemilihan produk berdasarkan channel outlet (kolom H sheet PRODUK = typeProduk).
     // MCO-4T -> tampilkan produk MCO-4T & MCO-2T; PCO -> hanya PCO; produk CTM tidak pernah tampil.
+    // Task 80: produk dengan NILAI "CTM" pada KOLOM F sheet PRODUK (dibawa backend sebagai
+    // p.kolomF oleh getListProduk) juga disembunyikan sepenuhnya dari pilihan produk outlet.
+    // Aturan sama dengan _outletPortalIsCtmProduk_ di Code.gs: kolom F = "CTM" atau diawali
+    // kata "CTM " (mis. "CTM P3") setelah dinormalisasi. Nilai yang hanya MENGANDUNG "CTM"
+    // di tengah (mis. "NON CTM") TIDAK dianggap CTM. Bila backend belum mengirim kolomF,
+    // cek ini otomatis no-op - lapisan utama filter tetap di server (Code.gs).
     function outletProdukTypeOf(p) {
         return String((p && p.typeProduk != null) ? p.typeProduk : '')
             .replace(/\u00A0/g, ' ').trim().toUpperCase().replace(/\s+/g, '');
@@ -1318,9 +1324,21 @@
         if (ch === 'PCO') return ['PCO'];
         return null; // channel outlet tidak dikenal -> tanpa filter channel (CTM tetap disembunyikan)
     }
+    // Task 80: nilai kolom F produk setelah dinormalisasi (NBSP -> spasi, trim, uppercase,
+    // spasi ganda -> tunggal) - cermin pembacaan kolom F pada Code.gs.
+    function portalProdukKolomFOf(p) {
+        return String((p && p.kolomF != null) ? p.kolomF : '')
+            .replace(/\u00A0/g, ' ').trim().toUpperCase().replace(/\s+/g, ' ');
+    }
+    // Task 80: true bila kolom F = "CTM" atau diawali kata "CTM " (mis. "CTM P3").
+    function portalIsCtmKolomF(p) {
+        var f = portalProdukKolomFOf(p);
+        return f === 'CTM' || f.indexOf('CTM ') === 0;
+    }
     function filterProdukChannelOutlet(list) {
         var allowed = outletAllowedProdukTypes();
         return (Array.isArray(list) ? list : []).filter(function (p) {
+            if (portalIsCtmKolomF(p)) return false; // Task 80: kolom F = CTM -> sembunyikan
             var t = outletProdukTypeOf(p);
             if (t === 'CTM') return false;
             if (!allowed) return true;
@@ -1400,11 +1418,13 @@
             var stText = st.indexOf('SEDANG DI PROSES') >= 0 ? 'SEDANG DI PROSES ADMIN' : (st || 'PENDING');
             var isPending = st === 'PENDING';
             var safeId = esc(r.id || '');
-            var actions = '<div class="riw-actions">' +
-                (isPending ? '<button type="button" class="riw-action riw-action-edit" title="Edit order" aria-label="Edit order" onclick=\'openEditOrder("' + safeId + '")\'>' + SVG_EDIT + '</button>' : '') +
+            // Task 90: aksi (Edit/WA/Hapus) HANYA saat order masih PENDING (belum di respon).
+            // APPROVE / DECLINE / SEDANG DI PROSES ADMIN = sudah di respon -> tanpa aksi sama sekali.
+            var actions = isPending ? ('<div class="riw-actions">' +
+                '<button type="button" class="riw-action riw-action-edit" title="Edit order" aria-label="Edit order" onclick=\'openEditOrder("' + safeId + '")\'>' + SVG_EDIT + '</button>' +
                 '<button type="button" class="riw-action riw-action-wa" title="Kirim WhatsApp" aria-label="Kirim WhatsApp" onclick=\'kirimWaOrder("' + safeId + '")\'>' + SVG_WA + '</button>' +
-                (isPending ? '<button type="button" class="riw-action riw-action-delete" title="Hapus order" aria-label="Hapus order" onclick=\'hapusOrder("' + safeId + '")\'>' + SVG_TRASH + '</button>' : '') +
-                '</div>';
+                '<button type="button" class="riw-action riw-action-delete" title="Hapus order" aria-label="Hapus order" onclick=\'hapusOrder("' + safeId + '")\'>' + SVG_TRASH + '</button>' +
+                '</div>') : '';
             return '<div class="op-card riw-card ' + statusClass(r.status) + '" style="padding:14px;">' +
                 '<div class="flex items-start justify-between gap-2 flex-wrap">' +
                 '<div><b style="font-size:12.5px;">' + esc(r.id || '-') + '</b>' +
