@@ -4381,7 +4381,7 @@ select.select2-hidden-accessible { width: 1px !important; max-width: 1px !import
                                 <input type="text" id="searchTambahCustomer" oninput="filterTambahCustomer()" placeholder="Cari customer, outlet, sales, kode..."
                                        class="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm transition">
                             </div>
-                            <button type="button" onclick="exportTambahCustomerExcel()" title="Export seluruh data customer ke Excel" class="shrink-0 px-3 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 text-[10px] font-extrabold shadow-sm transition">⬇ Export Excel</button>
+                            <button type="button" onclick="exportTambahCustomerExcel()" title="Export data customer (Day Visit, Outlet, DSR, Channel) ke Excel" class="shrink-0 px-3 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 text-[10px] font-extrabold shadow-sm transition">⬇ Export Excel</button>
                         </div>
                     </div>
 
@@ -11093,14 +11093,22 @@ if(tab==='tagihan')loadTagihan(false, true);
             const rows = (globalTambahCustomerData && globalTambahCustomerData.rows) || [];
             if (!headers.length) { showModal('Informasi', 'Data customer belum dimuat. Buka halaman ini sampai data tampil lalu coba lagi.'); return; }
             if (!rows.length) { showModal('Informasi', 'Belum ada data customer untuk diexport.'); return; }
+            // Task 91: export HANYA 4 kolom, urutan sesuai permintaan: DAY VISIT, OUTLET, DSR, CHANNEL.
+            const exportCols = [
+                ['DAY VISIT', _customerFieldIndexClient(headers, ['DAY VISIT'])],
+                ['OUTLET', _customerFieldIndexClient(headers, ['OUTLET', 'NAMA OUTLET'])],
+                ['DSR', _customerDsrFieldIndexClient(headers)],
+                ['CHANNEL', _customerFieldIndexClient(headers, ['CHANNEL', 'CHANNEL OUTLET'])]
+            ].filter(function (col) { return col[1] >= 0; });
+            if (!exportCols.length) { showModal('Informasi', 'Kolom DAY VISIT / OUTLET / DSR / CHANNEL tidak ditemukan pada data customer.'); return; }
             let html = '<html><head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Customer</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body>';
-            html += '<table border="1"><thead><tr>' + headers.map(function(h) {
-                return '<th style="background:#059669;color:#ffffff;font-weight:bold;">' + _customerEscape(String(h == null ? '' : h)) + '</th>';
+            html += '<table border="1"><thead><tr>' + exportCols.map(function(col) {
+                return '<th style="background:#059669;color:#ffffff;font-weight:bold;">' + _customerEscape(String(col[0] == null ? '' : col[0])) + '</th>';
             }).join('') + '</tr></thead><tbody>';
             rows.forEach(function(item) {
                 const values = Array.isArray(item.values) ? item.values : [];
-                html += '<tr>' + headers.map(function(h, i) {
-                    const v = values[i] == null ? '' : String(values[i]);
+                html += '<tr>' + exportCols.map(function(col) {
+                    const v = values[col[1]] == null ? '' : String(values[col[1]]);
                     return '<td>' + _customerEscape(v) + '</td>';
                 }).join('') + '</tr>';
             });
