@@ -2288,6 +2288,18 @@ body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-ser
 }
 </style>
 
+<style id="castrol-input-step2-tagihan">
+/* Task 94: panel TAGIHAN BELUM LUNAS pada Step 2 - ringkas, daftar scroll (mobile tidak memanjang ke bawah) */
+.input-step2-tagihan-scroll{max-height:168px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;-webkit-overflow-scrolling:touch;padding-right:2px}
+.input-step2-tagihan-scroll::-webkit-scrollbar{width:4px}
+.input-step2-tagihan-scroll::-webkit-scrollbar-thumb{background:rgba(180,83,9,.28);border-radius:999px}
+.input-step2-tagihan-row{display:flex;align-items:center;justify-content:space-between;gap:6px;width:100%;background:#fff;border:1px solid #fde68a;border-radius:10px;padding:5px 8px;text-align:left;transition:background .15s ease;cursor:pointer}
+.input-step2-tagihan-row:hover{background:#fffbeb}
+@media(max-width:640px){
+  .input-step2-tagihan-scroll{max-height:120px}
+  .input-step2-tagihan-row{padding:4px 7px;border-radius:9px}
+}
+</style>
 <style id="castrol-step2-simple-meta">
 /* STEP 2 - customer/channel dibuat sangat sederhana, tanpa kartu/box */
 #inputStep2 .step2-outlet-summary{
@@ -3922,6 +3934,14 @@ select.select2-hidden-accessible { width: 1px !important; max-width: 1px !import
                                   <div class="rounded-xl border border-slate-200 p-2.5"><div class="text-[10px] font-extrabold text-slate-700">Bulan 3</div><div class="grid grid-cols-2 gap-2 mt-2"><div><div class="text-[8px] text-slate-400">Target</div><div id="inputAchTargetM3_2" class="text-xs font-extrabold">-</div></div><div><div class="text-[8px] text-slate-400">Actual</div><div id="inputAchActualM3_2" class="text-xs font-extrabold text-emerald-700">0,0 dus</div></div></div><div class="border-t mt-2 pt-2 flex justify-between text-[8px]"><span class="text-slate-400">Gap <b id="inputAchGapM3_2" class="text-red-500">-</b></span><span class="text-slate-400">Ach <b id="inputAchPctM3_2">0,0%</b></span></div></div>
                                 </div>
                                 <div class="mt-2 rounded-xl border border-emerald-200 bg-emerald-50/40 p-2.5"><div class="flex items-center justify-between gap-2"><div class="text-[10px] font-extrabold text-emerald-800">TOTAL KUARTAL</div><div id="inputTargetQuarterTotalLabel2" class="text-[9px] font-bold text-slate-400">Q berjalan</div></div><div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2"><div class="rounded-lg bg-white p-2"><div class="text-[8px] text-slate-400">Target</div><div id="inputAchTargetQ_2" class="text-xs font-extrabold">-</div></div><div class="rounded-lg bg-emerald-50 p-2"><div class="text-[8px] text-slate-400">Actual</div><div id="inputAchActualQ_2" class="text-xs font-extrabold text-emerald-700">0,0 dus</div></div><div class="rounded-lg bg-white p-2"><div class="text-[8px] text-slate-400">Gap</div><div id="inputAchGapQ_2" class="text-xs font-extrabold text-red-500">-</div></div><div class="rounded-lg bg-white p-2"><div class="text-[8px] text-slate-400">Ach</div><div id="inputAchPctQ_2" class="text-xs font-extrabold">0,0%</div></div></div></div>
+                                <!-- Task 94: tagihan BELUM LUNAS outlet ini (di bawah TOTAL KUARTAL) -->
+                                <div id="inputStep2Tagihan" class="mt-2 rounded-xl border border-amber-200 bg-amber-50/60 p-2.5 hidden">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <div class="text-[10px] font-extrabold text-amber-800">TAGIHAN BELUM LUNAS</div>
+                                        <div id="inputStep2TagihanCount" class="text-[9px] font-bold text-amber-700 shrink-0">-</div>
+                                    </div>
+                                    <div id="inputStep2TagihanList" class="mt-1.5 space-y-1 overflow-y-auto input-step2-tagihan-scroll"></div>
+                                </div>
                             </div>
                             </div>
 
@@ -4048,7 +4068,6 @@ select.select2-hidden-accessible { width: 1px !important; max-width: 1px !import
                             <h2 class="text-base font-bold text-slate-800">Approval Order</h2>
                             <span id="approvalCount" class="text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">0 transaksi</span>
                         </div>
-                        <p class="text-[9px] text-slate-400"></p>
                     </div>
 
                     <div class="flex items-center justify-end gap-1.5 mb-1" role="group" aria-label="Tampilan Approval">
@@ -4060,7 +4079,6 @@ select.select2-hidden-accessible { width: 1px !important; max-width: 1px !import
                         <div class="flex items-center justify-between gap-2 mb-2">
                             <div>
                                 <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Filter Approval</div>
-                                <div class="text-[9px] text-slate-400 mt-0.5"></div>
                             </div>
                             <button type="button" onclick="resetApprovalAllFilter()" class="shrink-0 text-[10px] font-bold text-slate-500 hover:text-emerald-700 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-emerald-50 transition">Reset</button>
                         </div>
@@ -5261,7 +5279,8 @@ startAutoRefresh();
             } catch(e) {}
             try {
                 const ann = res.pengumuman;
-                if (ann && ann.success) { renderHomeRebuildBanner(ann.data); showAnnouncementPage(ann.data); }
+                // Task 94: halaman pengumuman pasca-login dihilangkan - banner beranda tetap tampil.
+                if (ann && ann.success) { renderHomeRebuildBanner(ann.data); }
             } catch(e) {}
             try {
                 if (Array.isArray(res.outlets)) {
@@ -5446,16 +5465,23 @@ startAutoRefresh();
             document.getElementById('inputStep2').classList.remove('hidden');
             const custCodeStep2 = document.getElementById('inputCustCode').value || '-';
             const channelStep2 = document.getElementById('inputChannel').value || '-';
-            document.getElementById('inputStep2Outlet').textContent = outlet;
-            document.getElementById('inputStep2CustCode').textContent = custCodeStep2;
-            document.getElementById('inputStep2Channel').textContent = channelStep2;
+            // Task 94: elemen ringkasan lama sudah tidak ada di markup (refactor step 2) -
+            // akses dibuat null-safe agar updateInputWizardIndicator/renderCart/tagihan tetap jalan.
+            const elStep2Outlet = document.getElementById('inputStep2Outlet');
+            if (elStep2Outlet) elStep2Outlet.textContent = outlet;
+            const elStep2CustCode = document.getElementById('inputStep2CustCode');
+            if (elStep2CustCode) elStep2CustCode.textContent = custCodeStep2;
+            const elStep2Channel = document.getElementById('inputStep2Channel');
+            if (elStep2Channel) elStep2Channel.textContent = channelStep2;
             const outletHeading = document.getElementById('inputStep2OutletHeading');
             const custCodeHeading = document.getElementById('inputStep2CustCodeHeading');
             if (outletHeading) outletHeading.textContent = outlet;
             if (custCodeHeading) custCodeHeading.textContent = custCodeStep2;
-            document.getElementById('inputStep2Meta').textContent = 'Cust. Code ' + custCodeStep2 + ' · Channel ' + channelStep2;
+            const elStep2Meta = document.getElementById('inputStep2Meta');
+            if (elStep2Meta) elStep2Meta.textContent = 'Cust. Code ' + custCodeStep2 + ' · Channel ' + channelStep2;
             updateInputWizardIndicator(2);
             renderCart();
+            loadInputStep2Tagihan(); // Task 94: tagihan belum lunas outlet terpilih
             window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
@@ -5464,6 +5490,69 @@ startAutoRefresh();
             document.getElementById('inputStep1').classList.remove('hidden');
             updateInputWizardIndicator(1);
             window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        // ===== Task 94: TAGIHAN BELUM LUNAS pada Step 2 Input Order =====
+        let inputStep2TagihanFetching = false;
+        function inputStep2TagihanBelum(outletName) {
+            const target = String(outletName == null ? '' : outletName).trim().toUpperCase();
+            if (!target) return [];
+            const src = Array.isArray(globalTagihanData) ? globalTagihanData : [];
+            return src.filter(function(item) {
+                const st = String(item && item.statusTagihan != null ? item.statusTagihan : '').trim().toUpperCase();
+                if (st !== 'BELUM LUNAS') return false;
+                return String(item && item.outlet != null ? item.outlet : '').trim().toUpperCase() === target;
+            });
+        }
+        function renderInputStep2Tagihan(outletName) {
+            const box = document.getElementById('inputStep2Tagihan');
+            const list = document.getElementById('inputStep2TagihanList');
+            if (!box || !list) return;
+            const rows = inputStep2TagihanBelum(outletName);
+            if (!rows.length) { box.classList.add('hidden'); list.innerHTML = ''; return; }
+            rows.sort(function(a, b) { return Number(b && b.usia ? b.usia : 0) - Number(a && a.usia ? a.usia : 0); });
+            const count = document.getElementById('inputStep2TagihanCount');
+            if (count) count.textContent = rows.length + ' nota';
+            list.innerHTML = rows.map(function(item) {
+                const usia = tagihanUsiaHari(item);
+                const merah = usia >= TAGIHAN_UMUR_MERAH;
+                const idKey = String(item && item.id != null ? item.id : '');
+                return '<button type="button" class="input-step2-tagihan-row" onclick="bukaInvoiceTagihan(\'' + escapeHtml(idKey) + '\')">' +
+                    '<span class="min-w-0 text-left">' +
+                        '<span class="block text-[10px] text-slate-600">' + escapeHtml(tagihanFormatTanggalID(item && item.tanggalNota)) + ' \u00b7 ' + usia + ' hari</span>' +
+                    '</span>' +
+                    '<span class="shrink-0 text-right">' +
+                        '<span class="block font-extrabold text-[10px] ' + (merah ? 'text-red-600' : 'text-slate-700') + '">Rp ' + Number(item && item.nominal ? item.nominal : 0).toLocaleString('id-ID') + '</span>' +
+                        '<span class="block text-[8px] text-slate-400">' + escapeHtml(String(item && item.payment != null ? item.payment : '-')) + '</span>' +
+                    '</span>' +
+                '</button>';
+            }).join('');
+            box.classList.remove('hidden');
+        }
+        function loadInputStep2Tagihan() {
+            const box = document.getElementById('inputStep2Tagihan');
+            if (!box) return;
+            const outlet = String(($('#inputOutlet').val() || '')).trim();
+            if (!outlet) { box.classList.add('hidden'); return; }
+            if (Array.isArray(globalTagihanData) && globalTagihanData.length) { renderInputStep2Tagihan(outlet); return; }
+            if (inputStep2TagihanFetching) return;
+            inputStep2TagihanFetching = true;
+            box.classList.remove('hidden');
+            const count = document.getElementById('inputStep2TagihanCount');
+            const list = document.getElementById('inputStep2TagihanList');
+            if (count) count.textContent = 'Memuat...';
+            if (list) list.innerHTML = '';
+            const salesArg = tagihanIsAdminScope() ? '' : String(currentUser || '').trim();
+            google.script.run.withSuccessHandler(function(res) {
+                inputStep2TagihanFetching = false;
+                globalTagihanData = (res && Array.isArray(res.data)) ? res.data : [];
+                try { appLocalCacheSet(tagihanCacheKey(), globalTagihanData); } catch (eCache) {}
+                renderInputStep2Tagihan(outlet);
+            }).withFailureHandler(function(err) {
+                inputStep2TagihanFetching = false;
+                box.classList.add('hidden');
+                console.warn('Gagal memuat tagihan Step 2:', err && err.message ? err.message : err);
+            }).getTagihanData(salesArg, currentUsernameInput);
         }
 
         function renderCashbackOptionsForInputChannel() {
@@ -6998,7 +7087,7 @@ startAutoRefresh();
               '<tr><td colspan="2" class="p-5 text-center text-slate-400">Tidak ada rincian produk.</td></tr>';
             body.innerHTML='<div class="modal-detail-headline"><div><div class="text-[9px] font-bold uppercase tracking-wider text-slate-400">Rincian Produk Terbeli</div><div class="text-[13px] font-extrabold text-slate-800 mt-0.5">'+detail.length+' item</div></div><div class="modal-id-chip">'+escapeHtml(targetId)+'</div></div>'+
               '<div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-3"><div class="rounded-xl border border-slate-200 bg-slate-50 p-3"><div class="text-[9px] font-bold uppercase tracking-wider text-slate-400">Nama Outlet</div><div class="text-[12px] font-extrabold text-slate-800 mt-1 break-words">'+escapeHtml(order.outlet||'-')+'</div></div><div class="rounded-xl border border-slate-200 bg-slate-50 p-3"><div class="text-[9px] font-bold uppercase tracking-wider text-slate-400">Volume</div><div class="text-[12px] font-extrabold text-slate-800 mt-1">'+Number(order.volume||0).toLocaleString('id-ID',{maximumFractionDigits:1})+' L</div></div></div>'+
-              '<div class="mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">Rician Produk</div><div class="modal-table-wrap"><table class="modal-detail-table"><thead><tr><th style="width:48px;text-align:center;">No</th><th>Rincian Produk</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+              '<div class="mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">Rincian Produk</div><div class="modal-table-wrap"><table class="modal-detail-table"><thead><tr><th style="width:48px;text-align:center;">No</th><th>Rincian Produk</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
               (canChangeStatus?'<div class="mt-4 pt-3 border-t border-slate-200"><div class="text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Status Transaksi (Admin)</div><div class="flex flex-wrap items-center gap-2"><select id="detailStatusSelect" class="border border-slate-300 rounded-lg px-2.5 py-2 text-[11px] font-extrabold bg-white text-slate-800" data-order-id="'+escapeHtml(targetId)+'" data-current-status="'+escapeHtml(String(order.status||'').toUpperCase())+'"><option value="">'+escapeHtml(String(order.status||'PENDING').toUpperCase())+' / TIDAK DIUBAH</option><option value="APPROVE">APPROVE</option><option value="DECLINE">DECLINE</option><option value="PENDING">PENDING</option></select><button type="button" onclick="simpanStatusDetail(\''+escapeHtml(targetId)+'\')" class="cst-act-wa py-2 px-4 rounded-xl text-[10px] font-extrabold" title="Simpan Status">Simpan Status</button></div></div>':'')+
               '<div class="flex flex-wrap justify-end gap-2 mt-4 pt-3 border-t border-slate-200"><button type="button" onclick="editRiwayat(\''+escapeHtml(targetId)+'\')" class="cst-act-silver py-2 px-4 rounded-xl text-[10px] font-extrabold" title="Edit"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19.5 8.5a2.12 2.12 0 0 0-3-3L5 17v3Z"/><path d="M13.5 6.5l3 3"/></svg></button><button type="button" onclick="kirimUlangWA(\''+escapeHtml(targetId)+'\')" class="cst-act-wa py-2 px-4 rounded-xl text-[10px] font-extrabold" title="Kirim WhatsApp"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg></button><button type="button" onclick="hapusRiwayat(\''+escapeHtml(targetId)+'\')" class="cst-act-silver py-2 px-4 rounded-xl text-[10px] font-extrabold" title="Hapus"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V5h6v2"/><path d="M6.5 7l1 13h9l1-13"/><path d="M10 11v6M14 11v6"/></svg></button></div>';
         }
@@ -11086,14 +11175,128 @@ if(tab==='tagihan')loadTagihan(false, true);
             if (count) count.textContent = rows.length.toLocaleString('id-ID') + ' customer';
         }
 
-        // Task 89: Export Excel seluruh data customer (.xls berbasis tabel HTML, tanpa dependensi;
-        // urutan & nama kolom mengikuti header sheet OUTLET sehingga kolom tambahan ikut terbawa).
+        // ===== Task 96: Export Excel Customer = file .xlsx ASLI =====
+        // Lama: tabel HTML di-rename .xls dengan MIME ms-excel palsu -> Excel modern
+        // menolaknya ("file rusak"). Baru: Open XML (.xlsx) asli dibangun manual
+        // (zip STORE + CRC32, tanpa dependensi eksternal) -> valid dibuka Excel/
+        // LibreOffice/Google Sheets. 4 kolom Task 91 tetap: DAY VISIT, OUTLET, DSR, CHANNEL.
+        function _customerXmlEscape(v) {
+            return String(v == null ? '' : v)
+                .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '')
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+        }
+        function _customerXlsxColLetter(n) { // 0 -> A, 25 -> Z, 26 -> AA
+            let s = '';
+            let k = Number(n) + 1;
+            while (k > 0) { const m = (k - 1) % 26; s = String.fromCharCode(65 + m) + s; k = Math.floor((k - 1) / 26); }
+            return s;
+        }
+        function _customerCrc32(bytes) {
+            let table = _customerCrc32._t;
+            if (!table) {
+                table = new Int32Array(256);
+                for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1); table[n] = c; }
+                _customerCrc32._t = table;
+            }
+            let crc = -1;
+            for (let i = 0; i < bytes.length; i++) crc = (crc >>> 8) ^ table[(crc ^ bytes[i]) & 0xFF];
+            return (crc ^ -1) >>> 0;
+        }
+        // Rakit file .xlsx (zip metode STORE) dari array 2 dimensi string. Return Uint8Array.
+        function _customerBuildXlsx(sheetName, table) {
+            const esc = _customerXmlEscape;
+            const escSheet = esc(String(sheetName || 'Data')).slice(0, 31);
+            let nCols = 0;
+            table.forEach(function(r) { nCols = Math.max(nCols, r.length); });
+            let colsDef = '';
+            for (let c = 0; c < nCols; c++) colsDef += '<col min="' + (c + 1) + '" max="' + (c + 1) + '" width="22" customWidth="1"/>';
+            let rowsXml = '';
+            table.forEach(function(row, ri) {
+                let cells = '';
+                for (let ci = 0; ci < row.length; ci++) {
+                    const ref = _customerXlsxColLetter(ci) + (ri + 1);
+                    const val = String(row[ci] == null ? '' : row[ci]).slice(0, 32767);
+                    cells += '<c r="' + ref + '" t="inlineStr"><is><t xml:space="preserve">' + esc(val) + '</t></is></c>';
+                }
+                rowsXml += '<row r="' + (ri + 1) + '">' + cells + '</row>';
+            });
+            const parts = [
+                ['[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+                    '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
+                    '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
+                    '<Default Extension="xml" ContentType="application/xml"/>' +
+                    '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>' +
+                    '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>' +
+                    '</Types>'],
+                ['_rels/.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+                    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+                    '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>' +
+                    '</Relationships>'],
+                ['xl/workbook.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+                    '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' +
+                    '<sheets><sheet name="' + escSheet + '" sheetId="1" r:id="rId1"/></sheets></workbook>'],
+                ['xl/_rels/workbook.xml.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+                    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+                    '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>' +
+                    '</Relationships>'],
+                ['xl/worksheets/sheet1.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+                    '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
+                    '<cols>' + colsDef + '</cols><sheetData>' + rowsXml + '</sheetData></worksheet>']
+            ];
+            const enc = new TextEncoder();
+            const localChunks = [];
+            const centralEntries = [];
+            let offset = 0;
+            const d = new Date();
+            const dosTime = ((d.getHours() & 31) << 11) | ((d.getMinutes() & 63) << 5) | (Math.floor(d.getSeconds() / 2) & 31);
+            const dosDate = (((d.getFullYear() - 1980) & 127) << 9) | (((d.getMonth() + 1) & 15) << 5) | (d.getDate() & 31);
+            parts.forEach(function(p) {
+                const nameBytes = enc.encode(p[0]);
+                const dataBytes = enc.encode(p[1]);
+                const crc = _customerCrc32(dataBytes);
+                const lh = new DataView(new ArrayBuffer(30));
+                lh.setUint32(0, 0x04034b50, true);
+                lh.setUint16(4, 20, true); lh.setUint16(6, 0, true); lh.setUint16(8, 0, true);
+                lh.setUint16(10, dosTime, true); lh.setUint16(12, dosDate, true);
+                lh.setUint32(14, crc, true);
+                lh.setUint32(18, dataBytes.length, true); lh.setUint32(22, dataBytes.length, true);
+                lh.setUint16(26, nameBytes.length, true); lh.setUint16(28, 0, true);
+                localChunks.push(new Uint8Array(lh.buffer), nameBytes, dataBytes);
+                const ch = new DataView(new ArrayBuffer(46));
+                ch.setUint32(0, 0x02014b50, true);
+                ch.setUint16(4, 20, true); ch.setUint16(6, 20, true);
+                ch.setUint16(8, 0, true); ch.setUint16(10, 0, true);
+                ch.setUint16(12, dosTime, true); ch.setUint16(14, dosDate, true);
+                ch.setUint32(16, crc, true);
+                ch.setUint32(20, dataBytes.length, true); ch.setUint32(24, dataBytes.length, true);
+                ch.setUint16(28, nameBytes.length, true); ch.setUint16(30, 0, true); ch.setUint16(32, 0, true);
+                ch.setUint16(34, 0, true); ch.setUint16(36, 0, true); ch.setUint32(38, 0, true);
+                ch.setUint32(42, offset, true);
+                centralEntries.push({ hdr: new Uint8Array(ch.buffer), name: nameBytes });
+                offset += 30 + nameBytes.length + dataBytes.length;
+            });
+            let centralSize = 0;
+            centralEntries.forEach(function(c) { centralSize += c.hdr.length + c.name.length; });
+            const eocd = new DataView(new ArrayBuffer(22));
+            eocd.setUint32(0, 0x06054b50, true);
+            eocd.setUint16(4, 0, true); eocd.setUint16(6, 0, true);
+            eocd.setUint16(8, parts.length, true); eocd.setUint16(10, parts.length, true);
+            eocd.setUint32(12, centralSize, true); eocd.setUint32(16, offset, true); eocd.setUint16(20, 0, true);
+            const out = new Uint8Array(offset + centralSize + 22);
+            let pos = 0;
+            localChunks.forEach(function(c) { out.set(c, pos); pos += c.length; });
+            centralEntries.forEach(function(c) { out.set(c.hdr, pos); pos += c.hdr.length; out.set(c.name, pos); pos += c.name.length; });
+            out.set(new Uint8Array(eocd.buffer), pos);
+            return out;
+        }
+        // Export Excel seluruh data customer. Task 96: file .xlsx asli;
+        // Task 91: HANYA 4 kolom, urutan: DAY VISIT, OUTLET, DSR, CHANNEL.
         function exportTambahCustomerExcel() {
             const headers = (globalTambahCustomerData && globalTambahCustomerData.headers) || [];
             const rows = (globalTambahCustomerData && globalTambahCustomerData.rows) || [];
             if (!headers.length) { showModal('Informasi', 'Data customer belum dimuat. Buka halaman ini sampai data tampil lalu coba lagi.'); return; }
             if (!rows.length) { showModal('Informasi', 'Belum ada data customer untuk diexport.'); return; }
-            // Task 91: export HANYA 4 kolom, urutan sesuai permintaan: DAY VISIT, OUTLET, DSR, CHANNEL.
             const exportCols = [
                 ['DAY VISIT', _customerFieldIndexClient(headers, ['DAY VISIT'])],
                 ['OUTLET', _customerFieldIndexClient(headers, ['OUTLET', 'NAMA OUTLET'])],
@@ -11101,23 +11304,19 @@ if(tab==='tagihan')loadTagihan(false, true);
                 ['CHANNEL', _customerFieldIndexClient(headers, ['CHANNEL', 'CHANNEL OUTLET'])]
             ].filter(function (col) { return col[1] >= 0; });
             if (!exportCols.length) { showModal('Informasi', 'Kolom DAY VISIT / OUTLET / DSR / CHANNEL tidak ditemukan pada data customer.'); return; }
-            let html = '<html><head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Customer</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body>';
-            html += '<table border="1"><thead><tr>' + exportCols.map(function(col) {
-                return '<th style="background:#059669;color:#ffffff;font-weight:bold;">' + _customerEscape(String(col[0] == null ? '' : col[0])) + '</th>';
-            }).join('') + '</tr></thead><tbody>';
+            const table = [exportCols.map(function(col) { return String(col[0]); })];
             rows.forEach(function(item) {
                 const values = Array.isArray(item.values) ? item.values : [];
-                html += '<tr>' + exportCols.map(function(col) {
-                    const v = values[col[1]] == null ? '' : String(values[col[1]]);
-                    return '<td>' + _customerEscape(v) + '</td>';
-                }).join('') + '</tr>';
+                table.push(exportCols.map(function(col) {
+                    return values[col[1]] == null ? '' : String(values[col[1]]);
+                }));
             });
-            html += '</tbody></table></body></html>';
             try {
-                const blob = new Blob(['\ufeff' + html], { type: 'application/vnd.ms-excel;charset=utf-8' });
+                const bytes = _customerBuildXlsx('Customer', table);
+                const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
                 const a = document.createElement('a');
                 a.href = URL.createObjectURL(blob);
-                a.download = 'Customer_' + new Date().toISOString().slice(0, 10) + '.xls';
+                a.download = 'Customer_' + new Date().toISOString().slice(0, 10) + '.xlsx';
                 document.body.appendChild(a);
                 a.click();
                 setTimeout(function() { try { URL.revokeObjectURL(a.href); if (a.parentNode) a.parentNode.removeChild(a); } catch (eRev) {} }, 1000);
@@ -11668,7 +11867,7 @@ function checkActivePengumuman() {
     google.script.run.withSuccessHandler(function(res) {
         var data = res && res.success ? res.data : [];
         renderHomeRebuildBanner(data);
-        showAnnouncementPage(data);
+        // Task 94: showAnnouncementPage dihapus - halaman pengumuman pasca-login tidak ditampilkan lagi.
     }).withFailureHandler(function(err) {
         console.warn('Gagal memuat pengumuman:', err && err.message ? err.message : err);
     }).getPengumumanAktif();
@@ -13076,9 +13275,6 @@ function renderRiwayatCards(data) {
         }).join('') : '<div class="rw2-item"><span class="rw2-dot">\u2022</span><span class="rw2-item-text">-</span></div>';
         const noteText = String(item.note || '').trim();
         const noteHtml = (noteText && noteText !== '-') ? '<div class="rw2-note"><span class="rw2-note-label">Note:</span> ' + escapeHtml(noteText) + '</div>' : '';
-        const rw2Hint = rw2Key === 'pending'
-            ? ''
-            : '';
         cards += `
             <article class="rw2-card rw2-${rw2Key}">
                 <div class="rw2-head">
@@ -13097,7 +13293,6 @@ function renderRiwayatCards(data) {
                 </div>
                 ${noteHtml}
                 <div class="rw2-foot" onclick="event.stopPropagation()">
-                    <span class="rw2-hint">${rw2Hint}</span>
                     <div class="rw2-actions">
                         <button type="button" onclick="editRiwayat('${escapeHtml(item.id)}'); return false;" class="rw2-act rw2-act-edit" title="Edit order" aria-label="Edit order"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19.5 8.5a2.12 2.12 0 0 0-3-3L5 17v3Z"/><path d="M13.5 6.5l3 3"/></svg></button>
                         <button type="button" onclick="kirimUlangWA('${escapeHtml(item.id)}')" class="rw2-act rw2-act-wa" title="Kirim ulang WhatsApp" aria-label="Kirim WhatsApp"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg></button>
