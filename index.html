@@ -1716,10 +1716,10 @@ html{scroll-behavior:auto!important}
 <style id="home-rebuild-clean-v1">
 #tabHome.home-rebuild{width:100%}
 .home-rebuild-wrap{width:100%;max-width:1180px;margin:0 auto;padding:0 0 18px;box-sizing:border-box}
-.home-rebuild-banner{position:relative;width:100%;height:clamp(110px,15vw,175px);border-radius:18px;overflow:hidden;background:#0f172a;box-shadow:0 8px 24px rgba(15,23,42,.08);display:none;margin-bottom:14px}
-.home-rebuild-banner.show{display:block}.home-rebuild-track{height:100%;display:flex;transition:transform .4s ease;touch-action:pan-y}.home-rebuild-slide{min-width:100%;height:100%;display:flex;align-items:center;justify-content:center;cursor:zoom-in;user-select:none}.home-rebuild-slide img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}.home-rebuild-caption{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:20px 14px 10px;background:linear-gradient(transparent,rgba(0,0,0,.72));color:#fff;font-size:11px;font-weight:800;line-height:1.35;text-align:left;pointer-events:none}.home-rebuild-slide{position:relative}
+.home-rebuild-banner{position:relative;width:100%;border:1px solid #e2e8f0;border-radius:18px;overflow:hidden;background:#fff;box-shadow:0 10px 28px rgba(15,23,42,.10);display:none;margin-bottom:14px}
+.home-rebuild-banner.show{display:block}.home-rebuild-stage{position:relative;height:clamp(150px,20vw,235px);background:#0f172a;overflow:hidden}.home-rebuild-track{height:100%;display:flex;transition:transform .4s ease;touch-action:pan-y}.home-rebuild-slide{position:relative;min-width:100%;height:100%;display:flex;align-items:center;justify-content:center;cursor:zoom-in;user-select:none}.home-rebuild-slide img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}.home-rebuild-foot{padding:10px 14px 12px;background:#fff;border-top:1px solid #eef2f7}.home-rebuild-caption{padding:8px 2px 0;color:#0f172a;font-size:12px;font-weight:700;line-height:1.55;text-align:left;white-space:pre-wrap;word-break:break-word}.home-rebuild-caption:empty{display:none}
 .home-rebuild-arrow{position:absolute;top:50%;transform:translateY(-50%);width:36px;height:36px;border:0;border-radius:50%;background:rgba(0,0,0,.42);color:#fff;font-size:24px;line-height:1;z-index:3;cursor:pointer}.home-rebuild-arrow.prev{left:10px}.home-rebuild-arrow.next{right:10px}
-.home-rebuild-dots{position:absolute;left:0;right:0;bottom:9px;display:flex;justify-content:center;gap:5px;z-index:3;pointer-events:none}.home-rebuild-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.55)}.home-rebuild-dot.active{width:17px;border-radius:99px;background:#fff}
+.home-rebuild-dots{display:flex;justify-content:center;gap:5px;pointer-events:none}.home-rebuild-dot{width:6px;height:6px;border-radius:50%;background:#cbd5e1;transition:width .25s ease,background .25s ease}.home-rebuild-dot.active{width:17px;border-radius:99px;background:#047857}.home-rebuild-banner.single .home-rebuild-dots{display:none}.home-rebuild-banner.single .home-rebuild-arrow{display:none}
 
 /* Beranda: grafik mingguan dan ringkasan status transaksi */
 .home-weekly-section,.home-status-section{padding:13px 14px;border-top:1px solid #eef2f7}.home-weekly-title{font-size:11px;font-weight:900;color:#0f172a}.home-weekly-sub{font-size:9px;color:#94a3b8;margin-top:3px}.home-weekly-chart{position:relative;width:100%;margin-top:8px;min-height:160px;overflow:visible}.home-weekly-chart svg{display:block;width:100%;height:auto;touch-action:pan-y}.home-weekly-chart .weekly-point{cursor:pointer;outline:none}.home-weekly-chart .weekly-point:focus circle,.home-weekly-chart .weekly-point.selected circle{stroke:#047857;stroke-width:4}.home-weekly-detail{position:absolute;z-index:5;display:none;width:158px;max-width:calc(100% - 12px);border:0;background:#182132;color:#fff;border-radius:13px;padding:9px 11px;box-shadow:0 8px 22px rgba(15,23,42,.2);pointer-events:none;font-size:10px;line-height:1.45}.home-weekly-detail.show{display:block}.home-weekly-detail-day{font-size:10px;font-weight:900;color:#fff;margin-bottom:3px}.home-weekly-detail-grid{display:flex;flex-direction:column;gap:1px}.home-weekly-detail-grid span{display:none}.home-weekly-detail-grid b{display:block;color:#d1fae5;font-size:10px;font-weight:700;margin-top:0;overflow-wrap:anywhere}.home-weekly-detail-grid div:nth-child(3) b{color:#e2e8f0}.home-status-filters{display:flex;gap:8px;margin:9px 0}.home-status-filters label{font-size:9px;color:#64748b;font-weight:800;display:flex;align-items:center;gap:5px}.home-status-filters select{border:1px solid #cbd5e1;border-radius:7px;padding:5px 7px;font-size:10px;color:#334155;background:white;max-width:130px}.home-status-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.home-status-card{border:1px solid #e2e8f0;border-radius:11px;padding:10px 8px;text-align:left;background:#fff;display:flex;flex-direction:column;gap:3px;cursor:pointer;min-width:0}.home-status-card span{font-size:9px;font-weight:900}.home-status-card b{font-size:19px;line-height:1.2;color:#0f172a}.home-status-card small{font-size:8px;color:#64748b}.home-status-card.approve{border-color:#a7f3d0;background:#f0fdf4}.home-status-card.approve span{color:#047857}.home-status-card.pending{border-color:#fde68a;background:#fffbeb}.home-status-card.pending span{color:#b45309}.home-status-card.decline{border-color:#fecaca;background:#fef2f2}.home-status-card.decline span{color:#b91c1c}.home-status-card:focus{outline:2px solid #94a3b8;outline-offset:2px}.home-status-list-wrap{margin-top:10px}.home-status-list-title{font-size:10px;font-weight:900;color:#334155;margin-bottom:6px}
@@ -1747,7 +1747,7 @@ html{scroll-behavior:auto!important}
 .home-rebuild-outlet-table th:first-child,.home-rebuild-outlet-table td:first-child{width:52%;text-align:left}.home-rebuild-outlet-table th:nth-child(2),.home-rebuild-outlet-table td:nth-child(2){width:16%}.home-rebuild-outlet-table th:nth-child(3),.home-rebuild-outlet-table td:nth-child(3){width:16%}.home-rebuild-outlet-table th:nth-child(4),.home-rebuild-outlet-table td:nth-child(4){width:16%}.home-rebuild-outlet-table th{padding:7px 8px;background:#f1f5f9;color:#475569;font-weight:900;text-align:center;white-space:nowrap}.home-rebuild-outlet-table td{padding:7px 8px;border-top:1px solid #eef2f7;color:#334155;font-weight:700;white-space:nowrap}.home-rebuild-outlet-table td:nth-child(2),.home-rebuild-outlet-table td:nth-child(3),.home-rebuild-outlet-table td:nth-child(4){text-align:center}.home-status-approve{color:#047857;font-weight:900}.home-status-decline{color:#dc2626;font-weight:900}.home-status-pending{color:#d97706;font-weight:900}.home-rebuild-empty{font-size:10px;color:#94a3b8;text-align:center;padding:14px}
 .home-rebuild-notif{padding:0 14px 12px}.home-rebuild-notif-item{display:flex;gap:8px;padding:9px 0;border-bottom:1px solid #eef2f7;text-align:left;width:100%}.home-rebuild-notif-item:last-child{border-bottom:0}.home-rebuild-notif-dot{width:7px;height:7px;border-radius:50%;background:#10b981;flex:none;margin-top:4px}.home-rebuild-notif-dot.unread{background:#f59e0b}.home-rebuild-notif-title{font-size:10px;font-weight:800;color:#334155}.home-rebuild-notif-msg{font-size:9px;color:#64748b;margin-top:2px}.home-rebuild-notif-time{font-size:8px;color:#94a3b8;margin-top:3px}
 .home-rebuild-lightbox{position:fixed;inset:0;z-index:100002;background:rgba(2,6,23,.96);display:none;align-items:center;justify-content:center;overflow:hidden;touch-action:none}.home-rebuild-lightbox.open{display:flex}.home-rebuild-lightbox img{max-width:none;max-height:none;width:auto;height:auto;object-fit:contain;transform-origin:center;user-select:none;touch-action:none;cursor:grab}.home-rebuild-lightbox .home-rebuild-download{position:absolute;right:64px;top:14px;min-height:40px;padding:0 14px;border:1px solid rgba(255,255,255,.25);border-radius:999px;background:rgba(255,255,255,.15);color:#fff;font-size:12px;font-weight:800;z-index:3;cursor:pointer}.home-rebuild-lightbox .home-rebuild-download:hover{background:rgba(255,255,255,.25)}.home-rebuild-lightbox .close{position:absolute;right:14px;top:14px;width:40px;height:40px;border:0;border-radius:50%;background:rgba(255,255,255,.15);color:#fff;font-size:25px;z-index:3;cursor:pointer}
-@media(max-width:640px){.home-rebuild-outlet-table{table-layout:fixed;width:100%}.home-rebuild-outlet-table th:first-child,.home-rebuild-outlet-table td:first-child{width:46%}.home-rebuild-outlet-table th:nth-child(2),.home-rebuild-outlet-table td:nth-child(2),.home-rebuild-outlet-table th:nth-child(3),.home-rebuild-outlet-table td:nth-child(3),.home-rebuild-outlet-table th:nth-child(4),.home-rebuild-outlet-table td:nth-child(4){width:18%;text-align:center}.home-rebuild-lightbox img{max-width:calc(100vw - 20px);max-height:calc(100vh - 20px);width:auto;height:auto}.home-rebuild-wrap{padding-bottom:12px}.home-rebuild-banner{height:105px;border-radius:12px;margin-bottom:8px}.home-rebuild-arrow{width:32px;height:32px;font-size:20px}.home-rebuild-card{border-radius:14px;margin-bottom:10px}.home-rebuild-head{padding:10px 11px}.home-rebuild-title{font-size:11px}.home-rebuild-sub{font-size:8px}.home-rebuild-date{font-size:8px}.home-rebuild-metrics{display:flex;flex-direction:row;flex-wrap:nowrap;gap:6px;padding:8px}.home-rebuild-metric{flex:1 1 0;min-width:0;padding:8px;border-radius:11px}.home-rebuild-icon{width:23px;height:23px;border-radius:7px;font-size:12px;margin-bottom:4px}.home-rebuild-label{font-size:6.5px;letter-spacing:.03em;overflow:hidden;text-overflow:ellipsis}.home-rebuild-value{font-size:16px;margin-top:5px}.home-rebuild-unit{font-size:7px;margin-top:3px}.home-rebuild-compare{margin-top:6px;gap:3px}.home-rebuild-compare .home-rebuild-performance-yesterday{font-size:6px}.home-rebuild-compare .home-rebuild-performance-change{font-size:6.5px}.home-rebuild-performance{padding:0 8px 8px}
+@media(max-width:640px){.home-rebuild-outlet-table{table-layout:fixed;width:100%}.home-rebuild-outlet-table th:first-child,.home-rebuild-outlet-table td:first-child{width:46%}.home-rebuild-outlet-table th:nth-child(2),.home-rebuild-outlet-table td:nth-child(2),.home-rebuild-outlet-table th:nth-child(3),.home-rebuild-outlet-table td:nth-child(3),.home-rebuild-outlet-table th:nth-child(4),.home-rebuild-outlet-table td:nth-child(4){width:18%;text-align:center}.home-rebuild-lightbox img{max-width:calc(100vw - 20px);max-height:calc(100vh - 20px);width:auto;height:auto}.home-rebuild-wrap{padding-bottom:12px}.home-rebuild-banner{border-radius:12px;margin-bottom:8px}.home-rebuild-stage{height:150px}.home-rebuild-foot{padding:8px 10px 10px}.home-rebuild-caption{font-size:11px}.home-rebuild-arrow{width:32px;height:32px;font-size:20px}.home-rebuild-card{border-radius:14px;margin-bottom:10px}.home-rebuild-head{padding:10px 11px}.home-rebuild-title{font-size:11px}.home-rebuild-sub{font-size:8px}.home-rebuild-date{font-size:8px}.home-rebuild-metrics{display:flex;flex-direction:row;flex-wrap:nowrap;gap:6px;padding:8px}.home-rebuild-metric{flex:1 1 0;min-width:0;padding:8px;border-radius:11px}.home-rebuild-icon{width:23px;height:23px;border-radius:7px;font-size:12px;margin-bottom:4px}.home-rebuild-label{font-size:6.5px;letter-spacing:.03em;overflow:hidden;text-overflow:ellipsis}.home-rebuild-value{font-size:16px;margin-top:5px}.home-rebuild-unit{font-size:7px;margin-top:3px}.home-rebuild-compare{margin-top:6px;gap:3px}.home-rebuild-compare .home-rebuild-performance-yesterday{font-size:6px}.home-rebuild-compare .home-rebuild-performance-change{font-size:6.5px}.home-rebuild-performance{padding:0 8px 8px}
 .home-rebuild-performance-title{font-size:8px;margin-bottom:5px}
 .home-rebuild-performance-grid{gap:5px}
 .home-rebuild-performance-item{padding:6px;border-radius:9px}
@@ -3795,10 +3795,15 @@ select.select2-hidden-accessible { width: 1px !important; max-width: 1px !import
                             </ul>
                         </section>
                         <section id="homeRebuildBanner" class="home-rebuild-banner" aria-label="Banner pengumuman">
-                            <div id="homeRebuildTrack" class="home-rebuild-track"></div>
-                            <button type="button" class="home-rebuild-arrow prev" onclick="homeRebuildPrev(event)" aria-label="Sebelumnya">‹</button>
-                            <button type="button" class="home-rebuild-arrow next" onclick="homeRebuildNext(event)" aria-label="Berikutnya">›</button>
-                            <div id="homeRebuildDots" class="home-rebuild-dots"></div>
+                            <div class="home-rebuild-stage">
+                                <div id="homeRebuildTrack" class="home-rebuild-track"></div>
+                                <button type="button" class="home-rebuild-arrow prev" onclick="homeRebuildPrev(event)" aria-label="Sebelumnya">‹</button>
+                                <button type="button" class="home-rebuild-arrow next" onclick="homeRebuildNext(event)" aria-label="Berikutnya">›</button>
+                            </div>
+                            <div class="home-rebuild-foot">
+                                <div id="homeRebuildDots" class="home-rebuild-dots"></div>
+                                <div id="homeRebuildCaption" class="home-rebuild-caption" aria-live="polite"></div>
+                            </div>
                         </section>
                         <section id="homeDsrFilterWrap" class="home-dsr-filter hidden"><label for="homeDsrFilter">Filter DSR / Sales</label><select id="homeDsrFilter"><option value="">Semua DSR</option></select><button type="button" onclick="resetHomeDsrFilter()">Reset</button></section>
                         <section class="cst-kpi-grid" aria-label="Ringkasan transaksi hari ini">
@@ -4812,6 +4817,7 @@ select.select2-hidden-accessible { width: 1px !important; max-width: 1px !import
             run(function(){ loadPencapaianSalesFilter(); });
             run(function(){ loadInputMasterData(); });
             run(function(){ loadNotifications(true); });
+            run(function(){ checkActivePengumuman(); }); /* Task 101: refresh global memuat ulang banner & teks berjalan pengumuman */
 
             finishGlobalRefreshIfReady(startedAt);
         }
@@ -5281,7 +5287,7 @@ startAutoRefresh();
             try {
                 const ann = res.pengumuman;
                 // Task 94: halaman pengumuman pasca-login dihilangkan - banner beranda tetap tampil.
-                if (ann && ann.success) { renderHomeRebuildBanner(ann.data); }
+                if (ann && ann.success) { renderHomeRebuildBanner(ann.data); renderAnnouncementHeaderMarquee(ann.data); } /* Task 101: teks berjalan ikut diisi saat login */
             } catch(e) {}
             try {
                 if (Array.isArray(res.outlets)) {
@@ -10390,8 +10396,8 @@ startAutoRefresh();
         }
 
         function getHomeRebuildImages(){return (Array.isArray(homeRebuildData)?homeRebuildData:[]).slice().sort(function(a,b){return Number(b&&b.rowNumber||0)-Number(a&&a.rowNumber||0);}).filter(function(x){return x&&String(x.gambar||'').trim()!=='';});}
-        function renderHomeRebuildBanner(data){homeRebuildData=Array.isArray(data)?data.slice():[];const list=getHomeRebuildImages(),section=document.getElementById('homeRebuildBanner'),track=document.getElementById('homeRebuildTrack'),dots=document.getElementById('homeRebuildDots');if(!section||!track||!dots)return;if(!list.length){section.classList.remove('show');track.innerHTML='';dots.innerHTML='';stopHomeRebuildAuto();return;}homeRebuildIndex=Math.max(0,Math.min(homeRebuildIndex,list.length-1));section.classList.add('show');track.innerHTML=list.map(function(x,i){return '<div class="home-rebuild-slide" data-i="'+i+'" onclick="openHomeRebuildImage(this.dataset.i)"><img src="'+escapeHtml(String(x.gambar||''))+'" alt="Pengumuman" draggable="false">'+(String(x.keterangan||'').trim()?'<div class="home-rebuild-caption">'+escapeHtml(String(x.keterangan||''))+'</div>':'')+'</div>';}).join('');updateHomeRebuildPosition();bindHomeRebuildSwipe();startHomeRebuildAuto();}
-        function updateHomeRebuildPosition(){const track=document.getElementById('homeRebuildTrack'),dots=document.getElementById('homeRebuildDots'),list=getHomeRebuildImages();if(!track||!list.length)return;homeRebuildIndex=(homeRebuildIndex+list.length)%list.length;track.style.transform='translate3d('+(-homeRebuildIndex*100)+'%,0,0)';if(dots)dots.innerHTML=list.map(function(_,i){return '<span class="home-rebuild-dot'+(i===homeRebuildIndex?' active':'')+'"></span>';}).join('');}
+        function renderHomeRebuildBanner(data){homeRebuildData=Array.isArray(data)?data.slice():[];const list=getHomeRebuildImages(),section=document.getElementById('homeRebuildBanner'),track=document.getElementById('homeRebuildTrack'),dots=document.getElementById('homeRebuildDots'),cap=document.getElementById('homeRebuildCaption');if(!section||!track||!dots)return;if(!list.length){section.classList.remove('show','single');track.innerHTML='';dots.innerHTML='';if(cap)cap.textContent='';stopHomeRebuildAuto();return;}homeRebuildIndex=Math.max(0,Math.min(homeRebuildIndex,list.length-1));section.classList.add('show');section.classList.toggle('single',list.length<2);/* Task 101: kartu banner - gambar di stage, keterangan jelas di bawah gambar */track.innerHTML=list.map(function(x,i){return '<div class="home-rebuild-slide" data-i="'+i+'" onclick="openHomeRebuildImage(this.dataset.i)"><img src="'+escapeHtml(String(x.gambar||''))+'" alt="Pengumuman" draggable="false"></div>';}).join('');updateHomeRebuildPosition();bindHomeRebuildSwipe();startHomeRebuildAuto();}
+        function updateHomeRebuildPosition(){const track=document.getElementById('homeRebuildTrack'),dots=document.getElementById('homeRebuildDots'),cap=document.getElementById('homeRebuildCaption'),list=getHomeRebuildImages();if(!track||!list.length)return;homeRebuildIndex=(homeRebuildIndex+list.length)%list.length;track.style.transform='translate3d('+(-homeRebuildIndex*100)+'%,0,0)';if(dots)dots.innerHTML=list.map(function(_,i){return '<span class="home-rebuild-dot'+(i===homeRebuildIndex?' active':'')+'"></span>';}).join('');/* Task 101: keterangan pengumuman aktif tampil jelas di bawah gambar */if(cap)cap.textContent=String(list[homeRebuildIndex]&&list[homeRebuildIndex].keterangan||'').trim();}
         function homeRebuildNext(e){if(e)e.stopPropagation();const l=getHomeRebuildImages();if(!l.length)return;homeRebuildIndex=(homeRebuildIndex+1)%l.length;updateHomeRebuildPosition();startHomeRebuildAuto();}function homeRebuildPrev(e){if(e)e.stopPropagation();const l=getHomeRebuildImages();if(!l.length)return;homeRebuildIndex=(homeRebuildIndex-1+l.length)%l.length;updateHomeRebuildPosition();startHomeRebuildAuto();}
         function startHomeRebuildAuto(){stopHomeRebuildAuto();if(getHomeRebuildImages().length<2)return;homeRebuildTimer=setInterval(function(){const t=document.getElementById('tabHome');if(!t||t.classList.contains('hidden'))return;homeRebuildNext();},5000);}function stopHomeRebuildAuto(){if(homeRebuildTimer){clearInterval(homeRebuildTimer);homeRebuildTimer=null;}}
         function bindHomeRebuildSwipe(){const v=document.getElementById('homeRebuildBanner');if(!v||v.dataset.swipeBound==='1')return;v.dataset.swipeBound='1';v.addEventListener('touchstart',function(e){const t=e.touches&&e.touches[0];if(t){homeRebuildTouchX=t.clientX;homeRebuildTouchY=t.clientY;}},{passive:true});v.addEventListener('touchend',function(e){const t=e.changedTouches&&e.changedTouches[0];if(!t)return;const dx=t.clientX-homeRebuildTouchX,dy=t.clientY-homeRebuildTouchY;if(Math.abs(dx)<45||Math.abs(dx)<Math.abs(dy))return;dx<0?homeRebuildNext():homeRebuildPrev();},{passive:true});}
@@ -11834,6 +11840,38 @@ function isAdminPengumuman() {
     return String(typeof currentUsernameInput !== 'undefined' ? currentUsernameInput : '').trim().toLowerCase() === 'admin';
 }
 
+/* Task 101: teks berjalan (pengumuman tanpa gambar) tampil di header utama,
+   berjalan dari kanan ke kiri. Dipanggil dari applyAppBootstrap,
+   checkActivePengumuman, refreshAllPages, dan renderAnnouncementPage. */
+function renderAnnouncementHeaderMarquee(data) {
+    var headerMarquee = document.getElementById('announcementHeaderMarquee');
+    if (!headerMarquee) return;
+    var list = Array.isArray(data) ? data.slice() : [];
+    /* Pengumuman terbaru (row paling akhir di sheet PENGUMUMAN) selalu tampil pertama. */
+    list.sort(function(a, b) {
+        return Number(b && b.rowNumber || 0) - Number(a && a.rowNumber || 0);
+    });
+    var textItems = list.filter(function(item) {
+        return item && String(item.gambar || '').trim() === '' && String(item.keterangan || '').trim() !== '';
+    });
+    if (textItems.length) {
+        var messages = textItems.map(function(item) {
+            return escapeHtml(String(item.keterangan || '').trim());
+        }).filter(Boolean);
+        var combined = messages.join(' &nbsp;&nbsp; &bull; &nbsp;&nbsp; ');
+        var repeated = combined + ' &nbsp;&nbsp; &bull; &nbsp;&nbsp; ' + combined;
+        headerMarquee.innerHTML =
+            '<div class="pengumuman-marquee-track">' +
+            '<span class="pengumuman-marquee-text">' + repeated + '</span>' +
+            '<span class="pengumuman-marquee-text" aria-hidden="true">' + repeated + '</span>' +
+            '</div>';
+        headerMarquee.classList.remove('hidden');
+    } else {
+        headerMarquee.innerHTML = '';
+        headerMarquee.classList.add('hidden');
+    }
+}
+
 function renderAnnouncementPage(data) {
     var box = document.getElementById('announcementContent');
     var headerMarquee = document.getElementById('announcementHeaderMarquee');
@@ -11862,25 +11900,8 @@ function renderAnnouncementPage(data) {
                '</div>';
     }).join('') + '</div>') : '';
 
-    /* Pengumuman tanpa gambar masuk ke HEADER dan berjalan dari kanan ke kiri. */
-    if (headerMarquee) {
-        if (textItems.length) {
-            var messages = textItems.map(function(item) {
-                return escapeHtml(String(item.keterangan || '').trim());
-            }).filter(Boolean);
-            var combined = messages.join(' &nbsp;&nbsp; • &nbsp;&nbsp; ');
-            var repeated = combined + ' &nbsp;&nbsp; • &nbsp;&nbsp; ' + combined;
-            headerMarquee.innerHTML =
-                '<div class="pengumuman-marquee-track">' +
-                '<span class="pengumuman-marquee-text">' + repeated + '</span>' +
-                '<span class="pengumuman-marquee-text" aria-hidden="true">' + repeated + '</span>' +
-                '</div>';
-            headerMarquee.classList.remove('hidden');
-        } else {
-            headerMarquee.innerHTML = '';
-            headerMarquee.classList.add('hidden');
-        }
-    }
+    /* Task 101: teks berjalan header via renderAnnouncementHeaderMarquee. */
+    if (headerMarquee) renderAnnouncementHeaderMarquee(list);
 }
 
 function openPengumumanImage(imageUrl) {
@@ -11948,6 +11969,7 @@ function checkActivePengumuman() {
     google.script.run.withSuccessHandler(function(res) {
         var data = res && res.success ? res.data : [];
         renderHomeRebuildBanner(data);
+        renderAnnouncementHeaderMarquee(data); /* Task 101: teks berjalan tampil di header */
         // Task 94: showAnnouncementPage dihapus - halaman pengumuman pasca-login tidak ditampilkan lagi.
     }).withFailureHandler(function(err) {
         console.warn('Gagal memuat pengumuman:', err && err.message ? err.message : err);
