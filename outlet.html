@@ -1,12 +1,6 @@
 <!doctype html>
 <html lang="id">
 <head>
-
-        <!-- Favicon Castrol -->
-  <link rel="icon" href="./favicon.ico" type="image/x-icon">
-  <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon">
-
-    
     <base target="_top">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -835,7 +829,7 @@
                         <div class="flex items-center justify-between gap-2 flex-wrap">
                             <div>
                                 <p class="op-section-title">Riwayat Order</p>
-                                <p class="op-section-sub"></p>
+                                <p class="op-section-sub">Semua order outlet Anda beserta status prosesnya.</p>
                             </div>
                             <button type="button" onclick="loadRiwayat(true)" class="op-btn-ghost">⟳ Muat Ulang</button>
                         </div>
@@ -874,7 +868,7 @@
                         <!-- Task 73: tampilan sama dengan DETAIL OUTLET KONTRAK di portal sales -->
                         <div class="op-card" style="padding:16px;">
                             <p class="op-section-title">Outlet Kontrak</p>
-                            <p class="op-section-sub"></p>
+                            <p class="op-section-sub">Detail kontrak BWS outlet Anda beserta point trip tahun berjalan.</p>
                             <div id="pencKontrak" class="mt-3 space-y-4"></div>
                         </div>
                     </div>
@@ -1088,6 +1082,7 @@
         loadProduk(true);
         loadRiwayat(true);
         loadPencapaian(false);
+        startOutletDataVerPolling(); // Task 98: polling versi data utk auto-refresh
     }
 
     function logoutOutlet() {
@@ -1108,6 +1103,7 @@
             $('app').classList.add('hidden');
             $('loginPage').classList.remove('hidden');
             $('loginCustCode').value = '';
+            stopOutletDataVerPolling(); // Task 98
         };
     }
 
@@ -1125,6 +1121,71 @@
         // Task 75: Riwayat tidak lagi memuat data pencapaian (kartu pindah ke halaman Pencapaian).
         if (tab === 'riwayat') loadRiwayat(false);
         if (tab === 'pencapaian') loadPencapaian(false);
+    }
+    // ===== Task 98: auto-refresh data berbasis VERSI (tanpa refresh manual) =====
+    // Outlet memanggil getDataVersion() (backend sangat murah: 1 baca CacheService)
+    // tiap beberapa detik. Bila versi berubah (ada order baru/status berubah di
+    // admin/sales, penambahan data sheet DAMEN/INPUT) -> data halaman aktif
+    // dimuat ulang secara silent. Guard: modal terbuka / keranjang sedang diisi.
+    var __dataVerLast = null;
+    var __dataVerTimer = null;
+    var __dataVerInFlight = false;
+    function __dataVerPollMs() {
+        var ms = 15000;
+        try {
+            var q = new URLSearchParams(window.location.search).get('pollMs');
+            var n = Number(q);
+            if (q && n >= 1000) ms = n;
+        } catch (eQ) {}
+        return ms;
+    }
+    function __outletActiveTabName() {
+        var tabs = { input: 'tabInput', riwayat: 'tabRiwayat', pencapaian: 'tabPencapaian' };
+        for (var k in tabs) {
+            var el = $(tabs[k]);
+            if (el && !el.classList.contains('hidden')) return k;
+        }
+        return '';
+    }
+    function __outletVerApply() {
+        if (!profile) return true;
+        var modal = $('customModal');
+        if (modal && modal.style.display === 'flex') return false; // modal terbuka -> retry nanti
+        var tab = __outletActiveTabName();
+        if (tab === 'riwayat') { loadRiwayat(false); return true; }
+        if (tab === 'pencapaian') { loadPencapaian(false); return true; }
+        if (tab === 'input') {
+            // Jangan ganggu saat outlet sedang menyusun order (keranjang berisi).
+            if (shoppingCart && shoppingCart.length) return true;
+            loadPencapaian(false); // segarkan kartu Target & Pencapaian di halaman Input
+            return true;
+        }
+        return true;
+    }
+    function __outletDataVerVisChg() { if (document.visibilityState === 'visible') __outletDataVerPoll(); }
+    function __outletDataVerPoll() {
+        if (__dataVerInFlight || !profile) return;
+        __dataVerInFlight = true;
+        gsRun('getDataVersion', []).then(function (res) {
+            __dataVerInFlight = false;
+            var v = (res && res.version != null) ? String(res.version) : '';
+            if (!v) return;
+            if (__dataVerLast === null) { __dataVerLast = v; return; } // baseline awal
+            if (v === __dataVerLast) return;
+            if (__outletVerApply()) __dataVerLast = v;
+        });
+    }
+    function startOutletDataVerPolling() {
+        if (__dataVerTimer) clearInterval(__dataVerTimer);
+        __dataVerLast = null;
+        document.removeEventListener('visibilitychange', __outletDataVerVisChg);
+        document.addEventListener('visibilitychange', __outletDataVerVisChg);
+        __outletDataVerPoll();
+        __dataVerTimer = setInterval(__outletDataVerPoll, __dataVerPollMs());
+    }
+    function stopOutletDataVerPolling() {
+        if (__dataVerTimer) { clearInterval(__dataVerTimer); __dataVerTimer = null; }
+        __dataVerLast = null;
     }
     function toggleDrawer() {
         var app = $('app');
