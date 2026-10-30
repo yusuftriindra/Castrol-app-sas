@@ -4808,7 +4808,7 @@ select.select2-hidden-accessible { width: 1px !important; max-width: 1px !import
             run(function(){ loadPricelist(true, true); });
             run(function(){ loadPesananOutlet(true, true); });
             run(function(){ loadProdukByOutlet(true, true); });
-            run(function(){ loadPencapaianSales(true, true); });
+            run(function(){ loadPencapaianSales(true, true, true); }); // Task 100: reset cache browser -> actual semua sales ikut dimuat ulang
             run(function(){ loadPencapaianSalesFilter(); });
             run(function(){ loadInputMasterData(); });
             run(function(){ loadNotifications(true); });
@@ -5123,6 +5123,7 @@ select.select2-hidden-accessible { width: 1px !important; max-width: 1px !import
                 loadInputMasterData();
             }
 startAutoRefresh();
+        startDataVersionPolling(); // Task 98: polling versi data utk auto-refresh
         };
 
         let inputMasterLoading = false;
@@ -8785,19 +8786,19 @@ startAutoRefresh();
                 const selSales = canViewAll && salesFilter && salesFilter.value ? salesFilter.value : '';
                 const owner = canViewAll ? selSales : currentUser;
                 _prefetchPencapaianOwnerAllPeriods(canViewAll ? selSales : '', owner, forceRefresh === true);
-                if (canViewAll) _prefetchAllPencapaianSalesPeriods(null);
+                if (canViewAll) _prefetchAllPencapaianSalesPeriods(null, forceRefresh === true);
             } catch(e) {}
         }
         // Task 37/42: prefetch senyap semua kombinasi sales x periode (Admin/akun Nama
         // kosong) memakai batch per sales (3 paralel, tanpa jeda buatan) sehingga
         // pergantian filter sales/periode tampil instan dari cache tanpa memuat.
-        function _prefetchAllPencapaianSalesPeriods(res) {
+        function _prefetchAllPencapaianSalesPeriods(res, forceServerRefresh) {
             try {
                 if (!canViewAllPencapaianSales()) return;
                 const salesFilter = document.getElementById('pencapaianSalesFilter');
-                const salesList = salesFilter ? Array.prototype.slice.call(salesFilter.options || [])
+                const salesList = salesFilter ? [''].concat(Array.prototype.slice.call(salesFilter.options || [])
                     .map(function(o){ return String(o.value || '').trim(); })
-                    .filter(function(v){ return v && v !== ''; }) : [];
+                    .filter(function(v){ return v && v !== ''; })) : []; // Task 100: + kombinasi Semua Sales
                 const periods = pencapaianPeriodsKnownFromCache();
                 if (!salesList.length || !periods.length) return;
                 const userLow = (currentUsernameInput || 'admin').toLowerCase();
@@ -8829,12 +8830,26 @@ startAutoRefresh();
                             _legacyPrefetchOwnerPeriods(s, s, periods);
                             active--;
                             pump();
-                        }).getPencapaianSalesAllPeriods(s, currentUsernameInput, false);
+                        }).getPencapaianSalesAllPeriods(s, currentUsernameInput, forceServerRefresh === true);
                     }
                 })();
             } catch(e) {}
         }
-        function loadPencapaianSales(forceReloadPeriods, silentRefresh) {
+        // Task 100: bersihkan seluruh cache browser Pencapaian (semua kombinasi sales x periode,
+        // detail modal, status batch) sehingga refresh paksa / perubahan data memuat ulang
+        // SEMUA data termasuk actual semua sales, bukan hanya kombinasi yang belum ada.
+        function resetPencapaianBrowserCache() {
+            try { pencapaianCache = {}; } catch (ePc) {}
+            try { pencapaianDetailCache = {}; } catch (ePd) {}
+            try { Object.keys(pencapaianBatchInFlight_).forEach(function (k) { delete pencapaianBatchInFlight_[k]; }); } catch (eBi) {}
+            try { Object.keys(pencapaianBatchFailCount_).forEach(function (k) { delete pencapaianBatchFailCount_[k]; }); } catch (eBf) {}
+            try { appLocalCacheSet('PENCAPAIAN_' + String(currentUsernameInput || '').toUpperCase(), pencapaianCache); } catch (ePs) {}
+            try { __pencapaianDataStale = false; } catch (eFl) {}
+        }
+        function loadPencapaianSales(forceReloadPeriods, silentRefresh, resetBrowserCache) {
+            // Task 100: refresh paksa (tombol refresh / perubahan data) + resetBrowserCache
+            // -> bersihkan cache browser agar actual SEMUA sales dimuat ulang.
+            if (forceReloadPeriods === true && resetBrowserCache === true) resetPencapaianBrowserCache();
             const loading = document.getElementById('pencapaianLoading');
             const container = document.getElementById('pencapaianSalesList');
             const periodSelect = document.getElementById('pencapaianPeriodSelect');
@@ -8901,7 +8916,7 @@ startAutoRefresh();
                 pencapaianCache[cacheKey] = res || {};
                 try { appLocalCacheSet('PENCAPAIAN_' + String(currentUsernameInput||'').toUpperCase(), pencapaianCache); } catch(e) {}
                 _prefetchAllPencapaianPeriods(res, forceReloadPeriods === true);
-                _prefetchAllPencapaianSalesPeriods(res);
+                _prefetchAllPencapaianSalesPeriods(res, forceReloadPeriods === true);
                 const periods = Array.isArray(res && res.periods) ? res.periods : [];
                 if (periodSelect && periods.length) {
                     const currentValue = selectedPeriod || (res && res.selectedPeriod ? res.selectedPeriod : '');
@@ -10026,16 +10041,17 @@ startAutoRefresh();
             }, {passive:true});
         });
 
-        function autoRefreshActiveTab() {
+        function autoRefreshActiveTab(isDataVersionChange) {
             const mainPage = document.getElementById('mainPage');
-            if (!mainPage || mainPage.classList.contains('hidden')) return;
+            if (!mainPage || mainPage.classList.contains('hidden')) return false;
 
             const modal = document.getElementById('customModal');
-            if (modal && modal.style.display === 'flex') return;
+            if (modal && modal.style.display === 'flex') return false;
 
             const activeTabs = [
                 'tabRiwayat',
                 'tabApproval',
+                'tabTagihan',
                 'tabPencapaian',
                 'tabMonitoring',
                 'tabOutletKontrak',
@@ -10050,14 +10066,18 @@ startAutoRefresh();
                 return el && !el.classList.contains('hidden');
             });
 
-            if (!activeTab) return;
+            if (!activeTab) return true; // Task 98: tab tanpa auto-refresh (home/input/...) = selesai
 
             // Jangan refresh saat user baru saja beraktivitas.
-            if (Date.now() < autoRefreshUserActivityUntil) return;
+            if (Date.now() < autoRefreshUserActivityUntil) return false; // Task 98
 
             // Jangan refresh tab yang sedang memakai filter/pencarian/kategori.
             // Ini menjaga hasil pencarian dan pilihan user tetap di layar.
-            if (autoRefreshTabHasUserState(activeTab)) return;
+            // Task 100: Pencapaian dikecualikan dari aturan ini karena filter Kategori/Periode/
+            // Sales memang selalu terisi dan tetap dipertahankan saat refresh; tanpa pengecualian
+            // ini halaman Pencapaian tidak pernah ikut auto-refresh. Fokus di dalam select
+            // (user sedang memilih) tetap menunda refresh lewat pemeriksaan activeElement.
+            if (activeTab !== 'tabPencapaian' && autoRefreshTabHasUserState(activeTab)) return false; // Task 98
 
             // TAB INPUT sengaja tidak dimasukkan ke daftar di atas.
             // Semua tab lainnya diperbarui secara silent tanpa overlay/loading.
@@ -10066,7 +10086,11 @@ startAutoRefresh();
             } else if (activeTab === 'tabApproval') {
                 loadApproval(true, true);
             } else if (activeTab === 'tabPencapaian') {
-                loadPencapaianSales(true, true);
+                // Task 100: refresh penuh; bila dipicu perubahan versi data -> cache browser
+                // dibersihkan sehingga actual SEMUA sales ikut segar (bukan hanya sales terpilih).
+                // Opsi sales disegarkan agar sales baru ikut tampil; pilihan filter dipertahankan.
+                loadPencapaianSales(true, true, isDataVersionChange === true);
+                try { loadPencapaianSalesFilter(); } catch (ePsf) {}
             } else if (activeTab === 'tabMonitoring') {
                 loadMonitoring(true, true);
             } else if (activeTab === 'tabOutletKontrak') {
@@ -10079,7 +10103,10 @@ startAutoRefresh();
                 loadPricelist(true, true);
             } else if (activeTab === 'tabPesananOutlet') {
                 loadPesananOutlet(true, true);
+            } else if (activeTab === 'tabTagihan') {
+                loadTagihan(true, true); // Task 98: tagihan ikut auto-refresh
             }
+            return true;
         }
 
         function formatNotificationTime(value) {
@@ -10700,6 +10727,60 @@ startAutoRefresh();
             }, 60000);
         }
 
+        // ===== Task 98: auto-refresh berbasis VERSI DATA (tanpa refresh manual) =====
+        // Portal memanggil getDataVersion() (backend sangat murah: 1 baca CacheService)
+        // tiap DATA_VER_POLL_MS (default 15 detik; override ?pollMs= untuk pengujian).
+        // Bila versi berubah -> autoRefreshActiveTab() memuat ulang silent halaman
+        // aktif (Riwayat/Approval/Tagihan/Customer/Pencapaian/Monitoring/dll).
+        // Baseline versi HANYA naik setelah refresh benar-benar jalan, sehingga
+        // perubahan yang tertunda (mis. modal terbuka / user sedang mengetik) otomatis
+        // di-retry pada poll berikutnya. Perubahan langsung di Google Sheets (DAMEN,
+        // INPUT, dsb.) ikut terdeteksi via trigger onChange di backend (Task 98).
+        var __pencapaianDataStale = false; // Task 100: cache Pencapaian menunggu muat ulang penuh setelah perubahan data
+        let __dataVerLast = null;
+        let __dataVerTimer = null;
+        let __dataVerInFlight = false;
+        function __dataVerPollMs() {
+            let ms = 15000;
+            try {
+                const q = new URLSearchParams(window.location.search).get('pollMs');
+                const n = Number(q);
+                if (q && n >= 1000) ms = n;
+            } catch (eQ) {}
+            return ms;
+        }
+        function __dataVerPoll() {
+            if (__dataVerInFlight) return;
+            if (!String(currentUsernameInput || '').trim() && !String(currentUser || '').trim()) return; // belum login
+            __dataVerInFlight = true;
+            google.script.run
+                .withSuccessHandler(function (res) {
+                    __dataVerInFlight = false;
+                    const v = (res && res.version != null) ? String(res.version) : null;
+                    if (!v) return;
+                    if (__dataVerLast === null) { __dataVerLast = v; return; } // baseline awal
+                    if (v === __dataVerLast) return;
+                    if (__dataVerApply()) __dataVerLast = v;
+                })
+                .withFailureHandler(function () { __dataVerInFlight = false; })
+                .getDataVersion();
+        }
+        function __dataVerApply() {
+            const modal = document.getElementById('customModal');
+            if (modal && modal.style.display === 'flex') return false; // modal terbuka -> retry
+            __pencapaianDataStale = true; // Task 100: Pencapaian (termasuk actual semua sales) menunggu muat ulang penuh
+            const refreshed = autoRefreshActiveTab(true);
+            return refreshed !== false;
+        }
+        function __dataVerVisChg() { if (document.visibilityState === 'visible') __dataVerPoll(); }
+        function startDataVersionPolling() {
+            if (__dataVerTimer) clearInterval(__dataVerTimer);
+            __dataVerLast = null;
+            document.removeEventListener('visibilitychange', __dataVerVisChg);
+            document.addEventListener('visibilitychange', __dataVerVisChg);
+            __dataVerPoll();
+            __dataVerTimer = setInterval(__dataVerPoll, __dataVerPollMs());
+        }
         let appBackgroundPreloadStarted = false;
         function preloadAppDataInBackground() {
             if (appBackgroundPreloadStarted) return;
@@ -10824,7 +10905,7 @@ if(tab==='home'){loadHomeRebuild();startHomeRebuildAuto();}
 if(tab==='riwayat')loadRiwayat(false, true);
 if(tab==='approval')loadApproval(false, true);
 if(tab==='tagihan')loadTagihan(false, true);
-            if(tab==='pencapaian')loadPencapaianSales(false, true);
+            if(tab==='pencapaian'){ if (__pencapaianDataStale === true) { loadPencapaianSales(true, true, true); } else { loadPencapaianSales(false, true); } } // Task 100: setelah perubahan data di halaman lain, buka tab Pencapaian memuat ulang penuh
             if(tab==='monitoring')loadMonitoring(false, true);
             if(tab==='outletkontrak')loadOutletKontrak(false, true);
             if(tab==='outletbws')loadOutletBWSAdmin(false, true);
