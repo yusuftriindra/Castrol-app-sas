@@ -890,6 +890,7 @@
     var riwayatRows = [];
     var riwayatLoading = false;
     var pencapaianLoading = false;
+    var __outletPencStale = false; // Task 100: perubahan data tertunda saat load masih berjalan
     var submitInFlight = false;
     var pencData = null;         // Task 74: respons outletPortalPencapaian (quarters + months + byYear/years)
     var pencAchInit = false;     // Task 74/75: filter tahun/kuartal Pencapaian sudah diinisialisasi (pindahan dari Riwayat)
@@ -1153,11 +1154,19 @@
         if (modal && modal.style.display === 'flex') return false; // modal terbuka -> retry nanti
         var tab = __outletActiveTabName();
         if (tab === 'riwayat') { loadRiwayat(false); return true; }
-        if (tab === 'pencapaian') { loadPencapaian(false); return true; }
+        // Task 100: Pencapaian selalu force (bypass cache server) + silent setiap ada
+        // perubahan data -> angka target/actual langsung terbaru tanpa loading overlay.
+        // Bila load masih berjalan, ditandai stale lalu diambil ulang otomatis.
+        if (tab === 'pencapaian') {
+            if (pencapaianLoading) __outletPencStale = true;
+            else loadPencapaian(true, true);
+            return true;
+        }
         if (tab === 'input') {
             // Jangan ganggu saat outlet sedang menyusun order (keranjang berisi).
             if (shoppingCart && shoppingCart.length) return true;
-            loadPencapaian(false); // segarkan kartu Target & Pencapaian di halaman Input
+            if (pencapaianLoading) __outletPencStale = true; // Task 100
+            else loadPencapaian(true, true); // Task 100: force + silent
             return true;
         }
         return true;
@@ -1731,17 +1740,21 @@
     }
 
     // ---------- Pencapaian (TANPA tabel/card — tampilan langsung) ----------
-    function loadPencapaian(force) {
+    function loadPencapaian(force, silentRefresh) {
         if (!profile || pencapaianLoading) return Promise.resolve();
         pencapaianLoading = true;
-        if (force) showLoading(true);
+        var showOv = !!force && !silentRefresh; // Task 100: silent = tanpa overlay loading
+        if (showOv) showLoading(true);
         return gsRun('outletPortalPencapaian', [profile.custCode, !!force]).then(function (res) {
             pencapaianLoading = false;
-            showLoading(false);
+            if (showOv) showLoading(false);
             pencData = (res && res.success) ? res : null;
             renderPencapaian(res && res.success ? res : null);
             renderInputAch();
             renderPencAch();
+            // Task 100: bila ada perubahan data masuk saat load masih berjalan, ambil
+            // ulang sekali lagi (force + silent) agar halaman selalu data terbaru.
+            if (__outletPencStale) { __outletPencStale = false; loadPencapaian(true, true); }
         });
     }
 
