@@ -3822,6 +3822,11 @@ select.select2-hidden-accessible { width: 1px !important; max-width: 1px !import
                                 <div id="homeWeeklyChart" class="home-weekly-chart"><div class="home-rebuild-empty">Memuat grafik...</div></div>
                             </section>
                         </div>
+                        <section id="cstKunjunganCard" class="cst-card cst-kunjungan-card hidden" aria-label="Kunjungan bengkel hari ini">
+                            <div class="cst-card-head"><span class="cst-card-ic" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3.6v3.2M16 3.6v3.2M4.4 10.4h15.2M5.6 5.8h12.8a1.6 1.6 0 0 1 1.6 1.6v11.2a1.6 1.6 0 0 1-1.6 1.6H5.6a1.6 1.6 0 0 1-1.6-1.6V7.4a1.6 1.6 0 0 1 1.6-1.6Z"/></svg></span><h3 class="cst-card-title">Kunjungan Bengkel Hari ini</h3><span id="cstKunjunganLabel" class="cst-kunjungan-label"></span><span id="cstKunjunganCount" class="cst-kunjungan-count">0 bengkel</span></div>
+                            <div id="cstKunjunganSub" class="cst-kunjungan-sub"></div>
+                            <div class="cst-kunjungan-tblwrap"><table class="cst-kunjungan-table"><thead><tr><th style="width:6%;">No</th><th style="width:32%;text-align:left;">Nama Outlet</th><th style="width:14%;">CUST.CODE</th><th style="width:16%;">DSR</th><th style="width:15%;">Day Visit</th><th style="width:17%;">Jadwal</th></tr></thead><tbody id="cstKunjunganBody"><tr><td colspan="6" class="cst-kunjungan-empty">Memuat...</td></tr></tbody></table></div>
+                        </section>
                         <section class="cst-card cst-status-card" aria-label="Ringkasan status transaksi outlet">
                             <div class="cst-card-head"><span class="cst-card-ic" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.6"/><path d="M12 7.4v4.9l3.1 1.9"/></svg></span><h3 class="cst-card-title">Ringkasan Status Transaksi Outlet</h3><div class="home-status-filters"><label>Bulan <select id="homeStatusMonth"></select></label><label>Tahun <select id="homeStatusYear"></select></label></div></div>
                             <div id="cstStatusGrid" class="cst-status-grid"></div>
@@ -5313,6 +5318,7 @@ startAutoRefresh();
                     homeLastQueryKey = String(currentUsernameInput||'') + '|' + String(currentUser||'') + '|' + selectedHomeDsr();
                     applyHomeHariIni(window._homeHariIniCache);
                     if (!homeHasCustomMonthYear()) applyHomeBeranda(window._homeBerandaCache || {});
+                    try { if (res.kunjungan) applyKunjunganHariIni(res.kunjungan); } catch (eKjBoot) {}
                     // Task 37: isi cache per-DSR dari data boot lalu prefetch senyap opsi sales.
                     try{ window._homeDsrCache=window._homeDsrCache||{}; window._homeDsrCache[homeLastQueryKey]={hi:window._homeHariIniCache,ber:window._homeBerandaCache,at:Date.now()}; }catch(e){}
                     _prefetchHomeDsrOptions(selectedHomeDsr());
@@ -10214,6 +10220,7 @@ startAutoRefresh();
             const dsrCached = window._homeDsrCache && window._homeDsrCache[qkey];
             if (!force && dsrCached) {
                 window._homeHariIniCache = dsrCached.hi; window._homeBerandaCache = dsrCached.ber;
+                if (dsrCached.kj) applyKunjunganHariIni(dsrCached.kj);
                 homeLastLoadedAt = dsrCached.at; homeLastQueryKey = qkey;
                 applyHomeHariIni(dsrCached.hi);
                 if (homeHasCustomMonthYear()) loadHomeWeeklyAndStatus();
@@ -10240,6 +10247,8 @@ startAutoRefresh();
                 applyHomeHariIni(window._homeHariIniCache);
                 if(homeHasCustomMonthYear())loadHomeWeeklyAndStatus();
                 else applyHomeBeranda(window._homeBerandaCache||{});
+                if (res && res.kunjungan) applyKunjunganHariIni(res.kunjungan);
+                else if (!kunjunganLegacyTried) { kunjunganLegacyTried = true; loadKunjunganHariIni(false); }
                 _prefetchHomeDsrOptions(dsr);
             }).withFailureHandler(function(){window._homeAllUnavailable=true;loadHomeRebuildLegacy(dsr);}).getDashboardBerandaAll(currentUser||'',currentUsernameInput||'',0,0,dsr,false);
         }
@@ -10255,13 +10264,14 @@ startAutoRefresh();
                     window._homeDsrFetching[k]=false;
                     if(res&&res.success){
                         window._homeDsrCache=window._homeDsrCache||{};
-                        window._homeDsrCache[k]={hi:res.hariIni||{},ber:res.beranda||{},at:Date.now()};
+                        window._homeDsrCache[k]={hi:res.hariIni||{},ber:res.beranda||{},kj:res.kunjungan||null,at:Date.now()};
                         if(rerenderIfCurrent&&selectedHomeDsr()===dsr&&!window._appBootstrapInFlight){
                             window._homeHariIniCache=res.hariIni||{};window._homeBerandaCache=res.beranda||{};
                             homeLastLoadedAt=Date.now();homeLastQueryKey=k;
                             applyHomeHariIni(window._homeHariIniCache);
                             if(homeHasCustomMonthYear())loadHomeWeeklyAndStatus();
                             else applyHomeBeranda(window._homeBerandaCache||{});
+                            if (res.kunjungan) applyKunjunganHariIni(res.kunjungan);
                         }
                     }
                 }).withFailureHandler(function(){window._homeDsrFetching[k]=false;}).getDashboardBerandaAll(acct,user,0,0,dsr,false);
@@ -10291,6 +10301,128 @@ startAutoRefresh();
                 })();
             }catch(e){}
         }
+        // ===== Task 102: Kunjungan Bengkel Hari ini (sumber: kolom DAY VISIT sheet OUTLET) =====
+        // Backend menghitung pola bergantian mingguan (set hari ganjil "1,3" vs genap "2,4",
+        // acuan hari ini) dan label gabungan "Jumat1,3". Klik baris -> detail seperti halaman Outlet.
+        let globalKunjunganData = null;
+        let kunjunganLoading = false;
+        let kunjunganLegacyTried = false;
+        function applyKunjunganHariIni(k) {
+            try {
+                const card = document.getElementById('cstKunjunganCard');
+                if (!card) return;
+                if (!k || !k.success || !Array.isArray(k.items)) { card.classList.add('hidden'); return; }
+                card.classList.remove('hidden');
+                globalKunjunganData = k;
+                const lbl = document.getElementById('cstKunjunganLabel');
+                if (lbl) lbl.textContent = String(k.scheduleLabel || '');
+                const sub = document.getElementById('cstKunjunganSub');
+                if (sub) sub.textContent = 'Pola bergantian mingguan \u2014 minggu ini: ' + String(k.setLabel || '-') + ' \u00b7 minggu depan: ' + String(k.nextSetLabel || '-') + ' \u00b7 minggu depannya lagi: ' + String(k.setLabel || '-') + '.';
+                const cnt = document.getElementById('cstKunjunganCount');
+                if (cnt) cnt.textContent = (k.count || 0) + ' bengkel';
+                const body = document.getElementById('cstKunjunganBody');
+                if (!body) return;
+                const items = k.items;
+                if (!items.length) { body.innerHTML = '<tr><td colspan="6" class="cst-kunjungan-empty">Tidak ada kunjungan bengkel hari ini.</td></tr>'; return; }
+                let html = '';
+                items.forEach(function(item, idx) {
+                    const dataString = encodeURIComponent(JSON.stringify({ outlet: item.outlet || '', dsr: item.dsr || '', custCode: item.custCode || '', dayVisit: item.dayVisit || '', label: item.label || '' }));
+                    html += '<tr class="' + (idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/60') + ' border-b border-slate-100 hover:bg-emerald-50/60 cursor-pointer transition" onclick="openKunjunganDetail(\'' + dataString + '\')" title="Ketuk untuk melihat detail outlet">' +
+                        '<td>' + (idx + 1) + '</td>' +
+                        '<td class="kj-outlet">' + escapeHtml(item.outlet || '-') + '</td>' +
+                        '<td>' + escapeHtml(item.custCode || '-') + '</td>' +
+                        '<td>' + escapeHtml(item.dsr || '-') + '</td>' +
+                        '<td>' + escapeHtml(item.dayVisit || '-') + '</td>' +
+                        '<td><span class="cst-kunjungan-label">' + escapeHtml(item.label || '') + '</span></td>' +
+                        '</tr>';
+                });
+                body.innerHTML = html;
+            } catch (e) {}
+        }
+        function loadKunjunganHariIni(forceReload) {
+            try {
+                if (kunjunganLoading) return;
+                kunjunganLoading = true;
+                google.script.run
+                    .withSuccessHandler(function(res) { kunjunganLoading = false; applyKunjunganHariIni(res); })
+                    .withFailureHandler(function() { kunjunganLoading = false; })
+                    .getKunjunganBengkelHariIni(currentUser || '', currentUsernameInput || '', selectedHomeDsr() || '', !!forceReload);
+            } catch (e) { kunjunganLoading = false; }
+        }
+        function _kunjunganNorm_(s) { return String(s == null ? '' : s).toUpperCase().replace(/\s+/g, ' ').trim(); }
+        function _kunjunganQuarterSort_(keys) {
+            return keys.slice().sort(function(a, b) {
+                function qk(v) { const m = String(v || '').match(/Q\s*([1-4])\s*(\d{4})/i); return m ? Number(m[2]) * 10 + Number(m[1]) : -1; }
+                return qk(b) - qk(a) || String(b).localeCompare(String(a));
+            });
+        }
+        function openKunjunganDetail(encodedData) {
+            let info = null;
+            try { info = JSON.parse(decodeURIComponent(encodedData)); } catch (e) { return; }
+            if (!info) return;
+            if (Object.keys(rawMonitoringDataObject || {}).length > 0) { _openKunjunganDetailFromMonitoring(info); return; }
+            try {
+                showLoading(true);
+                google.script.run
+                    .withSuccessHandler(function(dataObj) {
+                        showLoading(false);
+                        try { rawMonitoringDataObject = dataObj || {}; } catch (eStore) {}
+                        _openKunjunganDetailFromMonitoring(info);
+                    })
+                    .withFailureHandler(function() { showLoading(false); _openKunjunganDetailFallback(info); })
+                    .getMonitoringOutletData(currentUser || '', currentUsernameInput || '');
+            } catch (e) { _openKunjunganDetailFallback(info); }
+        }
+        function _openKunjunganDetailFromMonitoring(info) {
+            const quarters = _kunjunganQuarterSort_(Object.keys(rawMonitoringDataObject || {}));
+            const quarter = quarters.length ? quarters[0] : '';
+            const map = quarter ? rawMonitoringDataObject[quarter] : null;
+            const arr = map ? Object.keys(map).map(function(k) { return map[k]; }) : [];
+            const oKey = _kunjunganNorm_(info.outlet), cKey = _kunjunganNorm_(info.custCode), dKey = _kunjunganNorm_(info.dsr);
+            let row = null;
+            if (oKey && cKey) row = arr.find(function(it) { return _kunjunganNorm_(it && it.outlet) === oKey && _kunjunganNorm_(it && it.custCode) === cKey && (!dKey || !_kunjunganNorm_(it && it.dsr) || _kunjunganNorm_(it && it.dsr) === dKey); });
+            if (!row && oKey && cKey) row = arr.find(function(it) { return _kunjunganNorm_(it && it.outlet) === oKey && _kunjunganNorm_(it && it.custCode) === cKey; });
+            if (!row && oKey) row = arr.find(function(it) { return _kunjunganNorm_(it && it.outlet) === oKey; });
+            if (!row) { _openKunjunganDetailFallback(info); return; }
+            const target = Number(row.targetQuarter || 0), actual = Number(row.totalQuarterVol || 0);
+            const achievement = target > 0 ? (actual / target) * 100 : 0;
+            const dataString = encodeURIComponent(JSON.stringify({
+                outlet: row.outlet || info.outlet || '',
+                dsr: row.dsr || info.dsr || '',
+                custCode: row.custCode || info.custCode || '',
+                quarter: quarter,
+                total: actual,
+                targetQuarter: target,
+                targetQuarterLiter: Number(row.targetQuarterLiter || 0),
+                targetMonthly: Number(row.targetMonthly || 0),
+                targetMonthlyLiter: Number(row.targetMonthlyLiter || 0),
+                achievement: achievement,
+                m1: row.m1, m2: row.m2, m3: row.m3
+            }));
+            tampilkanDetailMonitoring(dataString);
+        }
+        function _openKunjunganDetailFallback(info) {
+            try {
+                setDetailModalNoFooter();
+                document.getElementById('modalTitle').textContent = 'DETAIL';
+                document.getElementById('modalSubtitle').textContent = (info.outlet || '') + (info.custCode ? ' \u2022 CUST.CODE ' + info.custCode : '');
+                document.getElementById('modalBody').innerHTML =
+                    '<div class="mt-3 rounded-xl border border-slate-200 bg-white p-3">' +
+                    '<div class="text-[10px] font-extrabold text-slate-700">Kunjungan Bengkel Hari ini</div>' +
+                    '<div class="mt-2 overflow-x-auto"><table class="w-full text-[10px]"><tbody>' +
+                    '<tr><td class="p-1.5 text-left font-bold text-slate-400">Nama Outlet</td><td class="p-1.5 text-right font-bold text-slate-800">' + escapeHtml(info.outlet || '-') + '</td></tr>' +
+                    '<tr><td class="p-1.5 text-left font-bold text-slate-400">CUST.CODE</td><td class="p-1.5 text-right font-bold text-slate-800">' + escapeHtml(info.custCode || '-') + '</td></tr>' +
+                    '<tr><td class="p-1.5 text-left font-bold text-slate-400">DSR</td><td class="p-1.5 text-right font-bold text-slate-800">' + escapeHtml(info.dsr || '-') + '</td></tr>' +
+                    '<tr><td class="p-1.5 text-left font-bold text-slate-400">Day Visit</td><td class="p-1.5 text-right font-bold text-slate-800">' + escapeHtml(info.dayVisit || '-') + '</td></tr>' +
+                    '<tr><td class="p-1.5 text-left font-bold text-slate-400">Jadwal</td><td class="p-1.5 text-right"><span class="cst-kunjungan-label">' + escapeHtml(info.label || '-') + '</span></td></tr>' +
+                    '</tbody></table></div>' +
+                    '<div class="text-[8.5px] text-slate-400 mt-1.5">Outlet ini belum memiliki data monitoring/target, sehingga detail lengkap pencapaian tidak tersedia.</div>' +
+                    '</div>';
+                const kjModal = document.getElementById('customModal');
+                if (kjModal) kjModal.style.display = 'flex';
+            } catch (e) {}
+        }
+
         // Fallback backend lama: getDashboardHariIni + getDashboardBerandaDetail
         // (keduanya tersedia di semua versi Code.gs) sehingga grafik mingguan,
         // KPI, dan Ringkasan Status Transaksi tetap dapat dimuat.
@@ -10776,6 +10908,9 @@ startAutoRefresh();
             if (modal && modal.style.display === 'flex') return false; // modal terbuka -> retry
             __pencapaianDataStale = true; // Task 100: Pencapaian (termasuk actual semua sales) menunggu muat ulang penuh
             const refreshed = autoRefreshActiveTab(true);
+            // Task 102: saat Beranda aktif, segarkan daftar Kunjungan Bengkel Hari ini secara silent
+            // (bypass cache 5 menit) sehingga perubahan DAY VISIT / data lain langsung terlihat.
+            try { const _kjHome = document.getElementById('tabHome'); if (_kjHome && !_kjHome.classList.contains('hidden')) loadKunjunganHariIni(true); } catch (eKjHome) {}
             return refreshed !== false;
         }
         function __dataVerVisChg() { if (document.visibilityState === 'visible') __dataVerPoll(); }
@@ -16606,6 +16741,32 @@ rect[fill="#059669"]{fill:#00a651!important}
   if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init);}else{init();}
 })();
 </script>
+<style id="cst-kunjungan-v1">
+/* Task 102 - Kunjungan Bengkel Hari ini (tampilan tabel seperti halaman Monitoring Outlet) */
+.cst-kunjungan-card{margin-bottom:14px}
+.cst-kunjungan-card .cst-card-head{flex-wrap:wrap}
+.cst-kunjungan-label{display:inline-flex;align-items:center;font-size:10px;font-weight:900;color:#047857;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:999px;padding:4px 10px;white-space:nowrap}
+.cst-kunjungan-count{font-size:11px;font-weight:700;color:#047857;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:999px;padding:3px 9px;white-space:nowrap}
+.cst-kunjungan-sub{padding:8px 16px 0;font-size:9px;font-weight:700;color:#64748b;line-height:1.5}
+.cst-kunjungan-tblwrap{margin:10px 14px 14px;border:1px solid #e2e8f0;border-radius:10px;max-height:300px;overflow:auto;-webkit-overflow-scrolling:touch}
+.cst-kunjungan-tblwrap::-webkit-scrollbar{width:8px;height:8px}
+.cst-kunjungan-tblwrap::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:8px}
+.cst-kunjungan-tblwrap::-webkit-scrollbar-track{background:#f1f5f9}
+.cst-kunjungan-table{width:100%;min-width:620px;border-collapse:collapse;font-size:11px}
+.cst-kunjungan-table thead tr{background:linear-gradient(180deg,#edf6f0,#e7f1eb)}
+.cst-kunjungan-table thead th{position:sticky;top:0;z-index:2;background:#e7f1eb;padding:9px 10px;color:#335d45;font-weight:900;text-align:center;white-space:nowrap;border-bottom:1px solid #d5e6db}
+.cst-kunjungan-table td{padding:9px 10px;border-top:1px solid #eef2f7;color:#334155;font-weight:600;text-align:center;vertical-align:middle;white-space:nowrap}
+.cst-kunjungan-table td.kj-outlet{text-align:left;white-space:normal;overflow-wrap:anywhere;word-break:normal;font-weight:800;color:#1e293b}
+.cst-kunjungan-table tbody tr:nth-child(even){background:#f8fafc}
+.cst-kunjungan-table tbody tr:hover{background:#eef9f2}
+.cst-kunjungan-empty{text-align:center;color:#94a3b8;font-size:10px;font-weight:600;padding:16px 10px}
+@media(max-width:640px){
+.cst-kunjungan-table{font-size:10px;min-width:560px}
+.cst-kunjungan-table thead th,.cst-kunjungan-table td{padding:7px 8px}
+.cst-kunjungan-tblwrap{margin:8px 8px 10px;max-height:260px}
+.cst-kunjungan-sub{padding:6px 12px 0;font-size:8px}
+}
+</style>
 <style id="cst-beranda-v1">
 /* Task 31 — Beranda sesuai mockup "Contoh Beranda" */
 #tabHome .cst-hero{position:relative;border-radius:18px;overflow:hidden;background:linear-gradient(100deg,#0d3b26 0%,#0a2f1e 55%,#072418 100%);box-shadow:0 10px 26px rgba(7,36,24,.22);min-height:150px;display:flex;align-items:stretch;margin-bottom:14px}
