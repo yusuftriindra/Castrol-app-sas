@@ -4177,8 +4177,6 @@ select.select2-hidden-accessible { width: 1px !important; max-width: 1px !import
                         </div>
                     </div>
 
-                    <div id="tagihanSummary" class="flex flex-wrap items-center gap-1.5 text-[9px]"></div>
-
                     <div class="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm">
                         <div class="flex items-center justify-between gap-2 mb-2">
                             <div>
@@ -5566,6 +5564,19 @@ startAutoRefresh();
                 box.classList.add('hidden');
                 console.warn('Gagal memuat tagihan Step 2:', err && err.message ? err.message : err);
             }).getTagihanData(salesArg, currentUsernameInput);
+        }
+
+        // Task 103: segarkan panel TAGIHAN BELUM LUNAS Step 2 dari data global
+        // terbaru - dipanggil saat status berubah / data tagihan dimuat ulang.
+        function refreshInputStep2TagihanFromGlobal() {
+            try {
+                const box = document.getElementById('inputStep2Tagihan');
+                if (!box || box.classList.contains('hidden')) return;
+                if (!Array.isArray(globalTagihanData) || !globalTagihanData.length) return;
+                const outlet = String(($('#inputOutlet').val() || '')).trim();
+                if (!outlet) return;
+                renderInputStep2Tagihan(outlet);
+            } catch (eRef) {}
         }
 
         function renderCashbackOptionsForInputChannel() {
@@ -14071,6 +14082,8 @@ function doneBulkStatusApproval() {
         '.tg-btn:disabled{opacity:.45;cursor:not-allowed;}' +
         '.tg-btn-lunas.is-active{background:#059669;border-color:#047857;color:#fff;box-shadow:0 2px 0 #047857,0 3px 4px rgba(4,120,87,.25);}' +
         '.tg-btn-belum.is-active{background:#d97706;border-color:#b45309;color:#fff;box-shadow:0 2px 0 #b45309,0 3px 4px rgba(180,83,9,.25);}' +
+        // Task 103b: baris aksi Lunas/Belum pada modal INVOICE (kanan, tepat di atas tabel produk).
+        '.inv-aksi-row{display:flex;justify-content:flex-end;align-items:center;gap:6px;margin:8px 0 6px;flex-wrap:wrap;}' +
         '.tg-badge-lunas{display:inline-flex;align-items:center;padding:3px 8px;border-radius:8px;font-weight:800;font-size:9px;background:#059669;color:#fff;border:1px solid #047857;box-shadow:0 2px 0 #047857;}' +
         '.tg-badge-cash{display:inline-flex;align-items:center;padding:3px 6px;border-radius:8px;font-weight:800;font-size:8px;background:#f1f5f9;color:#475569;border:1px solid #cbd5e1;}' +
         '.tagihan-row-selected td{background:#ecfdf5 !important;}' +
@@ -14288,6 +14301,7 @@ function exportInvoiceTagihanPdf() {
     const css = (document.getElementById('tagihanPageCss') || {}).textContent || '';
     const html = '<!DOCTYPE html><html lang="id"><head><meta charset="utf-8"><title>Invoice ' + safeId + '</title><style>' + css +
         'html,body{margin:0;padding:14px 12px;background:#fff;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;}' +
+        '.inv-aksi-row{display:none!important}' +
         '.inv-wrap{max-width:640px;margin:0 auto;}' +
         '</style></head><body><div class="inv-wrap">' + area.innerHTML + '</div></body></html>';
     const iframe = document.createElement('iframe');
@@ -14355,6 +14369,8 @@ function handleTagihanLoaded(res) {
     tagihanApplyStatusOverrides(globalTagihanData);
     populateTagihanFilters();
     filterTagihan();
+    // Task 103: segarkan panel tagihan Step 2 bila sedang tampil.
+    try { refreshInputStep2TagihanFromGlobal(); } catch (eStep2) {}
 }
 
 // ===== Task 53: PRODUK BY OUTLET =====
@@ -14820,27 +14836,6 @@ function openProdukOutletDetail(outletName) {
         '</div>';
 }
 
-function renderTagihanSummary() {
-    const el = document.getElementById('tagihanSummary');
-    if (!el) return;
-    const items = globalTagihanData || [];
-    let totalNominal = 0, lunas = 0, lunasNominal = 0, belum = 0, belumNominal = 0, merah = 0;
-    items.forEach(function(it) {
-        const nominal = Number(it.nominal || 0);
-        totalNominal += nominal;
-        const st = String(it.statusTagihan || 'BELUM LUNAS').toUpperCase();
-        if (st === 'LUNAS') { lunas++; lunasNominal += nominal; } else { belum++; belumNominal += nominal; }
-        if (tagihanUsiaHari(it) >= TAGIHAN_UMUR_MERAH) merah++;
-    });
-    const rp = function(n) { return 'Rp ' + Number(n || 0).toLocaleString('id-ID'); };
-    const chip = 'inline-flex items-center gap-1 px-2 py-1 rounded-lg border bg-white font-bold';
-    el.innerHTML =
-        '<span class="' + chip + ' border-slate-200 text-slate-600">Total: <span class="text-slate-800">' + escapeHtml(rp(totalNominal)) + '</span></span>' +
-        '<span class="' + chip + ' border-amber-200 text-amber-700">Belum Lunas: ' + escapeHtml(rp(belumNominal)) + ' (' + belum + ')</span>' +
-        '<span class="' + chip + ' border-emerald-200 text-emerald-700">Lunas: ' + escapeHtml(rp(lunasNominal)) + ' (' + lunas + ')</span>' +
-        '<span class="' + chip + ' border-red-200 text-red-600">Usia ≥ 45 hari: ' + merah + ' tagihan</span>';
-}
-
 function populateTagihanFilters() {
     const fill = function(sel, values, label) {
         if (!sel) return;
@@ -14881,12 +14876,13 @@ function filterTagihan() {
         return true;
     });
     // BELUM LUNAS selalu ditampilkan paling atas; LUNAS tampil setelahnya.
+    // Task 105: dalam kelompok, urut berdasarkan umur nota terkecil -> terbesar.
     filtered.sort(function(a,b){
         const sa = String(a.statusTagihan || 'BELUM LUNAS').toUpperCase(), sb = String(b.statusTagihan || 'BELUM LUNAS').toUpperCase();
         const ba = (sa === 'LUNAS') ? 1 : 0, bb = (sb === 'LUNAS') ? 1 : 0;
         if (ba !== bb) return ba - bb;
         const ua = tagihanUsiaHari(a.tanggalNota), ub = tagihanUsiaHari(b.tanggalNota);
-        if (ub !== ua) return ub - ua;
+        if (ua !== ub) return ua - ub;
         return new Date(String(a.tanggal || '')).getTime() - new Date(String(b.tanggal || '')).getTime();
     });
     tagihanFilteredData = filtered;
@@ -14914,7 +14910,6 @@ function renderTagihanList(data) {
     if (!Array.isArray(data)) data = [];
     const countBadge = document.getElementById('tagihanCount');
     if (countBadge) countBadge.textContent = data.length + ' tagihan';
-    renderTagihanSummary();
     if (data.length === 0) {
         container.innerHTML = '<div class="text-slate-400 text-center py-10 bg-white rounded-2xl border border-slate-100 shadow-sm"><div class="text-3xl mb-2">🧾</div><p class="text-xs font-medium">Tidak ada tagihan.</p></div>';
         return;
@@ -15078,6 +15073,8 @@ function tagihanTerapkanStatusLokal(changes) {
         it.tanggalLunas = (st === 'LUNAS') ? tagihanTanggalHariIniStr() : '';
     });
     try { renderTagihanList(tagihanFilteredData || []); } catch (eLocal) {}
+    // Task 103: panel TAGIHAN BELUM LUNAS pada Step 2 Input Order ikut segar.
+    try { refreshInputStep2TagihanFromGlobal(); } catch (eStep2) {}
 }
 
 // Ubah status SATU tagihan lewat tombol — OPTIMISTIK (Task 61): tampilan
@@ -15220,7 +15217,7 @@ function bukaInvoiceTagihan(idInput) {
         '<div class="inv-head">' +
             '<div><div class="inv-eyebrow">INVOICE</div><div class="inv-company">PT. Sukses Adi Surya</div><div class="inv-subtitle">Jl. Muncul II, Komplek Pergudangan Gedangan</div></div>' +
             '<div style="text-align:right;"><div class="inv-chip">' + escapeHtml(targetId) + '</div>' +
-            '<div class="inv-stamp ' + (st === 'LUNAS' ? 'inv-stamp-lunas' : 'inv-stamp-belum') + '">' + escapeHtml(st) + '</div></div>' +
+            '<div id="invStampTag" class="inv-stamp ' + (st === 'LUNAS' ? 'inv-stamp-lunas' : 'inv-stamp-belum') + '">' + escapeHtml(st) + '</div></div>' +
         '</div>' +
         '<div class="inv-body">' +
             '<div class="inv-grid">' +
@@ -15232,6 +15229,10 @@ function bukaInvoiceTagihan(idInput) {
                 lunasInfo +
             '</div>' +
             '<div class="inv-seclabel">Rincian Produk</div>' +
+            (item.isCash ? '' : '<div class="inv-aksi-row" id="invAksiRow">' +
+                '<button type="button" id="invBtnLunas" onclick="ubahStatusTagihanDariInvoice(\'' + escapeHtml(targetId) + '\',\'LUNAS\')" class="tg-btn tg-btn-lunas' + (st === 'LUNAS' ? ' is-active' : '') + '" title="Tandai LUNAS">Lunas</button>' +
+                '<button type="button" id="invBtnBelum" onclick="ubahStatusTagihanDariInvoice(\'' + escapeHtml(targetId) + '\',\'BELUM LUNAS\')" class="tg-btn tg-btn-belum' + (st !== 'LUNAS' ? ' is-active' : '') + '" title="Tandai BELUM LUNAS">Belum</button>' +
+            '</div>') +
             '<div class="overflow-x-auto"><table class="inv-table"><thead><tr><th style="width:34px;text-align:center;">No</th><th>Produk</th><th style="width:60px;text-align:center;">Qty</th><th style="width:56px;text-align:center;">Satuan</th></tr></thead><tbody>' + rowsHtml + '</tbody></table></div>' +
             '<table class="inv-table" style="margin-top:10px;"><tbody>' +
                 '<tr><td>Volume</td><td style="text-align:right;font-weight:800;">' + escapeHtml(String(item.volume == null ? '0' : item.volume)) + ' L</td></tr>' +
@@ -15243,6 +15244,39 @@ function bukaInvoiceTagihan(idInput) {
         '<button type="button" onclick="exportInvoiceTagihanPdf()" class="inv-print-btn" title="Simpan invoice sebagai PDF">' +
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>EXPORT PDF</button>';
 }
+
+        // Task 103b: AKSI Lunas/Belum pada modal INVOICE TAGIHAN. Pemicu sama dengan
+        // halaman Tagihan (optimistik + antrean), tetapi bila status sudah sama modal
+        // invoice DIBIARKAN terbuka (tanpa pesan "Status Sudah Sama" yang menggantikan
+        // isi modal). Tampilan modal (stempel + tombol) diperbarui seketika.
+        function ubahStatusTagihanDariInvoice(idInput, statusBaru) {
+            const id = String(idInput || '').trim();
+            const target = String(statusBaru || '').trim().toUpperCase();
+            if (!id || (target !== 'LUNAS' && target !== 'BELUM LUNAS')) return;
+            const item = (globalTagihanData || []).find(function(x){ return String(x.id || '').trim() === id; });
+            if (!item || item.isCash) return;
+            const cur = String(item.statusTagihan || 'BELUM LUNAS').trim().toUpperCase();
+            if (cur === target) return;
+            ubahStatusTagihanSatuan(id, target);
+            tagihanInvoicePerbaruiStatusUI(id);
+        }
+        function tagihanInvoicePerbaruiStatusUI(idInput) {
+            const id = String(idInput || '').trim();
+            if (!id) return;
+            const item = (globalTagihanData || []).find(function(x){ return String(x.id || '').trim() === id; });
+            if (!item) return;
+            const st = String(item.statusTagihan || 'BELUM LUNAS').trim().toUpperCase();
+            const stamp = document.getElementById('invStampTag');
+            if (stamp) {
+                stamp.textContent = st;
+                stamp.classList.toggle('inv-stamp-lunas', st === 'LUNAS');
+                stamp.classList.toggle('inv-stamp-belum', st !== 'LUNAS');
+            }
+            const bL = document.getElementById('invBtnLunas');
+            const bB = document.getElementById('invBtnBelum');
+            if (bL) bL.classList.toggle('is-active', st === 'LUNAS');
+            if (bB) bB.classList.toggle('is-active', st !== 'LUNAS');
+        }
 </script>
 
 
