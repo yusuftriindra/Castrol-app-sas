@@ -3822,10 +3822,10 @@ select.select2-hidden-accessible { width: 1px !important; max-width: 1px !import
                                 <div id="homeWeeklyChart" class="home-weekly-chart"><div class="home-rebuild-empty">Memuat grafik...</div></div>
                             </section>
                         </div>
-                        <section id="cstKunjunganCard" class="cst-card cst-kunjungan-card hidden" aria-label="Kunjungan bengkel hari ini">
-                            <div class="cst-card-head"><span class="cst-card-ic" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3.6v3.2M16 3.6v3.2M4.4 10.4h15.2M5.6 5.8h12.8a1.6 1.6 0 0 1 1.6 1.6v11.2a1.6 1.6 0 0 1-1.6 1.6H5.6a1.6 1.6 0 0 1-1.6-1.6V7.4a1.6 1.6 0 0 1 1.6-1.6Z"/></svg></span><h3 class="cst-card-title">Kunjungan Bengkel Hari ini</h3><span id="cstKunjunganLabel" class="cst-kunjungan-label"></span><span id="cstKunjunganCount" class="cst-kunjungan-count">0 bengkel</span></div>
-                            <div id="cstKunjunganSub" class="cst-kunjungan-sub"></div>
-                            <div class="cst-kunjungan-tblwrap"><table class="cst-kunjungan-table"><thead><tr><th style="width:6%;">No</th><th style="width:32%;text-align:left;">Nama Outlet</th><th style="width:14%;">CUST.CODE</th><th style="width:16%;">DSR</th><th style="width:15%;">Day Visit</th><th style="width:17%;">Jadwal</th></tr></thead><tbody id="cstKunjunganBody"><tr><td colspan="6" class="cst-kunjungan-empty">Memuat...</td></tr></tbody></table></div>
+                        <section id="cstKunjunganCard" class="cst-card cst-kunjungan-card" aria-label="Kunjungan bengkel hari ini">
+                            <div class="cst-card-head"><span class="cst-card-ic" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3.6v3.2M16 3.6v3.2M4.4 10.4h15.2M5.6 5.8h12.8a1.6 1.6 0 0 1 1.6 1.6v11.2a1.6 1.6 0 0 1-1.6 1.6H5.6a1.6 1.6 0 0 1-1.6-1.6V7.4a1.6 1.6 0 0 1 1.6-1.6Z"/></svg></span><h3 class="cst-card-title">Kunjungan Bengkel Hari ini</h3><span id="cstKunjunganLabel" class="cst-kunjungan-label"></span><span id="cstKunjunganCount" class="cst-kunjungan-count">0 bengkel</span><span id="kjQuarterChip" class="hidden" style="font-size:9px;font-weight:700;color:#0f766e;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:6px;padding:2px 6px;line-height:1;"></span><span style="font-size:9px;font-weight:700;color:#64748b;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:2px 6px;line-height:1;">v107i</span></div>
+                            <div class="relative mx-3.5 mt-2 mb-1"><span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400"><svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg></span><input type="text" id="kjSearchInput" oninput="filterKunjunganTable()" placeholder="Cari nama outlet..." class="w-full pl-9 pr-3 py-1.5 bg-white border border-slate-200 rounded-lg text-[11px] text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm transition"></div>
+                            <div class="cst-kunjungan-tblwrap"><table class="w-full text-left border-collapse text-[11px]" style="min-width:1080px;table-layout:fixed;"><thead><tr class="bg-slate-100 text-slate-700 border-b border-slate-200"><th class="p-2.5 font-bold text-center whitespace-nowrap" style="width:8%;">Status</th><th class="p-2.5 font-bold text-center whitespace-nowrap" style="width:9%;">DSR</th><th class="p-2.5 font-bold text-center whitespace-nowrap" style="width:19%;">Nama Outlet</th><th class="p-2.5 font-bold text-center whitespace-nowrap" style="width:9%;">CUST.CODE</th><th class="p-2.5 font-bold text-center whitespace-nowrap" style="width:8%;">Target</th><th class="p-2.5 font-bold text-center whitespace-nowrap" style="width:8%;">Actual</th><th class="p-2.5 font-bold text-center whitespace-nowrap" style="width:8%;">Gap</th><th class="p-2.5 font-bold text-center whitespace-nowrap" style="width:7%;">Ach.</th><th id="kjThM1" class="p-2.5 font-bold text-center whitespace-nowrap" style="width:8%;">Bulan 1</th><th id="kjThM2" class="p-2.5 font-bold text-center whitespace-nowrap" style="width:8%;">Bulan 2</th><th id="kjThM3" class="p-2.5 font-bold text-center whitespace-nowrap" style="width:8%;">Bulan 3</th></tr></thead><tbody id="cstKunjunganBody"><tr><td colspan="11" class="cst-kunjungan-empty">Memuat...</td></tr></tbody></table></div>
                         </section>
                         <section class="cst-card cst-status-card" aria-label="Ringkasan status transaksi outlet">
                             <div class="cst-card-head"><span class="cst-card-ic" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.6"/><path d="M12 7.4v4.9l3.1 1.9"/></svg></span><h3 class="cst-card-title">Ringkasan Status Transaksi Outlet</h3><div class="home-status-filters"><label>Bulan <select id="homeStatusMonth"></select></label><label>Tahun <select id="homeStatusYear"></select></label></div></div>
@@ -5257,7 +5257,7 @@ startAutoRefresh();
             google.script.run
                 .withSuccessHandler(function(res){
                     window._appBootstrapInFlight = false;
-                    if (!res || !res.success) { legacyInitialLoads(); loadHomeRebuild(true); preloadAppDataInBackground(); return; }
+                    if (!res || !res.success) { legacyInitialLoads(); loadHomeRebuild(true); try { loadKunjunganHariIni(false); } catch (eKjTf) {} preloadAppDataInBackground(); return; }
                     applyAppBootstrap(res);
                     preloadAppDataInBackground();
                 })
@@ -5265,6 +5265,7 @@ startAutoRefresh();
                     window._appBootstrapInFlight = false;
                     legacyInitialLoads();
                     loadHomeRebuild(true);
+                    try { loadKunjunganHariIni(false); } catch (eKjTf2) {}
                     preloadAppDataInBackground();
                 })
                 .getAppBootstrap(currentUser || '', currentUsernameInput || '');
@@ -5309,6 +5310,7 @@ startAutoRefresh();
                     window._homeHariIniCache = null;
                     window._homeBerandaCache = null;
                     loadHomeRebuild(true);
+                    try { loadKunjunganHariIni(false); } catch (eKjFb) {} // Task 107b: kartu kunjungan tetap dimuat
                 } else {
                     window._homeHariIniCache = res.dashboardHariIni || {};
                     window._homeBerandaCache = res.dashboardBeranda || {};
@@ -5316,7 +5318,8 @@ startAutoRefresh();
                     homeLastQueryKey = String(currentUsernameInput||'') + '|' + String(currentUser||'') + '|' + selectedHomeDsr();
                     applyHomeHariIni(window._homeHariIniCache);
                     if (!homeHasCustomMonthYear()) applyHomeBeranda(window._homeBerandaCache || {});
-                    try { if (res.kunjungan) applyKunjunganHariIni(res.kunjungan); } catch (eKjBoot) {}
+                    try { applyKunjunganHariIni(res.kunjungan || null); } catch (eKjBoot) {} // Task 107b: selalu render kartu (pesan + coba lagi bila data gagal)
+                    try { if (!res.kunjungan) loadKunjunganHariIni(false); } catch (eKjBoot2) {} // Task 107d: backend baru tapi kunjungan kosong -> coba muat langsung
                     // Task 37: isi cache per-DSR dari data boot lalu prefetch senyap opsi sales.
                     try{ window._homeDsrCache=window._homeDsrCache||{}; window._homeDsrCache[homeLastQueryKey]={hi:window._homeHariIniCache,ber:window._homeBerandaCache,at:Date.now()}; }catch(e){}
                     _prefetchHomeDsrOptions(selectedHomeDsr());
@@ -10318,36 +10321,230 @@ startAutoRefresh();
         let globalKunjunganData = null;
         let kunjunganLoading = false;
         let kunjunganLegacyTried = false;
+        let kjBuildProbeState = ''; // Task 107d: status probe stempel build backend ('' | 'probing' | teks hasil)
+        // Task 107h: state tampilan kartu ala halaman Pencapaian Outlet (Status/Target/Actual/Gap/Ach/bulan).
+        let kjMonLoading = false;
+        let kjMonTried = false;
+        let kjSearchKeyword = '';
+        let kjRenderItems = [];
+        let kjCurrentDayLabel = '';
+        // Task 107: pola set "1,3"/"2,4" bergantian per MINGGU (acuan Senin 3 Nov 2025 = "2,4").
+        // Task 107e: PILL MINGGU & HARI DIHAPUS - kartu otomatis memakai HARI INI (dayNum WIB
+        // dari backend, fallback jam perangkat) dan set minggu berjalan, tanpa pilihan manual.
+        function _kjDayName_(n) { return ['', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'][Number(n)] || ''; }
+        function _kjTodayNum_() { const d = new Date(); return d.getDay() === 0 ? 7 : d.getDay(); }
+        // Task 107b: aturan set mingguan dihitung juga di frontend (acuan Senin 3 Nov 2025 = "2,4")
+        // sehingga kartu tetap tampil benar meski data backend gagal atau versi lama.
+        function _kjSetForDateLocal_(dt) {
+            var A = { y: 2025, m: 11, d: 3, set: '2,4' };
+            try {
+                var wd = dt.getDay();
+                var mon = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate() - ((wd === 0) ? 6 : (wd - 1)));
+                var anc = new Date(A.y, A.m - 1, A.d);
+                var diff = Math.round((mon.getTime() - anc.getTime()) / 604800000);
+                return (((diff % 2) + 2) % 2 === 0) ? A.set : (A.set === '1,3' ? '2,4' : '1,3');
+            } catch (eKjW) { return A.set; }
+        }
+        function _kjWeekSetLocal_(weekOffset) {
+            var t = new Date();
+            try { t.setDate(t.getDate() + 7 * (Number(weekOffset) || 0)); } catch (eKjO) {}
+            return _kjSetForDateLocal_(t);
+        }
+        // Task 107e: hari kunjungan berikutnya dari data asli (pesan otomatis bila hari ini kosong).
+        function _kjNextVisit_(k) {
+            try {
+                k = k || {};
+                const src = Array.isArray(k.all) ? k.all : (Array.isArray(k.items) ? k.items.map(function(it) {
+                    return { days: Array.isArray(it.dayNums) ? it.dayNums : [], set: null };
+                }) : []);
+                for (let off = 0; off <= 13; off++) {
+                    const t = new Date(); t.setDate(t.getDate() + off);
+                    const dn = t.getDay() === 0 ? 7 : t.getDay();
+                    const st = _kjSetForDateLocal_(t);
+                    for (let i = 0; i < src.length; i++) {
+                        const it = src[i] || {};
+                        const days = Array.isArray(it.days) ? it.days : [];
+                        if (days.indexOf(dn) === -1) continue;
+                        const its = String(it.set || '').trim();
+                        if (its && its !== st) continue;
+                        return { offset: off, label: _kjDayName_(dn) + st };
+                    }
+                }
+            } catch (eKjNv) {}
+            return null;
+        }
+        // ===== Task 107h: kartu memakai tampilan SAMA PERSIS dgn halaman Pencapaian Outlet =====
+        function _kjHasMon_() { try { return !!(rawMonitoringDataObject && typeof rawMonitoringDataObject === 'object' && Object.keys(rawMonitoringDataObject).length); } catch (eHm) { return false; } }
+        function _kjQuartersSorted_() { try { return _kunjunganQuarterSort_(Object.keys(rawMonitoringDataObject || {})); } catch (eQs) { return []; } }
+        function _kjMonMap_() { const qs = _kjQuartersSorted_(); return qs.length ? (rawMonitoringDataObject[qs[0]] || null) : null; }
+        function _kjMonthNames_(quarterKey) {
+            const mNames = { 'Q1': ['Januari', 'Februari', 'Maret'], 'Q2': ['April', 'Mei', 'Juni'], 'Q3': ['Juli', 'Agustus', 'September'], 'Q4': ['Oktober', 'November', 'Desember'] };
+            const qNum = String(quarterKey || '').trim().toUpperCase().split(' ')[0] || '';
+            return mNames[qNum] || ['Bulan 1', 'Bulan 2', 'Bulan 3'];
+        }
+        function _kjSetMonthHeaders_(quarterKey) {
+            const nm = _kjMonthNames_(quarterKey);
+            ['kjThM1', 'kjThM2', 'kjThM3'].forEach(function(id, i) { const el = document.getElementById(id); if (el) el.textContent = nm[i]; });
+        }
+        function _kjFindMonRow_(outlet, custCode, dsr) {
+            try {
+                const map = _kjMonMap_();
+                if (!map) return null;
+                const oKey = _kunjunganNorm_(outlet), cKey = _kunjunganNorm_(custCode), dKey = _kunjunganNorm_(dsr);
+                const arr = Object.keys(map).map(function(k2) { return map[k2]; });
+                let row = null;
+                if (oKey && cKey) row = arr.find(function(it) { return _kunjunganNorm_(it && it.outlet) === oKey && _kunjunganNorm_(it && it.custCode) === cKey && (!dKey || !_kunjunganNorm_(it && it.dsr) || _kunjunganNorm_(it && it.dsr) === dKey); });
+                if (!row && oKey && cKey) row = arr.find(function(it) { return _kunjunganNorm_(it && it.outlet) === oKey && _kunjunganNorm_(it && it.custCode) === cKey; });
+                if (!row && oKey) row = arr.find(function(it) { return _kunjunganNorm_(it && it.outlet) === oKey; });
+                return row || null;
+            } catch (eFm) { return null; }
+        }
+        // Task 107h: pastikan data monitoring tersedia (cache lokal dulu, lalu server) - sama sumber dgn tab Monitoring.
+        function _kjEnsureMonitoring_(thenApply) {
+            try {
+                if (_kjHasMon_()) { if (thenApply) thenApply(); return; }
+                if (kjMonTried || kjMonLoading) { if (thenApply) thenApply(); return; }
+                kjMonTried = true; kjMonLoading = true;
+                try {
+                    const monLoc = appLocalCacheGet('MONITORING_V9_' + String(currentUsernameInput || '').toUpperCase());
+                    if (monLoc && typeof monLoc === 'object' && Object.keys(monLoc).length) {
+                        rawMonitoringDataObject = monLoc; kjMonLoading = false;
+                        if (thenApply) thenApply(); return;
+                    }
+                } catch (eLoc) {}
+                google.script.run
+                    .withSuccessHandler(function(dataObj) {
+                        kjMonLoading = false;
+                        try { rawMonitoringDataObject = dataObj || {}; appLocalCacheSet('MONITORING_V9_' + String(currentUsernameInput || '').toUpperCase(), rawMonitoringDataObject); } catch (eStore) {}
+                        if (thenApply) thenApply();
+                    })
+                    .withFailureHandler(function() { kjMonLoading = false; if (thenApply) thenApply(); })
+                    .getMonitoringOutletData(currentUser || '', currentUsernameInput || '');
+            } catch (eEns) { kjMonLoading = false; if (thenApply) thenApply(); }
+        }
+        function filterKunjunganTable() {
+            try {
+                const inp = document.getElementById('kjSearchInput');
+                kjSearchKeyword = String(inp && inp.value || '').trim().toLowerCase();
+                renderKunjunganRows();
+            } catch (eFk) {}
+        }
+        function _kjMonCell_(v, suffix) { return (v == null) ? '<span class="text-slate-400">-</span>' : v.toFixed(1) + ' ' + suffix; }
+        function renderKunjunganRows() {
+            try {
+                const body = document.getElementById('cstKunjunganBody');
+                if (!body) return;
+                const kw = kjSearchKeyword;
+                const filtered = !kw ? kjRenderItems.slice() : kjRenderItems.filter(function(it) { return String(it && it.outlet || '').trim().toLowerCase().indexOf(kw) !== -1; });
+                const cnt = document.getElementById('cstKunjunganCount');
+                if (cnt) cnt.textContent = filtered.length + ' bengkel';
+                if (!filtered.length) {
+                    body.innerHTML = '<tr><td colspan="11" class="cst-kunjungan-empty">' + (kjRenderItems.length ? 'Outlet tidak ditemukan.' : 'Tidak ada data.') + '</td></tr>';
+                    return;
+                }
+                let html = '';
+                filtered.forEach(function(item, idx) {
+                    const mon = _kjFindMonRow_(item.outlet, item.custCode, item.dsr);
+                    const hasMon = !!mon;
+                    const target = hasMon ? Number(mon.targetQuarter || 0) : null;
+                    const actual = hasMon ? Number(mon.totalQuarterVol || 0) : null;
+                    const ach = hasMon ? (target > 0 ? (actual / target) * 100 : 0) : null;
+                    const achClass = !hasMon ? 'text-slate-400' : (ach >= 100 ? 'text-emerald-700' : (ach >= 80 ? 'text-amber-600' : 'text-red-600'));
+                    const stOk = hasMon && String(mon.status || '').toLowerCase() === 'aktif';
+                    const statusChip = !hasMon
+                        ? '<span class="inline-flex items-center justify-center px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-slate-100 text-slate-500 border border-slate-200">-</span>'
+                        : '<span class="inline-flex items-center justify-center px-2.5 py-1 rounded-full text-[10px] font-extrabold ' + (stOk ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-red-100 text-red-700 border border-red-200') + '">' + escapeHtml(mon.status || 'Reaktivasi') + '</span>';
+                    const dataString = encodeURIComponent(JSON.stringify({ outlet: item.outlet || '', dsr: item.dsr || '', custCode: item.custCode || '', dayVisit: item.dayVisit || '', label: kjCurrentDayLabel }));
+                    const rowBg = idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50';
+                    html += '<tr class="' + rowBg + ' border-b border-slate-100 hover:bg-emerald-50/60 cursor-pointer transition" onclick="openKunjunganDetail(\'' + dataString + '\')" title="Ketuk untuk melihat detail outlet">' +
+                        '<td class="p-2.5 text-center align-middle whitespace-nowrap">' + statusChip + '</td>' +
+                        '<td class="p-2.5 font-semibold text-slate-700 text-center align-middle whitespace-nowrap">' + escapeHtml(item.dsr || '-') + '</td>' +
+                        '<td class="p-2.5 font-semibold text-slate-800 text-left align-middle whitespace-nowrap overflow-hidden text-ellipsis">' + escapeHtml(item.outlet || '') + '</td>' +
+                        '<td class="p-2.5 font-semibold text-slate-700 text-left align-middle whitespace-nowrap">' + escapeHtml(item.custCode || '-') + '</td>' +
+                        '<td class="p-2.5 text-center align-middle whitespace-nowrap text-slate-600 font-medium">' + _kjMonCell_(target, 'dus') + '</td>' +
+                        '<td class="p-2.5 text-center align-middle whitespace-nowrap text-slate-600 font-medium">' + _kjMonCell_(actual, 'dus') + '</td>' +
+                        '<td class="p-2.5 text-center align-middle whitespace-nowrap text-slate-600 font-medium">' + _kjMonCell_(hasMon ? (actual - target) : null, 'dus') + '</td>' +
+                        '<td class="p-2.5 text-center align-middle whitespace-nowrap font-semibold ' + achClass + '">' + (hasMon ? ach.toFixed(1) + '%' : '<span class="text-slate-400">-</span>') + '</td>' +
+                        '<td class="p-2.5 text-center align-middle whitespace-nowrap text-slate-600 font-medium">' + _kjMonCell_(hasMon ? Number(mon.m1 || 0) : null, 'dus') + '</td>' +
+                        '<td class="p-2.5 text-center align-middle whitespace-nowrap text-slate-600 font-medium">' + _kjMonCell_(hasMon ? Number(mon.m2 || 0) : null, 'dus') + '</td>' +
+                        '<td class="p-2.5 text-center align-middle whitespace-nowrap text-slate-600 font-medium">' + _kjMonCell_(hasMon ? Number(mon.m3 || 0) : null, 'dus') + '</td>' +
+                        '</tr>';
+                });
+                body.innerHTML = html;
+            } catch (eRr) {}
+        }
+        function _kjItemsForView_(k, weekOff, dayNum) {
+            k = k || {};
+            let setOf = String((weekOff === 1 ? k.nextWeekSet : k.weekSet) || '');
+            if (!setOf) { try { setOf = _kjWeekSetLocal_(weekOff); } catch (eKjSet) { setOf = '2,4'; } }
+            let src = Array.isArray(k.all) ? k.all : (Array.isArray(k.items) ? k.items.map(function(it) {
+                return { outlet: it.outlet, custCode: it.custCode, dsr: it.dsr, channel: it.channel, dayVisit: it.dayVisit, days: Array.isArray(it.dayNums) ? it.dayNums : [], set: null };
+            }) : []);
+            const out = src.filter(function(it) {
+                const days = Array.isArray(it.days) ? it.days : [];
+                if (days.indexOf(dayNum) === -1) return false;
+                const st = String(it.set || '').trim();
+                if (st && setOf && st !== setOf) return false;
+                return true;
+            });
+            out.sort(function(a, b) {
+                return String(a.dsr).localeCompare(String(b.dsr), 'id', { numeric: true, sensitivity: 'base' }) ||
+                       String(a.outlet).localeCompare(String(b.outlet), 'id', { numeric: true, sensitivity: 'base' });
+            });
+            return { set: setOf, items: out };
+        }
         function applyKunjunganHariIni(k) {
             try {
                 const card = document.getElementById('cstKunjunganCard');
                 if (!card) return;
-                if (!k || !k.success || !Array.isArray(k.items)) { card.classList.add('hidden'); return; }
+                // Task 107b: kartu SELALU tampil di Beranda - bila data gagal dimuat tampilkan
+                // pesan + tombol coba lagi (tidak lagi disembunyikan total dari Beranda).
+                if (!k || typeof k !== 'object') k = {};
+                try { console.log('[KJ v107i] apply success=' + !!k.success + ' items=' + (Array.isArray(k.items) ? k.items.length : 'n/a') + ' all=' + (Array.isArray(k.all) ? k.all.length : 'n/a') + ' msg=' + (k.message || '-')); } catch (eKjLog) {}
+                const kjDataOk = !!(k.success && (Array.isArray(k.items) || Array.isArray(k.all)));
+                if (kjDataOk) kjBuildProbeState = ''; // Task 107d: reset status probe build backend saat data normal
                 card.classList.remove('hidden');
                 globalKunjunganData = k;
+                // Task 107e: otomatis HARI INI + set minggu berjalan (tidak ada pilihan manual).
+                const kjToday = Number(k.dayNum) || _kjTodayNum_();
+                const view = _kjItemsForView_(k, 0, kjToday);
+                // Task 107f: label SELALU nama hari + set minggu berjalan (mis. "Selasa1,3",
+                // "Jumat2,4") - konsisten dgn kolom DAY VISIT sheet & label dari backend.
+                const dayLabel = ((_kjDayName_(kjToday) + view.set) || '-');
                 const lbl = document.getElementById('cstKunjunganLabel');
-                if (lbl) lbl.textContent = String(k.scheduleLabel || '');
-                const sub = document.getElementById('cstKunjunganSub');
-                if (sub) sub.textContent = 'Pola bergantian mingguan \u2014 minggu ini: ' + String(k.setLabel || '-') + ' \u00b7 minggu depan: ' + String(k.nextSetLabel || '-') + ' \u00b7 minggu depannya lagi: ' + String(k.setLabel || '-') + '.';
+                if (lbl) lbl.textContent = dayLabel;
                 const cnt = document.getElementById('cstKunjunganCount');
-                if (cnt) cnt.textContent = (k.count || 0) + ' bengkel';
+                if (cnt) cnt.textContent = view.items.length + ' bengkel';
                 const body = document.getElementById('cstKunjunganBody');
                 if (!body) return;
-                const items = k.items;
-                if (!items.length) { body.innerHTML = '<tr><td colspan="6" class="cst-kunjungan-empty">Tidak ada kunjungan bengkel hari ini.</td></tr>'; return; }
-                let html = '';
-                items.forEach(function(item, idx) {
-                    const dataString = encodeURIComponent(JSON.stringify({ outlet: item.outlet || '', dsr: item.dsr || '', custCode: item.custCode || '', dayVisit: item.dayVisit || '', label: item.label || '' }));
-                    html += '<tr class="' + (idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/60') + ' border-b border-slate-100 hover:bg-emerald-50/60 cursor-pointer transition" onclick="openKunjunganDetail(\'' + dataString + '\')" title="Ketuk untuk melihat detail outlet">' +
-                        '<td>' + (idx + 1) + '</td>' +
-                        '<td class="kj-outlet">' + escapeHtml(item.outlet || '-') + '</td>' +
-                        '<td>' + escapeHtml(item.custCode || '-') + '</td>' +
-                        '<td>' + escapeHtml(item.dsr || '-') + '</td>' +
-                        '<td>' + escapeHtml(item.dayVisit || '-') + '</td>' +
-                        '<td><span class="cst-kunjungan-label">' + escapeHtml(item.label || '') + '</span></td>' +
-                        '</tr>';
-                });
-                body.innerHTML = html;
+                const items = view.items;
+                if (!items.length) {
+                    let emptyMsg;
+                    if (kjDataOk) {
+                        emptyMsg = 'Tidak ada jadwal kunjungan pada ' + escapeHtml(dayLabel) + '.';
+                        const kjNext = _kjNextVisit_(k); // Task 107e: info otomatis kunjungan berikutnya
+                        if (kjNext && kjNext.offset > 0) emptyMsg += ' Kunjungan berikutnya: <b>' + escapeHtml(kjNext.label) + '</b>' + (kjNext.offset === 1 ? ' (besok)' : ' (' + kjNext.offset + ' hari lagi)') + '.';
+                    }
+                    else {
+                        const rsn = String(k && k.message || '').trim();
+                        emptyMsg = 'Data kunjungan belum tersedia' + (rsn ? ' (' + escapeHtml(rsn) + ')' : '') + '. Pastikan backend (Code.gs) versi terbaru sudah dideploy.';
+                    }
+                    const retryBtn = kjDataOk ? '' : ' <button type="button" class="kj-pill" onclick="loadKunjunganHariIni(true)">Coba lagi</button>';
+                    const buildSpan = kjDataOk ? '' : ' <span id="kjBackendBuild" class="kj-buildnote">&#9203; memeriksa versi backend Code.gs...</span>';
+                    body.innerHTML = '<tr><td colspan="11" class="cst-kunjungan-empty">' + emptyMsg + retryBtn + buildSpan + '</td></tr>';
+                    if (!kjDataOk) { try { probeKunjunganBackendBuild(); } catch (eKjPr) {} }
+                    return;
+                }
+                // Task 107h: baris = SAMA PERSIS dgn halaman Pencapaian Outlet (Status/DSR/Outlet/
+                // CUST.CODE/Target/Actual/Gap/Ach./bulan 1-3) + pencarian nama outlet.
+                kjCurrentDayLabel = dayLabel;
+                kjRenderItems = items;
+                const kjQ = _kjQuartersSorted_();
+                _kjSetMonthHeaders_(kjQ[0] || '');
+                const qChip = document.getElementById('kjQuarterChip');
+                if (qChip) { if (kjQ[0]) { qChip.textContent = kjQ[0]; qChip.classList.remove('hidden'); } else { qChip.classList.add('hidden'); } }
+                renderKunjunganRows();
+                if (!_kjHasMon_()) _kjEnsureMonitoring_(function() { try { applyKunjunganHariIni(globalKunjunganData); } catch (eReKj) {} });
             } catch (e) {}
         }
         function loadKunjunganHariIni(forceReload) {
@@ -10356,9 +10553,31 @@ startAutoRefresh();
                 kunjunganLoading = true;
                 google.script.run
                     .withSuccessHandler(function(res) { kunjunganLoading = false; applyKunjunganHariIni(res); })
-                    .withFailureHandler(function() { kunjunganLoading = false; })
+                    .withFailureHandler(function(eKjFail) { kunjunganLoading = false; const kjMsg = (eKjFail && eKjFail.message) ? String(eKjFail.message) : String(eKjFail || 'galat tidak diketahui'); try { console.warn('[KJ v107i] loadKunjunganHariIni gagal:', kjMsg); } catch (eKjLog2) {} applyKunjunganHariIni({ success: false, message: kjMsg }); })
                     .getKunjunganBengkelHariIni(currentUser || '', currentUsernameInput || '', selectedHomeDsr() || '', !!forceReload);
             } catch (e) { kunjunganLoading = false; }
+        }
+        // Task 107d: cek stempel build backend (getBackendBuildStamp pada Code.gs) agar status
+        // deploy backend terlihat langsung di kartu: "v107g terdeteksi" = Code.gs baru;
+        // "tidak ditemukan" = Code.gs di editor / versi deploy masih lama.
+        function probeKunjunganBackendBuild() {
+            const elP = document.getElementById('kjBackendBuild');
+            if (!elP) return;
+            if (kjBuildProbeState === 'probing') return;
+            if (kjBuildProbeState) { elP.textContent = kjBuildProbeState; return; }
+            kjBuildProbeState = 'probing';
+            google.script.run
+                .withSuccessHandler(function(bSt) {
+                    kjBuildProbeState = 'Backend Code.gs: ' + String((bSt && bSt.build) || '?') + ' terdeteksi \u2713 (backend baru - pesan di atas adalah penyebab aslinya' + ((bSt && bSt.now) ? ' \u00b7 waktu server: ' + String(bSt.now) : '') + ')';
+                    const elS = document.getElementById('kjBackendBuild');
+                    if (elS) elS.textContent = kjBuildProbeState;
+                })
+                .withFailureHandler(function() {
+                    kjBuildProbeState = 'Backend Code.gs: versi LAMA \u2717 (stempel build tidak ditemukan - salin Code.gs terbaru ke editor lalu deploy ulang memakai New version)';
+                    const elF = document.getElementById('kjBackendBuild');
+                    if (elF) elF.textContent = kjBuildProbeState;
+                })
+                .getBackendBuildStamp();
         }
         function _kunjunganNorm_(s) { return String(s == null ? '' : s).toUpperCase().replace(/\s+/g, ' ').trim(); }
         function _kunjunganQuarterSort_(keys) {
@@ -14856,6 +15075,20 @@ function populateTagihanFilters() {
     if (dsrWrap) dsrWrap.classList.toggle('hidden', !tagihanIsAdminScope());
 }
 
+// Task 106: komparator urutan tabel Tagihan dipisah agar bisa dipakai ulang.
+// Kelompok BELUM LUNAS selalu di atas, LUNAS paling bawah; di dalam kelompok
+// urut berdasarkan umur nota terkecil -> terbesar (Task 105).
+function tagihanSortData(arr) {
+    (arr || []).sort(function(a,b){
+        const sa = String(a.statusTagihan || 'BELUM LUNAS').toUpperCase(), sb = String(b.statusTagihan || 'BELUM LUNAS').toUpperCase();
+        const ba = (sa === 'LUNAS') ? 1 : 0, bb = (sb === 'LUNAS') ? 1 : 0;
+        if (ba !== bb) return ba - bb;
+        const ua = tagihanUsiaHari(a.tanggalNota), ub = tagihanUsiaHari(b.tanggalNota);
+        if (ua !== ub) return ua - ub;
+        return new Date(String(a.tanggal || '')).getTime() - new Date(String(b.tanggal || '')).getTime();
+    });
+}
+
 function filterTagihan() {
     const searchEl = document.getElementById('searchTagihanInput');
     const keyword = String(searchEl && searchEl.value || '').trim().toUpperCase();
@@ -14875,16 +15108,9 @@ function filterTagihan() {
         if (usiaF === 'muda' && usia >= TAGIHAN_UMUR_MERAH) return false;
         return true;
     });
-    // BELUM LUNAS selalu ditampilkan paling atas; LUNAS tampil setelahnya.
-    // Task 105: dalam kelompok, urut berdasarkan umur nota terkecil -> terbesar.
-    filtered.sort(function(a,b){
-        const sa = String(a.statusTagihan || 'BELUM LUNAS').toUpperCase(), sb = String(b.statusTagihan || 'BELUM LUNAS').toUpperCase();
-        const ba = (sa === 'LUNAS') ? 1 : 0, bb = (sb === 'LUNAS') ? 1 : 0;
-        if (ba !== bb) return ba - bb;
-        const ua = tagihanUsiaHari(a.tanggalNota), ub = tagihanUsiaHari(b.tanggalNota);
-        if (ua !== ub) return ua - ub;
-        return new Date(String(a.tanggal || '')).getTime() - new Date(String(b.tanggal || '')).getTime();
-    });
+    // Task 106: urutan dipakai ulang dari tagihanSortData() (BELUM LUNAS di atas,
+    // LUNAS paling bawah, umur nota terkecil -> terbesar dalam kelompok).
+    tagihanSortData(filtered);
     tagihanFilteredData = filtered;
     tagihanPage = 1;
     renderTagihanList(filtered);
@@ -15072,6 +15298,9 @@ function tagihanTerapkanStatusLokal(changes) {
         it.statusTagihan = st;
         it.tanggalLunas = (st === 'LUNAS') ? tagihanTanggalHariIniStr() : '';
     });
+    // Task 106: urutkan ulang tampilan sebelum render - tagihan yang baru
+    // ditandai LUNAS langsung turun ke paling bawah (pagination tidak di-reset).
+    try { tagihanSortData(tagihanFilteredData); } catch (eSortLocal) {}
     try { renderTagihanList(tagihanFilteredData || []); } catch (eLocal) {}
     // Task 103: panel TAGIHAN BELUM LUNAS pada Step 2 Input Order ikut segar.
     try { refreshInputStep2TagihanFromGlobal(); } catch (eStep2) {}
@@ -16794,6 +17023,18 @@ rect[fill="#059669"]{fill:#00a651!important}
 .cst-kunjungan-table tbody tr:nth-child(even){background:#f8fafc}
 .cst-kunjungan-table tbody tr:hover{background:#eef9f2}
 .cst-kunjungan-empty{text-align:center;color:#94a3b8;font-size:10px;font-weight:600;padding:16px 10px}
+/* Task 107 - baris filter minggu (Ini/Depan) & hari (Senin2,4 dst) */
+.kj-filterbar{display:flex;flex-direction:column;gap:6px;padding:10px 16px 0}
+.kj-filterrow{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.kj-filterlab{font-size:8.5px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#94a3b8;margin-right:2px;white-space:nowrap}
+.kj-pill{appearance:none;border:1px solid #e2e8f0;background:#fff;color:#475569;font-size:9.5px;font-weight:800;padding:4px 9px;border-radius:999px;cursor:pointer;transition:all .15s;line-height:1.2;white-space:nowrap;font-family:inherit}
+.kj-buildnote{display:inline-block;margin-left:6px;font-size:9px;font-weight:700;color:#64748b;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:6px;padding:2px 7px;line-height:1.3;vertical-align:middle;max-width:100%}
+.kj-pill:hover{border-color:#a7f3d0;color:#047857;background:#f0fdf4}
+.kj-pill.is-active{background:#059669;border-color:#059669;color:#fff;box-shadow:0 1px 4px rgba(5,150,105,.35)}
+@media(max-width:640px){
+.kj-filterbar{padding:8px 12px 0;gap:5px}
+.kj-pill{font-size:8.5px;padding:3.5px 7px}
+}
 @media(max-width:640px){
 .cst-kunjungan-table{font-size:10px;min-width:560px}
 .cst-kunjungan-table thead th,.cst-kunjungan-table td{padding:7px 8px}
