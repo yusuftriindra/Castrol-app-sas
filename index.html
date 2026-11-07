@@ -4173,7 +4173,7 @@ select.select2-hidden-accessible { width: 1px !important; max-width: 1px !import
                     <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
                         <div class="flex items-center gap-2">
                             <h2 class="text-base font-bold text-slate-800">Tagihan</h2>
-                            <span id="tagihanCount" class="text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">0 tagihan</span><span style="font-size:9px;font-weight:700;color:#64748b;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:2px 6px;line-height:1;">v108a</span>
+                            <span id="tagihanCount" class="text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">0 tagihan</span><span style="font-size:9px;font-weight:700;color:#64748b;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:2px 6px;line-height:1;">v108b</span>
                         </div>
                     </div>
 
@@ -14285,13 +14285,12 @@ function doneBulkStatusApproval() {
 <script id="tagihan-page-v1">
 /* MENU TAGIHAN - usia nota dihitung dari tanggal order + 3 hari.
    Tampilan TABEL saja. Kolom: Outlet | Tanggal Order | Usia Nota | Nominal.
-   Task 108a: TIDAK ADA status otomatis (termasuk CASH) - status LUNAS/BELUM
-   LUNAS HANYA diubah user lewat TOMBOL timbul per baris (ukuran tetap di
-   mobile) atau centang massal (select all) lalu Tandai Lunas / Tandai Belum
-   Lunas. Klik baris membuka INVOICE (rincian order, total dus, total value).
-   Usia nota >= 45 hari tampil MERAH; usia BEKU pada tanggal penerapan LUNAS.
-   Disimpan SINKRON via updateStatusTagihanSync (sales hanya untuk tagihan
-   miliknya). */
+   Task 108b: transaksi CASH otomatis LUNAS (tanpa tombol); tagihan non-CASH
+   diubah USER lewat TOMBOL timbul per baris (ukuran tetap di mobile) atau
+   centang massal (select all) lalu Tandai Lunas / Tandai Belum Lunas. Klik
+   baris membuka INVOICE (rincian order, total dus, total value). Usia nota
+   >= 45 hari tampil MERAH; usia BEKU pada tanggal penerapan LUNAS. Disimpan
+   SINKRON via updateStatusTagihanSync (sales hanya untuk tagihan miliknya). */
 (function tagihanPageCssInject() {
     if (document.getElementById('tagihanPageCss')) return;
     const st = document.createElement('style');
@@ -14583,7 +14582,7 @@ function loadTagihan(forceReload, silentRefresh) {
 }
 
 function handleTagihanLoaded(res) {
-    try { console.log('[TG v108a] tagihan dimuat: ' + (Array.isArray(res && res.data) ? res.data.length : 0) + ' baris (status hanya diubah user)'); } catch (eTgLog) {}
+    try { console.log('[TG v108b] tagihan dimuat: ' + (Array.isArray(res && res.data) ? res.data.length : 0) + ' baris (CASH otomatis LUNAS)'); } catch (eTgLog) {}
     globalTagihanData = (res && Array.isArray(res.data)) ? res.data : [];
     appLocalCacheSet(tagihanCacheKey(), globalTagihanData);
     // Task 84: paksa status pilihan user ke data segar sebelum di-render.
@@ -15199,20 +15198,20 @@ function renderTagihanTable(data) {
         const merah = usia >= TAGIHAN_UMUR_MERAH;
         const rowSel = checked ? ' tagihan-row-selected' : '';
         return '<tr class="border-b border-slate-100 hover:bg-emerald-50/50 cursor-pointer' + rowSel + '" onclick="bukaInvoiceTagihan(\'' + escapeHtml(idKey) + '\')">' +
-            '<td class="px-2.5 py-2.5 text-center"' + ' onclick="event.stopPropagation()"' + '>' +
-            '<input type="checkbox" class="tagihan-row-check accent-emerald-600 w-4 h-4" data-tagihan-id="' + escapeHtml(idKey) + '" ' + (checked ? 'checked' : '') + ' aria-label="Pilih tagihan ' + escapeHtml(item.outlet || idKey) + '">' +
+            '<td class="px-2.5 py-2.5 text-center"' + (item.isCash ? '' : ' onclick="event.stopPropagation()"') + '>' +
+            (item.isCash ? '<span class="text-slate-300" title="CASH">–</span>' : '<input type="checkbox" class="tagihan-row-check accent-emerald-600 w-4 h-4" data-tagihan-id="' + escapeHtml(idKey) + '" ' + (checked ? 'checked' : '') + ' aria-label="Pilih tagihan ' + escapeHtml(item.outlet || idKey) + '">') +
             '</td>' +
             '<td class="px-3 py-2.5 font-bold text-slate-700">' + escapeHtml(item.outlet || '-') + (showDsr && String(item.dsr || '') ? '<div class="text-[9px] text-slate-400 font-normal">DSR: ' + escapeHtml(item.dsr) + '</div>' : '') + '</td>' +
             '<td class="px-3 py-2.5 whitespace-nowrap" data-label="Tanggal Order">' + escapeHtml(tagihanFormatTanggalID(item.tanggal)) + '</td>' +
             '<td class="px-3 py-2.5 whitespace-nowrap font-extrabold ' + (merah ? 'text-red-600' : 'text-slate-600') + '" data-label="Usia Nota">' + usia + ' hari</td>' +
             '<td class="px-3 py-2.5 text-right font-semibold whitespace-nowrap" data-label="Nominal">Rp ' + Number(item.nominal || 0).toLocaleString('id-ID') + '</td>' +
-            '<td class="px-3 py-2.5" data-label="Status"' + ' onclick="event.stopPropagation()"' + '>' +
+            '<td class="px-3 py-2.5" data-label="Status"' + (item.isCash ? '' : ' onclick="event.stopPropagation()"') + '>' +
             '<span class="block whitespace-nowrap text-[10px] font-extrabold ' + statusKelas + '">' + escapeHtml(st) + '</span>' +
-            statusButtons(item, st) + (item.isCash ? '<div class="mt-1"><span class="tg-badge-cash">CASH</span></div>' : '') +
+            (item.isCash ? '<div class="mt-1"><span class="tg-badge-cash">CASH</span></div>' : statusButtons(item, st)) +
             '</td>' +
             '</tr>';
     }).join('');
-    const selectableIds = rows.map(function(item){ return String(item.id || ''); });
+    const selectableIds = rows.filter(function(item){ return !item.isCash; }).map(function(item){ return String(item.id || ''); });
     const allChecked = selectableIds.length > 0 && selectableIds.every(function(id){ return tagihanSelectedIds[id]; });
     container.innerHTML = tagihanBulkControlsHtml() +
         '<div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden tg-card-wrap"><div class="overflow-x-auto"><table class="w-full text-left text-[10px] min-w-[720px]"><thead><tr class="bg-slate-50 border-b border-slate-200 text-[9px] uppercase tracking-wide text-slate-500">' +
@@ -15259,12 +15258,11 @@ function syncTagihanRowHighlight() {
     });
 }
 
-// Select all: centang SEMUA tagihan hasil filter di semua halaman
-// (Task 108a: tagihan CASH juga bisa dipilih - status hanya oleh user).
+// Select all: centang SEMUA tagihan hasil filter (non-CASH) di semua halaman.
 function pilihSemuaTagihan(checked) {
     (tagihanFilteredData || []).forEach(function(item) {
         const id = String(item.id || '').trim();
-        if (!id) return;
+        if (!id || item.isCash) return;
         if (checked) tagihanSelectedIds[id] = true; else delete tagihanSelectedIds[id];
     });
     document.querySelectorAll('#listTagihan .tagihan-row-check').forEach(function(cb) {
@@ -15317,6 +15315,10 @@ function ubahStatusTagihanSatuan(idInput, statusBaru) {
     const target = String(statusBaru || '').trim().toUpperCase();
     if (!id || (target !== 'LUNAS' && target !== 'BELUM LUNAS')) return;
     const item = (globalTagihanData || []).find(function(x){ return String(x.id || '').trim() === id; });
+    if (item && item.isCash) {
+        showModal('Tagihan CASH', 'Transaksi CASH otomatis berstatus LUNAS dan tidak perlu diubah.');
+        return;
+    }
     const cur = String(item && item.statusTagihan || '').toUpperCase();
     // Task 85: dobel klik / klik berulang untuk perubahan yang sama saat
     // proses masih berjalan diabaikan diam-diam (perilaku lama).
@@ -15457,10 +15459,10 @@ function bukaInvoiceTagihan(idInput) {
                 lunasInfo +
             '</div>' +
             '<div class="inv-seclabel">Rincian Produk</div>' +
-            '<div class="inv-aksi-row" id="invAksiRow">' +
+            (item.isCash ? '' : '<div class="inv-aksi-row" id="invAksiRow">' +
                 '<button type="button" id="invBtnLunas" onclick="ubahStatusTagihanDariInvoice(\'' + escapeHtml(targetId) + '\',\'LUNAS\')" class="tg-btn tg-btn-lunas' + (st === 'LUNAS' ? ' is-active' : '') + '" title="Tandai LUNAS">Lunas</button>' +
                 '<button type="button" id="invBtnBelum" onclick="ubahStatusTagihanDariInvoice(\'' + escapeHtml(targetId) + '\',\'BELUM LUNAS\')" class="tg-btn tg-btn-belum' + (st !== 'LUNAS' ? ' is-active' : '') + '" title="Tandai BELUM LUNAS">Belum</button>' +
-            '</div>' +
+            '</div>') +
             '<div class="overflow-x-auto"><table class="inv-table"><thead><tr><th style="width:34px;text-align:center;">No</th><th>Produk</th><th style="width:60px;text-align:center;">Qty</th><th style="width:56px;text-align:center;">Satuan</th></tr></thead><tbody>' + rowsHtml + '</tbody></table></div>' +
             '<table class="inv-table" style="margin-top:10px;"><tbody>' +
                 '<tr><td>Volume</td><td style="text-align:right;font-weight:800;">' + escapeHtml(String(item.volume == null ? '0' : item.volume)) + ' L</td></tr>' +
@@ -15482,7 +15484,7 @@ function bukaInvoiceTagihan(idInput) {
             const target = String(statusBaru || '').trim().toUpperCase();
             if (!id || (target !== 'LUNAS' && target !== 'BELUM LUNAS')) return;
             const item = (globalTagihanData || []).find(function(x){ return String(x.id || '').trim() === id; });
-            if (!item) return;
+            if (!item || item.isCash) return;
             const cur = String(item.statusTagihan || 'BELUM LUNAS').trim().toUpperCase();
             if (cur === target) return;
             ubahStatusTagihanSatuan(id, target);
