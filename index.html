@@ -3658,6 +3658,12 @@ select.select2-hidden-accessible { width: 1px !important; max-width: 1px !import
                     <span class="sidebar-text">Customer</span>
                 </button>
 
+                <button type="button" onclick="switchTab('noobytvd')" id="navNoobyTVD"
+                        class="sidebar-item" title="List NOO TVD" aria-label="List NOO TVD">
+                    <span class="sidebar-icon">🆕</span>
+                    <span class="sidebar-text">List NOO TVD</span>
+                </button>
+
                 <button type="button" onclick="toggleSidebarGroup('submenuLainnya', this.id)" id="navLainnyaGroup"
                         class="sidebar-item sidebar-group-menu" title="Lainnya" aria-label="Lainnya" aria-expanded="false" aria-controls="submenuLainnya"
                         style="display:flex !important; visibility:visible !important;">
@@ -4432,6 +4438,53 @@ select.select2-hidden-accessible { width: 1px !important; max-width: 1px !import
                 #tableTambahCustomer td:first-child{white-space:normal;}
                 #tableTambahCustomer td:first-child .cst89-outlet{max-width:240px;}
                 @media (max-width:640px){ #tableTambahCustomer{min-width:0 !important;} }
+                </style>
+
+                <!-- LIST NOO TVD (Task 109) -->
+                <div id="tabNoobyTVD" class="tab-content hidden space-y-3">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-200 pb-2">
+                        <div>
+                            <h2 class="text-base font-bold text-slate-800">List NOO TVD</h2>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span style="font-size:9px;font-weight:700;color:#64748b;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:2px 6px;line-height:1;">v117</span>
+                            <button type="button" onclick="loadNoobyTVD(true, false)" class="px-3 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 text-[10px] font-extrabold shadow-sm transition">↻ Refresh</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-3">
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">⌕</span>
+                            <input type="text" id="searchNoobyTVD" oninput="filterNoobyTVD()" placeholder="Cari di semua kolom NOO TVD..."
+                                   class="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm transition">
+                        </div>
+                        <!-- Task 117: Filter DSR (hanya tampil utk login admin) di atas kolom tabel -->
+                        <div id="noobyTVDDsrFilterWrap" class="hidden mt-2.5 flex items-center gap-2">
+                            <label for="noobyTVDDsrFilter" class="text-[10px] font-extrabold text-slate-600 whitespace-nowrap">Filter DSR</label>
+                            <select id="noobyTVDDsrFilter" onchange="filterNoobyTVD()" class="flex-1 min-w-0 py-2 px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm transition">
+                                <option value="">Semua DSR</option>
+                            </select>
+                            <button type="button" onclick="resetNoobyTVDDsrFilter()" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-600 text-[10px] font-bold transition">Reset</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto" style="-webkit-overflow-scrolling:touch;">
+                            <table id="tableNoobyTVD" class="w-full text-left border-collapse text-[10px]" style="min-width:480px;">
+                                <thead id="noobyTVDHead"></thead>
+                                <tbody id="noobyTVDBody">
+                                    <tr><td colspan="2" class="text-slate-400 text-center py-8">Klik menu List NOO TVD untuk memuat data.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <p id="noobyTVDCount" class="text-[10px] text-slate-400 text-center">0 data NOO</p>
+                    <p class="text-[9px] text-slate-400 text-center">Klik salah satu baris untuk membuka form Tambah Customer (data terisi otomatis). Setelah customer disimpan, halaman akan melanjutkan ke Input Order.</p>
+                </div>
+
+                <style id="task109-noo-table">
+                @media (max-width:640px){ #tableNoobyTVD{min-width:0 !important;} }
+                #tableNoobyTVD td{word-break:break-word;}
                 </style>
 
                 <!-- PESANAN OUTLET -->
@@ -5399,11 +5452,21 @@ startAutoRefresh();
         function handleSalesOutletsLoaded(outlets) {
             outletDataList = outlets || [];
             let select = $('#inputOutlet');
-            select.empty().append('<option value="">-- Pilih Outlet --</option>');
-            outlets.forEach(o => {
-                select.append(new Option(o.outlet, o.outlet));
-            });
-            refreshSelect2('#inputOutlet');
+            // Task 113: tahan event change selama rebuild programatik. refreshSelect2()
+            // memicu trigger('change') yang sebelumnya Membatalkan pending auto-select
+            // saat response load datang -> outlet terisi lalu kosong lagi (muncul-hilang).
+            window._noobyTVDSuppressOutletChange = true;
+            try {
+                select.empty().append('<option value="">-- Pilih Outlet --</option>');
+                outlets.forEach(o => {
+                    select.append(new Option(o.outlet, o.outlet));
+                });
+                refreshSelect2('#inputOutlet');
+            } finally {
+                setTimeout(function() { window._noobyTVDSuppressOutletChange = false; }, 0);
+            }
+            // Task 112/113: auto-select outlet pending dari List NOO TVD (anti-race reload).
+            if (typeof noobyTVDApplyPendingOutlet === 'function') { try { noobyTVDApplyPendingOutlet(); } catch (eNoobyPending) {} }
         }
         function loadOutletForSales(sales, usernameInput) {
             if (usernameInput && usernameInput.toLowerCase() === 'admin') {
@@ -5429,17 +5492,25 @@ startAutoRefresh();
                 : source;
 
             outletDataList = filtered.slice();
-            select.empty().append('<option value="">-- Pilih Outlet --</option>');
-            filtered.forEach(function(o) {
-                select.append(new Option(o.outlet, o.outlet));
-            });
-            if (selectedOutlet && filtered.some(function(o) { return String(o.outlet) === selectedOutlet; })) select.val(selectedOutlet);
-            else {
-                select.val('');
-                $('#inputCustCode').val('');
-                $('#inputChannel').val('');
+            // Task 113: tahan event change selama rebuild programatik (lihat handleSalesOutletsLoaded).
+            window._noobyTVDSuppressOutletChange = true;
+            try {
+                select.empty().append('<option value="">-- Pilih Outlet --</option>');
+                filtered.forEach(function(o) {
+                    select.append(new Option(o.outlet, o.outlet));
+                });
+                if (selectedOutlet && filtered.some(function(o) { return String(o.outlet) === selectedOutlet; })) select.val(selectedOutlet);
+                else {
+                    select.val('');
+                    $('#inputCustCode').val('');
+                    $('#inputChannel').val('');
+                }
+                refreshSelect2('#inputOutlet');
+            } finally {
+                setTimeout(function() { window._noobyTVDSuppressOutletChange = false; }, 0);
             }
-            refreshSelect2('#inputOutlet');
+            // Task 112/113: auto-select outlet pending dari List NOO TVD (anti-race reload).
+            if (typeof noobyTVDApplyPendingOutlet === 'function') { try { noobyTVDApplyPendingOutlet(); } catch (eNoobyPending2) {} }
         }
 
         function onInputSalesFilterChange() {
@@ -11222,8 +11293,8 @@ startAutoRefresh();
             // Task 43: Approval hanya untuk admin / akun tanpa nama sales.
             const canApprovalMenu = isAdminLogin || String(currentUser || '').trim() === '';
             if (tab === 'approval' && !canApprovalMenu) { applyRoleVisibility(); return; }
-            const tabMap = {home:'tabHome',input:'tabInput',riwayat:'tabRiwayat',approval:'tabApproval',tagihan:'tabTagihan',pencapaian:'tabPencapaian',monitoring:'tabMonitoring',outletkontrak:'tabOutletKontrak',outletbws:'tabOutletBWS',tambahcustomer:'tabTambahCustomer',pricelist:'tabPricelist',harganett:'tabHargaNett',pesananoutlet:'tabPesananOutlet',produkbyoutlet:'tabProdukOutlet',pengumumanadmin:'tabPengumumanAdmin',generateoutlet:'tabGenerateOutlet'};
-            const navMap = {home:'navHome',input:'navInput',riwayat:'navRiwayat',approval:'navApproval',tagihan:'navTagihan',pencapaian:'navPencapaian',monitoring:'navMonitoring',outletkontrak:'navOutletKontrak',outletbws:'navOutletBWS',tambahcustomer:'navTambahCustomer',pricelist:'navPricelist',harganett:'navHargaNett',pesananoutlet:'navPesananOutlet',produkbyoutlet:'navProdukOutlet',pengumumanadmin:'navPengumumanAdmin',generateoutlet:'navGenerateOutlet'};
+            const tabMap = {home:'tabHome',input:'tabInput',riwayat:'tabRiwayat',approval:'tabApproval',tagihan:'tabTagihan',pencapaian:'tabPencapaian',monitoring:'tabMonitoring',outletkontrak:'tabOutletKontrak',outletbws:'tabOutletBWS',tambahcustomer:'tabTambahCustomer',pricelist:'tabPricelist',harganett:'tabHargaNett',pesananoutlet:'tabPesananOutlet',produkbyoutlet:'tabProdukOutlet',pengumumanadmin:'tabPengumumanAdmin',generateoutlet:'tabGenerateOutlet',noobytvd:'tabNoobyTVD'};
+            const navMap = {home:'navHome',input:'navInput',riwayat:'navRiwayat',approval:'navApproval',tagihan:'navTagihan',pencapaian:'navPencapaian',monitoring:'navMonitoring',outletkontrak:'navOutletKontrak',outletbws:'navOutletBWS',tambahcustomer:'navTambahCustomer',pricelist:'navPricelist',harganett:'navHargaNett',pesananoutlet:'navPesananOutlet',produkbyoutlet:'navProdukOutlet',pengumumanadmin:'navPengumumanAdmin',generateoutlet:'navGenerateOutlet',noobytvd:'navNoobyTVD'};
             Object.keys(tabMap).forEach(function(key){
                 const el=document.getElementById(tabMap[key]);
                 if(!el) return;
@@ -11281,6 +11352,7 @@ if(tab==='tagihan')loadTagihan(false, true);
             if(tab==='outletkontrak')loadOutletKontrak(false, true);
             if(tab==='outletbws')loadOutletBWSAdmin(false, true);
             if(tab==='tambahcustomer')loadTambahCustomer(false, true);
+            if(tab==='noobytvd')loadNoobyTVD(true, true); // Task 109/111: List NOO TVD (refresh senyap agar status terdaftar selalu segar)
             if(tab==='pricelist')loadPricelist(false, true);
             if(tab==='harganett')loadHargaNett(false);
             if(tab==='pesananoutlet')loadPesananOutlet(false, true);
@@ -11420,7 +11492,7 @@ if(tab==='tagihan')loadTagihan(false, true);
         // (modal Account maupun pemanggil lama).
         function doLogout() {
             clearAuthState();
-            currentUser = ""; currentUsernameInput = ""; shoppingCart = []; globalRiwayatData = []; rawMonitoringDataObject = {}; globalOutletKontrakData = []; pencapaianCache = {}; pencapaianDetailCache = {}; globalPricelistData = []; globalTambahCustomerData = { headers: [], rows: [] }; globalTambahCustomerFormMaster = { headers: [], dayVisits: [], channels: [], dsrs: [], today: '', salesName: '', isAdmin: false, newCustCode: '' }; tambahCustomerLoaded = false;
+            currentUser = ""; currentUsernameInput = ""; shoppingCart = []; globalRiwayatData = []; rawMonitoringDataObject = {}; globalOutletKontrakData = []; pencapaianCache = {}; pencapaianDetailCache = {}; globalPricelistData = []; globalTambahCustomerData = { headers: [], rows: [] }; globalTambahCustomerFormMaster = { headers: [], dayVisits: [], channels: [], dsrs: [], today: '', salesName: '', isAdmin: false, newCustCode: '' }; tambahCustomerLoaded = false; globalNoobyTVDData = { headers: [], rows: [] }; noobyTVDLoaded = false; window._noobyTVDPendingRedirect = false;
             announcementDismissedThisSession = false;
             closeAnnouncementPage(true);
             document.getElementById('mainPage').classList.add('hidden');
@@ -11959,7 +12031,7 @@ if(tab==='tagihan')loadTagihan(false, true);
             }
         }
 
-        function openTambahCustomerForm(rowNumber, existingValues) {
+        function openTambahCustomerForm(rowNumber, existingValues, fromNoobyTVD) {
             const headers = globalTambahCustomerData.headers || [];
             if (!headers.length) {
                 loadTambahCustomer(true);
@@ -11972,6 +12044,9 @@ if(tab==='tagihan')loadTagihan(false, true);
             while (values.length < headers.length) values.push('');
             tambahCustomerEditingValues = values.slice();
             const isEdit = tambahCustomerEditingRow >= 2;
+
+            // Task 109: redirect ke Input Order hanya saat form dibuka dari List NOO TVD (bukan edit).
+            window._noobyTVDPendingRedirect = (!isEdit && fromNoobyTVD === true);
 
             const idxDayVisit = _customerFieldIndexClient(headers, ['DAY VISIT']);
             const idxOutlet = _customerFieldIndexClient(headers, ['OUTLET', 'NAMA OUTLET']);
@@ -12146,8 +12221,18 @@ if(tab==='tagihan')loadTagihan(false, true);
                 if (res && res.success) {
                     tambahCustomerLoaded = false;
                     if (res.nextCustCode) globalTambahCustomerFormMaster.newCustCode = String(res.nextCustCode);
-                    showModal('Berhasil', res.message || 'Data customer berhasil disimpan.');
-                    loadTambahCustomer(true, true);
+                    if (window._noobyTVDPendingRedirect) {
+                        // Task 109: dari List NOO TVD -> simpan customer -> lanjut ke Input Order.
+                        window._noobyTVDPendingRedirect = false;
+                        noobyTVDLoaded = false; // Task 110: muat ulang List NOO TVD (baris kini terdaftar)
+                        const _nooOut = idxOutlet >= 0 ? String(values[idxOutlet] == null ? '' : values[idxOutlet]).trim() : '';
+                        const _nooSal = idxDsr >= 0 ? String(values[idxDsr] == null ? '' : values[idxDsr]).trim() : '';
+                        loadTambahCustomer(true, true);
+                        noobyTVDGotoInputOrder(_nooOut, _nooSal);
+                    } else {
+                        showModal('Berhasil', res.message || 'Data customer berhasil disimpan.');
+                        loadTambahCustomer(true, true);
+                    }
                 } else {
                     showModal('Gagal', res && res.message ? res.message : 'Data customer gagal disimpan.');
                 }
@@ -12195,6 +12280,433 @@ if(tab==='tagihan')loadTagihan(false, true);
 
 </script>
 
+
+<script id="noobytvd-js">
+/* ================= LIST NOO TVD (Task 109) =================
+ * Menu di bawah Customer. Data: sheet "NOO by TVD" (getNoobyTVDList).
+ * Klik baris -> form Tambah Customer terisi otomatis dari baris NOO.
+ * Setelah customer disimpan -> otomatis lanjut ke halaman Input Order
+ * dan outlet baru langsung dipilih di dropdown.
+ * Task 109b: layout kolom NO | DSR | CODE TVD | OUTLET | CUST.CODE, tanpa kolom AKSI.
+ * Task 109b: data difilter berdasarkan user login (admin melihat semua baris).
+ * Task 109c: kolom tabel hanya OUTLET (NO | OUTLET).
+ * Task 109c: outlet yang sudah punya transaksi APPROVE (sheet INPUT) disembunyikan oleh backend.
+ * Task 110: baris dengan CUST.CODE sama di sheet OUTLET & OUTLET by TVD -> klik langsung ke Input Order.
+ * Task 110: simpan customer mengisi CUST.CODE di sheet OUTLET by TVD; APPROVE menghapus barisnya.
+ * Task 111: klik baris selalu verifikasi ulang ke server (checkNoobyTVDOutletReady);
+ *   tab List NOO TVD selalu refresh senyap saat dibuka agar badge terdaftar segar.
+ * Task 112: auto-select outlet di Input Order tahan reload dropdown (pending +
+ *   re-apply di handleSalesOutletsLoaded / renderInputOutletOptions).
+ * ========================================================== */
+let globalNoobyTVDData = { headers: [], rows: [] };
+let noobyTVDLoading = false;
+let noobyTVDLoaded = false;
+
+function _noobyTVDEscape(v) {
+    return String(v == null ? '' : v)
+        .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '')
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function loadNoobyTVD(forceReload, silentRefresh) {
+    if (noobyTVDLoading) return;
+    if (!forceReload && noobyTVDLoaded) { filterNoobyTVD(); return; }
+    noobyTVDLoading = true;
+    const body = document.getElementById('noobyTVDBody');
+    const hasCached = !!(globalNoobyTVDData.headers && globalNoobyTVDData.headers.length);
+    if (forceReload && hasCached) filterNoobyTVD();
+    if (!silentRefresh && body && !hasCached) body.innerHTML = '<tr><td colspan="30" class="text-slate-400 text-center py-8">Memuat data NOO TVD...</td></tr>';
+    google.script.run
+        .withSuccessHandler(function(res) {
+            noobyTVDLoading = false;
+            if (res && res.success) {
+                globalNoobyTVDData = { headers: Array.isArray(res.headers) ? res.headers : [], rows: Array.isArray(res.rows) ? res.rows : [] };
+                noobyTVDLoaded = true;
+                _noobyTVDBuildDsrFilter(); // Task 117: isi dropdown Filter DSR (admin)
+                filterNoobyTVD();
+                try { console.log('[NOO v113] List NOO TVD dimuat: ' + globalNoobyTVDData.rows.length + ' baris, tampil ' + _noobyTVDUserRows().length + ' utk user login, sembunyi approve ' + (res && res.hiddenApproved ? res.hiddenApproved : 0) + ', terdaftar ' + globalNoobyTVDData.rows.filter(function(it) { return it && it.ready; }).length); } catch (eLog) {}
+            } else {
+                if (body) body.innerHTML = '<tr><td colspan="30" class="text-red-500 text-center py-8">' + _noobyTVDEscape(res && res.message ? res.message : 'Gagal memuat data NOO TVD.') + '</td></tr>';
+            }
+        })
+        .withFailureHandler(function(err) {
+            noobyTVDLoading = false;
+            if (body) body.innerHTML = '<tr><td colspan="30" class="text-red-500 text-center py-8">' + _noobyTVDEscape(err && err.message ? err.message : 'Terjadi kesalahan saat memuat data NOO TVD.') + '</td></tr>';
+        })
+        .getNoobyTVDList(currentUsernameInput);
+}
+
+// Task 109b: normalisasi nama header (hapus spasi/simbol) untuk pencocokan kolom.
+function _noobyTVDNormHeader(h) {
+    return String(h == null ? '' : h).toUpperCase().replace(/[^A-Z0-9]/g, '');
+}
+
+// Task 109b: cari indeks kolom berdasar alias header (ternormalisasi).
+function _noobyTVDFindCol(headers, aliases) {
+    const norm = (headers || []).map(function(h) { return _noobyTVDNormHeader(h); });
+    for (let a = 0; a < aliases.length; a++) {
+        const target = _noobyTVDNormHeader(aliases[a]);
+        if (!target) continue;
+        for (let i = 0; i < norm.length; i++) { if (norm[i] === target) return i; }
+    }
+    return -1;
+}
+
+// Task 109b: admin melihat semua baris; user lain hanya baris miliknya.
+function _noobyTVDIsAdminView() {
+    return String(currentUsernameInput || '').trim().toLowerCase() === 'admin';
+}
+
+// Task 109c: layout kolom hanya OUTLET (tampilan: NO | OUTLET). Kolom lain tetap dipakai untuk prefill form.
+function _noobyTVDDisplayCols() {
+    const headers = globalNoobyTVDData.headers || [];
+    // Task 117: utk login admin, tampilkan kolom DSR sebelum OUTLET. Non-admin tetap OUTLET saja.
+    const defs = _noobyTVDIsAdminView()
+        ? [
+            { label: 'DSR', aliases: ['DSR', 'SALES', 'NAMA SALES', 'NAMA SALES/DSR'] },
+            { label: 'OUTLET', aliases: ['OUTLET', 'NAMA OUTLET', 'NAMA TOKO', 'TOKO', 'NAMA NOO'] }
+        ]
+        : [
+            { label: 'OUTLET', aliases: ['OUTLET', 'NAMA OUTLET', 'NAMA TOKO', 'TOKO', 'NAMA NOO'] }
+        ];
+    const cols = [];
+    for (let d = 0; d < defs.length; d++) {
+        const idx = _noobyTVDFindCol(headers, defs[d].aliases);
+        if (idx >= 0) cols.push({ label: defs[d].label, idx: idx });
+    }
+    return cols;
+}
+
+// Task 109b: apakah baris NOO milik user login? (kolom DSR dicocokkan dgn nama sales login)
+function _noobyTVDRowBelongsToUser(item) {
+    if (_noobyTVDIsAdminView()) return true;
+    const headers = globalNoobyTVDData.headers || [];
+    const di = _noobyTVDFindCol(headers, ['DSR', 'SALES', 'NAMA SALES']);
+    if (di < 0) return true;
+    const vals = item.values || [];
+    const val = String(di < vals.length && vals[di] != null ? vals[di] : '').trim().toUpperCase();
+    if (!val) return false;
+    const meSales = String(currentUser || '').trim().toUpperCase();
+    const meUser = String(currentUsernameInput || '').trim().toUpperCase();
+    return (!!meSales && val === meSales) || (!!meUser && val === meUser);
+}
+
+// Task 109b: baris milik user login (sebelum filter pencarian).
+function _noobyTVDUserRows() {
+    const rows = globalNoobyTVDData.rows || [];
+    return rows.filter(function(item) { return _noobyTVDRowBelongsToUser(item); });
+}
+
+function renderNoobyTVDTable(rows) {
+    const head = document.getElementById('noobyTVDHead');
+    const body = document.getElementById('noobyTVDBody');
+    const count = document.getElementById('noobyTVDCount');
+    if (!head || !body) return;
+    const cols = _noobyTVDDisplayCols();
+    const colspan = cols.length + 1;
+    head.innerHTML = '<tr class="bg-slate-100 text-slate-700 border-b border-slate-200">' +
+        '<th class="p-2.5 font-bold whitespace-nowrap">NO</th>' +
+        cols.map(function(c) { return '<th class="p-2.5 font-bold whitespace-nowrap">' + _noobyTVDEscape(c.label) + '</th>'; }).join('') +
+        '</tr>';
+    if (!rows.length) {
+        body.innerHTML = '<tr><td colspan="' + colspan + '" class="text-slate-400 text-center py-10">Tidak ada data NOO TVD untuk user ini.</td></tr>';
+        if (count) count.textContent = '0 data NOO';
+        return;
+    }
+    body.innerHTML = rows.map(function(item, rowIndex) {
+        const values = item.values || [];
+        const rn = Number(item.rowNumber);
+        const isReady = !!item.ready;
+        const rowTitle = isReady
+            ? 'Customer sudah terdaftar - klik untuk langsung ke Input Order'
+            : 'Klik untuk menambahkan customer dari data NOO ini';
+        return '<tr data-noo-row="' + rn + '" tabindex="0" role="button" onclick="openNoobyTVDCustomer(' + rn + ')" onkeydown="if(event.key===&quot;Enter&quot; || event.key===&quot; &quot;){event.preventDefault();openNoobyTVDCustomer(' + rn + ')}" class="border-b border-slate-100 hover:bg-emerald-50/50 focus:bg-emerald-50 transition cursor-pointer" title="' + rowTitle + '">' +
+            '<td class="p-2.5 align-top text-slate-400 whitespace-nowrap">' + (rowIndex + 1) + '</td>' +
+            cols.map(function(c) {
+                const rawVal = c.idx < values.length && values[c.idx] != null ? values[c.idx] : '';
+                const badge = ''; // Task 116: badge terdaftar dihilangkan (fungsi klik/routing tidak berubah)
+                return '<td class="p-2.5 align-top text-slate-700">' + _noobyTVDEscape(rawVal) + badge + '</td>';
+            }).join('') +
+        '</tr>';
+    }).join('');
+    if (count) count.textContent = rows.length.toLocaleString('id-ID') + ' data NOO';
+}
+
+// Task 117: indeks kolom DSR pada data NOO TVD (untuk filter admin).
+function _noobyTVDDsrColIdx() {
+    const headers = globalNoobyTVDData.headers || [];
+    return _noobyTVDFindCol(headers, ['DSR', 'SALES', 'NAMA SALES', 'NAMA SALES/DSR']);
+}
+
+// Task 117: isi dropdown Filter DSR (hanya tampil utk login admin) dari nilai unik kolom DSR.
+function _noobyTVDBuildDsrFilter() {
+    const wrap = document.getElementById('noobyTVDDsrFilterWrap');
+    const sel = document.getElementById('noobyTVDDsrFilter');
+    if (!wrap || !sel) return;
+    const show = _noobyTVDIsAdminView() && _noobyTVDDsrColIdx() >= 0;
+    wrap.classList.toggle('hidden', !show);
+    if (!show) { sel.value = ''; return; }
+    const di = _noobyTVDDsrColIdx();
+    const seen = {};
+    const vals = [];
+    (globalNoobyTVDData.rows || []).forEach(function(item) {
+        const vr = item.values || [];
+        const v = String(di < vr.length && vr[di] != null ? vr[di] : '').trim();
+        if (!v) return;
+        const key = v.toUpperCase();
+        if (seen[key]) return;
+        seen[key] = true;
+        vals.push(v);
+    });
+    vals.sort(function(a, b) { return a.localeCompare(b); });
+    const old = String(sel.value || '').toUpperCase();
+    sel.innerHTML = '<option value="">Semua DSR</option>' + vals.map(function(v) {
+        return '<option value="' + _noobyTVDEscape(v) + '">' + _noobyTVDEscape(v) + '</option>';
+    }).join('');
+    if (old) {
+        for (let oi = 0; oi < sel.options.length; oi++) {
+            if (String(sel.options[oi].value).toUpperCase() === old) { sel.value = sel.options[oi].value; break; }
+        }
+    }
+}
+
+// Task 117: reset Filter DSR ke "Semua DSR".
+function resetNoobyTVDDsrFilter() {
+    const sel = document.getElementById('noobyTVDDsrFilter');
+    if (sel) sel.value = '';
+    filterNoobyTVD();
+}
+
+function filterNoobyTVD() {
+    const input = document.getElementById('searchNoobyTVD');
+    const q = String(input && input.value ? input.value : '').toLowerCase().trim();
+    // Task 117: terapkan Filter DSR (dropdown di atas tabel) sebelum pencarian teks.
+    // Task 117b: hanya utk view admin - non-admin tidak pernah difilter DSR.
+    const dsrSel = document.getElementById('noobyTVDDsrFilter');
+    const dsrQ = _noobyTVDIsAdminView() && dsrSel ? String(dsrSel.value || '').trim().toUpperCase() : '';
+    const dsrIdx = dsrQ ? _noobyTVDDsrColIdx() : -1;
+    let baseRows = _noobyTVDUserRows();
+    if (dsrQ && dsrIdx >= 0) {
+        baseRows = baseRows.filter(function(item) {
+            const vr = item.values || [];
+            const dv = String(dsrIdx < vr.length && vr[dsrIdx] != null ? vr[dsrIdx] : '').trim().toUpperCase();
+            return dv === dsrQ;
+        });
+    }
+    if (!q) { renderNoobyTVDTable(baseRows); return; }
+    const filtered = baseRows.filter(function(item) {
+        return (item.values || []).some(function(v) {
+            return String(v == null ? '' : v).toLowerCase().indexOf(q) !== -1;
+        });
+    });
+    renderNoobyTVDTable(filtered);
+}
+
+// Petakan kolom sheet NOO by TVD -> kolom form Tambah Customer (berdasar nama header).
+function _noobyTVDBuildPrefill(row) {
+    const outletHeaders = globalTambahCustomerData.headers || [];
+    const nooHeaders = globalNoobyTVDData.headers || [];
+    const nooVals = (row && row.values) || [];
+    const prefill = new Array(outletHeaders.length).fill('');
+    function mapField(outletAliases, nooAliases) {
+        const oi = _customerFieldIndexClient(outletHeaders, outletAliases);
+        if (oi < 0) return;
+        const ni = _customerFieldIndexClient(nooHeaders, nooAliases);
+        if (ni < 0) return;
+        prefill[oi] = String(nooVals[ni] == null ? '' : nooVals[ni]).trim();
+    }
+    mapField(['OUTLET', 'NAMA OUTLET'], ['OUTLET', 'NAMA OUTLET', 'NAMA TOKO', 'TOKO', 'NAMA NOO']);
+    mapField(['CHANNEL', 'CHANNEL OUTLET'], ['CHANNEL', 'CHANNEL OUTLET']);
+    mapField(['DSR', 'SALES', 'NAMA SALES'], ['DSR', 'SALES', 'NAMA SALES']);
+    mapField(['NOMOR HANDPHONE', 'NO HANDPHONE', 'NO. HANDPHONE', 'NO HP', 'NO. HP', 'HANDPHONE', 'PHONE', 'TELEPON', 'TELP'], ['NOMOR HANDPHONE', 'NO HANDPHONE', 'NO. HANDPHONE', 'NO HP', 'NO. HP', 'HANDPHONE', 'PHONE', 'TELEPON', 'TELP']);
+    mapField(['MAPS', 'GOOGLE MAPS', 'LOCATION', 'LOKASI', 'KOORDINAT'], ['MAPS', 'GOOGLE MAPS', 'LOCATION', 'LOKASI', 'KOORDINAT']);
+    mapField(['DAY VISIT'], ['DAY VISIT', 'HARI VISIT']);
+    return prefill;
+}
+
+function _noobyTVDMasterReady() {
+    return (globalTambahCustomerFormMaster.headers || []).length > 0 &&
+        String(globalTambahCustomerFormMaster.salesName || '').trim().toUpperCase() === String(currentUser || '').trim().toUpperCase();
+}
+
+function noobyTVDAwaitCustomerData(tries, cb) {
+    const headersOk = (globalTambahCustomerData.headers || []).length > 0;
+    if (headersOk && _noobyTVDMasterReady()) { cb(); return; }
+    if (Number(tries || 0) > 60) {
+        showLoading(false);
+        if (headersOk) { cb(); return; } // master lambat: tetap buka form, dropdown bisa kosong
+        showModal('Gagal', 'Data OUTLET belum selesai dimuat. Silakan coba lagi.');
+        return;
+    }
+    setTimeout(function() { noobyTVDAwaitCustomerData(Number(tries || 0) + 1, cb); }, 250);
+}
+
+function openNoobyTVDCustomer(rowNumber) {
+    const row = (globalNoobyTVDData.rows || []).find(function(item) { return Number(item.rowNumber) === Number(rowNumber); });
+    if (!row) {
+        showModal('Gagal', 'Data NOO tidak ditemukan. Silakan refresh halaman.');
+        return;
+    }
+    const nooHeaders = globalNoobyTVDData.headers || [];
+    const nooVals = row.values || [];
+    const oiDir = _noobyTVDFindCol(nooHeaders, ['OUTLET', 'NAMA OUTLET', 'NAMA TOKO', 'TOKO']);
+    const diDir = _noobyTVDFindCol(nooHeaders, ['DSR', 'SALES', 'NAMA SALES']);
+    let outletDir = String(oiDir >= 0 && oiDir < nooVals.length && nooVals[oiDir] != null ? nooVals[oiDir] : '').trim();
+    let dsrDir = String(diDir >= 0 && diDir < nooVals.length && nooVals[diDir] != null ? nooVals[diDir] : '').trim();
+    if (!dsrDir && !_noobyTVDIsAdminView()) dsrDir = String(currentUser || '').trim();
+    const goDirectInput = function(info) {
+        let od = outletDir;
+        if (info && info.custName) od = String(info.custName).trim();
+        try { console.log('[NOO v113] outlet terdaftar (CUST.CODE ' + String((info && info.custCode) || row.custCode || '') + '), langsung ke Input Order: ' + od); } catch (eDir) {}
+        noobyTVDGotoInputOrder(od, dsrDir);
+    };
+    // Task 110: jika CUST.CODE sudah sama di sheet OUTLET & sheet OUTLET by TVD
+    // (baris ditandai ready oleh backend), langsung ke Input Order tanpa form
+    // Tambah Customer.
+    if (row.ready) {
+        goDirectInput(row);
+        return;
+    }
+    // Task 111: baris belum bertanda ready -> verifikasi ulang LANGSUNG ke server
+    // (checkNoobyTVDOutletReady, bypass cache daftar NOO). Bila outlet ternyata
+    // sudah terdaftar (CUST.CODE sama di sheet OUTLET & OUTLET by TVD, atau nama
+    // outlet sudah ada di sheet OUTLET), langsung ke Input Order tanpa membuka
+    // form Tambah Customer.
+    if (outletDir) {
+        showLoading(true);
+        google.script.run
+            .withSuccessHandler(function(resReady) {
+                showLoading(false);
+                if (resReady && resReady.success && resReady.ready) { goDirectInput(resReady); return; }
+                _noobyTVDOpenCustomerFormAfterCheck(row);
+            })
+            .withFailureHandler(function(errReady) {
+                showLoading(false);
+                try { console.warn('[NOO v113] cek terdaftar gagal, buka form Tambah Customer: ' + (errReady && errReady.message ? errReady.message : errReady)); } catch (eChk) {}
+                _noobyTVDOpenCustomerFormAfterCheck(row);
+            })
+            .checkNoobyTVDOutletReady(outletDir);
+        return;
+    }
+    _noobyTVDOpenCustomerFormAfterCheck(row);
+}
+
+// Task 111: lanjutan buka form Tambah Customer (pastikan master form siap dulu).
+function _noobyTVDOpenCustomerFormAfterCheck(row) {
+    if (!(globalTambahCustomerData.headers || []).length || !_noobyTVDMasterReady()) {
+        showLoading(true);
+        if (!(globalTambahCustomerData.headers || []).length) loadTambahCustomer(true, true);
+        else loadTambahCustomerFormMaster();
+        noobyTVDAwaitCustomerData(0, function() {
+            showLoading(false);
+            _noobyTVDOpenCustomerForm(row);
+        });
+        return;
+    }
+    _noobyTVDOpenCustomerForm(row);
+}
+
+function _noobyTVDOpenCustomerForm(row) {
+    const prefill = _noobyTVDBuildPrefill(row);
+    try { console.log('[NOO v113] buka form Tambah Customer dari baris NOO ' + row.rowNumber); } catch (eLog2) {}
+    openTambahCustomerForm(0, prefill, true);
+}
+
+// Setelah customer disimpan dari List NOO TVD: buka halaman Input Order,
+// refresh opsi outlet (termasuk customer baru), lalu pilih outlet tersebut otomatis.
+function noobyTVDGotoInputOrder(outletName, salesName) {
+    outletName = String(outletName == null ? '' : outletName).trim();
+    salesName = String(salesName == null ? '' : salesName).trim();
+    const isAdminLogin = String(currentUsernameInput || '').trim().toLowerCase() === 'admin';
+    try { console.log('[NOO v113] lanjut ke Input Order, outlet=' + outletName + ', sales=' + salesName); } catch (eLog3) {}
+    if (isAdminLogin && salesName) {
+        const fs = document.getElementById('filterInputSales');
+        if (fs) {
+            let ada = false;
+            for (let i = 0; i < fs.options.length; i++) {
+                if (String(fs.options[i].value || '').trim().toUpperCase() === salesName.toUpperCase()) { ada = true; break; }
+            }
+            if (!ada) fs.append(new Option(salesName, salesName));
+            fs.value = salesName;
+            if (typeof refreshSelect2 === 'function') { try { refreshSelect2('#filterInputSales'); } catch (eRf) {} }
+        }
+    }
+    // Task 112: daftarkan target auto-select. Diterapkan ulang setiap kali daftar
+    // outlet selesai dimuat, karena muat ulang dropdown bisa mengosongkan pilihan
+    // yang sudah dibuat poll sebelumnya (penyebab outlet tidak terisi otomatis).
+    window._noobyTVDOutletPending = outletName ? {
+        outlet: outletName,
+        expires: Date.now() + 90000
+    } : null;
+    loadOutletForSales(currentUser, currentUsernameInput);
+    switchTab('input');
+    noobyTVDPollSelectOutlet(outletName, 0);
+}
+
+function _noobyTVDNormOutletOpt(v) {
+    return String(v == null ? '' : v).replace(/\s+/g, ' ').trim().toUpperCase();
+}
+
+// Task 112: terapkan auto-select outlet pending ke dropdown Input Order.
+// Pencocokan tahan beda spasi/kapital, mencocokkan value ATAU teks option.
+// Pending TIDAK dihapus saat berhasil -> bila dropdown dimuat ulang (response
+// getOutletsBySales/getAllOutlets datang belakangan dan mengosongkan select),
+// pilihan otomatis diterapkan kembali oleh hook di handler load outlet.
+function noobyTVDApplyPendingOutlet() {
+    const pending = window._noobyTVDOutletPending;
+    if (!pending || !String(pending.outlet || '').trim()) return false;
+    if (Date.now() > Number(pending.expires || 0)) { window._noobyTVDOutletPending = null; return false; }
+    const sel = document.getElementById('inputOutlet');
+    if (!sel) return false;
+    const target = _noobyTVDNormOutletOpt(pending.outlet);
+    let foundVal = '';
+    for (let i = 0; i < sel.options.length; i++) {
+        const ov = _noobyTVDNormOutletOpt(sel.options[i].value);
+        const ot = _noobyTVDNormOutletOpt(sel.options[i].text);
+        if ((ov && ov === target) || (ot && ot === target)) { foundVal = sel.options[i].value || sel.options[i].text; break; }
+    }
+    if (!foundVal) return false;
+    if (String(sel.value || '') === String(foundVal)) return true; // sudah terpilih
+    window._noobyTVDSuppressOutletChange = true;
+    try {
+        sel.value = foundVal;
+        if (typeof refreshSelect2 === 'function') { try { refreshSelect2('#inputOutlet'); } catch (eRf2) {} }
+        if (typeof onOutletChange === 'function') { try { onOutletChange(); } catch (eOc) {} }
+        try { console.log('[NOO v113] outlet terisi otomatis di Input Order: ' + pending.outlet); } catch (eLog4) {}
+    } finally {
+        setTimeout(function() { window._noobyTVDSuppressOutletChange = false; }, 0);
+    }
+    return true;
+}
+
+function noobyTVDPollSelectOutlet(outletName, tries) {
+    if (!outletName) return;
+    const pending = window._noobyTVDOutletPending;
+    if (!pending || Date.now() > Number(pending.expires || 0)) { window._noobyTVDOutletPending = null; return; }
+    if (noobyTVDApplyPendingOutlet()) return; // pending tetap aktif utk re-apply saat dropdown dimuat ulang
+    if (Number(tries || 0) > 360) {
+        console.warn('[NOO v113] outlet belum muncul di dropdown Input Order (timeout):', outletName);
+        return;
+    }
+    setTimeout(function() { noobyTVDPollSelectOutlet(outletName, Number(tries || 0) + 1); }, 250);
+}
+
+// Task 113: pending auto-select hanya dibatalkan bila user memilih outlet LAIN
+// (nilai non-kosong & beda dari target). Nilai kosong = efek rebuild programatik
+// (select di-empty lalu refreshSelect2 memicu change) -> pending dipertahankan
+// agar hook re-apply bisa mengisi ulang setelah daftar selesai dimuat.
+if (window.jQuery) {
+    window.jQuery(document).off('change.noobyTvdAuto').on('change.noobyTvdAuto', '#inputOutlet', function() {
+        if (window._noobyTVDSuppressOutletChange) return;
+        const pendingChk = window._noobyTVDOutletPending;
+        if (!pendingChk) return;
+        const vNow = _noobyTVDNormOutletOpt(this.value);
+        if (!vNow || vNow === _noobyTVDNormOutletOpt(pendingChk.outlet)) return;
+        window._noobyTVDOutletPending = null;
+    });
+}
+</script>
 
 <script id="pengumuman-minimal-js">
 /* ================= PENGUMUMAN - ADD-ON MINIMAL ================= */
